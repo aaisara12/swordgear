@@ -40,6 +40,7 @@ platform :ios do
     update_code_signing_settings(
       use_automatic_signing: false,
       team_id: ENV["sigh_#{ENV['IOS_BUNDLE_ID']}_adhoc_team-id"],
+      bundle_identifier: ENV['IOS_BUNDLE_ID'],
       code_sign_identity: 'iPhone Distribution',
       targets: 'Unity-iPhone',
       path: "#{ENV['IOS_BUILD_PATH']}/iOS/Unity-iPhone.xcodeproj",
