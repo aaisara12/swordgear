@@ -5,35 +5,29 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] float speed = 3f;
-    [SerializeField] SwordController sword;
-    [SerializeField] GearController gear;
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private SwordController sword;
+    [SerializeField] private GearController gear;
 
-    Rigidbody2D rb;
-    void Start()
+    private Rigidbody2D rb;
+    
+    private void Start()
     {
         rb = this.GetComponent<Rigidbody2D>();
     }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
-
-    void OnMove(InputValue value)
+    
+    private void OnMove(InputValue value)
     {
         Vector2 v = value.Get<Vector2>();
         rb.linearVelocity = v * speed;
     }
 
-    void OnAction()
+    private void OnAction()
     {
         sword.MoveSword(transform.position);
     }
 
-    void OnRotate(InputValue value)
+    private void OnRotate(InputValue value)
     {
         gear.Rotate(value.Get<float>());
     }

@@ -3,31 +3,30 @@ using System.Collections;
 
 public class EnemySpawner : MonoBehaviour
 {
+    [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private Transform spawnPointTopLeft;
+    [SerializeField] private Transform spawnPointBottomRight;
+    [SerializeField] private GameObject player;
 
-    [SerializeField] GameObject enemyPrefab;
-    [SerializeField] Transform spawnPointTopLeft;
-    [SerializeField] Transform spawnPointBottomRight;
-    [SerializeField] GameObject player;
-
-    [SerializeField] int[] enemiesPerWave;
-    [SerializeField] float minSpawnDelay = 0.5f;
-    [SerializeField] float maxSpawnDelay = 2f;
-    [SerializeField] float minSpawnDistanceFromPlayer = 3f;
+    [SerializeField] private int[] enemiesPerWave;
+    [SerializeField] private float minSpawnDelay = 0.5f;
+    [SerializeField] private float maxSpawnDelay = 2f;
+    [SerializeField] private float minSpawnDistanceFromPlayer = 3f;
 
     private int currentWave = 0;
     private int enemiesAlive = 0;
 
-    Vector2 topLeftSpawningBound;
-    Vector2 bottomRightSpawningBound;
+    private Vector2 topLeftSpawningBound;
+    private Vector2 bottomRightSpawningBound;
 
-    void Start()
+    private void Start()
     {
         topLeftSpawningBound = spawnPointTopLeft.position;
         bottomRightSpawningBound = spawnPointBottomRight.position;
         StartCoroutine(StartWave());
     }
 
-    IEnumerator StartWave()
+    private IEnumerator StartWave()
     {
         while (currentWave < enemiesPerWave.Length)
         {
@@ -37,7 +36,7 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-    IEnumerator SpawnWave(int waveIndex)
+    private IEnumerator SpawnWave(int waveIndex)
     {
         int enemyCount = enemiesPerWave[waveIndex];
 
@@ -49,15 +48,14 @@ public class EnemySpawner : MonoBehaviour
         }
     }
 
-
-
-    Vector2 GetRandomLocationBetween(Vector3 position1, Vector3 position2)
+    private Vector2 GetRandomLocationBetween(Vector3 position1, Vector3 position2)
     {
         float randomX = Random.Range(position1.x, position2.x);
         float randomY = Random.Range(position1.y, position2.y);
         return new Vector2(randomX, randomY);
     }
-    void SpawnEnemy()
+    
+    private void SpawnEnemy()
     {
 
         Vector2 spawnLocation = GetRandomLocationBetween(topLeftSpawningBound, bottomRightSpawningBound);
@@ -73,7 +71,7 @@ public class EnemySpawner : MonoBehaviour
         enemy.GetComponent<EnemyController>().onDeath += EnemyDefeated;
     }
 
-    void EnemyDefeated()
+    private void EnemyDefeated()
     {
         enemiesAlive--;
     }

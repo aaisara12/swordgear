@@ -3,28 +3,19 @@ using System;
 
 public class EnemyController : MonoBehaviour
 {
-
-    [SerializeField] private GameObject player;
-
-    [SerializeField] float speed = 2f;
-
-    Rigidbody2D rb;
-
-    [SerializeField] float hp = 10f;
-
     public event Action onDeath;
+    
+    [SerializeField] private GameObject player;
+    [SerializeField] private float speed = 2f;
+    [SerializeField] private float hp = 10f;
+    
+    private Rigidbody2D rb;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
-    void Start()
+    private void Start()
     {
         player = GameManager.Instance.player;
         rb = GetComponent<Rigidbody2D>();
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     private void FixedUpdate()
@@ -32,7 +23,7 @@ public class EnemyController : MonoBehaviour
         Move(player.transform.position);
     }
 
-    void Move(Vector2 target)
+    private void Move(Vector2 target)
     {
         Vector2 position = transform.position;
         Vector2 direction = (target - position).normalized;
