@@ -32,7 +32,7 @@ public class SwordController : MonoBehaviour
         rb.linearVelocity = pullDirection * speed;
     }
 
-    public float getDamage()
+    public float GetDamage()
     {
         // add multipliers in the future
         return damage;

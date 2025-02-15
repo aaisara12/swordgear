@@ -39,7 +39,7 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        float damage = collision.gameObject.GetComponent<SwordController>().getDamage();
+        float damage = collision.gameObject.GetComponent<SwordController>().GetDamage();
         TakeDamage(damage);
     }
 
