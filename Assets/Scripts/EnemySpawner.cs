@@ -1,14 +1,18 @@
+#nullable enable
+
+using System;
 using UnityEngine;
 using System.Collections;
+using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
-    [SerializeField] private GameObject enemyPrefab;
-    [SerializeField] private Transform spawnPointTopLeft;
-    [SerializeField] private Transform spawnPointBottomRight;
-    [SerializeField] private GameObject player;
+    [SerializeField] private GameObject? enemyPrefab;
+    [SerializeField] private Transform? spawnPointTopLeft;
+    [SerializeField] private Transform? spawnPointBottomRight;
+    [SerializeField] private GameObject? player;
 
-    [SerializeField] private int[] enemiesPerWave;
+    [SerializeField] private int[] enemiesPerWave = Array.Empty<int>();
     [SerializeField] private float minSpawnDelay = 0.5f;
     [SerializeField] private float maxSpawnDelay = 2f;
     [SerializeField] private float minSpawnDistanceFromPlayer = 3f;
@@ -18,9 +22,12 @@ public class EnemySpawner : MonoBehaviour
 
     private Vector2 topLeftSpawningBound;
     private Vector2 bottomRightSpawningBound;
-
+    
     private void Start()
     {
+        spawnPointTopLeft.ThrowIfNull(nameof(spawnPointTopLeft));
+        spawnPointBottomRight.ThrowIfNull(nameof(spawnPointBottomRight));
+        
         topLeftSpawningBound = spawnPointTopLeft.position;
         bottomRightSpawningBound = spawnPointBottomRight.position;
         StartCoroutine(StartWave());
@@ -57,7 +64,9 @@ public class EnemySpawner : MonoBehaviour
     
     private void SpawnEnemy()
     {
-
+        player.ThrowIfNull(nameof(player));
+        enemyPrefab.ThrowIfNull(nameof(enemyPrefab));
+        
         Vector2 spawnLocation = GetRandomLocationBetween(topLeftSpawningBound, bottomRightSpawningBound);
         Vector2 playerPosition = player.transform.position;
         while(Vector2.Distance(spawnLocation, playerPosition) < minSpawnDistanceFromPlayer)
@@ -68,7 +77,7 @@ public class EnemySpawner : MonoBehaviour
         GameObject enemy = Instantiate(enemyPrefab, spawnLocation, Quaternion.identity);
 
         enemiesAlive++;
-        enemy.GetComponent<EnemyController>().onDeath += EnemyDefeated;
+        enemy.GetComponent<EnemyController>().OnDeath += EnemyDefeated;
     }
 
     private void EnemyDefeated()

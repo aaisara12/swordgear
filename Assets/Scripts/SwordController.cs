@@ -1,21 +1,22 @@
-using System;
+#nullable enable
+
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class SwordController : MonoBehaviour
 {
     [SerializeField] private float speed = 5f;
     [SerializeField] private float angleModifier;
-    [SerializeField] private Transform gear;
-    [SerializeField] private Transform player;
+    [SerializeField] private Transform? gear;
+    [SerializeField] private Transform? player;
     
     private bool canMove;
-    private Rigidbody2D rb;
+    private Rigidbody2D? rb;
     private float damage = 1f;
     private Vector3 lastPlayerPosition;
     
     public void MoveSword(Vector2 playerPosition)
     {
+        rb.ThrowIfNull(nameof(rb));
 
         if(canMove == false)
         {
@@ -39,6 +40,8 @@ public class SwordController : MonoBehaviour
     
     private void Start()
     {
+        player.ThrowIfNull(nameof(player));
+        
         lastPlayerPosition = player.position;
         canMove = true;
         rb = GetComponent<Rigidbody2D>();
@@ -56,12 +59,16 @@ public class SwordController : MonoBehaviour
 
     private void MoveWithPlayer()
     {
+        player.ThrowIfNull(nameof(player));
+        
         transform.position += player.position - lastPlayerPosition;
         lastPlayerPosition = player.position;
     }
 
     private void PointAtPlayer()
     {
+        player.ThrowIfNull(nameof(player));
+        
         Vector2 swordPosition = transform.position;
         Vector2 playerPosition = player.position;
         Vector2 pullDirection = (playerPosition - swordPosition).normalized;
@@ -71,6 +78,8 @@ public class SwordController : MonoBehaviour
 
     private void AttachToGear()
     {
+        player.ThrowIfNull(nameof(player));
+        
         if (gear != null)
         {
             transform.parent = gear;

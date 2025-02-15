@@ -1,15 +1,15 @@
-using System.Runtime.CompilerServices;
+#nullable enable
+
 using UnityEngine;
 using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.DebugUI;
 
 public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float speed = 3f;
-    [SerializeField] private SwordController sword;
-    [SerializeField] private GearController gear;
+    [SerializeField] private SwordController? sword;
+    [SerializeField] private GearController? gear;
 
-    private Rigidbody2D rb;
+    private Rigidbody2D? rb;
     
     private void Start()
     {
@@ -18,17 +18,23 @@ public class PlayerController : MonoBehaviour
     
     private void OnMove(InputValue value)
     {
+        rb.ThrowIfNull(nameof(rb));
+        
         Vector2 v = value.Get<Vector2>();
         rb.linearVelocity = v * speed;
     }
 
     private void OnAction()
     {
+        sword.ThrowIfNull(nameof(sword));
+        
         sword.MoveSword(transform.position);
     }
 
     private void OnRotate(InputValue value)
     {
+        gear.ThrowIfNull(nameof(gear));
+        
         gear.Rotate(value.Get<float>());
     }
 }
