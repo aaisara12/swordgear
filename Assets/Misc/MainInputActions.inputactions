@@ -146,8 +146,8 @@
                 },
                 {
                     "name": "",
-                    "id": "88ba508f-021f-43d4-b0ea-c358cbc932fb",
-                    "path": "<Touchscreen>/primaryTouch/tap",
+                    "id": "18037fe4-6a9a-4adc-b1ba-f4673f5edffe",
+                    "path": "<Gamepad>/buttonSouth",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
