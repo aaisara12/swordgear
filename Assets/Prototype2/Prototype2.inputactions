@@ -1,0 +1,65 @@
+{
+    "name": "Prototype2",
+    "maps": [
+        {
+            "name": "Player",
+            "id": "93cc8ace-d69f-4cd0-8ce5-e91f595e2950",
+            "actions": [
+                {
+                    "name": "Drag",
+                    "type": "Value",
+                    "id": "1baa33cc-fff9-4c57-a093-9d0a61e449e7",
+                    "expectedControlType": "Vector2",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "Reset",
+                    "type": "Button",
+                    "id": "0302ec7a-afb5-4bd7-a556-d84af49b19cc",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                }
+            ],
+            "bindings": [
+                {
+                    "name": "",
+                    "id": "6e881253-48ee-490a-bb8b-d01f8bd04c2d",
+                    "path": "<Mouse>/delta",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Drag",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9aa84339-7597-4b83-82f3-b39464afe452",
+                    "path": "",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "661397b7-fc78-4c48-8131-83a685ddc1c0",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Reset",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                }
+            ]
+        }
+    ],
+    "controlSchemes": []
+}
