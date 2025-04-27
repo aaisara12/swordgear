@@ -26,18 +26,28 @@ public class Bumper : MonoBehaviour
     //    rb.linearVelocity = reflectedVelocity;
     //}
 
+    Vector2 GetVelocity(Collision2D col)
+    {
+        BallController bc = col.transform.GetComponent<BallController>();
+        SwordProjectile sw = col.transform.GetComponent<SwordProjectile>();
+        if (bc)
+            return bc.prevVelocity;
+        if (sw)
+            return sw.prevVelocity;
+        return Vector2.zero;
+    }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Rigidbody2D rb = collision.rigidbody;
-        BallController bc = collision.transform.GetComponent<BallController>();
-        if (!rb || !bc)
+        if (!rb)
         {
             return;
         }
         Debug.Log(collision.gameObject.name);
 
-        Vector2 incomingVelocity = bc.prevVelocity;
+        Vector2 incomingVelocity = GetVelocity(collision);
         Vector2 normal = collision.contacts[0].normal;
         Vector2 reflectedVelocity = Vector2.Reflect(incomingVelocity, normal) * forceMultiplier;
 

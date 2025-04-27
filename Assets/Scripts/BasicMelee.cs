@@ -61,4 +61,12 @@ public class BasicMelee : MonoBehaviour, IMeleeWeapon
         StartCoroutine(Swing());
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Enemy"))
+        {
+            EnemyController enemy = collision.GetComponent<EnemyController>();
+            enemy.TakeDamage(1);
+        }
+    }
 }

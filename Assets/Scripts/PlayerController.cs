@@ -7,6 +7,8 @@ public class PlayerController : MonoBehaviour
 {
     [SerializeField] private float attackRadius = 5f;
     [SerializeField] private float dashFactor = 0.2f;
+    [SerializeField] private float projectileSpeed = 5f;
+    [SerializeField] private float flickThreshold = 50f;
 
     [SerializeField] private float speed = 3f;
     [SerializeField] private SwordController? sword;
@@ -63,6 +65,11 @@ public class PlayerController : MonoBehaviour
         weapon.Strike(transform);
     }
 
+    void SwordThrow(Vector2 direction)
+    {
+        SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
+    }
+
     private void OnMove(InputValue value)
     {
         rb.ThrowIfNull(nameof(rb));
@@ -74,6 +81,16 @@ public class PlayerController : MonoBehaviour
     private void OnAction()
     {
         MeleeAttack();
+    }
+
+    private void OnFlick(InputValue value)
+    {
+        Vector2 input = value.Get<Vector2>();
+
+        if (input.magnitude >= flickThreshold)
+        {
+            SwordThrow(input.normalized);
+        }
     }
 
 }
