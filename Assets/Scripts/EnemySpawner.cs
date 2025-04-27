@@ -7,6 +7,9 @@ using Random = UnityEngine.Random;
 
 public class EnemySpawner : MonoBehaviour
 {
+
+    public static EnemySpawner? Instance { get; private set; }
+
     [SerializeField] private GameObject? enemyPrefab;
     [SerializeField] private Transform? spawnPointTopLeft;
     [SerializeField] private Transform? spawnPointBottomRight;
@@ -22,7 +25,15 @@ public class EnemySpawner : MonoBehaviour
 
     private Vector2 topLeftSpawningBound;
     private Vector2 bottomRightSpawningBound;
-    
+
+    private void Awake()
+    {
+        if (Instance == null)
+            Instance = this;
+        else
+            Destroy(gameObject);
+    }
+
     private void Start()
     {
         spawnPointTopLeft.ThrowIfNull(nameof(spawnPointTopLeft));
@@ -30,9 +41,13 @@ public class EnemySpawner : MonoBehaviour
         
         topLeftSpawningBound = spawnPointTopLeft.position;
         bottomRightSpawningBound = spawnPointBottomRight.position;
-        StartCoroutine(StartWave());
     }
 
+    // TODO: scale difficulty with level
+    public void StartLevel()
+    {
+        StartCoroutine(StartWave());
+    }
     private IEnumerator StartWave()
     {
         while (currentWave < enemiesPerWave.Length)
