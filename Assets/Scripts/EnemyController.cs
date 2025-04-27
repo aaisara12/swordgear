@@ -2,6 +2,7 @@
 
 using UnityEngine;
 using System;
+using TMPro;
 
 public class EnemyController : MonoBehaviour
 {
@@ -9,9 +10,13 @@ public class EnemyController : MonoBehaviour
     
     [SerializeField] private GameObject? player;
     [SerializeField] private float speed = 2f;
-    [SerializeField] private float hp = 10f;
+    [SerializeField] private float hp = 100f;
     
     private Rigidbody2D? rb;
+
+    public Element element = Element.Physical;
+
+    public GameObject? floatingPoints;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     private void Start()
@@ -39,13 +44,19 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        float damage = collision.gameObject.GetComponent<SwordController>().GetDamage();
+        float damage = collision.gameObject.GetComponent<SwordController>().ApplyDamage(element);
         TakeDamage(damage);
     }
 
     private void TakeDamage(float damage)
     {
         hp -= damage;
+        if (floatingPoints != null)
+        {
+            GameObject points = Instantiate(floatingPoints, transform.position, Quaternion.identity);
+            points.transform.GetChild(0).GetComponent<TextMeshPro>().text = damage.ToString();
+
+        }
         if (hp <= 0f)
         {
             Die();

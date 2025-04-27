@@ -1,6 +1,8 @@
 #nullable enable
 
 using UnityEngine;
+using System.Collections.Generic;
+using System.Collections;
 
 public class SwordController : MonoBehaviour
 {
@@ -32,10 +34,19 @@ public class SwordController : MonoBehaviour
         rb.linearVelocity = pullDirection * speed;
     }
 
-    public float GetDamage()
+    public float ApplyDamage(Element enemyElement)
     {
         // add multipliers in the future
-        return damage;
+        float finalDamage = damage;
+        // Apply all embue multipliers
+        foreach (Embue embue in currentEmbues)
+        {
+            finalDamage *= embue.damageMultiplier;
+        }
+
+        // apply elemental multiplier
+        finalDamage *= ElementalInteractions.interactionMatrix[mostRecentElement][enemyElement];
+        return finalDamage;
     }
     
     private void Start()
@@ -97,7 +108,79 @@ public class SwordController : MonoBehaviour
             canMove = false;
         }
     }
-    
+
+    private List<Embue> currentEmbues = new List<Embue>();
+    private Element mostRecentElement = Element.Physical;
+    private Dictionary<Embue, Coroutine> activeEmbueTimers = new Dictionary<Embue, Coroutine>();
+
+    // --- NEW: Method to Apply Embue Effects ---
+    public void ApplyEmbue(Embue embueSource)
+    {
+
+        Embue existingEmbue = currentEmbues.Find(embue => embue.GetType() == embueSource.GetType());
+
+        // if list of embues already contains current type, just reset timer
+        if (existingEmbue != null && activeEmbueTimers.TryGetValue(existingEmbue, out Coroutine existingCoroutine))
+        {
+            StopCoroutine(existingCoroutine);
+            activeEmbueTimers[existingEmbue] = StartCoroutine(EmbueTimer(existingEmbue));
+            Debug.Log($"Resetting timer for existing {embueSource.GetType().Name}");
+            return; // Exit, as we've reset the timer
+        }
+
+        if (embueSource is FireEmbue fireEmbue) // More robust check
+        {
+            mostRecentElement = Element.Fire;
+            Debug.Log("Applying fire embue"); // Diagnostic log
+
+            // handle burn damage later
+/*            currentBonusDamage = fireEmbue.fireDamage;
+            currentDamageType = DamageType.Fire;
+            canApplyBurn = true;
+            burnDamagePerSecond = fireEmbue.burnDPS;
+            burnDurationToApply = fireEmbue.burnDuration;*/
+
+/*            if (fireEmbue.fireEffectPrefab != null)
+            {
+                currentVisualEffectInstance = Instantiate(fireEmbue.fireEffectPrefab, transform);
+                currentVisualEffectInstance.transform.localPosition = Vector3.zero;
+            }*/
+        }
+
+        currentEmbues.Add(embueSource);
+        activeEmbueTimers.Add(embueSource, StartCoroutine(EmbueTimer(embueSource)));
+
+    }
+    private IEnumerator EmbueTimer(Embue embue)
+    {
+        yield return new WaitForSeconds(embue.effectDuration); // Wait for the duration
+
+        Debug.Log("Embue expired: " + embue.GetType().Name); // Debug message
+
+        // Remove the embue from the list
+        currentEmbues.Remove(embue);
+        if(currentEmbues.Count == 0)
+        {
+            mostRecentElement = Element.Physical;
+        }
+
+        // Reset the effects that were applied by this embue.  IMPORTANT!
+/*        if (embue is FireEmbue fireEmbue)
+        {
+            currentBonusDamage -= fireEmbue.fireDamage; // Remove the bonus
+            if (currentVisualEffectInstance != null)
+            {
+                Destroy(currentVisualEffectInstance); // Destroy the visual effect
+            }
+            // Consider how you want to handle burn.  Do you stop it immediately?
+            canApplyBurn = false; // Simplest: Stop burn.  You might have a system.
+            burnDamagePerSecond = 0f;
+            burnDurationToApply = 0f;
+        }*/
+        // Add logic for other embue types here
+        // else if (embue is WaterEmbue waterEmbue) { ... }
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         if (rb != null)

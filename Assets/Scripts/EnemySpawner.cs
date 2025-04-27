@@ -41,6 +41,7 @@ public class EnemySpawner : MonoBehaviour
         
         topLeftSpawningBound = spawnPointTopLeft.position;
         bottomRightSpawningBound = spawnPointBottomRight.position;
+        StartLevel();
     }
 
     // TODO: scale difficulty with level
