@@ -39,12 +39,19 @@ public class EnemyController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        float damage = collision.gameObject.GetComponent<SwordController>().GetDamage();
+        SwordController sc = collision.gameObject.GetComponent<SwordController>();
+        if (sc == null)
+        {
+            return;
+        }
+        float damage = sc.GetDamage();
         TakeDamage(damage);
     }
 
-    private void TakeDamage(float damage)
+    public void TakeDamage(float damage)
     {
+        if (GameManager.Instance)
+            GameManager.Instance.DisplayDamageUI(transform.position, damage);
         hp -= damage;
         if (hp <= 0f)
         {

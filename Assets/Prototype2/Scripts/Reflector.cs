@@ -4,17 +4,26 @@ public class Reflector : MonoBehaviour
 {
     // Weird naming, but Reflector redirects the ball towards the direction the reflector is facing, regardless of the incoming angle.
 
+    Vector2 GetVelocity(Collision2D col)
+    {
+        BallController bc = col.transform.GetComponent<BallController>();
+        SwordProjectile sw = col.transform.GetComponent<SwordProjectile>();
+        if (bc)
+            return bc.prevVelocity;
+        if (sw)
+            return sw.prevVelocity;
+        return Vector2.zero;
+    }
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
         Rigidbody2D rb = collision.rigidbody;
-        BallController bc = collision.transform.GetComponent<BallController>();
-        if (!rb || !bc)
+        if (!rb)
         {
             return;
         }
 
-        float mag = bc.prevVelocity.magnitude;
+        float mag = GetVelocity(collision).magnitude;
 
         rb.linearVelocity = transform.up * mag;
     }
