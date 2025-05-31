@@ -39,6 +39,7 @@ public class SwordProjectile : MonoBehaviour
     public void StartFlight(Vector3 position, Vector2 velocity)
     {
         transform.position = position;
+        transform.up = velocity.normalized;
         rb.linearVelocity = velocity;
         sprite.enabled = true;
         isFlying = true;
@@ -47,6 +48,7 @@ public class SwordProjectile : MonoBehaviour
     public void StopFlight()
     {
         rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0;
         sprite.enabled = false;
         isFlying = false;
     }

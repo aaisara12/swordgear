@@ -16,6 +16,14 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private GameObject? weaponObject;
 
+    public enum PlayerState
+    {
+        MeleeReady,
+        SwordThrown
+    }
+
+    PlayerState playerState = PlayerState.MeleeReady;
+
     IMeleeWeapon? weapon;
 
     private Rigidbody2D? rb;
@@ -30,6 +38,14 @@ public class PlayerController : MonoBehaviour
             Debug.LogError("Rigidbody2D component is missing!");
         }
         weapon = weaponObject.GetComponent<IMeleeWeapon>();
+    }
+
+    private void Start()
+    {
+        InputManager.OnReleaseInIdleZone += OnReleaseInIdle;
+        InputManager.OnReleaseInMoveZone += OnReleaseInMove;
+        InputManager.OnPressInIdleZone += OnTapInIdle;
+        InputManager.OnDragInIdleZone += OnHoldInIdle;
     }
 
     void MeleeAttack()
@@ -67,7 +83,12 @@ public class PlayerController : MonoBehaviour
 
     void SwordThrow(Vector2 direction)
     {
-        SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
+        if (playerState == PlayerState.MeleeReady)
+        {
+            SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
+            playerState = PlayerState.SwordThrown;
+        }
+        
     }
 
     private void OnMove(InputValue value)
@@ -78,18 +99,65 @@ public class PlayerController : MonoBehaviour
         rb.linearVelocity = v * speed;
     }
 
-    private void OnAction()
+    [SerializeField] ParticleSystem? recallParticles;
+    [SerializeField] float recallTime = 1f;
+    float curRecallTimer = 0f;
+
+    void RecallSword()
     {
-        MeleeAttack();
+        recallParticles.ThrowIfNull(nameof(recallParticles));
+
+        SwordProjectile.Instance.StopFlight();
+        playerState = PlayerState.MeleeReady;
+        recallParticles.Stop();
+        // Play effect
     }
 
-    private void OnFlick(InputValue value)
+    void CatchSword()
     {
-        Vector2 input = value.Get<Vector2>();
+        SwordProjectile.Instance.StopFlight();
+        playerState = PlayerState.MeleeReady;
+        // Add buffs
+    }
 
-        if (input.magnitude >= flickThreshold)
+    private void OnReleaseInIdle(Vector2 val)
+    {
+        if (playerState == PlayerState.MeleeReady)
         {
-            SwordThrow(input.normalized);
+            MeleeAttack();
+        }
+
+        if (playerState == PlayerState.SwordThrown &&
+            Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < 0.5f)
+        {
+            CatchSword();
+        }
+    }
+
+    private void OnReleaseInMove(Vector2 val)
+    {
+        SwordThrow(val.normalized);
+    }
+
+    private void OnTapInIdle(Vector2 val)
+    {
+        recallParticles.ThrowIfNull(nameof(recallParticles));
+        if (playerState == PlayerState.SwordThrown)
+        {
+            curRecallTimer = 0f;
+            recallParticles.Play();
+        }
+    }
+
+    private void OnHoldInIdle(Vector2 val)
+    {
+        if (playerState == PlayerState.SwordThrown)
+        {
+            curRecallTimer += Time.deltaTime;
+            if (curRecallTimer >= recallTime)
+            {
+                RecallSword();
+            }
         }
     }
 

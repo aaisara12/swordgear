@@ -26,6 +26,7 @@ public class Reflector : MonoBehaviour
         float mag = GetVelocity(collision).magnitude;
 
         rb.linearVelocity = transform.up * mag;
+        collision.transform.up = transform.up;
     }
 
     //private void OnTriggerEnter2D(Collider2D collision)

@@ -52,5 +52,6 @@ public class Bumper : MonoBehaviour
         Vector2 reflectedVelocity = Vector2.Reflect(incomingVelocity, normal) * forceMultiplier;
 
         rb.linearVelocity = reflectedVelocity;
+        collision.transform.up = reflectedVelocity;
     }
 }
