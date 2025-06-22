@@ -104,6 +104,8 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
         combo = (combo + 1) % 3;
     }
 
+    public void Charge(Transform parent, bool cancel) { }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Enemy"))

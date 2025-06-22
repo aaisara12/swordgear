@@ -48,6 +48,20 @@ public class PlayerController : MonoBehaviour
         InputManager.OnDragInIdleZone += OnHoldInIdle;
     }
 
+    void MeleeCharge()
+    {
+        weapon.ThrowIfNull(nameof(weapon));
+
+        weapon.Charge(transform);
+    }
+
+    void MeleeCancelCharge()
+    {
+        weapon.ThrowIfNull(nameof(weapon));
+
+        weapon.Charge(transform, true);
+    }
+
     void MeleeAttack()
     {
         rb.ThrowIfNull(nameof(rb));
@@ -85,6 +99,8 @@ public class PlayerController : MonoBehaviour
     {
         if (playerState == PlayerState.MeleeReady)
         {
+            // Cancel charge if applicable
+            MeleeCancelCharge();
             SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
             playerState = PlayerState.SwordThrown;
         }
@@ -122,6 +138,12 @@ public class PlayerController : MonoBehaviour
 
     private void OnReleaseInIdle(Vector2 val)
     {
+        recallParticles.ThrowIfNull(nameof(recallParticles));
+
+        if (playerState == PlayerState.SwordThrown)
+        {
+            recallParticles.Stop();
+        }
         if (playerState == PlayerState.MeleeReady)
         {
             MeleeAttack();
@@ -136,6 +158,11 @@ public class PlayerController : MonoBehaviour
 
     private void OnReleaseInMove(Vector2 val)
     {
+        recallParticles.ThrowIfNull(nameof(recallParticles));
+        if (playerState == PlayerState.SwordThrown)
+        {
+            recallParticles.Stop();
+        }
         SwordThrow(val.normalized);
     }
 
@@ -146,6 +173,10 @@ public class PlayerController : MonoBehaviour
         {
             curRecallTimer = 0f;
             recallParticles.Play();
+        }
+        else if (playerState == PlayerState.MeleeReady)
+        {
+            MeleeCharge();
         }
     }
 

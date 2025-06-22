@@ -1,20 +1,19 @@
-using System.Collections;
 using UnityEngine;
+using System.Collections;
 
-public interface IMeleeWeapon
-{
-    public void Strike(Transform parent);
-    public void Charge(Transform parent, bool cancel = false);  
-}
-
-public class BasicMelee : MonoBehaviour, IMeleeWeapon
+public class FireMelee : MonoBehaviour, IMeleeWeapon
 {
     [SerializeField] private Collider2D weaponCollider;
     [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private Animator anim;
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
-    [SerializeField] private string animName;
+    [SerializeField] private float maxChargeTime = 1f;
+    [SerializeField] private string[] chargeAnimNames;
+
+    bool isCharging = false;
+    float chargeDuration = 0f;
+    Transform parentTransform;
 
     private void Awake()
     {
@@ -32,8 +31,8 @@ public class BasicMelee : MonoBehaviour, IMeleeWeapon
     {
         weaponCollider.enabled = true;
         float elapsedTime = 0f;
-
-        anim.Play(animName);
+        int chargeTier = (int)(chargeDuration / maxChargeTime * (chargeAnimNames.Length - 1));
+        anim.Play(chargeAnimNames[chargeTier]);
         while (elapsedTime < swingDuration)
         {
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -55,14 +54,40 @@ public class BasicMelee : MonoBehaviour, IMeleeWeapon
         }
     }
 
+    private void Update()
+    {
+        if (isCharging && chargeDuration < maxChargeTime)
+        {
+            chargeDuration += Time.deltaTime;
+            if (chargeDuration >= maxChargeTime)
+            {
+                // Play effect 
+            }
+        }
+    }
+
     public void Strike(Transform parent)
     {
         transform.position = parent.position + parent.up * distanceFromPlayer;
         transform.up = parent.up;
+        isCharging = false;
         StartCoroutine(Swing());
+        chargeDuration = 0;
     }
 
-    public void Charge(Transform parent, bool cancel) { }
+    public void Charge(Transform parent, bool cancel = false) 
+    {
+        if (cancel)
+        {
+            isCharging = false;
+            parentTransform = parent;
+            chargeDuration = 0;
+            return;
+        }
+        isCharging = true;
+        parentTransform = parent;
+        chargeDuration = 0;
+    }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

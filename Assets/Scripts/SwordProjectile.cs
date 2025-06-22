@@ -1,8 +1,14 @@
 using UnityEngine;
 
+public interface ISwordThrowBehavior
+{
+    void OnFlight();
+    void OnEnemyHit(EnemyController enemy);
+}
+
 public class SwordProjectile : MonoBehaviour
 {
-    SpriteRenderer sprite;
+    SpriteRenderer spriteObject;
     public enum WeaponBuff
     {
         None,
@@ -10,7 +16,17 @@ public class SwordProjectile : MonoBehaviour
         Lightning
     }
 
-    public WeaponBuff CurrentBuff = WeaponBuff.None;
+    [SerializeField] WeaponBuff _currentBuff = WeaponBuff.None;
+    public WeaponBuff CurrentBuff
+    {
+        get { return _currentBuff; }
+        set
+        {
+            OnBuffEnd(_currentBuff);
+            OnBuffBegin(value);
+            _currentBuff = value;
+        }
+    }
     public float buffPower = 0;
     bool isFlying = false;  // For damage checks
 
@@ -33,23 +49,26 @@ public class SwordProjectile : MonoBehaviour
 
     private void Start()
     {
-        sprite = GetComponent<SpriteRenderer>();
+        spriteObject = GetComponentInChildren<SpriteRenderer>();
+        OnBuffBegin(_currentBuff);
     }
 
     public void StartFlight(Vector3 position, Vector2 velocity)
     {
+        gameObject.SetActive(true);
         transform.position = position;
         transform.up = velocity.normalized;
         rb.linearVelocity = velocity;
-        sprite.enabled = true;
+        spriteObject.enabled = true;
         isFlying = true;
     }
 
     public void StopFlight()
     {
+        gameObject.SetActive(false);
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
-        sprite.enabled = false;
+        spriteObject.enabled = false;
         isFlying = false;
     }
 
@@ -72,18 +91,20 @@ public class SwordProjectile : MonoBehaviour
         prevVelocity = rb.linearVelocity;
     }
 
+    // Called every frame, think of this as animation loop
     void DisplaySword()
     {
         switch (CurrentBuff)
         {
             case WeaponBuff.None:
-                sprite.color = Color.white;
+                spriteObject.color = Color.white;
                 break;
             case WeaponBuff.Fire:
-                sprite.color = Color.red;
+                spriteObject.color = Color.red;
+                spriteObject.transform.Rotate(25f * Time.deltaTime * Vector3.forward);
                 break;
             case WeaponBuff.Lightning:
-                sprite.color = Color.cyan;
+                spriteObject.color = Color.cyan;
                 break;
         }
     }
@@ -99,6 +120,29 @@ public class SwordProjectile : MonoBehaviour
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
             enemy.TakeDamage(1 + buffPower);
+        }
+    }
+
+    void OnBuffEnd(WeaponBuff buff)
+    {
+        switch (buff)
+        {
+            case WeaponBuff.Fire:
+                spriteObject.transform.up = transform.up;
+                break;
+            case WeaponBuff.Lightning:
+                break;
+        }
+    }
+
+    void OnBuffBegin(WeaponBuff buff)
+    {
+        switch (buff)
+        {
+            case WeaponBuff.Fire:
+                break;
+            case WeaponBuff.Lightning:
+                break;
         }
     }
 }
