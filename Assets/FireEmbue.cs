@@ -24,8 +24,6 @@ public class FireEmbue : Embue
         Debug.Log($"Attempting to apply Fire Embue via {sword.gameObject.name}");
         GameManager.Instance.currentDamage = GameManager.Instance.baseDamage * damageMultiplier;
         GameManager.Instance.currentElement = embueType;
-        GameManager.Instance.player.GetComponent<PlayerController>().SetElement(embueType);
-        sword.CurrentBuff = embueType;
     }
 
     // RemoveEffect is not needed here for clearing the sword's state.

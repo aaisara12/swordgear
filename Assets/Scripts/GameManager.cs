@@ -1,21 +1,31 @@
-#nullable enable
-
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager? Instance;
-    public GameObject? player; // Assign this in the Inspector
-    [SerializeField] GameObject? damageUI;
+    public static GameManager Instance;
+    public GameObject player; // Assign this in the Inspector
+    PlayerController playerController;
+    [SerializeField] GameObject damageUI;
 
     public float baseDamage = 10;
     public float currentDamage = 10;
     public float rangedMultiplier = 1.2f;
-    public Element currentElement = Element.Physical;
+    private Element _currentElement = Element.Physical;
+    public Element currentElement
+    {
+        get { return _currentElement; }
+        set
+        {
+            _currentElement = value;
+            playerController.SetElement(value);
+            SwordProjectile.Instance.CurrentBuff = value;
+        }
+    }
 
     private void Awake()
     {
         Instance = this;
+        playerController = player.GetComponent<PlayerController>();
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)
