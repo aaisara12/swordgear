@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -21,6 +22,10 @@ public class GameManager : MonoBehaviour
             SwordProjectile.Instance.CurrentBuff = value;
         }
     }
+
+
+    // A private field to store the reference to the currently running empowerment coroutine
+    private Coroutine _currentEmpowermentRoutine;
 
     private void Awake()
     {
@@ -58,5 +63,42 @@ public class GameManager : MonoBehaviour
         // apply elemental multiplier
         finalDamage *= ElementalInteractions.interactionMatrix[swordElement][enemyElement];
         return finalDamage;
+    }
+
+    // Call this method from the Embue script
+    public void ApplyEmpowerment(Element newElement, float newDamageMultiplier, float duration)
+    {
+        // 1. If an empowerment coroutine is already running on the sword, stop it.
+        if (_currentEmpowermentRoutine != null)
+        {
+            Debug.Log("Stopping previous routine");
+            StopCoroutine(_currentEmpowermentRoutine);
+        }
+
+        // 2. Start the new empowerment coroutine and store its reference.
+        // This allows us to stop it later using StopCoroutine(_currentEmpowermentRoutine).
+        _currentEmpowermentRoutine = StartCoroutine(EmpowermentRoutine(newElement, newDamageMultiplier, duration));
+        Debug.Log($"Starting new empowerment routine for {newElement} on {gameObject.name}.");
+    }
+
+    private IEnumerator EmpowermentRoutine(Element elementToApply, float damageMultiplierToApply, float duration)
+    {
+        // --- Apply Empowerment ---
+        currentDamage = baseDamage * damageMultiplierToApply;
+        currentElement = elementToApply;
+
+        Debug.Log($"Sword {gameObject.name} is now {elementToApply}. Current Damage: {currentDamage}");
+
+        // --- Wait for Duration ---
+        yield return new WaitForSeconds(duration);
+
+        // --- Undo Empowerment ---
+        Debug.Log($"Empower effect for {elementToApply} on {gameObject.name} finished.");
+
+        currentDamage = baseDamage;
+        currentElement = Element.Physical; // Reset to default/physical
+
+        // Clear the coroutine reference as it has now finished executing.
+        _currentEmpowermentRoutine = null;
     }
 }
