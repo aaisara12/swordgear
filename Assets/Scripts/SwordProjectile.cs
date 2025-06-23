@@ -16,8 +16,8 @@ public class SwordProjectile : MonoBehaviour
         Lightning
     }
 
-    [SerializeField] WeaponBuff _currentBuff = WeaponBuff.None;
-    public WeaponBuff CurrentBuff
+    [SerializeField] Element _currentBuff = Element.Physical;
+    public Element CurrentBuff
     {
         get { return _currentBuff; }
         set
@@ -96,14 +96,14 @@ public class SwordProjectile : MonoBehaviour
     {
         switch (CurrentBuff)
         {
-            case WeaponBuff.None:
+            case Element.Physical:
                 spriteObject.color = Color.white;
                 break;
-            case WeaponBuff.Fire:
+            case Element.Fire:
                 spriteObject.color = Color.red;
                 spriteObject.transform.Rotate(25f * Time.deltaTime * Vector3.forward);
                 break;
-            case WeaponBuff.Lightning:
+            case Element.Ice:
                 spriteObject.color = Color.cyan;
                 break;
         }
@@ -119,29 +119,29 @@ public class SwordProjectile : MonoBehaviour
         if (collision.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(1 + buffPower);
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, CurrentBuff, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
         }
     }
 
-    void OnBuffEnd(WeaponBuff buff)
+    void OnBuffEnd(Element buff)
     {
         switch (buff)
         {
-            case WeaponBuff.Fire:
+            case Element.Fire:
                 spriteObject.transform.up = transform.up;
                 break;
-            case WeaponBuff.Lightning:
+            case Element.Ice:
                 break;
         }
     }
 
-    void OnBuffBegin(WeaponBuff buff)
+    void OnBuffBegin(Element buff)
     {
         switch (buff)
         {
-            case WeaponBuff.Fire:
+            case Element.Fire:
                 break;
-            case WeaponBuff.Lightning:
+            case Element.Ice:
                 break;
         }
     }

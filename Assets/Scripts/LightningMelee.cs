@@ -111,7 +111,7 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
         if (collision.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(1);
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage));
         }
     }
 }

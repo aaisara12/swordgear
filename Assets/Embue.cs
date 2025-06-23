@@ -16,14 +16,15 @@ public abstract class Embue : MonoBehaviour
     private void OnTriggerEnter2D(Collider2D collision)
     {
         // Check if the colliding object has a SwordController component
-        SwordController sword = collision.GetComponent<SwordController>();
+        
+        SwordProjectile sword = collision.GetComponent<SwordProjectile>();
         if (sword != null)
         {
             TryEmpowerSword(sword); // Pass the SwordController
         }
     }
 
-    private void TryEmpowerSword(SwordController sword) // Accepts SwordController
+    private void TryEmpowerSword(SwordProjectile sword) // Accepts SwordController
     {
         // Call the abstract Empower method, passing the SwordController
         Empower(sword);
@@ -34,5 +35,5 @@ public abstract class Embue : MonoBehaviour
     }
 
     // Abstract method now accepts SwordController
-    protected abstract void Empower(SwordController sword);
+    protected abstract void Empower(SwordProjectile sword);
 }

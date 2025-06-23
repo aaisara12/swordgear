@@ -42,17 +42,6 @@ public class EnemyController : MonoBehaviour
         rb.linearVelocity = direction * speed;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        SwordController sc = collision.gameObject.GetComponent<SwordController>();
-        if (sc == null)
-        {
-            return;
-        }
-        float damage = sc.ApplyDamage(element);
-        TakeDamage(damage);
-    }
-
     public void TakeDamage(float damage)
     {
         if (GameManager.Instance)
@@ -60,8 +49,8 @@ public class EnemyController : MonoBehaviour
         hp -= damage;
         if (floatingPoints != null)
         {
-            GameObject points = Instantiate(floatingPoints, transform.position, Quaternion.identity);
-            points.transform.GetChild(0).GetComponent<TextMeshPro>().text = damage.ToString();
+            //GameObject points = Instantiate(floatingPoints, transform.position, Quaternion.identity);
+            //points.transform.GetChild(0).GetComponent<TextMeshPro>().text = damage.ToString();
 
         }
         if (hp <= 0f)

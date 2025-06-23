@@ -1,7 +1,10 @@
 #nullable enable
 
+using AYellowpaper.SerializedCollections;
+using System;
+using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem; 
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -14,7 +17,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private SwordController? sword;
     [SerializeField] private GearController? gear;
 
-    [SerializeField] private GameObject? weaponObject;
+    [SerializedDictionary("Element Type", "Weapon Prefab")]
+    [SerializeField] private SerializedDictionary<Element, GameObject>? elementWeaponDict;
+    Dictionary<Element, IMeleeWeapon> elementToWeapon = new Dictionary<Element, IMeleeWeapon>();
+
 
     public enum PlayerState
     {
@@ -24,48 +30,61 @@ public class PlayerController : MonoBehaviour
 
     PlayerState playerState = PlayerState.MeleeReady;
 
-    IMeleeWeapon? weapon;
+    IMeleeWeapon? curWeapon;
 
     private Rigidbody2D? rb;
 
     private void Awake()
     {
-        weaponObject.ThrowIfNull(nameof(weaponObject));
+        elementWeaponDict.ThrowIfNull(nameof(elementWeaponDict));
 
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
             Debug.LogError("Rigidbody2D component is missing!");
         }
-        weapon = weaponObject.GetComponent<IMeleeWeapon>();
+        foreach (Element elem in elementWeaponDict.Keys)
+        {
+            GameObject weaponObj = Instantiate(elementWeaponDict[elem]);
+            IMeleeWeapon weapon = weaponObj.GetComponent<IMeleeWeapon>();
+            elementToWeapon[elem] = weapon;
+
+        }
     }
 
     private void Start()
     {
+        if (GameManager.Instance != null) 
+            curWeapon = elementToWeapon[GameManager.Instance.currentElement];
         InputManager.OnReleaseInIdleZone += OnReleaseInIdle;
         InputManager.OnReleaseInMoveZone += OnReleaseInMove;
         InputManager.OnPressInIdleZone += OnTapInIdle;
         InputManager.OnDragInIdleZone += OnHoldInIdle;
     }
 
+    public void SetElement(Element element)
+    {
+        curWeapon = elementToWeapon[element];
+    }
+
     void MeleeCharge()
     {
-        weapon.ThrowIfNull(nameof(weapon));
+        curWeapon.ThrowIfNull(nameof(curWeapon));
 
-        weapon.Charge(transform);
+        curWeapon.Charge(transform);
     }
 
     void MeleeCancelCharge()
     {
-        weapon.ThrowIfNull(nameof(weapon));
+        curWeapon.ThrowIfNull(nameof(curWeapon));
 
-        weapon.Charge(transform, true);
+        curWeapon.Charge(transform, true);
     }
 
     void MeleeAttack()
     {
         rb.ThrowIfNull(nameof(rb));
-        weapon.ThrowIfNull(nameof(weapon));
+        curWeapon.ThrowIfNull(nameof(curWeapon));
 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject? nearestEnemy = null;
@@ -83,7 +102,7 @@ public class PlayerController : MonoBehaviour
 
         if (nearestEnemy == null)
         {
-            weapon.Strike(transform);
+            curWeapon.Strike(transform);
             return;
         }
 
@@ -92,7 +111,7 @@ public class PlayerController : MonoBehaviour
 
         Vector2 dashPosition = (Vector2)transform.position + direction * (shortestDistance * dashFactor);
         transform.position = dashPosition;
-        weapon.Strike(transform);
+        curWeapon.Strike(transform);
     }
 
     void SwordThrow(Vector2 direction)

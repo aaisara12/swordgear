@@ -13,16 +13,16 @@ public class DamageUI : MonoBehaviour
         // display = GetComponent<TMP_Text>();
     }
 
-    public void ShowNumber(float amt)
+    public void ShowNumber(float amt, Color color)
     {
-        StartCoroutine(Show(amt));
+        StartCoroutine(Show(amt, color));
     }
 
-    IEnumerator Show(float num)
+    IEnumerator Show(float num, Color color)
     {
         display.text = $"{Mathf.RoundToInt(num)}";
         float elapsedTime = 0f;
-
+        display.color = color;
         while (elapsedTime < duration)
         {
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);

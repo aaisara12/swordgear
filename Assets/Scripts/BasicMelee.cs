@@ -69,7 +69,7 @@ public class BasicMelee : MonoBehaviour, IMeleeWeapon
         if (collision.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(1);
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.currentDamage));
         }
     }
 }

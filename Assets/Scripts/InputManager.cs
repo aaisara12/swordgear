@@ -43,7 +43,7 @@ public class InputManager : MonoBehaviour
         if (isPressed)
         {
             Vector2 input = stickAction.ReadValue<Vector2>();
-            Debug.Log(input);
+            // Debug.Log(input);
             float magnitude = input.magnitude;
             float idleThreshold = idleZoneRadiusPercent;
 

@@ -13,17 +13,19 @@ public class FireEmbue : Embue
     [Tooltip("Prefab for the fire effect *on the sword* while imbued.")]
     public GameObject fireEffectPrefab; // Visual effect on the sword itself
 
-
-    private void SetDamageMultiplier(float multiplier)
+    private void Start()
     {
-        damageMultiplier = multiplier;
+        damageMultiplier = 1.5f;
     }
+
     // Override the Empower method to apply fire effects using SwordController
-    protected override void Empower(SwordController sword) // Accepts SwordController
+    protected override void Empower(SwordProjectile sword) // Accepts SwordController
     {
         Debug.Log($"Attempting to apply Fire Embue via {sword.gameObject.name}");
-        SetDamageMultiplier(2f);
-        sword.ApplyEmbue(this);
+        GameManager.Instance.currentDamage = GameManager.Instance.baseDamage * damageMultiplier;
+        GameManager.Instance.currentElement = embueType;
+        GameManager.Instance.player.GetComponent<PlayerController>().SetElement(embueType);
+        sword.CurrentBuff = embueType;
     }
 
     // RemoveEffect is not needed here for clearing the sword's state.
