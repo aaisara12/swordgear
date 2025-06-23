@@ -671,7 +671,6 @@ MonoBehaviour:
   baseDamage: 10
   currentDamage: 10
   rangedMultiplier: 1.2
-  currentElement: 0
 --- !u!4 &534398207
 Transform:
   m_ObjectHideFlags: 0
@@ -18019,7 +18018,9 @@ MonoBehaviour:
   buffPower: 0
   maxSpeed: 10
   decelerationRate: 2
+  spriteObject: {fileID: 1230438379}
   prevVelocity: {x: 0, y: 0}
+  spinSpeed: 400
 --- !u!212 &1234295550
 SpriteRenderer:
   m_ObjectHideFlags: 0

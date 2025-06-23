@@ -8,7 +8,7 @@ public interface ISwordThrowBehavior
 
 public class SwordProjectile : MonoBehaviour
 {
-    SpriteRenderer spriteObject;
+    SpriteRenderer sprite;
     public enum WeaponBuff
     {
         None,
@@ -33,8 +33,14 @@ public class SwordProjectile : MonoBehaviour
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float decelerationRate = 2f;
+    [SerializeField] GameObject spriteObject;
+
     private Rigidbody2D rb;
     public Vector2 prevVelocity = Vector2.zero;
+
+    [Header("Fire Projectile")]
+    [SerializeField] float spinSpeed = 50f;
+
     public static SwordProjectile Instance;
 
     private void Awake()
@@ -49,7 +55,7 @@ public class SwordProjectile : MonoBehaviour
 
     private void Start()
     {
-        spriteObject = GetComponentInChildren<SpriteRenderer>();
+        sprite = spriteObject.GetComponent<SpriteRenderer>();
         OnBuffBegin(_currentBuff);
     }
 
@@ -59,7 +65,7 @@ public class SwordProjectile : MonoBehaviour
         transform.position = position;
         transform.up = velocity.normalized;
         rb.linearVelocity = velocity;
-        spriteObject.enabled = true;
+        sprite.enabled = true;
         isFlying = true;
     }
 
@@ -68,7 +74,7 @@ public class SwordProjectile : MonoBehaviour
         gameObject.SetActive(false);
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
-        spriteObject.enabled = false;
+        sprite.enabled = false;
         isFlying = false;
     }
 
@@ -97,14 +103,14 @@ public class SwordProjectile : MonoBehaviour
         switch (CurrentBuff)
         {
             case Element.Physical:
-                spriteObject.color = Color.white;
+                sprite.color = Color.white;
                 break;
             case Element.Fire:
-                spriteObject.color = Color.red;
-                spriteObject.transform.Rotate(25f * Time.deltaTime * Vector3.forward);
+                sprite.color = Color.red;
+                sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
                 break;
             case Element.Ice:
-                spriteObject.color = Color.cyan;
+                sprite.color = Color.cyan;
                 break;
         }
     }
@@ -128,7 +134,7 @@ public class SwordProjectile : MonoBehaviour
         switch (buff)
         {
             case Element.Fire:
-                spriteObject.transform.up = transform.up;
+                sprite.transform.localEulerAngles = Vector3.zero;
                 break;
             case Element.Ice:
                 break;
