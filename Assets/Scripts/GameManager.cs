@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 public class GameManager : MonoBehaviour
@@ -31,6 +32,12 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         playerController = player.GetComponent<PlayerController>();
+    }
+
+    private void Start()
+    {
+        // For enemy effect handling
+        StartCoroutine(EffectTickLoop());
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)
@@ -101,4 +108,103 @@ public class GameManager : MonoBehaviour
         // Clear the coroutine reference as it has now finished executing.
         _currentEmpowermentRoutine = null;
     }
+
+    #region Enemy Effects
+
+    public enum EnemyEffect
+    {
+        Burn,
+        Static
+    }
+
+    public interface IEnemyEffect
+    {
+        public EnemyEffect getEffect();
+        public void EffectBegin(EnemyController enemy);
+        public void EffectTick(EnemyController enemy);
+        public void EffectEnd(EnemyController enemy);
+    }
+
+    public Dictionary<EnemyEffect, IEnemyEffect> enemyEffect = new();
+
+    private Dictionary<EnemyController, List<(IEnemyEffect effect, int duration)>> _activeEffects = new();
+
+    public void AddEffect(EnemyController enemy, EnemyEffect effectName, int duration)
+    {
+        IEnemyEffect effect = enemyEffect[effectName];
+
+        if (!_activeEffects.TryGetValue(enemy, out var effectList))
+        {
+            effectList = new List<(IEnemyEffect, int)>();
+            _activeEffects[enemy] = effectList;
+        }
+
+        var index = effectList.FindIndex(pair => pair.Item1.getEffect() == effect.getEffect());
+
+        if (index != -1)
+        {
+            // If effect already exists, refresh the duration
+            effectList[index] = (effectList[index].Item1, duration);
+        }
+        else
+        {
+            // New effect
+            effectList.Add((effect, duration));
+            effect.EffectBegin(enemy);
+        }
+    }
+
+    private IEnumerator EffectTickLoop()
+    {
+        WaitForSeconds wait = new WaitForSeconds(1f);
+
+        while (true)
+        {
+            yield return wait;
+
+            var enemiesToRemove = new List<EnemyController>();
+
+            foreach (var kvp in _activeEffects)
+            {
+                var enemy = kvp.Key;
+                var effectList = kvp.Value;
+
+                if (!enemy)
+                {
+                    enemiesToRemove.Add(enemy);
+                    continue;
+                }
+
+                for (int i = effectList.Count - 1; i >= 0; i--)
+                {
+                    var (effect, duration) = effectList[i];
+                    effect.EffectTick(enemy);
+                    duration--;
+
+                    if (duration <= 0)
+                    {
+                        effect.EffectEnd(enemy);
+                        effectList.RemoveAt(i);
+                    }
+                    else
+                    {
+                        effectList[i] = (effect, duration);
+                    }
+                }
+
+                if (effectList.Count == 0)
+                {
+                    enemiesToRemove.Add(enemy);
+                }
+            }
+
+            foreach (var enemy in enemiesToRemove)
+            {
+                _activeEffects.Remove(enemy);
+            }
+        }
+    }
+
+
+    #endregion
 }

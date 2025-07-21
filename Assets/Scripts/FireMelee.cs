@@ -11,6 +11,7 @@ public class FireMelee : MonoBehaviour, IMeleeWeapon
     [SerializeField] private float maxChargeTime = 1f;
     [SerializeField] private string[] chargeAnimNames;
 
+    bool applyBurn = false;
     bool isCharging = false;
     float chargeDuration = 0f;
     Transform parentTransform;
@@ -33,6 +34,10 @@ public class FireMelee : MonoBehaviour, IMeleeWeapon
         float elapsedTime = 0f;
         int chargeTier = (int)(chargeDuration / maxChargeTime * (chargeAnimNames.Length - 1));
         anim.Play(chargeAnimNames[chargeTier]);
+        if (chargeTier == chargeAnimNames.Length - 1)  // Max tier charge
+        {
+            applyBurn = true;
+        }
         while (elapsedTime < swingDuration)
         {
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -47,6 +52,7 @@ public class FireMelee : MonoBehaviour, IMeleeWeapon
         }
 
         weaponCollider.enabled = false;
+        applyBurn = false;
         if (spriteRenderer != null)
         {
             Color col = spriteRenderer.color;
@@ -95,6 +101,10 @@ public class FireMelee : MonoBehaviour, IMeleeWeapon
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
             enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.currentDamage));
+            if (applyBurn)
+            {
+                GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);
+            }
         }
     }
 }

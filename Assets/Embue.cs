@@ -5,7 +5,7 @@ public abstract class Embue : MonoBehaviour
 {
     public Element embueType;
 
-    public float effectDuration = 5f;
+    public float effectDuration = 10f;
     public float damageMultiplier;
 
     private void OnTriggerEnter2D(Collider2D collision)
