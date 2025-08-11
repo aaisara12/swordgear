@@ -214,7 +214,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 256
   travelSpeed: 20
-  staticDuration: 3
+  staticDuration: 5
   lightningPoints: 10
   jaggedness: 0.2
   lightningDuration: 0.05
