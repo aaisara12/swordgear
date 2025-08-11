@@ -43,6 +43,10 @@ public class SwordProjectile : MonoBehaviour
 
     public static SwordProjectile Instance;
 
+    [Header("Lightning Projectile")]
+    private bool lightningActive = false;
+    [SerializeField] GameObject lightningPrefab;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -126,6 +130,11 @@ public class SwordProjectile : MonoBehaviour
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
             enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, CurrentBuff, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
+            if (lightningActive)
+            {
+                ChainLightningProjectile lightning = Instantiate(lightningPrefab, collision.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+                lightning.Initialize(transform);
+            }
         }
     }
 
@@ -137,6 +146,7 @@ public class SwordProjectile : MonoBehaviour
                 sprite.transform.localEulerAngles = Vector3.zero;
                 break;
             case Element.Ice:
+                lightningActive = false;
                 break;
         }
     }
@@ -148,6 +158,7 @@ public class SwordProjectile : MonoBehaviour
             case Element.Fire:
                 break;
             case Element.Ice:
+                lightningActive = true;
                 break;
         }
     }

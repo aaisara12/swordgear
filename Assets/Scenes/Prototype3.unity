@@ -18097,6 +18097,7 @@ MonoBehaviour:
   spriteObject: {fileID: 1230438379}
   prevVelocity: {x: 0, y: 0}
   spinSpeed: 400
+  lightningPrefab: {fileID: 5926290009230079728, guid: a44ca6b70c4f71a4b95a974f77ac5dcd, type: 3}
 --- !u!212 &1234295550
 SpriteRenderer:
   m_ObjectHideFlags: 0

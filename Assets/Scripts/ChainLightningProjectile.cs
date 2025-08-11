@@ -19,11 +19,14 @@ public class ChainLightningProjectile : MonoBehaviour
     [SerializeField] private int lightningPoints = 10;
     [SerializeField] private float jaggedness = 0.2f;
     [SerializeField] private float lightningDuration = 0.05f;
+    [SerializeField] private float fadeOutDuration = 0.5f;
 
     private Transform spawnOrigin;
     private Vector2 forwardDir;
     private EnemyController currentTarget;
     private LineRenderer lineRenderer;
+
+    private HashSet<EnemyController> pastTargets = new HashSet<EnemyController>();
 
     public void Initialize(Transform origin)
     {
@@ -58,7 +61,7 @@ public class ChainLightningProjectile : MonoBehaviour
             yield return StartCoroutine(FlyToTarget(currentTarget.transform));
             if (currentTarget == null)
             {
-                Destroy(gameObject);
+                StartCoroutine(FadeAndDestroy(fadeOutDuration));
                 yield break;
             }
 
@@ -67,7 +70,7 @@ public class ChainLightningProjectile : MonoBehaviour
 
             if (!alreadyStatic)
             {
-                Destroy(gameObject);
+                StartCoroutine(FadeAndDestroy(fadeOutDuration));
                 yield break;
             }
             // Already static
@@ -84,13 +87,14 @@ public class ChainLightningProjectile : MonoBehaviour
         foreach (var hit in hits)
         {
             EnemyController enemy = hit.GetComponent<EnemyController>();
-            if (enemy != null && enemy.transform != spawnOrigin)
+            if (enemy != null && enemy.transform != spawnOrigin && !pastTargets.Contains(enemy))
             {
                 Vector2 toEnemy = (enemy.transform.position - (Vector3)origin).normalized;
                 float angle = Vector2.Angle(direction, toEnemy);
                 if (angle <= searchConeAngle / 2f)
                 {
                     enemiesInCone.Add(enemy);
+                    pastTargets.Add(enemy);
                 }
             }
         }
@@ -138,6 +142,33 @@ public class ChainLightningProjectile : MonoBehaviour
         yield return new WaitForSeconds(lightningDuration);
         lineRenderer.positionCount = 0;
     }
+
+    private IEnumerator FadeAndDestroy(float fadeDuration)
+    {
+        if (lineRenderer == null)
+            yield break;
+
+        // Grab the initial color
+        Color startColor = lineRenderer.startColor;
+        Color endColor = startColor;
+        endColor.a = 0f;
+
+        float elapsed = 0f;
+        while (elapsed < fadeDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t = elapsed / fadeDuration;
+
+            Color newColor = Color.Lerp(startColor, endColor, t);
+            lineRenderer.startColor = newColor;
+            lineRenderer.endColor = newColor;
+
+            yield return null;
+        }
+
+        Destroy(gameObject);
+    }
+
 
     private void OnDrawGizmosSelected()
     {
