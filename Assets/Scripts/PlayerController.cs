@@ -8,19 +8,27 @@ using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    public event Action? OnDeath;
+
+    [Header("Player Stats")]
+    [SerializeField] private float maxHp = 100f;
+    private float currentHp;
+
+    [Header("Combat")]
     [SerializeField] private float attackRadius = 5f;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float flickThreshold = 50f;
 
+    [Header("Movement")]
     [SerializeField] private float speed = 3f;
+
+    [Header("Weapon Management")]
     [SerializeField] private SwordController? sword;
     [SerializeField] private GearController? gear;
-
     [SerializedDictionary("Element Type", "Weapon Prefab")]
     [SerializeField] private SerializedDictionary<Element, GameObject>? elementWeaponDict;
     Dictionary<Element, IMeleeWeapon> elementToWeapon = new Dictionary<Element, IMeleeWeapon>();
-
 
     public enum PlayerState
     {
@@ -29,15 +37,17 @@ public class PlayerController : MonoBehaviour
     }
 
     PlayerState playerState = PlayerState.MeleeReady;
-
     IMeleeWeapon? curWeapon;
-
     private Rigidbody2D? rb;
+
+    [Header("Sword Recall")]
+    [SerializeField] ParticleSystem? recallParticles;
+    [SerializeField] float recallTime = 1f;
+    float curRecallTimer = 0f;
 
     private void Awake()
     {
         elementWeaponDict.ThrowIfNull(nameof(elementWeaponDict));
-
         rb = GetComponent<Rigidbody2D>();
         if (rb == null)
         {
@@ -48,18 +58,41 @@ public class PlayerController : MonoBehaviour
             GameObject weaponObj = Instantiate(elementWeaponDict[elem]);
             IMeleeWeapon weapon = weaponObj.GetComponent<IMeleeWeapon>();
             elementToWeapon[elem] = weapon;
-
         }
+        currentHp = maxHp;
     }
 
     private void Start()
     {
-        if (GameManager.Instance != null) 
+        if (GameManager.Instance != null)
             curWeapon = elementToWeapon[GameManager.Instance.currentElement];
         InputManager.OnReleaseInIdleZone += OnReleaseInIdle;
         InputManager.OnReleaseInMoveZone += OnReleaseInMove;
         InputManager.OnPressInIdleZone += OnTapInIdle;
         InputManager.OnDragInIdleZone += OnHoldInIdle;
+    }
+
+    public void TakeDamage(float damage)
+    {
+        if (currentHp <= 0) return; // Player is already dead
+
+        currentHp -= damage;
+        // You might want to display a damage UI here or trigger a hit animation.
+        // For example, if GameManager has a method:
+        // GameManager.Instance?.DisplayDamageUI(transform.position, damage);
+
+        if (currentHp <= 0f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        Debug.Log("Player has died!");
+        OnDeath?.Invoke();
+        // Here, you would trigger the game over state or restart the level.
+        // Destroy(gameObject); // Or you could just disable the player.
     }
 
     public void SetElement(Element element)
@@ -70,14 +103,12 @@ public class PlayerController : MonoBehaviour
     void MeleeCharge()
     {
         curWeapon.ThrowIfNull(nameof(curWeapon));
-
         curWeapon.Charge(transform);
     }
 
     void MeleeCancelCharge()
     {
         curWeapon.ThrowIfNull(nameof(curWeapon));
-
         curWeapon.Charge(transform, true);
     }
 
@@ -118,47 +149,36 @@ public class PlayerController : MonoBehaviour
     {
         if (playerState == PlayerState.MeleeReady)
         {
-            // Cancel charge if applicable
             MeleeCancelCharge();
             SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
             playerState = PlayerState.SwordThrown;
         }
-        
     }
-
-    private void OnMove(InputValue value)
-    {
-        rb.ThrowIfNull(nameof(rb));
-
-        Vector2 v = value.Get<Vector2>();
-        rb.linearVelocity = v * speed;
-    }
-
-    [SerializeField] ParticleSystem? recallParticles;
-    [SerializeField] float recallTime = 1f;
-    float curRecallTimer = 0f;
 
     void RecallSword()
     {
         recallParticles.ThrowIfNull(nameof(recallParticles));
-
         SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
         recallParticles.Stop();
-        // Play effect
     }
 
     void CatchSword()
     {
         SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
-        // Add buffs
+    }
+
+    private void OnMove(InputValue value)
+    {
+        rb.ThrowIfNull(nameof(rb));
+        Vector2 v = value.Get<Vector2>();
+        rb.linearVelocity = v * speed;
     }
 
     private void OnReleaseInIdle(Vector2 val)
     {
         recallParticles.ThrowIfNull(nameof(recallParticles));
-
         if (playerState == PlayerState.SwordThrown)
         {
             recallParticles.Stop();
@@ -210,5 +230,4 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
 }
