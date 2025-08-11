@@ -7,6 +7,7 @@ TagManager:
   - Sticky
   - Fire
   - Enemy
+  - Lightning
   layers:
   - Default
   - TransparentFX

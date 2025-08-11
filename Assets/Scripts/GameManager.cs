@@ -154,6 +154,21 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public bool CheckEnemyEffect(EnemyController enemy, EnemyEffect effectName)
+    {
+        IEnemyEffect effect = enemyEffect[effectName];
+
+        if (!_activeEffects.TryGetValue(enemy, out var effectList))
+        {
+            effectList = new List<(IEnemyEffect, int)>();
+            _activeEffects[enemy] = effectList;
+        }
+
+        var index = effectList.FindIndex(pair => pair.Item1.getEffect() == effect.getEffect());
+
+        return index != -1;
+    }
+
     private IEnumerator EffectTickLoop()
     {
         WaitForSeconds wait = new WaitForSeconds(1f);

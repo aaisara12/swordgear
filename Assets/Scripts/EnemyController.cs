@@ -11,6 +11,8 @@ public class EnemyController : MonoBehaviour
     [SerializeField] private GameObject? player;
     [SerializeField] private float speed = 2f;
     [SerializeField] private float hp = 100f;
+
+    public float speedMultiplier = 1f;
     
     private Rigidbody2D? rb;
 
@@ -39,7 +41,7 @@ public class EnemyController : MonoBehaviour
         Vector2 position = transform.position;
         Vector2 direction = (target - position).normalized;
 
-        rb.linearVelocity = direction * speed;
+        rb.linearVelocity = direction * speed * speedMultiplier;
     }
 
     public void TakeDamage(float damage)

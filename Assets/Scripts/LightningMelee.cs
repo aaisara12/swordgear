@@ -13,7 +13,10 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
     [SerializeField] private string slashAnimName;
     [SerializeField] private string thrustAnimName;
 
+    [SerializeField] GameObject lightningPrefab;
+
     int combo = 0;
+    bool lightningActive = false;
 
     private void Awake()
     {
@@ -58,6 +61,7 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
     {
         weaponCollider.enabled = true;
         float elapsedTime = 0f;
+        lightningActive = true;
 
         Vector2 startPos = parent.position;
         Vector2 dest = parent.position + parent.up * thrustDistance;
@@ -79,6 +83,7 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
         }
 
         weaponCollider.enabled = false;
+        lightningActive = false;
         if (spriteRenderer != null)
         {
             Color col = spriteRenderer.color;
@@ -112,6 +117,11 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
             enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage));
+            if (lightningActive)
+            {
+                ChainLightningProjectile lightning = Instantiate(lightningPrefab, collision.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+                lightning.Initialize(transform);
+            }
         }
     }
 }

@@ -307,3 +307,4 @@ MonoBehaviour:
   thrustDistance: 4
   slashAnimName: EnergySwipe
   thrustAnimName: FireThrust
+  lightningPrefab: {fileID: 5926290009230079728, guid: a44ca6b70c4f71a4b95a974f77ac5dcd, type: 3}
