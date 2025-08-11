@@ -25,6 +25,8 @@ public class ChainLightningProjectile : MonoBehaviour
     private EnemyController currentTarget;
     private LineRenderer lineRenderer;
 
+    private HashSet<EnemyController> pastTargets = new HashSet<EnemyController>();
+
     public void Initialize(Transform origin)
     {
         spawnOrigin = origin;
@@ -84,13 +86,14 @@ public class ChainLightningProjectile : MonoBehaviour
         foreach (var hit in hits)
         {
             EnemyController enemy = hit.GetComponent<EnemyController>();
-            if (enemy != null && enemy.transform != spawnOrigin)
+            if (enemy != null && enemy.transform != spawnOrigin && !pastTargets.Contains(enemy))
             {
                 Vector2 toEnemy = (enemy.transform.position - (Vector3)origin).normalized;
                 float angle = Vector2.Angle(direction, toEnemy);
                 if (angle <= searchConeAngle / 2f)
                 {
                     enemiesInCone.Add(enemy);
+                    pastTargets.Add(enemy);
                 }
             }
         }
