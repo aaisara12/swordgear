@@ -14,6 +14,7 @@
 [Aa]ssets/[Ss]amples/
 Assets/Samples.meta
 
+!Library/PackageCache/com.unity.inputsystem/InputSystem/Plugins/OnScreen/OnScreenStick.cs
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
 !/[Aa]ssets/**/*.meta
