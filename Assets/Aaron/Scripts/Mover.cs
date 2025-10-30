@@ -19,5 +19,6 @@ public class Mover : MonoBehaviour
     private void OnMove(InputValue value)
     {
         currentMoveDireciton = value.Get<Vector2>().normalized;
+        Debug.Log(currentMoveDireciton);
     }
 }
