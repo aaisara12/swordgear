@@ -4,7 +4,9 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class Thrower : MonoBehaviour
+namespace AaronInputDemo
+{
+    public class Thrower : MonoBehaviour
 {
     [SerializeField] private GameObject? projectileDirectionIndicator;
     [SerializeField] private GameObject? projectilePrefab;
@@ -74,4 +76,6 @@ public class Thrower : MonoBehaviour
         
         Destroy(projectile);
     }
+}
+
 }

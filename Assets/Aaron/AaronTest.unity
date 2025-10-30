@@ -314,7 +314,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   projectileDirectionIndicator: {fileID: 1665546589}
-  projectilePrefab: {fileID: 0}
+  projectilePrefab: {fileID: 8864156165555480705, guid: 516a2c72966b94af597eaa6ed3c29cba, type: 3}
 --- !u!1 &543472343
 GameObject:
   m_ObjectHideFlags: 0
