@@ -49,7 +49,7 @@
                     "name": "WASD",
                     "id": "0ebe8ae9-a576-4132-a5f8-c58aca65a550",
                     "path": "2DVector",
-                    "interactions": "",
+                    "interactions": "HoldInteraction2d",
                     "processors": "",
                     "groups": "",
                     "action": "Move",
@@ -101,10 +101,10 @@
                     "isPartOfComposite": true
                 },
                 {
-                    "name": "RightHand",
+                    "name": "Right Hand Keyboard",
                     "id": "c56ad1d0-40d6-415b-9018-93319257666c",
                     "path": "2DVector",
-                    "interactions": "",
+                    "interactions": "HoldInteraction2d",
                     "processors": "",
                     "groups": "",
                     "action": "Throw",
