@@ -18,6 +18,8 @@ namespace AaronInputDemo
         [SerializeField] private RectTransform? m_rangeIndicator1meter;
         
         [SerializeField] private int m_range = 300;
+
+        private Vector2 m_originalJoystickOriginPosition = Vector2.zero;
         
         protected override string controlPathInternal
         {
@@ -50,17 +52,24 @@ namespace AaronInputDemo
         
         public void OnPointerDown(PointerEventData eventData)
         {
-            // TODO
+            m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
+            m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
+            m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
+
+            m_joystickOrigin.position = eventData.position;
+            m_joystickKnob.position = m_joystickOrigin.position;
+            m_rangeIndicator1meter.position = m_joystickOrigin.position;
         }
         
         public void OnPointerUp(PointerEventData eventData)
         {
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
+            m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
 
-            Debug.Log("ON POINTER UP");
-            
+            m_joystickOrigin.position = m_originalJoystickOriginPosition;
             m_joystickKnob.position = m_joystickOrigin.position;
+            m_rangeIndicator1meter.position = m_originalJoystickOriginPosition;
             
             SendValueToControl(new Vector2(0, 0));
         }
@@ -71,11 +80,18 @@ namespace AaronInputDemo
             {
                 Debug.LogError("Dependencies not set properly, destroying game object.");
                 Destroy(gameObject);
+                return;
             }
+            
+            m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
+            
+            m_originalJoystickOriginPosition = m_joystickOrigin.position;
         }
 
         private void OnValidate()
         {
+#if UNITY_EDITOR
+            
             if (AreAllDependenciesNonNull() == false)
             {
                 return;
@@ -85,7 +101,6 @@ namespace AaronInputDemo
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             
-#if UNITY_EDITOR
             m_rangeIndicator1meter.localScale = new Vector3(m_range * 2, m_range * 2, 1);
             m_joystickKnob.position = m_joystickOrigin.position;
             m_rangeIndicator1meter.position = m_joystickOrigin.position;
