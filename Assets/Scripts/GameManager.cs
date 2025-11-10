@@ -21,8 +21,8 @@ public class GameManager : MonoBehaviour
             _currentElement = value;
 
             // Old API (to be replaced)
-            playerController.SetElement(value);
-            SwordProjectile.Instance.CurrentBuff = value;
+            //playerController.SetElement(value);
+            //SwordProjectile.Instance.CurrentBuff = value;
 
             // New API
             if (ElementManager.Instance)
@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         playerController = player.GetComponent<PlayerController>();
+        currentElement = Element.Physical;
     }
 
     private void Start()

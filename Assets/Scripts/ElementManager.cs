@@ -67,7 +67,11 @@ public class ElementManager : MonoBehaviour
     public void SetActiveElement(Element element)
     {
         if (weapons.TryGetValue(element, out var found))
+        {
+            OnBuffEnd(GameManager.Instance.player.transform, SwordProjectile.Instance);
             activeWeapon = found;
+            OnBuffStart(GameManager.Instance.player.transform, SwordProjectile.Instance);
+        }
         else
             Debug.LogError($"No weapon registered for element {element}");
     }
