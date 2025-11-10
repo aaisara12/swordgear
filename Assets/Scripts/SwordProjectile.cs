@@ -33,7 +33,7 @@ public class SwordProjectile : MonoBehaviour
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float decelerationRate = 2f;
-    [SerializeField] GameObject spriteObject;
+    public GameObject spriteObject;
 
     private Rigidbody2D rb;
     public Vector2 prevVelocity = Vector2.zero;

@@ -19,8 +19,14 @@ public class GameManager : MonoBehaviour
         set
         {
             _currentElement = value;
+
+            // Old API (to be replaced)
             playerController.SetElement(value);
             SwordProjectile.Instance.CurrentBuff = value;
+
+            // New API
+            if (ElementManager.Instance)
+                ElementManager.Instance.SetActiveElement(value);
         }
     }
 
