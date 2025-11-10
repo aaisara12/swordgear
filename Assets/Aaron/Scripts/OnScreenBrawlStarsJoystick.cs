@@ -31,16 +31,16 @@ namespace AaronInputDemo
         {
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
+            m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
             
             if (RectTransformUtility.RectangleContainsScreenPoint(m_joystickKnob, eventData.position))
             {
-                Vector2 originalPosition = m_joystickKnob.position;
-                
                 m_joystickKnob.position += new Vector3(eventData.delta.x, eventData.delta.y, 0);
                 
                 if (Vector2.Distance(eventData.position, m_joystickOrigin.position) > m_range)
                 {
-                    m_joystickKnob.position = originalPosition;
+                    m_joystickOrigin.position += new Vector3(eventData.delta.x, eventData.delta.y, 0);
+                    m_rangeIndicator1meter.position = m_joystickOrigin.position;
                 }
 
                 float verticalComponent = (m_joystickKnob.position.y - m_joystickOrigin.position.y) / m_range;
