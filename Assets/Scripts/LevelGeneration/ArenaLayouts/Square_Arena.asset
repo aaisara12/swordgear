@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18efdbbf5f109c143b88e9cfd9fcee0f, type: 3}
   m_Name: Square_Arena
   m_EditorClassIdentifier: 
-  LevelPrefab: {fileID: 0}
+  LevelPrefab: {fileID: 591691125601224621, guid: 7e2a23fe2cca5d147afde5592ed346f8, type: 3}
   PreviewDiagram: {fileID: 0}

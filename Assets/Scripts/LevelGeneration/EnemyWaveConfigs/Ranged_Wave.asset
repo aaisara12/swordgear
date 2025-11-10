@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Ranged_Wave
   m_EditorClassIdentifier: 
   Enemies:
-  - EnemyPrefab: {fileID: 0}
-    Count: 0
-  DelayAfterClear: 0
+  - EnemyPrefab: {fileID: 4519183777221867105, guid: 6dcb65fe6b5b2b24f8763da5acea87f5, type: 3}
+    Count: 2
+  DelayAfterClear: 2

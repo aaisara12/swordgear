@@ -1,9 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI; // Required for Button/Text if you use UI elements
 using System.Collections.Generic;
+using TMPro;
 
 public class TestGameManager : MonoBehaviour
 {
+
     // --- Public Fields for Testing & Setup ---
 
     [Header("UI References (For Preview/Start)")]
@@ -27,7 +29,7 @@ public class TestGameManager : MonoBehaviour
         {
             startRoundButton.onClick.AddListener(OnStartRoundClicked);
             startRoundButton.interactable = true;
-            startRoundButton.GetComponentInChildren<Text>().text = "START ROUND";
+            startRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "START ROUND";
         }
     }
 
@@ -45,8 +47,8 @@ public class TestGameManager : MonoBehaviour
             LevelBlueprint bp = currentRoundBlueprints[i];
 
             // Get a basic description of the wave sequence
-            string waveSummary = $"({bp.WaveConfig.Waves.Count} Waves: ";
-            foreach (var group in bp.WaveConfig.Waves)
+            string waveSummary = $"({bp.Waves.Count} Waves: ";
+            foreach (var group in bp.Waves)
             {
                 // Just display the count of the first enemy type in the group for brevity
                 waveSummary += $"{group.Enemies[0].Count}x {group.Enemies[0].EnemyPrefab.name}, ";
@@ -95,7 +97,7 @@ public class TestGameManager : MonoBehaviour
         }
 
         LevelBlueprint nextBlueprint = currentRoundBlueprints[currentLevelInRound];
-
+        Debug.Log("loading next level");
         LevelLoader.Instance.LoadLevel(nextBlueprint);
     }
 
