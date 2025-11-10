@@ -31,6 +31,8 @@ public class TestGameManager : MonoBehaviour
             startRoundButton.interactable = true;
             startRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "START ROUND";
         }
+
+        LevelLoader.Instance.OnLevelClear += HandleLevelClear;
     }
 
     // --- Step 1: Generate and Preview ---
@@ -67,23 +69,31 @@ public class TestGameManager : MonoBehaviour
             previewText.text = preview;
         }
 
-        // Subscribe to the LevelLoader event for level-to-level transition
-        LevelLoader.Instance.OnLevelClear += HandleLevelClear;
-
         Debug.Log("Round generated. Ready to start.");
     }
 
     // --- Step 2: Begin Gameplay Loop ---
     public void OnStartRoundClicked()
     {
-        // Disable the button to prevent double-clicking
+        // Disable the button immediately to prevent double-clicking
         if (startRoundButton != null)
         {
             startRoundButton.interactable = false;
         }
 
-        Debug.Log("Starting Round: Loading Level 1.");
-        currentLevelInRound = 0;
+        if (currentLevelInRound == 0)
+        {
+            // ACTION 1: Starting the round (Level 1)
+            Debug.Log("Starting Round: Loading Level 1.");
+        }
+        else
+        {
+            // ACTION 2: Proceeding to Level 2 or 3
+            Debug.Log($"User pressed PROCEED. Loading Level {currentLevelInRound + 1}.");
+        }
+
+        // The index is already incremented in HandleLevelClear() for transitions,
+        // or is 0 for the initial start, so we just execute the load.
         LoadNextLevel();
     }
 
@@ -102,42 +112,50 @@ public class TestGameManager : MonoBehaviour
     }
 
     // --- Step 4: Level Completion Handler (Triggers next step) ---
+    // --- Level Progression Handler (Triggers next step) ---
     private void HandleLevelClear()
     {
-        // Check if we just loaded the level or if we were waiting for an enemy to die
+        // The previous level is officially cleared.
+        currentLevelInRound++;
+
         if (currentLevelInRound < currentRoundBlueprints.Count)
         {
-            Debug.Log($"Level {currentLevelInRound + 1} Cleared!");
-            currentLevelInRound++;
+            // Levels 1 or 2 cleared: STOP and enable the button for manual transition
+            Debug.Log($"Level {currentLevelInRound} Cleared! Waiting for user to proceed.");
 
-            if (currentLevelInRound < currentRoundBlueprints.Count)
+            // Re-enable the button and change its text
+            if (startRoundButton != null)
             {
-                // Load the next level (2 or 3)
-                Debug.Log($"Loading Level {currentLevelInRound + 1}...");
-                LoadNextLevel();
+                startRoundButton.interactable = true;
+                startRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = $"PROCEED TO LEVEL {currentLevelInRound + 1}";
             }
-            else
-            {
-                // Level 3 is done!
-                Debug.Log("Round COMPLETE! Gameplay loop finished.");
-                TransitionToShop();
-            }
+
+            // Remove the old arena from the scene here if necessary!
+        }
+        else
+        {
+            // Level 3 is done: End the round
+            Debug.Log("Round finished! Returning to shop.");
+            TransitionToShop();
         }
     }
 
     private void TransitionToShop()
     {
-        // Dummy implementation of Step 9:
-        Debug.Log("Unsubscribing from LevelLoader events.");
+        // Unsubscribe cleanup
         LevelLoader.Instance.OnLevelClear -= HandleLevelClear;
 
-        // Re-enable the button to start a new round for testing purposes
         if (startRoundButton != null)
         {
             startRoundButton.interactable = true;
-            previewText.text = "ROUND FINISHED. Press START ROUND to generate a new round.";
+            startRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = "START NEW ROUND";
+            previewText.text = "ROUND FINISHED. Press START NEW ROUND to generate a new round.";
         }
 
-        // In a real game, this would load the shop scene or open the shop UI panel.
+        currentLevelInRound = 0;
+        // Generate new blueprints for the next test cycle
+        GenerateAndShowPreviews();
+        // Re-subscribe after generating new blueprints
+        LevelLoader.Instance.OnLevelClear += HandleLevelClear;
     }
 }
