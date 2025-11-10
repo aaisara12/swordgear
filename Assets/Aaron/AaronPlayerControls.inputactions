@@ -101,6 +101,17 @@
                     "isPartOfComposite": true
                 },
                 {
+                    "name": "",
+                    "id": "3d5cf035-aead-41c1-b435-d93ce51ee67a",
+                    "path": "<Gamepad>/leftStick",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Move",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
                     "name": "Right Hand Keyboard",
                     "id": "c56ad1d0-40d6-415b-9018-93319257666c",
                     "path": "2DVector",
