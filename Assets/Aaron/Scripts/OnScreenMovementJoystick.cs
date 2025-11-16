@@ -33,11 +33,12 @@ namespace AaronInputDemo
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
             m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
             
-            m_joystickKnob.position += new Vector3(eventData.delta.x, eventData.delta.y, 0);
+            m_joystickKnob.position = eventData.position;
             
             if (Vector2.Distance(eventData.position, m_joystickOrigin.position) > m_range)
             {
-                m_joystickOrigin.position += new Vector3(eventData.delta.x, eventData.delta.y, 0);
+                Vector3 directionFromPointerToOrigin = (m_joystickOrigin.position - new Vector3(eventData.position.x, eventData.position.y, 0)).normalized;
+                m_joystickOrigin.position = directionFromPointerToOrigin * m_range + m_joystickKnob.position;
                 m_rangeIndicator1meter.position = m_joystickOrigin.position;
             }
             
