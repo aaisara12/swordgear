@@ -176,6 +176,12 @@ public class PlayerController : MonoBehaviour
     {
         rb.ThrowIfNull(nameof(rb));
         Vector2 v = value.Get<Vector2>();
+
+        if (v.sqrMagnitude > 0.001f)
+        {
+            float angle = Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg - 90f;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
         rb.linearVelocity = v * speed;
     }
 

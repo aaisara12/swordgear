@@ -38,13 +38,13 @@ public class GameManager : MonoBehaviour
     {
         Instance = this;
         playerController = player.GetComponent<PlayerController>();
-        currentElement = Element.Physical;
     }
 
     private void Start()
     {
         // For enemy effect handling
         StartCoroutine(EffectTickLoop());
+        currentElement = Element.Physical;
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)

@@ -87,6 +87,7 @@ public class ElementManager : MonoBehaviour
     public void MeleeStrike(Transform player)
     {
         if (activeWeapon == null) return;
+        Debug.Log(activeWeapon);
         activeWeapon.MeleeStrike(player, currentUpgrades);
     }
 

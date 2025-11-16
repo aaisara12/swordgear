@@ -39,6 +39,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public void Strike(Transform player)
     {
+        Debug.Log("Attack physical");
         StartCoroutine(Swing(player));
     }
 
