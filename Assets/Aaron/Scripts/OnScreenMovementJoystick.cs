@@ -8,7 +8,7 @@ using UnityEngine.InputSystem.OnScreen;
 
 namespace AaronInputDemo
 {
-    public class OnScreenBrawlStarsJoystick : OnScreenControl, IDragHandler, IPointerUpHandler, IPointerDownHandler
+    public class OnScreenMovementJoystick : OnScreenControl, IDragHandler, IPointerUpHandler, IPointerDownHandler
     {
         [InputControl(layout = "Vector2")]
         [SerializeField] private string m_ControlPath = string.Empty;
