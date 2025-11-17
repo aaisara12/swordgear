@@ -114,6 +114,8 @@ public class PlayerController : MonoBehaviour
 
     void MeleeAttack()
     {
+        ElementManager.Instance.MeleeStrike(transform);
+
         rb.ThrowIfNull(nameof(rb));
         curWeapon.ThrowIfNull(nameof(curWeapon));
 
@@ -149,7 +151,8 @@ public class PlayerController : MonoBehaviour
     {
         if (playerState == PlayerState.MeleeReady)
         {
-            MeleeCancelCharge();
+            //MeleeCancelCharge();
+            ElementManager.Instance.MeleeCharge(transform, true);
             SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
             playerState = PlayerState.SwordThrown;
         }
@@ -173,6 +176,12 @@ public class PlayerController : MonoBehaviour
     {
         rb.ThrowIfNull(nameof(rb));
         Vector2 v = value.Get<Vector2>();
+
+        if (v.sqrMagnitude > 0.001f)
+        {
+            float angle = Mathf.Atan2(v.y, v.x) * Mathf.Rad2Deg - 90f;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
         rb.linearVelocity = v * speed;
     }
 
@@ -185,7 +194,8 @@ public class PlayerController : MonoBehaviour
         }
         if (playerState == PlayerState.MeleeReady)
         {
-            MeleeAttack();
+            //MeleeAttack();
+            ElementManager.Instance.MeleeStrike(transform);
         }
 
         if (playerState == PlayerState.SwordThrown &&
@@ -215,7 +225,8 @@ public class PlayerController : MonoBehaviour
         }
         else if (playerState == PlayerState.MeleeReady)
         {
-            MeleeCharge();
+            //MeleeCharge();
+            ElementManager.Instance.MeleeCharge(transform);
         }
     }
 

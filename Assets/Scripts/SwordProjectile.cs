@@ -8,7 +8,7 @@ public interface ISwordThrowBehavior
 
 public class SwordProjectile : MonoBehaviour
 {
-    SpriteRenderer sprite;
+    public SpriteRenderer sprite;
     public enum WeaponBuff
     {
         None,
@@ -24,6 +24,9 @@ public class SwordProjectile : MonoBehaviour
         {
             OnBuffEnd(_currentBuff);
             OnBuffBegin(value);
+            ElementManager.Instance.OnBuffStart(GameManager.Instance.player.transform, this);
+            ElementManager.Instance.OnBuffEnd(GameManager.Instance.player.transform, this);
+
             _currentBuff = value;
         }
     }
@@ -33,7 +36,7 @@ public class SwordProjectile : MonoBehaviour
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float decelerationRate = 2f;
-    [SerializeField] GameObject spriteObject;
+    public GameObject spriteObject;
 
     private Rigidbody2D rb;
     public Vector2 prevVelocity = Vector2.zero;
@@ -104,6 +107,7 @@ public class SwordProjectile : MonoBehaviour
     // Called every frame, think of this as animation loop
     void DisplaySword()
     {
+
         switch (CurrentBuff)
         {
             case Element.Physical:
@@ -121,21 +125,22 @@ public class SwordProjectile : MonoBehaviour
 
     void Update()
     {
-        DisplaySword();
+        ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
+        //DisplaySword();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
-        {
-            EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, CurrentBuff, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
-            if (lightningActive)
-            {
-                ChainLightningProjectile lightning = Instantiate(lightningPrefab, collision.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
-                lightning.Initialize(transform);
-            }
-        }
+        //if (collision.CompareTag("Enemy"))
+        //{
+        //    EnemyController enemy = collision.GetComponent<EnemyController>();
+        //    enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, CurrentBuff, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
+        //    if (lightningActive)
+        //    {
+        //        ChainLightningProjectile lightning = Instantiate(lightningPrefab, collision.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+        //        lightning.Initialize(transform);
+        //    }
+        //}
     }
 
     void OnBuffEnd(Element buff)

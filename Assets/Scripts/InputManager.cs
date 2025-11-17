@@ -98,7 +98,7 @@ public class InputManager : MonoBehaviour
 
         // Vector2 input = stickAction.ReadValue<Vector2>();
         Vector2 input = prevValue;
-        Debug.Log($"Input cancelled {input}");
+        // Debug.Log($"Input cancelled {input}");
         float magnitude = input.magnitude;
         float idleThreshold = idleZoneRadiusPercent;
 

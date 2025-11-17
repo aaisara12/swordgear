@@ -1,0 +1,15 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 44e1a9109bdb1be418ddb4ee2a3ecd43, type: 3}
+  m_Name: Teleport_Transition
+  m_EditorClassIdentifier: 
+  TransitionPrefab: {fileID: 457394527671207769, guid: c5958f409adee4e4d96a7ca8fb50ae08, type: 3}

@@ -19,8 +19,14 @@ public class GameManager : MonoBehaviour
         set
         {
             _currentElement = value;
-            playerController.SetElement(value);
-            SwordProjectile.Instance.CurrentBuff = value;
+
+            // Old API (to be replaced)
+            //playerController.SetElement(value);
+            //SwordProjectile.Instance.CurrentBuff = value;
+
+            // New API
+            if (ElementManager.Instance)
+                ElementManager.Instance.SetActiveElement(value);
         }
     }
 
@@ -38,6 +44,7 @@ public class GameManager : MonoBehaviour
     {
         // For enemy effect handling
         StartCoroutine(EffectTickLoop());
+        currentElement = Element.Physical;
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)
