@@ -16,7 +16,8 @@ namespace AaronInputDemo
         [SerializeField] private RectTransform? m_joystickOriginHome;
         [SerializeField] private RectTransform? m_joystickKnob;
         [SerializeField] private RectTransform? m_rangeIndicator1meter;
-        
+        [SerializeField] private Canvas? m_joystickCanvas;
+
         
         [SerializeField] private int m_range = 300;
         
@@ -31,21 +32,24 @@ namespace AaronInputDemo
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
             m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
+            m_joystickCanvas.ThrowIfNull(nameof(m_joystickCanvas));
 
+            float scaledRange = m_range * m_joystickCanvas.scaleFactor;
+            
             Vector3 lineFromOriginToPointer =
                 new Vector3(eventData.position.x, eventData.position.y, 0) - m_joystickOrigin.position;
 
             float finalKnobDistanceFromOrigin = lineFromOriginToPointer.magnitude;
             
-            if (lineFromOriginToPointer.magnitude > m_range)
+            if (lineFromOriginToPointer.magnitude > scaledRange)
             {
-                finalKnobDistanceFromOrigin = m_range;
+                finalKnobDistanceFromOrigin = scaledRange;
             }
             
             m_joystickKnob.position = lineFromOriginToPointer.normalized * finalKnobDistanceFromOrigin + m_joystickOrigin.position;
             
-            float verticalComponent = (m_joystickKnob.position.y - m_joystickOrigin.position.y) / m_range;
-            float horizontalComponent = (m_joystickKnob.position.x - m_joystickOrigin.position.x) / m_range;
+            float verticalComponent = (m_joystickKnob.position.y - m_joystickOrigin.position.y) / scaledRange;
+            float horizontalComponent = (m_joystickKnob.position.x - m_joystickOrigin.position.x) / scaledRange;
             
             SendValueToControl(new Vector2(horizontalComponent, verticalComponent));
         }
@@ -128,6 +132,12 @@ namespace AaronInputDemo
             if (m_joystickOriginHome == null)
             {
                 Debug.LogError("Joystick Origin Home is null!");
+                passNullCheck = false;
+            }
+            
+            if (m_joystickCanvas == null)
+            {
+                Debug.LogError("Joystick Canvas is null!");
                 passNullCheck = false;
             }
             

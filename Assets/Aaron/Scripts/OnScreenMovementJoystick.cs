@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.OnScreen;
+using UnityEngine.Serialization;
 
 
 namespace AaronInputDemo
@@ -17,6 +18,7 @@ namespace AaronInputDemo
         [SerializeField] private RectTransform? m_joystickOriginHome;
         [SerializeField] private RectTransform? m_joystickKnob;
         [SerializeField] private RectTransform? m_rangeIndicator1meter;
+        [SerializeField] private Canvas? m_joystickCanvas;
         
         [SerializeField] private int m_range = 300;
         
@@ -31,18 +33,20 @@ namespace AaronInputDemo
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
             m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
+            m_joystickCanvas.ThrowIfNull(nameof(m_joystickCanvas));
             
             m_joystickKnob.position = eventData.position;
             
-            if (Vector2.Distance(eventData.position, m_joystickOrigin.position) > m_range)
+            float scaledRange = m_range * m_joystickCanvas.scaleFactor;
+            if (Vector2.Distance(eventData.position, m_joystickOrigin.position) > scaledRange)
             {
                 Vector3 directionFromPointerToOrigin = (m_joystickOrigin.position - new Vector3(eventData.position.x, eventData.position.y, 0)).normalized;
-                m_joystickOrigin.position = directionFromPointerToOrigin * m_range + m_joystickKnob.position;
+                m_joystickOrigin.position = directionFromPointerToOrigin * scaledRange + m_joystickKnob.position;
                 m_rangeIndicator1meter.position = m_joystickOrigin.position;
             }
             
-            float verticalComponent = (m_joystickKnob.position.y - m_joystickOrigin.position.y) / m_range;
-            float horizontalComponent = (m_joystickKnob.position.x - m_joystickOrigin.position.x) / m_range;
+            float verticalComponent = (m_joystickKnob.position.y - m_joystickOrigin.position.y) / scaledRange;
+            float horizontalComponent = (m_joystickKnob.position.x - m_joystickOrigin.position.x) / scaledRange;
             
             SendValueToControl(new Vector2(horizontalComponent, verticalComponent));
         }
@@ -125,6 +129,12 @@ namespace AaronInputDemo
             if (m_joystickOriginHome == null)
             {
                 Debug.LogError("Joystick Origin Home is null!");
+                passNullCheck = false;
+            }
+
+            if (m_joystickCanvas == null)
+            {
+                Debug.LogError("Joystick Canvas is null!");
                 passNullCheck = false;
             }
             
