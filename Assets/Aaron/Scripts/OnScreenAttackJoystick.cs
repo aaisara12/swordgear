@@ -13,12 +13,12 @@ namespace AaronInputDemo
         [SerializeField] private string m_ControlPath = string.Empty;
 
         [SerializeField] private RectTransform? m_joystickOrigin;
+        [SerializeField] private RectTransform? m_joystickOriginHome;
         [SerializeField] private RectTransform? m_joystickKnob;
         [SerializeField] private RectTransform? m_rangeIndicator1meter;
         
+        
         [SerializeField] private int m_range = 300;
-
-        private Vector2 m_originalJoystickOriginPosition = Vector2.zero;
         
         protected override string controlPathInternal
         {
@@ -66,10 +66,11 @@ namespace AaronInputDemo
             m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
             m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
             m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
+            m_joystickOriginHome.ThrowIfNull(nameof(m_joystickOriginHome));
 
-            m_joystickOrigin.position = m_originalJoystickOriginPosition;
+            m_joystickOrigin.position = m_joystickOriginHome.position;
             m_joystickKnob.position = m_joystickOrigin.position;
-            m_rangeIndicator1meter.position = m_originalJoystickOriginPosition;
+            m_rangeIndicator1meter.position = m_joystickOrigin.position;
             
             SendValueToControl(new Vector2(0, 0));
         }
@@ -80,12 +81,7 @@ namespace AaronInputDemo
             {
                 Debug.LogError("Dependencies not set properly, destroying game object.");
                 Destroy(gameObject);
-                return;
             }
-            
-            m_joystickOrigin.ThrowIfNull(nameof(m_joystickOrigin));
-            
-            m_originalJoystickOriginPosition = m_joystickOrigin.position;
         }
 
         private void OnValidate()
@@ -126,6 +122,12 @@ namespace AaronInputDemo
             if (m_joystickOrigin == null)
             {
                 Debug.LogError("Joystick Origin is null!");
+                passNullCheck = false;
+            }
+
+            if (m_joystickOriginHome == null)
+            {
+                Debug.LogError("Joystick Origin Home is null!");
                 passNullCheck = false;
             }
             
