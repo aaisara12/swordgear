@@ -45,7 +45,6 @@ public class Bumper : MonoBehaviour
         {
             return;
         }
-        Debug.Log(collision.gameObject.name);
 
         Vector2 incomingVelocity = GetVelocity(collision);
         Vector2 normal = collision.contacts[0].normal;
