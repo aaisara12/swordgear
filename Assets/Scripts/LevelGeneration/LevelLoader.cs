@@ -14,11 +14,11 @@ public class LevelLoader : MonoBehaviour
     public event Action OnLevelClear;
     void Awake() { Instance = this; }
 
+    private bool isWaveAdvancing = false;
+
     public void LoadLevel(LevelBlueprint blueprint)
     {
         // Clear existing room/enemies (Implementation depends on your scene management)
-        Debug.Log("loading level from LevelLoader");
-
         currentBlueprint = blueprint;
         currentWaveIndex = 0;
 
@@ -52,6 +52,7 @@ public class LevelLoader : MonoBehaviour
     private void SpawnEnemiesForWave()
     {
         Debug.Log("Spawning enemies!");
+        isWaveAdvancing = false;
         EnemyWaveConfig wave = currentBlueprint.Waves[currentWaveIndex];
         EnemySpawnPoint[] spawnPoints = FindObjectsByType<EnemySpawnPoint>(FindObjectsSortMode.None);
 
@@ -100,8 +101,9 @@ public class LevelLoader : MonoBehaviour
         activeEnemies.RemoveAll(e => e == null);
 
         // 2. Check if the wave is cleared
-        if (activeEnemies.Count == 0)
+        if (activeEnemies.Count == 0 && !isWaveAdvancing)
         {
+            isWaveAdvancing = true;
             Debug.Log("WAVE CLEARED! Advancing index.");
             currentWaveIndex++;
             StartNextWave();
