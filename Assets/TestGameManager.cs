@@ -106,6 +106,8 @@ public class TestGameManager : MonoBehaviour
             return;
         }
 
+        // Remove the old arena from the scene here if necessary!
+
         LevelBlueprint nextBlueprint = currentRoundBlueprints[currentLevelInRound];
         Debug.Log("loading next level");
         LevelLoader.Instance.LoadLevel(nextBlueprint);
@@ -130,7 +132,6 @@ public class TestGameManager : MonoBehaviour
                 startRoundButton.GetComponentInChildren<TextMeshProUGUI>().text = $"PROCEED TO LEVEL {currentLevelInRound + 1}";
             }
 
-            // Remove the old arena from the scene here if necessary!
         }
         else
         {
