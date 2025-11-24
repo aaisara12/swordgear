@@ -9,10 +9,6 @@ namespace AaronInputDemo
         
         public void Process(ref InputInteractionContext context)
         {
-            Vector2 direction = context.ReadValue<Vector2>();
-            
-            Debug.Log($"Process: Direction {direction} - State {context.phase} - Expired {context.timerHasExpired}");
-            
             if (context.timerHasExpired)
             {
                 context.PerformedAndStayStarted();
