@@ -6,6 +6,8 @@ public class InputManager : MonoBehaviour
 {
     [SerializeField] private float idleZoneRadiusPercent = 0.2f;
     [SerializeField] private string gamepadActionName = "Move";
+    [SerializeField] private string attackActionName = "Attack";
+    
     public static event Action<Vector2> OnPressInIdleZone;
     public static event Action<Vector2> OnPressInMoveZone;
     public static event Action<Vector2> OnReleaseInIdleZone;
@@ -16,6 +18,7 @@ public class InputManager : MonoBehaviour
     public static event Action<Vector2> OnDragInMoveZone;
 
     private InputAction stickAction;
+    private InputAction attackAction;
     private bool isPressed;
     private bool wasInIdleZone;
     private Vector2 prevValue = Vector2.zero;
@@ -24,18 +27,23 @@ public class InputManager : MonoBehaviour
     {
         var playerInput = GetComponent<PlayerInput>();
         stickAction = playerInput.actions[gamepadActionName];
+        attackAction = playerInput.actions[attackActionName];
     }
 
     private void OnEnable()
     {
         stickAction.started += OnInputStarted;
+        attackAction.started += OnInputStarted;
         stickAction.canceled += OnInputCanceled;
+        attackAction.canceled += OnInputCanceled;
     }
 
     private void OnDisable()
     {
         stickAction.started -= OnInputStarted;
+        attackAction.started -= OnInputStarted;
         stickAction.canceled -= OnInputCanceled;
+        attackAction.canceled -= OnInputCanceled;
     }
 
     private void Update()
