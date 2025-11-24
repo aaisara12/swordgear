@@ -5,7 +5,7 @@ public class PlayerHitbox : MonoBehaviour
     [SerializeField] [Tooltip("Whether we should consider this hitbox melee or ranged")] 
     bool isMelee = true;
     [SerializeField] [Tooltip("For ranged hitboxes, set this if we should pass a different transform as the source of the collision")] 
-    Transform rangedHitSource = null;
+    public Transform rangedHitSource = null;  // TODO: Make property
 
     private void OnTriggerEnter2D(Collider2D collision)
     {

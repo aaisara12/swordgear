@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
@@ -91,8 +92,8 @@ public class PlayerController : MonoBehaviour
     {
         Debug.Log("Player has died!");
         OnDeath?.Invoke();
-        // Here, you would trigger the game over state or restart the level.
-        // Destroy(gameObject); // Or you could just disable the player.
+        // Commented out level change for ease of testing
+        // SceneManager.LoadScene("TitleScene");
     }
 
     public void SetElement(Element element)

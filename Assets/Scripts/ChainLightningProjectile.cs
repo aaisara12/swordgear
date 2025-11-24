@@ -74,7 +74,7 @@ public class ChainLightningProjectile : MonoBehaviour
                 yield break;
             }
             // Already static
-            currentTarget.TakeDamage(GameManager.Instance.CalculateDamage(currentTarget.element, Element.Ice, 10));
+            currentTarget.TakeDamage(GameManager.Instance.CalculateDamage(currentTarget.element, Element.Ice, 5));
             currentPos = currentTarget.transform.position;
         }
     }
