@@ -39,7 +39,7 @@ public class JoystickControlRegion : OnScreenControl, IPointerDownHandler, IPoin
         float verticalComponent = joystickVisual.KnobPosition.y - joystickVisual.OriginPosition.y;
         float horizontalComponent = joystickVisual.KnobPosition.x - joystickVisual.OriginPosition.x;
         
-        SendValueToControl(new Vector2(horizontalComponent, verticalComponent));
+        SendValueToControl(new Vector2(horizontalComponent, verticalComponent) / canvasRegisteringInput.scaleFactor / joystickVisual.KnobRange);
     }
     
     public void OnPointerDown(PointerEventData eventData)
