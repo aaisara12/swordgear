@@ -28,15 +28,15 @@ public class TestShop
         
         var purchasableItems = shopSystem.GetPurchasableItems();
         
-        Assert.IsEmpty(blob.PurchasedItems);
+        Assert.IsEmpty(blob.InventoryItems);
         
         var isSuccessfulPurchase = purchasableItems[0].TryPurchaseItem();
         
         Assert.IsTrue(isSuccessfulPurchase);
         
-        Assert.AreEqual(1, blob.PurchasedItems.Count);
+        Assert.AreEqual(1, blob.InventoryItems.Count);
         
-        var properlyRecordedPurchasedItem = blob.PurchasedItems.Contains(new KeyValuePair<string, int>(kItemId, 1));
+        var properlyRecordedPurchasedItem = blob.InventoryItems.Contains(new KeyValuePair<string, int>(kItemId, 1));
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
@@ -44,7 +44,7 @@ public class TestShop
     }
 
     [Test]
-    public void TestPlayerPurchaseInsufficientFunds()
+    public void TestPlayerPurchaseDoesNotGoThroughWithInsufficientFunds()
     {
         const int kItemCost = 40;
         const int kPlayerCurrency = 30;
@@ -64,13 +64,13 @@ public class TestShop
 
         var purchasableItems = shopSystem.GetPurchasableItems();
 
-        Assert.IsEmpty(blob.PurchasedItems);
+        Assert.IsEmpty(blob.InventoryItems);
 
         var isSuccessfulPurchase = purchasableItems[0].TryPurchaseItem();
 
         Assert.IsFalse(isSuccessfulPurchase);
 
-        Assert.IsEmpty(blob.PurchasedItems);
+        Assert.IsEmpty(blob.InventoryItems);
 
         Assert.AreEqual(kPlayerCurrency, blob.CurrencyAmount.Value);
     }

@@ -65,9 +65,9 @@ namespace AaronPrototype.ShopSystem
             {
                 _playerBlob.CurrencyAmount.Value -= itemCost;
 
-                if (!_playerBlob.PurchasedItems.TryAdd(itemId, 1))
+                if (!_playerBlob.InventoryItems.TryAdd(itemId, 1))
                 {
-                    _playerBlob.PurchasedItems[itemId] += 1;
+                    _playerBlob.InventoryItems[itemId] += 1;
                 }
 
                 return true;
@@ -133,7 +133,7 @@ namespace AaronPrototype.ShopSystem
     public class PlayerBlob
     {
         public Observable<int> CurrencyAmount { get; } = new Observable<int>(0);
-        public ObservableDictionary<string, int> PurchasedItems { get; } = new ObservableDictionary<string, int>();
+        public ObservableDictionary<string, int> InventoryItems { get; } = new ObservableDictionary<string, int>();
     }
     
     public interface IPlayerBlobLoader
