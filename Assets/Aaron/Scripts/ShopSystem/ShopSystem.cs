@@ -91,6 +91,34 @@ namespace AaronPrototype.ShopSystem
         public int Cost { get; }
     }
     
+    public class DummyItemCatalog : IItemCatalog
+    {
+        private List<IItem> _items = new List<IItem>();
+        public DummyItemCatalog(List<DummyItem> dummyItems)
+        {
+            foreach (var dummyItem in dummyItems)
+            {
+                _items.Add(dummyItem);
+            }
+        }
+        
+        public List<IItem> GetItems() => _items;
+    }
+
+    public class DummyItem : IItem
+    {
+        public string Id { get; }
+        public string DisplayName { get; }
+        public int Cost { get; }
+        
+        public DummyItem(string id, string displayName, int cost)
+        {
+            Id = id;
+            DisplayName = displayName;
+            Cost = cost;
+        }
+    }
+
     public class Item : ScriptableObject
     {
         [SerializeField] private int cost;
