@@ -34,7 +34,7 @@ public class TestShop
     [Test]
     public void TestPurchaseViaStorefrontRecorded()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_playerBlob, _itemCatalog);
+        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
         var items = _itemCatalog.GetItems();
         
@@ -52,11 +52,11 @@ public class TestShop
         
         _playerBlob.CurrencyAmount.Value = purchasableItem.ItemData.Cost;
         
-        Assert.IsTrue(purchasableItem.IsReadyToPurchase);
+        Assert.IsTrue(purchasableItem.IsReadyToPurchase(_playerBlob));
         
         Assert.IsEmpty(_playerBlob.InventoryItems);
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem();
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(_playerBlob);
         
         Assert.IsTrue(isSuccessfulPurchase);
         
@@ -70,7 +70,7 @@ public class TestShop
     [Test]
     public void TestStorefrontBlocksPurchaseIfInsufficientFunds()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_playerBlob, _itemCatalog);
+        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
         var items = _itemCatalog.GetItems();
         
@@ -90,11 +90,11 @@ public class TestShop
         
         _playerBlob.CurrencyAmount.Value = amountInPlayerWalletBeforePurchase;
         
-        Assert.IsFalse(purchasableItem.IsReadyToPurchase);
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase(_playerBlob));
         
         Assert.IsEmpty(_playerBlob.InventoryItems);
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem();
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(_playerBlob);
         
         Assert.IsFalse(isSuccessfulPurchase);
         

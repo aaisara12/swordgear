@@ -15,30 +15,26 @@ namespace Shop
         public class PurchasableItem
         {
             public IItem ItemData { get; }
-            public bool IsReadyToPurchase => _isReadyToPurchaseMethod.Invoke();
 
-            private Func<bool> _isReadyToPurchaseMethod;
-            private Func<bool> _tryPurchaseItemMethod;
+            private Func<IItemPurchaser, bool> _isReadyToPurchaseMethod;
+            private Func<IItemPurchaser, bool> _tryPurchaseItemMethod;
             
-            public PurchasableItem(IItem itemData, Func<bool> isReadyToPurchaseMethod, Func<bool> tryPurchaseItemMethod)
+            public PurchasableItem(IItem itemData, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
             {
                 ItemData = itemData;
                 _isReadyToPurchaseMethod = isReadyToPurchaseMethod;
                 _tryPurchaseItemMethod = tryPurchaseItemMethod;
             }
 
-            public bool TryPurchaseItem() => _tryPurchaseItemMethod();
+            public bool IsReadyToPurchase(IItemPurchaser purchaser) => _isReadyToPurchaseMethod(purchaser);
+            public bool TryPurchaseItem(IItemPurchaser purchaser) => _tryPurchaseItemMethod(purchaser);
         }
         
-        private PlayerBlob _playerBlob;
         private Dictionary<string, int> _availableItems = new Dictionary<string, int>();
         private IItemCatalog _itemCatalog;
 
-        public ItemStorefront(PlayerBlob playerBlob, IItemCatalog itemCatalog)
+        public ItemStorefront(IItemCatalog itemCatalog)
         {
-            // It might make more intuitive sense to have the PlayerBlob passed into the PurchaseItem method - right now
-            // it's being passed as an invisible parameter
-            _playerBlob = playerBlob;
             _itemCatalog = itemCatalog;
         }
 
@@ -70,8 +66,8 @@ namespace Shop
 
                 var purchasableItem = new PurchasableItem(
                     itemData,
-                    () => IsItemReadyToPurchase(itemIdAndQuantity.Key, itemData.Cost),
-                    () => TryPurchaseItem(itemData.Id, itemData.Cost)
+                    purchaser => IsItemReadyToPurchase(itemData, purchaser),
+                    purchaser => TryPurchaseItem(itemData, purchaser)
                 );
                 
                 purchasableItems.Add(purchasableItem);
@@ -80,30 +76,35 @@ namespace Shop
             return purchasableItems;
         }
         
-        private bool IsItemReadyToPurchase(string itemId, int itemCost)
+        private bool IsItemReadyToPurchase(IItem item, IItemPurchaser purchaser)
         {
-            int numberOfItemAvailable = _availableItems.GetValueOrDefault(itemId, 0);
+            int numberOfItemAvailable = _availableItems.GetValueOrDefault(item.Id, 0);
             
-            return _playerBlob.CurrencyAmount.Value >= itemCost && numberOfItemAvailable > 0;
+            return purchaser.WalletLedger >= item.Cost && numberOfItemAvailable > 0;
         }
         
-        private bool TryPurchaseItem(string itemId, int itemCost)
+        private bool TryPurchaseItem(IItem item, IItemPurchaser purchaser)
         {
-            if (IsItemReadyToPurchase(itemId, itemCost) == false)
+            string itemId = item.Id;
+            int itemCost = item.Cost;
+            
+            if (IsItemReadyToPurchase(item, purchaser) == false)
             {
                 return false;
             }
             
-            _playerBlob.CurrencyAmount.Value -= itemCost;
-
-            if (!_playerBlob.InventoryItems.TryAdd(itemId, 1))
-            {
-                _playerBlob.InventoryItems[itemId] += 1;
-            }
+            purchaser.WalletLedger -= itemCost;
+            purchaser.ReceiveItem(itemId, 1);
 
             return true;
         }
         
+    }
+
+    public interface IItemPurchaser
+    {
+        public int WalletLedger { get; set; }
+        public void ReceiveItem(string itemId, int quantity);
     }
 }
 
