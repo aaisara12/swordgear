@@ -5,7 +5,7 @@ using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AaronInputDemo
+namespace Testing
 {
     public class Attacker : MonoBehaviour
     {

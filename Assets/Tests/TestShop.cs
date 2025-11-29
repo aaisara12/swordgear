@@ -1,14 +1,14 @@
 #nullable enable
 
 using System.Collections.Generic;
-using AaronPrototype.ShopSystem;
+using Shop;
 using NUnit.Framework;
+using Testing;
 
 public class TestShop
 {
-    // Test that player
     [Test]
-    public void TestPlayerPurchaseRecorded()
+    public void TestPurchaseViaStorefrontRecorded()
     {
         const int kItemCost = 40;
         const int kPlayerCurrency = 100;
@@ -24,9 +24,9 @@ public class TestShop
             new DummyItem(kItemId, kItemDisplayName, kItemCost)
         });
         
-        ShopSystem shopSystem = new ShopSystem(blob, itemCatalog);
+        ItemStorefront itemStorefront = new ItemStorefront(blob, itemCatalog);
         
-        var purchasableItems = shopSystem.GetPurchasableItems();
+        var purchasableItems = itemStorefront.GetPurchasableItems();
         
         Assert.IsEmpty(blob.InventoryItems);
         
@@ -44,7 +44,7 @@ public class TestShop
     }
 
     [Test]
-    public void TestPlayerPurchaseDoesNotGoThroughWithInsufficientFunds()
+    public void TestStorefrontBlocksPurchaseIfInsufficientFunds()
     {
         const int kItemCost = 40;
         const int kPlayerCurrency = 30;
@@ -60,9 +60,9 @@ public class TestShop
             new DummyItem(kItemId, kItemDisplayName, kItemCost)
         });
 
-        ShopSystem shopSystem = new ShopSystem(blob, itemCatalog);
+        ItemStorefront itemStorefront = new ItemStorefront(blob, itemCatalog);
 
-        var purchasableItems = shopSystem.GetPurchasableItems();
+        var purchasableItems = itemStorefront.GetPurchasableItems();
 
         Assert.IsEmpty(blob.InventoryItems);
 

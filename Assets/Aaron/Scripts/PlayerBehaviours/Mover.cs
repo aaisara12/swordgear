@@ -3,7 +3,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-namespace AaronInputDemo
+namespace Testing
 {
     public class Mover : MonoBehaviour
     {
