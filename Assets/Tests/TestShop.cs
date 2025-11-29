@@ -8,11 +8,9 @@ using Testing;
 public class TestShop
 {
     private IItemCatalog _itemCatalog;
-    private PlayerBlob _playerBlob;
 
     public TestShop()
     {
-        _playerBlob = new PlayerBlob();
         _itemCatalog = new DummyItemCatalog(
             new List<DummyItem>()
             {
@@ -22,14 +20,6 @@ public class TestShop
                 new DummyItem("gear-upgrade-fire", "Fire Bumper", 30)
             });
     }
-
-    [SetUp]
-    public void SetUp()
-    {
-        _playerBlob.CurrencyAmount.Value = 0;
-        _playerBlob.InventoryItems.Clear();
-    }
-    
     
     [Test]
     public void TestPurchaseViaStorefrontRecorded()
@@ -49,22 +39,25 @@ public class TestShop
         Assert.IsNotEmpty(purchasableItems);
 
         var purchasableItem = purchasableItems[0];
-        
-        _playerBlob.CurrencyAmount.Value = purchasableItem.ItemData.Cost;
-        
-        Assert.IsTrue(purchasableItem.IsReadyToPurchase(_playerBlob));
-        
-        Assert.IsEmpty(_playerBlob.InventoryItems);
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(_playerBlob);
+        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        itemPurchaser.WalletLedger = purchasableItem.ItemData.Cost;
+        
+        Assert.IsTrue(purchasableItem.IsReadyToPurchase(itemPurchaser));
+        
+        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
+
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
         
         Assert.IsTrue(isSuccessfulPurchase);
         
-        var properlyRecordedPurchasedItem = _playerBlob.InventoryItems.Contains(new KeyValuePair<string, int>(purchasableItem.ItemData.Id, 1));
+        var properlyRecordedPurchasedItem = 
+            itemPurchaser.ItemPurchased == purchasableItem.ItemData.Id && 
+            itemPurchaser.ItemPurchasedQuantity == 1;
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
-        Assert.AreEqual(0, _playerBlob.CurrencyAmount.Value);
+        Assert.AreEqual(0, itemPurchaser.WalletLedger);
     }
 
     [Test]
@@ -86,22 +79,26 @@ public class TestShop
 
         var purchasableItem = purchasableItems[0];
 
-        int amountInPlayerWalletBeforePurchase = purchasableItem.ItemData.Cost - 1;
+        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
         
-        _playerBlob.CurrencyAmount.Value = amountInPlayerWalletBeforePurchase;
+        int walletValueBeforePurchaseAttempt = purchasableItem.ItemData.Cost - 1;
         
-        Assert.IsFalse(purchasableItem.IsReadyToPurchase(_playerBlob));
+        itemPurchaser.WalletLedger = walletValueBeforePurchaseAttempt;
         
-        Assert.IsEmpty(_playerBlob.InventoryItems);
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
+        
+        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(_playerBlob);
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        var properlyRecordedPurchasedItem = _playerBlob.InventoryItems.Contains(new KeyValuePair<string, int>(purchasableItem.ItemData.Id, 1));
+        var properlyRecordedPurchasedItem = 
+            itemPurchaser.ItemPurchased == purchasableItem.ItemData.Id && 
+            itemPurchaser.ItemPurchasedQuantity == 1;
         
         Assert.IsFalse(properlyRecordedPurchasedItem);
         
-        Assert.AreEqual(amountInPlayerWalletBeforePurchase, _playerBlob.CurrencyAmount.Value);
+        Assert.AreEqual(walletValueBeforePurchaseAttempt, itemPurchaser.WalletLedger);
     }
 }
