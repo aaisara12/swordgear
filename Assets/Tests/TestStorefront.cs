@@ -93,11 +93,11 @@ public class TestStorefront
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        var properlyRecordedPurchasedItem = 
-            itemPurchaser.ItemPurchased == purchasableItem.StoreItemData.Id && 
-            itemPurchaser.ItemPurchasedQuantity == 1;
+        var purchaserHasNotRecordedItemPurchase = 
+            itemPurchaser.ItemPurchased == string.Empty && 
+            itemPurchaser.ItemPurchasedQuantity == -1;
         
-        Assert.IsFalse(properlyRecordedPurchasedItem);
+        Assert.IsTrue(purchaserHasNotRecordedItemPurchase);
         
         Assert.AreEqual(walletValueBeforePurchaseAttempt, itemPurchaser.WalletLedger);
     }
