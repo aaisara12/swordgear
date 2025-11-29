@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Shop
 {
@@ -13,17 +14,16 @@ namespace Shop
         // intent is to create a very restricted interface that the UI can use to display purchasable items
         public class PurchasableItem
         {
-            public string Name { get; }
-            public int Cost { get; }
-            public bool IsPurchasable { get; }
+            public IItem ItemData { get; }
+            public bool IsReadyToPurchase => _isReadyToPurchaseMethod.Invoke();
 
+            private Func<bool> _isReadyToPurchaseMethod;
             private Func<bool> _tryPurchaseItemMethod;
             
-            public PurchasableItem(string name, int cost, bool isPurchasable, Func<bool> tryPurchaseItemMethod)
+            public PurchasableItem(IItem itemData, Func<bool> isReadyToPurchaseMethod, Func<bool> tryPurchaseItemMethod)
             {
-                Name = name;
-                Cost = cost;
-                IsPurchasable = isPurchasable;
+                ItemData = itemData;
+                _isReadyToPurchaseMethod = isReadyToPurchaseMethod;
                 _tryPurchaseItemMethod = tryPurchaseItemMethod;
             }
 
@@ -31,29 +31,47 @@ namespace Shop
         }
         
         private PlayerBlob _playerBlob;
+        private Dictionary<string, int> _availableItems = new Dictionary<string, int>();
         private IItemCatalog _itemCatalog;
 
         public ItemStorefront(PlayerBlob playerBlob, IItemCatalog itemCatalog)
         {
+            // It might make more intuitive sense to have the PlayerBlob passed into the PurchaseItem method - right now
+            // it's being passed as an invisible parameter
             _playerBlob = playerBlob;
             _itemCatalog = itemCatalog;
-            
-            // TODO: Instead, get a list of items and quantity so we can determine whether an item is sold out or not
+        }
+
+        public void StockItems(IReadOnlyDictionary<string, int> items)
+        {
+            foreach (var itemIdAndQuantity in items)
+            {
+                _availableItems.TryAdd(itemIdAndQuantity.Key, 0);
+                _availableItems[itemIdAndQuantity.Key] += itemIdAndQuantity.Value;
+            }
+        }
+
+        public void ClearItems()
+        {
+            _availableItems.Clear();
         }
         
         public List<PurchasableItem> GetPurchasableItems()
         {
-            var items = _itemCatalog.GetItems();
-            
             var purchasableItems = new List<PurchasableItem>();
 
-            foreach (var item in items)
+            foreach (var itemIdAndQuantity in _availableItems)
             {
+                if (_itemCatalog.TryFindItemData(itemIdAndQuantity.Key, out var itemData) == false)
+                {
+                    Debug.LogError($"[ItemStorefront] Could not find item data for item ID {itemIdAndQuantity.Key}. Will not present as purchasable item.");
+                    continue;
+                }
+
                 var purchasableItem = new PurchasableItem(
-                    item.DisplayName,
-                    item.Cost,
-                    _playerBlob.CurrencyAmount.Value >= item.Cost,
-                    () => TryPurchaseItem(item.Id, item.Cost)
+                    itemData,
+                    () => IsItemReadyToPurchase(itemIdAndQuantity.Key, itemData.Cost),
+                    () => TryPurchaseItem(itemData.Id, itemData.Cost)
                 );
                 
                 purchasableItems.Add(purchasableItem);
@@ -62,21 +80,28 @@ namespace Shop
             return purchasableItems;
         }
         
+        private bool IsItemReadyToPurchase(string itemId, int itemCost)
+        {
+            int numberOfItemAvailable = _availableItems.GetValueOrDefault(itemId, 0);
+            
+            return _playerBlob.CurrencyAmount.Value >= itemCost && numberOfItemAvailable > 0;
+        }
+        
         private bool TryPurchaseItem(string itemId, int itemCost)
         {
-            if (_playerBlob.CurrencyAmount.Value >= itemCost)
+            if (IsItemReadyToPurchase(itemId, itemCost) == false)
             {
-                _playerBlob.CurrencyAmount.Value -= itemCost;
+                return false;
+            }
+            
+            _playerBlob.CurrencyAmount.Value -= itemCost;
 
-                if (!_playerBlob.InventoryItems.TryAdd(itemId, 1))
-                {
-                    _playerBlob.InventoryItems[itemId] += 1;
-                }
-
-                return true;
+            if (!_playerBlob.InventoryItems.TryAdd(itemId, 1))
+            {
+                _playerBlob.InventoryItems[itemId] += 1;
             }
 
-            return false;
+            return true;
         }
         
     }

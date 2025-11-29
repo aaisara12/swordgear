@@ -7,71 +7,101 @@ using Testing;
 
 public class TestShop
 {
+    private IItemCatalog _itemCatalog;
+    private PlayerBlob _playerBlob;
+
+    public TestShop()
+    {
+        _playerBlob = new PlayerBlob();
+        _itemCatalog = new DummyItemCatalog(
+            new List<DummyItem>()
+            {
+                new DummyItem("fire-upgrade-1", "Firebrand", 50),
+                new DummyItem("fire-upgrade-2", "Molten Whip", 90),
+                new DummyItem("gear-bumper-slot", "Add Bumper Slot", 50),
+                new DummyItem("gear-upgrade-fire", "Fire Bumper", 30)
+            });
+    }
+
+    [SetUp]
+    public void SetUp()
+    {
+        _playerBlob.CurrencyAmount.Value = 0;
+        _playerBlob.InventoryItems.Clear();
+    }
+    
+    
     [Test]
     public void TestPurchaseViaStorefrontRecorded()
     {
-        const int kItemCost = 40;
-        const int kPlayerCurrency = 100;
-        const string kItemId = "fire-upgrade-1";
-        const string kItemDisplayName = "Firebrand";
+        ItemStorefront itemStorefront = new ItemStorefront(_playerBlob, _itemCatalog);
+
+        var items = _itemCatalog.GetItems();
         
-        PlayerBlob blob = new PlayerBlob();
+        Assert.IsNotEmpty(items);
+
+        var testItem = items[0];
         
-        blob.CurrencyAmount.Value = kPlayerCurrency;
-        
-        DummyItemCatalog itemCatalog = new DummyItemCatalog(new List<DummyItem>()
-        {
-            new DummyItem(kItemId, kItemDisplayName, kItemCost)
-        });
-        
-        ItemStorefront itemStorefront = new ItemStorefront(blob, itemCatalog);
+        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
         
         var purchasableItems = itemStorefront.GetPurchasableItems();
         
-        Assert.IsEmpty(blob.InventoryItems);
+        Assert.IsNotEmpty(purchasableItems);
+
+        var purchasableItem = purchasableItems[0];
         
-        var isSuccessfulPurchase = purchasableItems[0].TryPurchaseItem();
+        _playerBlob.CurrencyAmount.Value = purchasableItem.ItemData.Cost;
+        
+        Assert.IsTrue(purchasableItem.IsReadyToPurchase);
+        
+        Assert.IsEmpty(_playerBlob.InventoryItems);
+
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem();
         
         Assert.IsTrue(isSuccessfulPurchase);
         
-        Assert.AreEqual(1, blob.InventoryItems.Count);
-        
-        var properlyRecordedPurchasedItem = blob.InventoryItems.Contains(new KeyValuePair<string, int>(kItemId, 1));
+        var properlyRecordedPurchasedItem = _playerBlob.InventoryItems.Contains(new KeyValuePair<string, int>(purchasableItem.ItemData.Id, 1));
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
-        Assert.AreEqual(kPlayerCurrency - kItemCost, blob.CurrencyAmount.Value);
+        Assert.AreEqual(0, _playerBlob.CurrencyAmount.Value);
     }
 
     [Test]
     public void TestStorefrontBlocksPurchaseIfInsufficientFunds()
     {
-        const int kItemCost = 40;
-        const int kPlayerCurrency = 30;
-        const string kItemId = "fire-upgrade-1";
-        const string kItemDisplayName = "Firebrand";
+        ItemStorefront itemStorefront = new ItemStorefront(_playerBlob, _itemCatalog);
 
-        PlayerBlob blob = new PlayerBlob();
+        var items = _itemCatalog.GetItems();
+        
+        Assert.IsNotEmpty(items);
 
-        blob.CurrencyAmount.Value = kPlayerCurrency;
-
-        DummyItemCatalog itemCatalog = new DummyItemCatalog(new List<DummyItem>()
-        {
-            new DummyItem(kItemId, kItemDisplayName, kItemCost)
-        });
-
-        ItemStorefront itemStorefront = new ItemStorefront(blob, itemCatalog);
-
+        var testItem = items[0];
+        
+        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
+        
         var purchasableItems = itemStorefront.GetPurchasableItems();
+        
+        Assert.IsNotEmpty(purchasableItems);
 
-        Assert.IsEmpty(blob.InventoryItems);
+        var purchasableItem = purchasableItems[0];
 
-        var isSuccessfulPurchase = purchasableItems[0].TryPurchaseItem();
+        int amountInPlayerWalletBeforePurchase = purchasableItem.ItemData.Cost - 1;
+        
+        _playerBlob.CurrencyAmount.Value = amountInPlayerWalletBeforePurchase;
+        
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase);
+        
+        Assert.IsEmpty(_playerBlob.InventoryItems);
 
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem();
+        
         Assert.IsFalse(isSuccessfulPurchase);
-
-        Assert.IsEmpty(blob.InventoryItems);
-
-        Assert.AreEqual(kPlayerCurrency, blob.CurrencyAmount.Value);
+        
+        var properlyRecordedPurchasedItem = _playerBlob.InventoryItems.Contains(new KeyValuePair<string, int>(purchasableItem.ItemData.Id, 1));
+        
+        Assert.IsFalse(properlyRecordedPurchasedItem);
+        
+        Assert.AreEqual(amountInPlayerWalletBeforePurchase, _playerBlob.CurrencyAmount.Value);
     }
 }
