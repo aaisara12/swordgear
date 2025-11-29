@@ -1,7 +1,7 @@
 #nullable enable
 namespace Shop
 {
-    public interface IItem
+    public interface IStoreItem
     {
         public string Id { get; }
         public string DisplayName { get; }

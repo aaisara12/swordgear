@@ -5,8 +5,8 @@ namespace Shop
 {
     public interface IItemCatalog
     {
-        public List<IItem> GetItems();
+        public List<IStoreItem> GetItems();
 
-        public bool TryFindItemData(string itemId, out IItem itemData);
+        public bool TryFindItemData(string itemId, out IStoreItem storeItemData);
     }
 }

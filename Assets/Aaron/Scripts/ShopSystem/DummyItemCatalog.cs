@@ -6,10 +6,10 @@ namespace Testing
 {
     public class DummyItemCatalog : IItemCatalog
     {
-        private List<IItem> _items = new List<IItem>();
-        private Dictionary<string, DummyItem> _itemDataById = new Dictionary<string, DummyItem>();
+        private List<IStoreItem> _items = new List<IStoreItem>();
+        private Dictionary<string, DummyStoreItem> _itemDataById = new Dictionary<string, DummyStoreItem>();
         
-        public DummyItemCatalog(List<DummyItem> dummyItems)
+        public DummyItemCatalog(List<DummyStoreItem> dummyItems)
         {
             foreach (var dummyItem in dummyItems)
             {
@@ -18,17 +18,17 @@ namespace Testing
             }
         }
         
-        public List<IItem> GetItems() => _items;
+        public List<IStoreItem> GetItems() => _items;
         
-        public bool TryFindItemData(string itemId, out IItem itemData)
+        public bool TryFindItemData(string itemId, out IStoreItem storeItemData)
         {
             if (_itemDataById.TryGetValue(itemId, out var data) == false)
             {
-                itemData = new DummyItem();
+                storeItemData = new DummyStoreItem();
                 return false;
             }
             
-            itemData = data;
+            storeItemData = data;
 
             return true;
         }

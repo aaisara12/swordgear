@@ -14,14 +14,14 @@ namespace Shop
         // intent is to create a very restricted interface that the UI can use to display purchasable items
         public class PurchasableItem
         {
-            public IItem ItemData { get; }
+            public IStoreItem StoreItemData { get; }
 
             private Func<IItemPurchaser, bool> _isReadyToPurchaseMethod;
             private Func<IItemPurchaser, bool> _tryPurchaseItemMethod;
             
-            public PurchasableItem(IItem itemData, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
+            public PurchasableItem(IStoreItem storeItemData, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
             {
-                ItemData = itemData;
+                StoreItemData = storeItemData;
                 _isReadyToPurchaseMethod = isReadyToPurchaseMethod;
                 _tryPurchaseItemMethod = tryPurchaseItemMethod;
             }
@@ -76,19 +76,19 @@ namespace Shop
             return purchasableItems;
         }
         
-        private bool IsItemReadyToPurchase(IItem item, IItemPurchaser purchaser)
+        private bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser)
         {
-            int numberOfItemAvailable = _availableItems.GetValueOrDefault(item.Id, 0);
+            int numberOfItemAvailable = _availableItems.GetValueOrDefault(storeItem.Id, 0);
             
-            return purchaser.WalletLedger >= item.Cost && numberOfItemAvailable > 0;
+            return purchaser.WalletLedger >= storeItem.Cost && numberOfItemAvailable > 0;
         }
         
-        private bool TryPurchaseItem(IItem item, IItemPurchaser purchaser)
+        private bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser)
         {
-            string itemId = item.Id;
-            int itemCost = item.Cost;
+            string itemId = storeItem.Id;
+            int itemCost = storeItem.Cost;
             
-            if (IsItemReadyToPurchase(item, purchaser) == false)
+            if (IsItemReadyToPurchase(storeItem, purchaser) == false)
             {
                 return false;
             }

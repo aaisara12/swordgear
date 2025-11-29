@@ -5,19 +5,19 @@ using Shop;
 using NUnit.Framework;
 using Testing;
 
-public class TestShop
+public class TestStorefront
 {
     private IItemCatalog _itemCatalog;
 
-    public TestShop()
+    public TestStorefront()
     {
         _itemCatalog = new DummyItemCatalog(
-            new List<DummyItem>()
+            new List<DummyStoreItem>()
             {
-                new DummyItem("fire-upgrade-1", "Firebrand", 50),
-                new DummyItem("fire-upgrade-2", "Molten Whip", 90),
-                new DummyItem("gear-bumper-slot", "Add Bumper Slot", 50),
-                new DummyItem("gear-upgrade-fire", "Fire Bumper", 30)
+                new DummyStoreItem("fire-upgrade-1", "Firebrand", 50),
+                new DummyStoreItem("fire-upgrade-2", "Molten Whip", 90),
+                new DummyStoreItem("gear-bumper-slot", "Add Bumper Slot", 50),
+                new DummyStoreItem("gear-upgrade-fire", "Fire Bumper", 30)
             });
     }
     
@@ -41,7 +41,7 @@ public class TestShop
         var purchasableItem = purchasableItems[0];
 
         OneItemPurchaser itemPurchaser = new OneItemPurchaser();
-        itemPurchaser.WalletLedger = purchasableItem.ItemData.Cost;
+        itemPurchaser.WalletLedger = purchasableItem.StoreItemData.Cost;
         
         Assert.IsTrue(purchasableItem.IsReadyToPurchase(itemPurchaser));
         
@@ -52,7 +52,7 @@ public class TestShop
         Assert.IsTrue(isSuccessfulPurchase);
         
         var properlyRecordedPurchasedItem = 
-            itemPurchaser.ItemPurchased == purchasableItem.ItemData.Id && 
+            itemPurchaser.ItemPurchased == purchasableItem.StoreItemData.Id && 
             itemPurchaser.ItemPurchasedQuantity == 1;
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
@@ -81,7 +81,7 @@ public class TestShop
 
         OneItemPurchaser itemPurchaser = new OneItemPurchaser();
         
-        int walletValueBeforePurchaseAttempt = purchasableItem.ItemData.Cost - 1;
+        int walletValueBeforePurchaseAttempt = purchasableItem.StoreItemData.Cost - 1;
         
         itemPurchaser.WalletLedger = walletValueBeforePurchaseAttempt;
         
@@ -94,7 +94,7 @@ public class TestShop
         Assert.IsFalse(isSuccessfulPurchase);
         
         var properlyRecordedPurchasedItem = 
-            itemPurchaser.ItemPurchased == purchasableItem.ItemData.Id && 
+            itemPurchaser.ItemPurchased == purchasableItem.StoreItemData.Id && 
             itemPurchaser.ItemPurchasedQuantity == 1;
         
         Assert.IsFalse(properlyRecordedPurchasedItem);
