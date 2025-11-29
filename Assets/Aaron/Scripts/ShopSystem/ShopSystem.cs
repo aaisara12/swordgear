@@ -192,7 +192,7 @@ namespace AaronPrototype.ShopSystem
         }
     }
     
-    public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>
+    public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICollection
     {
         private readonly Dictionary<TKey, TValue> _dict;
 
@@ -271,6 +271,9 @@ namespace AaronPrototype.ShopSystem
 
         public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() => _dict.GetEnumerator();
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        bool ICollection.IsSynchronized => (_dict as ICollection).IsSynchronized;
+        object ICollection.SyncRoot => (_dict as ICollection).SyncRoot;
+        void ICollection.CopyTo(Array array, int index) => (_dict as ICollection).CopyTo(array, index);
     }
 }
 
