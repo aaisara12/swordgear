@@ -1,7 +1,6 @@
 #nullable enable
 
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace Shop
 {
@@ -10,8 +9,17 @@ namespace Shop
     /// </summary>
     public class ItemStorefront
     {
-        private Dictionary<string, int> _availableItems = new Dictionary<string, int>();
-        private IItemCatalog _itemCatalog;
+        // Avoid allocating additional memory on the heap in the stocking process to reduce fragmentation
+        private struct NewItemStock
+        {
+            public IStoreItem ItemData;
+            public int Quantity;
+        }
+        
+        private readonly Dictionary<string, IStoreItem> _cachedItemData = new Dictionary<string, IStoreItem>();
+        private readonly Dictionary<string, int> _availableItemStock = new Dictionary<string, int>();
+        
+        private readonly IItemCatalog _itemCatalog;
 
         public ItemStorefront(IItemCatalog itemCatalog)
         {
@@ -20,18 +28,26 @@ namespace Shop
 
         public bool TryStockItems(IReadOnlyDictionary<string, int> items)
         {
+            NewItemStock[] newItems = new NewItemStock[items.Count];
+
+            int i = 0;
             foreach (var itemIdAndQuantity in items)
             {
-                if (_itemCatalog.TryFindItemData(itemIdAndQuantity.Key, out _) == false)
+                if (_itemCatalog.TryFindItemData(itemIdAndQuantity.Key, out var itemData) == false)
                 {
                     return false;
                 }
+                
+                newItems[i] = new NewItemStock { ItemData = itemData, Quantity = itemIdAndQuantity.Value };
+                i++;
             }
-            
-            foreach (var itemIdAndQuantity in items)
+
+            foreach (var newItem in newItems)
             {
-                _availableItems.TryAdd(itemIdAndQuantity.Key, 0);
-                _availableItems[itemIdAndQuantity.Key] += itemIdAndQuantity.Value;
+                _cachedItemData.TryAdd(newItem.ItemData.Id, newItem.ItemData);
+                _availableItemStock.TryAdd(newItem.ItemData.Id, 0);
+
+                _availableItemStock[newItem.ItemData.Id] += newItem.Quantity;
             }
 
             return true;
@@ -39,22 +55,17 @@ namespace Shop
 
         public void ClearItems()
         {
-            _availableItems.Clear();
+            _cachedItemData.Clear();
+            _availableItemStock.Clear();
         }
         
         public List<PurchasableItem> GetPurchasableItems()
         {
             var purchasableItems = new List<PurchasableItem>();
 
-            foreach (var itemIdAndQuantity in _availableItems)
+            foreach (var itemIdAndItem in _cachedItemData)
             {
-                if (_itemCatalog.TryFindItemData(itemIdAndQuantity.Key, out var itemData) == false)
-                {
-                    Debug.LogError($"[ItemStorefront] Could not find item data for item ID {itemIdAndQuantity.Key}. Will not present as purchasable item.");
-                    continue;
-                }
-
-                var purchasableItem = new PurchasableItem(itemData, _availableItems);
+                var purchasableItem = new PurchasableItem(itemIdAndItem.Value, _availableItemStock);
                 
                 purchasableItems.Add(purchasableItem);
             }
