@@ -9,108 +9,174 @@ using Testing;
 [TestOf(typeof(ItemStorefront))]
 public class ItemStorefrontTest
 {
-    private IItemCatalog _itemCatalog = new TestItemCatalog(
-        new List<IStoreItem>()
-        {
-            new TestStoreItem("fire-upgrade-1", 50),
-            new TestStoreItem("fire-upgrade-2", 90),
-            new TestStoreItem("gear-bumper-slot", 50),
-            new TestStoreItem("gear-upgrade-fire", 30)
-        });
+    [Test]
+    public void TryStockItems_AddsPurchasableItems_WhenItemInCatalog()
+    {
+        var catalog = new TestItemCatalog(new List<IStoreItem>() { new TestStoreItem("itemA", 5) });
+        var storefront = new ItemStorefront(catalog);
 
+        storefront.TryStockItems(new Dictionary<string, int> { { "itemA", 2 } });
+
+        var purchasableItems = storefront.GetPurchasableItems();
+
+        Assert.IsNotEmpty(purchasableItems);
+        Assert.AreEqual(1, purchasableItems.Count);
+        Assert.AreEqual("itemA", purchasableItems[0].StoreItemData.Id);
+        Assert.IsTrue(purchasableItems[0].IsItemInStock);
+    }
+
+    [Test]
+    public void TryStockItems_IncrementsStock_WhenCalledMultipleTimes()
+    {
+        var catalog = new TestItemCatalog(new List<IStoreItem>() { new TestStoreItem("itemB", 1) });
+        var storefront = new ItemStorefront(catalog);
+
+        storefront.TryStockItems(new Dictionary<string, int> { { "itemB", 1 } });
+        storefront.TryStockItems(new Dictionary<string, int> { { "itemB", 2 } }); // total 3
+
+        var purchasableItem = storefront.GetPurchasableItems()[0];
+
+        var purchaser = new TestPurchaser { WalletLedger = int.MaxValue };
+
+        int successfulPurchases = 0;
+        while (purchasableItem.TryPurchaseItem(purchaser))
+        {
+            successfulPurchases++;
+        }
+
+        Assert.AreEqual(3, successfulPurchases);
+        Assert.IsFalse(purchasableItem.IsItemInStock);
+        Assert.IsTrue(purchaser.Received.ContainsKey("itemB"));
+        Assert.AreEqual(3, purchaser.Received["itemB"]);
+    }
+
+    [Test]
+    public void TryStockItems_IgnoresUnknownItemIds()
+    {
+        var catalog = new TestItemCatalog(new List<IStoreItem>() { new TestStoreItem("known", 1) });
+        var storefront = new ItemStorefront(catalog);
+        
+        bool isStockSuccessful = storefront.TryStockItems(new Dictionary<string, int> { { "unknown", 1 } });
+        
+        Assert.IsFalse(isStockSuccessful);
+
+        var purchasableItems = storefront.GetPurchasableItems();
+
+        Assert.IsEmpty(purchasableItems);
+    }
+
+    [Test]
+    public void ClearItems_RemovesAllStock_WhenCalled()
+    {
+        var catalog = new TestItemCatalog(new List<IStoreItem> { new TestStoreItem("itemC", 2) });
+        var storefront = new ItemStorefront(catalog);
+
+        storefront.TryStockItems(new Dictionary<string, int> { { "itemC", 1 } });
+        Assert.IsNotEmpty(storefront.GetPurchasableItems());
+
+        storefront.ClearItems();
+
+        var afterClear = storefront.GetPurchasableItems();
+        Assert.IsEmpty(afterClear);
+    }
+        
     [Test]
     public void TryPurchaseItem_RecordsPurchase_WhenSuccessful()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+        var catalog = new TestItemCatalog(new List<IStoreItem> { new TestStoreItem("itemA", 5) });
+        var storefront = new ItemStorefront(catalog);
 
-        var items = _itemCatalog.GetItems();
+        var items = catalog.GetItems();
         
         Assert.IsNotEmpty(items);
 
         var testItem = items[0];
         
-        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
+        storefront.TryStockItems(new Dictionary<string, int>{{testItem.Id, 1}});
         
-        var purchasableItems = itemStorefront.GetPurchasableItems();
+        var purchasableItems = storefront.GetPurchasableItems();
         
         Assert.IsNotEmpty(purchasableItems);
 
         var purchasableItem = purchasableItems[0];
 
-        TestPurchaser itemPurchaser = new TestPurchaser
+        var purchaser = new TestPurchaser
         {
             WalletLedger = purchasableItem.StoreItemData.Cost
         };
 
-        Assert.IsTrue(purchasableItem.IsReadyToPurchase(itemPurchaser));
+        Assert.IsTrue(purchasableItem.IsReadyToPurchase(purchaser));
         
-        Assert.AreEqual(string.Empty, itemPurchaser.Received);
+        Assert.AreEqual(string.Empty, purchaser.Received);
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
         Assert.IsTrue(isSuccessfulPurchase);
         
         var properlyRecordedPurchasedItem = 
-            itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id) && 
-            itemPurchaser.Received[purchasableItem.StoreItemData.Id] == 1;
+            purchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id) && 
+            purchaser.Received[purchasableItem.StoreItemData.Id] == 1;
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
-        Assert.AreEqual(0, itemPurchaser.WalletLedger);
+        Assert.AreEqual(0, purchaser.WalletLedger);
     }
 
     [Test]
     public void TryPurchaseItem_Fails_WhenInsufficientFunds_NoStateChange()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+        var catalog = new TestItemCatalog(new List<IStoreItem> { new TestStoreItem("itemA", 5) });
+        var storefront = new ItemStorefront(catalog);
 
-        var items = _itemCatalog.GetItems();
+        var items = catalog.GetItems();
         
         Assert.IsNotEmpty(items);
 
         var testItem = items[0];
         
-        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
+        storefront.TryStockItems(new Dictionary<string, int>{{testItem.Id, 1}});
         
-        var purchasableItems = itemStorefront.GetPurchasableItems();
+        var purchasableItems = storefront.GetPurchasableItems();
         
         Assert.IsNotEmpty(purchasableItems);
 
         var purchasableItem = purchasableItems[0];
 
-        TestPurchaser itemPurchaser = new TestPurchaser();
-        
         int walletValueBeforePurchaseAttempt = purchasableItem.StoreItemData.Cost - 1;
         
-        itemPurchaser.WalletLedger = walletValueBeforePurchaseAttempt;
-        
-        Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
-        
-        Assert.AreEqual(string.Empty, itemPurchaser.Received);
+        var purchaser = new TestPurchaser
+        {
+            WalletLedger = walletValueBeforePurchaseAttempt
+        };
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase(purchaser));
+        
+        Assert.AreEqual(string.Empty, purchaser.Received);
+
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        Assert.IsFalse(itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
+        Assert.IsFalse(purchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
-        Assert.AreEqual(walletValueBeforePurchaseAttempt, itemPurchaser.WalletLedger);
+        Assert.AreEqual(walletValueBeforePurchaseAttempt, purchaser.WalletLedger);
     }
     
     [Test]
     public void TryPurchaseItem_Fails_WhenOutOfStock_NoStateChange()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+        var catalog = new TestItemCatalog(new List<IStoreItem> { new TestStoreItem("itemA", 5) });
+        var storefront = new ItemStorefront(catalog);
 
-        var items = _itemCatalog.GetItems();
+        var items = catalog.GetItems();
         
         Assert.IsNotEmpty(items);
 
         var testItem = items[0];
         
-        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 0}});
+        storefront.TryStockItems(new Dictionary<string, int>{{testItem.Id, 0}});
         
-        var purchasableItems = itemStorefront.GetPurchasableItems();
+        var purchasableItems = storefront.GetPurchasableItems();
         
         Assert.IsNotEmpty(purchasableItems);
 
@@ -118,47 +184,52 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchasableItem.IsItemInStock);
 
-        TestPurchaser itemPurchaser = new TestPurchaser();
-        itemPurchaser.WalletLedger = int.MaxValue;
-        
-        Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
-        
-        Assert.AreEqual(string.Empty, itemPurchaser.Received);
+        var purchaser = new TestPurchaser
+        {
+            WalletLedger = int.MaxValue
+        };
 
-        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase(purchaser));
+        
+        Assert.AreEqual(string.Empty, purchaser.Received);
+
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        Assert.IsFalse(itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
+        Assert.IsFalse(purchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
-        Assert.AreEqual(int.MaxValue, itemPurchaser.WalletLedger);
+        Assert.AreEqual(int.MaxValue, purchaser.WalletLedger);
     }
     
     [Test]
     public void TryPurchaseItem_DecrementsStock_WhenSuccessful()
     {
-        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+        var catalog = new TestItemCatalog(new List<IStoreItem> { new TestStoreItem("itemA", 5) });
+        var storefront = new ItemStorefront(catalog);
 
-        var items = _itemCatalog.GetItems();
+        var items = catalog.GetItems();
         
         Assert.IsNotEmpty(items);
 
         var testItem = items[0];
         
-        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
+        storefront.TryStockItems(new Dictionary<string, int>{{testItem.Id, 1}});
         
-        var purchasableItems = itemStorefront.GetPurchasableItems();
+        var purchasableItems = storefront.GetPurchasableItems();
         
         Assert.IsNotEmpty(purchasableItems);
 
         var purchasableItem = purchasableItems[0];
 
-        TestPurchaser itemPurchaser = new TestPurchaser();
-        itemPurchaser.WalletLedger = int.MaxValue;
-        
+        var purchaser = new TestPurchaser
+        {
+            WalletLedger = int.MaxValue
+        };
+
         Assert.IsTrue(purchasableItem.IsItemInStock);
 
-        var isFirstPurchaseSuccessful = purchasableItem.TryPurchaseItem(itemPurchaser);
+        var isFirstPurchaseSuccessful = purchasableItem.TryPurchaseItem(purchaser);
         
         Assert.IsTrue(isFirstPurchaseSuccessful);
         

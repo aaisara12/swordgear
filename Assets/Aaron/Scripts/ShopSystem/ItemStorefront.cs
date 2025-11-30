@@ -18,13 +18,23 @@ namespace Shop
             _itemCatalog = itemCatalog;
         }
 
-        public void StockItems(IReadOnlyDictionary<string, int> items)
+        public bool TryStockItems(IReadOnlyDictionary<string, int> items)
         {
+            foreach (var itemIdAndQuantity in items)
+            {
+                if (_itemCatalog.TryFindItemData(itemIdAndQuantity.Key, out _) == false)
+                {
+                    return false;
+                }
+            }
+            
             foreach (var itemIdAndQuantity in items)
             {
                 _availableItems.TryAdd(itemIdAndQuantity.Key, 0);
                 _availableItems[itemIdAndQuantity.Key] += itemIdAndQuantity.Value;
             }
+
+            return true;
         }
 
         public void ClearItems()
