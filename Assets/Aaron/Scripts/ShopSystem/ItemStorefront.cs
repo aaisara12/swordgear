@@ -1,6 +1,5 @@
 #nullable enable
 
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -11,28 +10,6 @@ namespace Shop
     /// </summary>
     public class ItemStorefront
     {
-        // intent is to create a very restricted interface that the UI can use to display purchasable items
-        public class PurchasableItem
-        {
-            public IStoreItem StoreItemData { get; }
-
-            private Func<IStoreItem, bool> _isItemInStockMethod;
-            private Func<IStoreItem, IItemPurchaser, bool> _isReadyToPurchaseMethod;
-            private Func<IStoreItem, IItemPurchaser, bool> _tryPurchaseItemMethod;
-            
-            public PurchasableItem(IStoreItem storeItemData, Func<IStoreItem, bool> isItemInStockMethod, Func<IStoreItem, IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IStoreItem, IItemPurchaser, bool> tryPurchaseItemMethod)
-            {
-                StoreItemData = storeItemData;
-                _isItemInStockMethod = isItemInStockMethod;
-                _isReadyToPurchaseMethod = isReadyToPurchaseMethod;
-                _tryPurchaseItemMethod = tryPurchaseItemMethod;
-            }
-
-            public bool IsItemInStock => _isItemInStockMethod(StoreItemData);
-            public bool IsReadyToPurchase(IItemPurchaser purchaser) => _isReadyToPurchaseMethod(StoreItemData, purchaser);
-            public bool TryPurchaseItem(IItemPurchaser purchaser) => _tryPurchaseItemMethod(StoreItemData, purchaser);
-        }
-        
         private Dictionary<string, int> _availableItems = new Dictionary<string, int>();
         private IItemCatalog _itemCatalog;
 
@@ -67,55 +44,13 @@ namespace Shop
                     continue;
                 }
 
-                var purchasableItem = new PurchasableItem(
-                    itemData,
-                    item => IsItemInStock(item, _availableItems),
-                    (item, purchaser) => IsItemReadyToPurchase(item, purchaser, _availableItems),
-                    (item, purchaser) => TryPurchaseItem(item, purchaser, _availableItems)
-                );
+                var purchasableItem = new PurchasableItem(itemData, _availableItems);
                 
                 purchasableItems.Add(purchasableItem);
             }
             
             return purchasableItems;
         }
-        
-        private bool IsItemInStock(IStoreItem storeItem, IReadOnlyDictionary<string, int> availableItems)
-        {
-            int numberOfItemAvailable = availableItems.GetValueOrDefault(storeItem.Id, 0);
-            
-            return numberOfItemAvailable > 0;
-        }
-        
-        private bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser, IReadOnlyDictionary<string, int> availableItems)
-        {
-            return purchaser.WalletLedger >= storeItem.Cost && IsItemInStock(storeItem, availableItems);
-        }
-        
-        private bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, Dictionary<string, int> availableItems)
-        {
-            string itemId = storeItem.Id;
-            int itemCost = storeItem.Cost;
-            
-            if (IsItemReadyToPurchase(storeItem, purchaser, availableItems) == false)
-            {
-                return false;
-            }
-            
-            purchaser.WalletLedger -= itemCost;
-            purchaser.ReceiveItem(itemId, 1);
-
-            availableItems[itemId] -= 1;
-
-            return true;
-        }
-        
-    }
-
-    public interface IItemPurchaser
-    {
-        public int WalletLedger { get; set; }
-        public void ReceiveItem(string itemId, int quantity);
     }
 }
 
