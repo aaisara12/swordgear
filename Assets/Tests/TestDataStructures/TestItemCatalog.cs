@@ -4,12 +4,12 @@ using Shop;
 
 namespace Testing
 {
-    public class DummyItemCatalog : IItemCatalog
+    public class TestItemCatalog : IItemCatalog
     {
         private List<IStoreItem> _items = new List<IStoreItem>();
-        private Dictionary<string, DummyStoreItem> _itemDataById = new Dictionary<string, DummyStoreItem>();
+        private Dictionary<string, IStoreItem> _itemDataById = new Dictionary<string, IStoreItem>();
         
-        public DummyItemCatalog(List<DummyStoreItem> dummyItems)
+        public TestItemCatalog(List<IStoreItem> dummyItems)
         {
             foreach (var dummyItem in dummyItems)
             {
@@ -24,7 +24,7 @@ namespace Testing
         {
             if (_itemDataById.TryGetValue(itemId, out var data) == false)
             {
-                storeItemData = new DummyStoreItem();
+                storeItemData = new TestStoreItem(string.Empty, -1);
                 return false;
             }
             

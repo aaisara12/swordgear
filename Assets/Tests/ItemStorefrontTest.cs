@@ -9,13 +9,13 @@ using Testing;
 [TestOf(typeof(ItemStorefront))]
 public class ItemStorefrontTest
 {
-    private IItemCatalog _itemCatalog = new DummyItemCatalog(
-        new List<DummyStoreItem>()
+    private IItemCatalog _itemCatalog = new TestItemCatalog(
+        new List<IStoreItem>()
         {
-            new DummyStoreItem("fire-upgrade-1", "Firebrand", 50),
-            new DummyStoreItem("fire-upgrade-2", "Molten Whip", 90),
-            new DummyStoreItem("gear-bumper-slot", "Add Bumper Slot", 50),
-            new DummyStoreItem("gear-upgrade-fire", "Fire Bumper", 30)
+            new TestStoreItem("fire-upgrade-1", 50),
+            new TestStoreItem("fire-upgrade-2", 90),
+            new TestStoreItem("gear-bumper-slot", 50),
+            new TestStoreItem("gear-upgrade-fire", 30)
         });
 
     [Test]
@@ -37,20 +37,22 @@ public class ItemStorefrontTest
 
         var purchasableItem = purchasableItems[0];
 
-        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
-        itemPurchaser.WalletLedger = purchasableItem.StoreItemData.Cost;
-        
+        TestPurchaser itemPurchaser = new TestPurchaser
+        {
+            WalletLedger = purchasableItem.StoreItemData.Cost
+        };
+
         Assert.IsTrue(purchasableItem.IsReadyToPurchase(itemPurchaser));
         
-        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
+        Assert.AreEqual(string.Empty, itemPurchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
         
         Assert.IsTrue(isSuccessfulPurchase);
         
         var properlyRecordedPurchasedItem = 
-            itemPurchaser.ItemPurchased == purchasableItem.StoreItemData.Id && 
-            itemPurchaser.ItemPurchasedQuantity == 1;
+            itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id) && 
+            itemPurchaser.Received[purchasableItem.StoreItemData.Id] == 1;
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
@@ -76,7 +78,7 @@ public class ItemStorefrontTest
 
         var purchasableItem = purchasableItems[0];
 
-        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        TestPurchaser itemPurchaser = new TestPurchaser();
         
         int walletValueBeforePurchaseAttempt = purchasableItem.StoreItemData.Cost - 1;
         
@@ -84,17 +86,13 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
         
-        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
+        Assert.AreEqual(string.Empty, itemPurchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        var purchaserHasNotRecordedItemPurchase = 
-            itemPurchaser.ItemPurchased == string.Empty && 
-            itemPurchaser.ItemPurchasedQuantity == -1;
-        
-        Assert.IsTrue(purchaserHasNotRecordedItemPurchase);
+        Assert.IsFalse(itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
         Assert.AreEqual(walletValueBeforePurchaseAttempt, itemPurchaser.WalletLedger);
     }
@@ -120,22 +118,18 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchasableItem.IsItemInStock);
 
-        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        TestPurchaser itemPurchaser = new TestPurchaser();
         itemPurchaser.WalletLedger = int.MaxValue;
         
         Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
         
-        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
+        Assert.AreEqual(string.Empty, itemPurchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
         
         Assert.IsFalse(isSuccessfulPurchase);
         
-        var purchaserHasNotRecordedItemPurchase = 
-            itemPurchaser.ItemPurchased == string.Empty && 
-            itemPurchaser.ItemPurchasedQuantity == -1;
-        
-        Assert.IsTrue(purchaserHasNotRecordedItemPurchase);
+        Assert.IsFalse(itemPurchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
         Assert.AreEqual(int.MaxValue, itemPurchaser.WalletLedger);
     }
@@ -159,7 +153,7 @@ public class ItemStorefrontTest
 
         var purchasableItem = purchasableItems[0];
 
-        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        TestPurchaser itemPurchaser = new TestPurchaser();
         itemPurchaser.WalletLedger = int.MaxValue;
         
         Assert.IsTrue(purchasableItem.IsItemInStock);

@@ -8,33 +8,6 @@ using Shop;
 [TestOf(typeof(PurchaseUtility))]
 public class PurchaseUtilityTest
 {
-    private class TestStoreItem : IStoreItem
-    {
-        public string Id { get; }
-        public string DisplayName => string.Empty;
-        public int Cost { get; }
-
-        public TestStoreItem(string id, int cost)
-        {
-            Id = id;
-            Cost = cost;
-        }
-    }
-
-    private class TestPurchaser : IItemPurchaser
-    {
-        public int WalletLedger { get; set; }
-        public readonly Dictionary<string, int> Received = new Dictionary<string, int>();
-
-        public void ReceiveItem(string id, int quantity)
-        {
-            if (Received.ContainsKey(id))
-                Received[id] += quantity;
-            else
-                Received[id] = quantity;
-        }
-    }
-
     [Test]
     public void IsItemInStock_ReturnsTrue_WhenCountPositive()
     {
