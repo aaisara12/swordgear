@@ -16,11 +16,11 @@ namespace Shop
         {
             public IStoreItem StoreItemData { get; }
 
-            private Func<bool> _isItemInStockMethod;
-            private Func<IItemPurchaser, bool> _isReadyToPurchaseMethod;
-            private Func<IItemPurchaser, bool> _tryPurchaseItemMethod;
+            private Func<IStoreItem, bool> _isItemInStockMethod;
+            private Func<IStoreItem, IItemPurchaser, bool> _isReadyToPurchaseMethod;
+            private Func<IStoreItem, IItemPurchaser, bool> _tryPurchaseItemMethod;
             
-            public PurchasableItem(IStoreItem storeItemData, Func<bool> isItemInStockMethod, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
+            public PurchasableItem(IStoreItem storeItemData, Func<IStoreItem, bool> isItemInStockMethod, Func<IStoreItem, IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IStoreItem, IItemPurchaser, bool> tryPurchaseItemMethod)
             {
                 StoreItemData = storeItemData;
                 _isItemInStockMethod = isItemInStockMethod;
@@ -28,9 +28,9 @@ namespace Shop
                 _tryPurchaseItemMethod = tryPurchaseItemMethod;
             }
 
-            public bool IsItemInStock => _isItemInStockMethod();
-            public bool IsReadyToPurchase(IItemPurchaser purchaser) => _isReadyToPurchaseMethod(purchaser);
-            public bool TryPurchaseItem(IItemPurchaser purchaser) => _tryPurchaseItemMethod(purchaser);
+            public bool IsItemInStock => _isItemInStockMethod(StoreItemData);
+            public bool IsReadyToPurchase(IItemPurchaser purchaser) => _isReadyToPurchaseMethod(StoreItemData, purchaser);
+            public bool TryPurchaseItem(IItemPurchaser purchaser) => _tryPurchaseItemMethod(StoreItemData, purchaser);
         }
         
         private Dictionary<string, int> _availableItems = new Dictionary<string, int>();
@@ -69,9 +69,9 @@ namespace Shop
 
                 var purchasableItem = new PurchasableItem(
                     itemData,
-                    () => IsItemInStock(itemData, _availableItems),
-                    purchaser => IsItemReadyToPurchase(itemData, purchaser, _availableItems),
-                    purchaser => TryPurchaseItem(itemData, purchaser, _availableItems)
+                    item => IsItemInStock(item, _availableItems),
+                    (item, purchaser) => IsItemReadyToPurchase(item, purchaser, _availableItems),
+                    (item, purchaser) => TryPurchaseItem(item, purchaser, _availableItems)
                 );
                 
                 purchasableItems.Add(purchasableItem);
