@@ -22,7 +22,7 @@ public class TestStorefront
     }
     
     [Test]
-    public void TestPurchaseViaStorefrontRecorded()
+    public void TestStorefrontPurchaseRecordedByPurchaserOnSuccessfulPurchase()
     {
         ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
@@ -100,5 +100,77 @@ public class TestStorefront
         Assert.IsTrue(purchaserHasNotRecordedItemPurchase);
         
         Assert.AreEqual(walletValueBeforePurchaseAttempt, itemPurchaser.WalletLedger);
+    }
+    
+    [Test]
+    public void TestStorefrontBlocksPurchaseIfOutOfStock()
+    {
+        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+
+        var items = _itemCatalog.GetItems();
+        
+        Assert.IsNotEmpty(items);
+
+        var testItem = items[0];
+        
+        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 0}});
+        
+        var purchasableItems = itemStorefront.GetPurchasableItems();
+        
+        Assert.IsNotEmpty(purchasableItems);
+
+        var purchasableItem = purchasableItems[0];
+        
+        Assert.IsFalse(purchasableItem.IsItemInStock);
+
+        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        itemPurchaser.WalletLedger = int.MaxValue;
+        
+        Assert.IsFalse(purchasableItem.IsReadyToPurchase(itemPurchaser));
+        
+        Assert.AreEqual(string.Empty, itemPurchaser.ItemPurchased);
+
+        var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(itemPurchaser);
+        
+        Assert.IsFalse(isSuccessfulPurchase);
+        
+        var purchaserHasNotRecordedItemPurchase = 
+            itemPurchaser.ItemPurchased == string.Empty && 
+            itemPurchaser.ItemPurchasedQuantity == -1;
+        
+        Assert.IsTrue(purchaserHasNotRecordedItemPurchase);
+        
+        Assert.AreEqual(int.MaxValue, itemPurchaser.WalletLedger);
+    }
+    
+    [Test]
+    public void TestStorefrontDecrementsStockOnSuccessfulPurchase()
+    {
+        ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
+
+        var items = _itemCatalog.GetItems();
+        
+        Assert.IsNotEmpty(items);
+
+        var testItem = items[0];
+        
+        itemStorefront.StockItems(new Dictionary<string, int>{{testItem.Id, 1}});
+        
+        var purchasableItems = itemStorefront.GetPurchasableItems();
+        
+        Assert.IsNotEmpty(purchasableItems);
+
+        var purchasableItem = purchasableItems[0];
+
+        OneItemPurchaser itemPurchaser = new OneItemPurchaser();
+        itemPurchaser.WalletLedger = int.MaxValue;
+        
+        Assert.IsTrue(purchasableItem.IsItemInStock);
+
+        var isFirstPurchaseSuccessful = purchasableItem.TryPurchaseItem(itemPurchaser);
+        
+        Assert.IsTrue(isFirstPurchaseSuccessful);
+        
+        Assert.IsFalse(purchasableItem.IsItemInStock);
     }
 }

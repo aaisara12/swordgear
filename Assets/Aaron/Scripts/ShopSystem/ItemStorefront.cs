@@ -16,16 +16,19 @@ namespace Shop
         {
             public IStoreItem StoreItemData { get; }
 
+            private Func<bool> _isItemInStockMethod;
             private Func<IItemPurchaser, bool> _isReadyToPurchaseMethod;
             private Func<IItemPurchaser, bool> _tryPurchaseItemMethod;
             
-            public PurchasableItem(IStoreItem storeItemData, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
+            public PurchasableItem(IStoreItem storeItemData, Func<bool> isItemInStockMethod, Func<IItemPurchaser, bool> isReadyToPurchaseMethod, Func<IItemPurchaser, bool> tryPurchaseItemMethod)
             {
                 StoreItemData = storeItemData;
+                _isItemInStockMethod = isItemInStockMethod;
                 _isReadyToPurchaseMethod = isReadyToPurchaseMethod;
                 _tryPurchaseItemMethod = tryPurchaseItemMethod;
             }
 
+            public bool IsItemInStock => _isItemInStockMethod();
             public bool IsReadyToPurchase(IItemPurchaser purchaser) => _isReadyToPurchaseMethod(purchaser);
             public bool TryPurchaseItem(IItemPurchaser purchaser) => _tryPurchaseItemMethod(purchaser);
         }
@@ -66,8 +69,9 @@ namespace Shop
 
                 var purchasableItem = new PurchasableItem(
                     itemData,
-                    purchaser => IsItemReadyToPurchase(itemData, purchaser),
-                    purchaser => TryPurchaseItem(itemData, purchaser)
+                    () => IsItemInStock(itemData, _availableItems),
+                    purchaser => IsItemReadyToPurchase(itemData, purchaser, _availableItems),
+                    purchaser => TryPurchaseItem(itemData, purchaser, _availableItems)
                 );
                 
                 purchasableItems.Add(purchasableItem);
@@ -76,25 +80,32 @@ namespace Shop
             return purchasableItems;
         }
         
-        private bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser)
+        private bool IsItemInStock(IStoreItem storeItem, IReadOnlyDictionary<string, int> availableItems)
         {
-            int numberOfItemAvailable = _availableItems.GetValueOrDefault(storeItem.Id, 0);
+            int numberOfItemAvailable = availableItems.GetValueOrDefault(storeItem.Id, 0);
             
-            return purchaser.WalletLedger >= storeItem.Cost && numberOfItemAvailable > 0;
+            return numberOfItemAvailable > 0;
         }
         
-        private bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser)
+        private bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser, IReadOnlyDictionary<string, int> availableItems)
+        {
+            return purchaser.WalletLedger >= storeItem.Cost && IsItemInStock(storeItem, availableItems);
+        }
+        
+        private bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, Dictionary<string, int> availableItems)
         {
             string itemId = storeItem.Id;
             int itemCost = storeItem.Cost;
             
-            if (IsItemReadyToPurchase(storeItem, purchaser) == false)
+            if (IsItemReadyToPurchase(storeItem, purchaser, availableItems) == false)
             {
                 return false;
             }
             
             purchaser.WalletLedger -= itemCost;
             purchaser.ReceiveItem(itemId, 1);
+
+            availableItems[itemId] -= 1;
 
             return true;
         }
