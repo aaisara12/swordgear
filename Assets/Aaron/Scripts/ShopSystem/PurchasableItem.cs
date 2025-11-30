@@ -11,16 +11,16 @@ namespace Shop
     {
         public IStoreItem StoreItemData { get; }
         
-        private Dictionary<string, int> _availableItems;
+        private Dictionary<string, int> availableItemStock;
         
-        public PurchasableItem(IStoreItem storeItemData, Dictionary<string, int> availableItems)
+        public PurchasableItem(IStoreItem storeItemData, Dictionary<string, int> availableItemStock)
         {
             StoreItemData = storeItemData;
-            _availableItems = availableItems;
+            this.availableItemStock = availableItemStock;
         }
 
-        public bool IsItemInStock => PurchaseUtility.IsItemInStock(StoreItemData, _availableItems);
-        public bool IsReadyToPurchase(IItemPurchaser purchaser) => PurchaseUtility.IsItemReadyToPurchase(StoreItemData, purchaser, _availableItems);
-        public bool TryPurchaseItem(IItemPurchaser purchaser) => PurchaseUtility.TryPurchaseItem(StoreItemData, purchaser, _availableItems);
+        public bool IsItemInStock => PurchaseUtility.IsItemInStock(StoreItemData, availableItemStock);
+        public bool IsReadyToPurchase(IItemPurchaser purchaser) => PurchaseUtility.IsItemReadyToPurchase(StoreItemData, purchaser, availableItemStock);
+        public bool TryPurchaseItem(IItemPurchaser purchaser) => PurchaseUtility.TryPurchaseItem(StoreItemData, purchaser, availableItemStock);
     }
 }

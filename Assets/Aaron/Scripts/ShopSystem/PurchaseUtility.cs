@@ -6,24 +6,24 @@ namespace Shop
 {
     public static class PurchaseUtility
     {
-        public static bool IsItemInStock(IStoreItem storeItem, IReadOnlyDictionary<string, int> availableItems)
+        public static bool IsItemInStock(IStoreItem storeItem, IReadOnlyDictionary<string, int> availableItemStock)
         {
-            int numberOfItemAvailable = availableItems.GetValueOrDefault(storeItem.Id, 0);
+            int numberOfItemAvailable = availableItemStock.GetValueOrDefault(storeItem.Id, 0);
             
             return numberOfItemAvailable > 0;
         }
         
-        public static bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser, IReadOnlyDictionary<string, int> availableItems)
+        public static bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser, IReadOnlyDictionary<string, int> availableItemStock)
         {
-            return purchaser.WalletLedger >= storeItem.Cost && IsItemInStock(storeItem, availableItems);
+            return purchaser.WalletLedger >= storeItem.Cost && IsItemInStock(storeItem, availableItemStock);
         }
         
-        public static bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, Dictionary<string, int> availableItems)
+        public static bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, Dictionary<string, int> availableItemStock)
         {
             string itemId = storeItem.Id;
             int itemCost = storeItem.Cost;
             
-            if (IsItemReadyToPurchase(storeItem, purchaser, availableItems) == false)
+            if (IsItemReadyToPurchase(storeItem, purchaser, availableItemStock) == false)
             {
                 return false;
             }
@@ -31,7 +31,7 @@ namespace Shop
             purchaser.WalletLedger -= itemCost;
             purchaser.ReceiveItem(itemId, 1);
 
-            availableItems[itemId] -= 1;
+            availableItemStock[itemId] -= 1;
 
             return true;
         }
