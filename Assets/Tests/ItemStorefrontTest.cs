@@ -5,24 +5,21 @@ using Shop;
 using NUnit.Framework;
 using Testing;
 
-public class TestStorefront
+[TestFixture]
+[TestOf(typeof(ItemStorefront))]
+public class ItemStorefrontTest
 {
-    private IItemCatalog _itemCatalog;
+    private IItemCatalog _itemCatalog = new DummyItemCatalog(
+        new List<DummyStoreItem>()
+        {
+            new DummyStoreItem("fire-upgrade-1", "Firebrand", 50),
+            new DummyStoreItem("fire-upgrade-2", "Molten Whip", 90),
+            new DummyStoreItem("gear-bumper-slot", "Add Bumper Slot", 50),
+            new DummyStoreItem("gear-upgrade-fire", "Fire Bumper", 30)
+        });
 
-    public TestStorefront()
-    {
-        _itemCatalog = new DummyItemCatalog(
-            new List<DummyStoreItem>()
-            {
-                new DummyStoreItem("fire-upgrade-1", "Firebrand", 50),
-                new DummyStoreItem("fire-upgrade-2", "Molten Whip", 90),
-                new DummyStoreItem("gear-bumper-slot", "Add Bumper Slot", 50),
-                new DummyStoreItem("gear-upgrade-fire", "Fire Bumper", 30)
-            });
-    }
-    
     [Test]
-    public void TestStorefrontPurchaseRecordedByPurchaserOnSuccessfulPurchase()
+    public void TryPurchaseItem_RecordsPurchase_WhenSuccessful()
     {
         ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
@@ -61,7 +58,7 @@ public class TestStorefront
     }
 
     [Test]
-    public void TestStorefrontBlocksPurchaseIfInsufficientFunds()
+    public void TryPurchaseItem_Fails_WhenInsufficientFunds_NoStateChange()
     {
         ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
@@ -103,7 +100,7 @@ public class TestStorefront
     }
     
     [Test]
-    public void TestStorefrontBlocksPurchaseIfOutOfStock()
+    public void TryPurchaseItem_Fails_WhenOutOfStock_NoStateChange()
     {
         ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
@@ -144,7 +141,7 @@ public class TestStorefront
     }
     
     [Test]
-    public void TestStorefrontDecrementsStockOnSuccessfulPurchase()
+    public void TryPurchaseItem_DecrementsStock_WhenSuccessful()
     {
         ItemStorefront itemStorefront = new ItemStorefront(_itemCatalog);
 
@@ -173,4 +170,4 @@ public class TestStorefront
         
         Assert.IsFalse(purchasableItem.IsItemInStock);
     }
-}
+} 
