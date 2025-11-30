@@ -121,7 +121,8 @@ public class GameManager : MonoBehaviour
     public enum EnemyEffect
     {
         Burn,
-        Static
+        Static,
+        Chill
     }
 
     public interface IEnemyEffect

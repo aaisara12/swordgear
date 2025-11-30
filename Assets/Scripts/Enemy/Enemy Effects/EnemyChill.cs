@@ -1,11 +1,11 @@
 using UnityEngine;
 using static GameManager;
 
-public class EnemyStatic : MonoBehaviour, IEnemyEffect
+public class EnemyChill : IEnemyEffect
 {
-    [SerializeField] float speedMultiplier = 0.9f;
+    [SerializeField] float speedMultiplier = 0.5f;
 
-    EnemyEffect effect = EnemyEffect.Static;
+    EnemyEffect effect = EnemyEffect.Chill;
 
     void IEnemyEffect.EffectBegin(EnemyController enemy)
     {
@@ -19,7 +19,7 @@ public class EnemyStatic : MonoBehaviour, IEnemyEffect
 
     void IEnemyEffect.EffectTick(EnemyController enemy)
     {
-        
+
     }
 
     EnemyEffect IEnemyEffect.getEffect()
