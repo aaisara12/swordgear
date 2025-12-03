@@ -3,6 +3,7 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using Shop;
+using Testing;
 
 [TestFixture]
 [TestOf(typeof(PurchaseUtility))]

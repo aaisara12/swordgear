@@ -1,32 +1,78 @@
 #nullable enable
 
+using System;
 using UnityEngine;
 
 namespace Shop
 {
     public class ItemShopViewModel : MonoBehaviour
     {
+        [SerializeField] private ItemShopModelEventChannelSO? itemShopModelProvider;
+
+        [SerializeField] private ScrollView? scrollView;
+        
         [SerializeField] private ItemShopElementViewModel? purchasableItemElementPrefab;
-        [SerializeField] private Transform? purchasableItemElementContainer;
         
         [SerializeField] private ItemShopPurchaseDialogViewModel? confirmPurchaseViewModel;
 
         private ItemShopModel? _cachedModel;
+
+        private IScrollViewController<ItemShopItemModel>? _scrollViewController;
         
-        public void Initialize(ItemShopModel model)
+        private void Awake()
         {
-            if(purchasableItemElementPrefab == null || purchasableItemElementContainer == null)
+            if (itemShopModelProvider == null)
             {
-                Debug.LogError("[ItemShopViewModel] Not all serialized fields are assigned in the inspector. Cannot initialize.");
+                Debug.LogError("[ItemShopViewModel] ItemShopModelProvider is not assigned in the inspector. Cannot subscribe to model updates.");
+                return;
+            }
+
+            if(purchasableItemElementPrefab == null || this.scrollView == null)
+            {
+                Debug.LogError("[ItemShopViewModel] Not all serialized fields are assigned in the inspector. Cannot initialize scrollview.");
                 return;
             }
             
+            if (scrollView.TryInitialize<ItemShopItemModel, ItemShopElementViewModel>(
+                    purchasableItemElementPrefab, out var scrollViewController) == false)
+            {
+                Debug.LogError("[ItemShopViewModel] ScrollView has already been initialized!");
+                return;
+            }
+            
+            _scrollViewController = scrollViewController;
+
+            itemShopModelProvider.OnDataChanged += Initialize;
+
+            if (itemShopModelProvider.GetMostRecentData != null)
+            {
+                Initialize(itemShopModelProvider.GetMostRecentData);
+            }
+        }
+
+        private void OnDestroy()
+        {
+            if (itemShopModelProvider != null)
+            {
+                itemShopModelProvider.OnDataChanged -= Initialize;
+            }
+        }
+
+        public void Initialize(ItemShopModel model)
+        {
             var purchasableItems = model.Items;
 
+            if (_scrollViewController == null)
+            {
+                Debug.LogError("[ItemShopViewModel] ScrollView controller is not initialized! Cannot initialize.");
+                return;
+            }
+            
+            _scrollViewController.Clear();
+            
             foreach (var item in purchasableItems)
             {
-                var itemElement = Instantiate(purchasableItemElementPrefab, purchasableItemElementContainer);
-                itemElement.Initialize(new ItemShopItemModel(item, model.Purchaser, this));
+                _scrollViewController.AddElement(new ItemShopItemModel(item, model.Purchaser, this));
             }
             
             _cachedModel = model;

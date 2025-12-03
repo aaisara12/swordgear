@@ -23,9 +23,11 @@ namespace Shop
             itemVisualViewModel.Initialize(model);
 
             confirmPurchaseButton.interactable = model.Item.IsReadyToPurchase(model.Purchaser);
+            
+            _cachedModel = model;
         }
         
-        private void OnConfirmPurchaseButtonClicked()
+        public void OnConfirmPurchaseButtonClicked()
         {
             // NOTE: This can actually reasonably happen if the user clicks very fast before the UI is fully initialized.
             // Thus, we don't have to bother with an error log.

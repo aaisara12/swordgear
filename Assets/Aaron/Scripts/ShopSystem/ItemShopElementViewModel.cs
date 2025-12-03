@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Shop
 {
-    public class ItemShopElementViewModel : MonoBehaviour
+    public class ItemShopElementViewModel : MonoBehaviour, IScrollViewElementInitializable<ItemShopItemModel>
     {
         [SerializeField] private TMPro.TMP_Text? itemNameText;
         [SerializeField] private TMPro.TMP_Text? itemDescText;
@@ -13,6 +13,8 @@ namespace Shop
         [SerializeField] private Image? itemIcon;
         
         private ItemShopItemModel? _cachedModel;
+
+        public void InitializeElement(ItemShopItemModel model) => Initialize(model);
         
         public void Initialize(ItemShopItemModel model)
         {
@@ -26,6 +28,8 @@ namespace Shop
             // TODO: itemDescText.text = model.Item.StoreItemData.Description;
             // TODO: itemIcon = model.Item.StoreItemData.Icon;
             priceText.text = model.Item.StoreItemData.Cost.ToString();
+            
+            _cachedModel = model;
         }
         
         public void OnItemElementClicked()
