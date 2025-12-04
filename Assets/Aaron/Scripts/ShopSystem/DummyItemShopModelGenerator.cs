@@ -28,8 +28,9 @@ public class DummyItemShopModelGenerator : MonoBehaviour
             { "itemC", 1 }
         });
 
-        var purchaser = new TestPurchaser { WalletLedger = 40 };
-
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 40;
+        
         var model = new ItemShopModel(storefront.GetPurchasableItems(), purchaser);
         
         _eventChannel.RaiseDataChanged(model);

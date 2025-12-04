@@ -34,7 +34,8 @@ public class PurchaseUtilityTest
     public void IsItemReadyToPurchase_ReturnsTrue_WhenInStockAndEnoughFunds()
     {
         var item = new TestStoreItem("itemC", 10);
-        var purchaser = new TestPurchaser { WalletLedger = 10 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 10;
         var available = new Dictionary<string, int> { { "itemC", 1 } };
 
         Assert.IsTrue(PurchaseUtility.IsItemReadyToPurchase(item, purchaser, available));
@@ -44,7 +45,8 @@ public class PurchaseUtilityTest
     public void IsItemReadyToPurchase_ReturnsFalse_WhenInsufficientFunds()
     {
         var item = new TestStoreItem("itemD", 10);
-        var purchaser = new TestPurchaser { WalletLedger = 5 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 5;
         var available = new Dictionary<string, int> { { "itemD", 1 } };
 
         Assert.IsFalse(PurchaseUtility.IsItemReadyToPurchase(item, purchaser, available));
@@ -54,7 +56,8 @@ public class PurchaseUtilityTest
     public void IsItemReadyToPurchase_ReturnsFalse_WhenOutOfStock()
     {
         var item = new TestStoreItem("itemE", 1);
-        var purchaser = new TestPurchaser { WalletLedger = 100 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 100;
         var available = new Dictionary<string, int> { { "itemE", 0 } };
 
         Assert.IsFalse(PurchaseUtility.IsItemReadyToPurchase(item, purchaser, available));
@@ -64,13 +67,14 @@ public class PurchaseUtilityTest
     public void TryPurchaseItem_Succeeds_ReducesWallet_AddsSingleItem_DecrementsStock()
     {
         var item = new TestStoreItem("itemF", 3);
-        var purchaser = new TestPurchaser { WalletLedger = 10 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 10;
         var available = new Dictionary<string, int> { { "itemF", 2 } };
 
         var result = PurchaseUtility.TryPurchaseItem(item, purchaser, available);
 
         Assert.IsTrue(result);
-        Assert.AreEqual(7, purchaser.WalletLedger); // 10 - 3
+        Assert.AreEqual(7, purchaser.WalletLedger.Value); // 10 - 3
         Assert.IsTrue(purchaser.Received.ContainsKey("itemF"));
         Assert.AreEqual(1, purchaser.Received["itemF"]);
         Assert.AreEqual(1, available["itemF"]); // 2 - 1
@@ -80,13 +84,14 @@ public class PurchaseUtilityTest
     public void TryPurchaseItem_Fails_WhenInsufficientFunds_NoStateChange()
     {
         var item = new TestStoreItem("itemG", 5);
-        var purchaser = new TestPurchaser { WalletLedger = 2 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 2;
         var available = new Dictionary<string, int> { { "itemG", 3 } };
 
         var result = PurchaseUtility.TryPurchaseItem(item, purchaser, available);
 
         Assert.IsFalse(result);
-        Assert.AreEqual(2, purchaser.WalletLedger);
+        Assert.AreEqual(2, purchaser.WalletLedger.Value);
         Assert.IsFalse(purchaser.Received.ContainsKey("itemG"));
         Assert.AreEqual(3, available["itemG"]);
     }
@@ -95,13 +100,14 @@ public class PurchaseUtilityTest
     public void TryPurchaseItem_Fails_WhenOutOfStock_NoStateChange()
     {
         var item = new TestStoreItem("itemH", 1);
-        var purchaser = new TestPurchaser { WalletLedger = 10 };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = 10;
         var available = new Dictionary<string, int> { { "itemH", 0 } };
 
         var result = PurchaseUtility.TryPurchaseItem(item, purchaser, available);
 
         Assert.IsFalse(result);
-        Assert.AreEqual(10, purchaser.WalletLedger);
+        Assert.AreEqual(10, purchaser.WalletLedger.Value);
         Assert.IsFalse(purchaser.Received.ContainsKey("itemH"));
         Assert.AreEqual(0, available["itemH"]);
     }

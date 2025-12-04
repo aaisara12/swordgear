@@ -36,7 +36,8 @@ public class ItemStorefrontTest
 
         var purchasableItem = storefront.GetPurchasableItems()[0];
 
-        var purchaser = new TestPurchaser { WalletLedger = int.MaxValue };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = int.MaxValue;
 
         int successfulPurchases = 0;
         while (purchasableItem.TryPurchaseItem(purchaser))
@@ -100,14 +101,12 @@ public class ItemStorefrontTest
 
         var purchasableItem = purchasableItems[0];
 
-        var purchaser = new TestPurchaser
-        {
-            WalletLedger = purchasableItem.StoreItemData.Cost
-        };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = purchasableItem.StoreItemData.Cost;
 
         Assert.IsTrue(purchasableItem.IsReadyToPurchase(purchaser));
         
-        Assert.AreEqual(string.Empty, purchaser.Received);
+        Assert.IsEmpty(purchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
@@ -119,7 +118,7 @@ public class ItemStorefrontTest
         
         Assert.IsTrue(properlyRecordedPurchasedItem);
         
-        Assert.AreEqual(0, purchaser.WalletLedger);
+        Assert.AreEqual(0, purchaser.WalletLedger.Value);
     }
 
     [Test]
@@ -143,15 +142,13 @@ public class ItemStorefrontTest
         var purchasableItem = purchasableItems[0];
 
         int walletValueBeforePurchaseAttempt = purchasableItem.StoreItemData.Cost - 1;
-        
-        var purchaser = new TestPurchaser
-        {
-            WalletLedger = walletValueBeforePurchaseAttempt
-        };
+
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = walletValueBeforePurchaseAttempt;
 
         Assert.IsFalse(purchasableItem.IsReadyToPurchase(purchaser));
         
-        Assert.AreEqual(string.Empty, purchaser.Received);
+        Assert.IsEmpty(purchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
@@ -159,7 +156,7 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
-        Assert.AreEqual(walletValueBeforePurchaseAttempt, purchaser.WalletLedger);
+        Assert.AreEqual(walletValueBeforePurchaseAttempt, purchaser.WalletLedger.Value);
     }
     
     [Test]
@@ -184,14 +181,12 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchasableItem.IsItemInStock);
 
-        var purchaser = new TestPurchaser
-        {
-            WalletLedger = int.MaxValue
-        };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = int.MaxValue;
 
         Assert.IsFalse(purchasableItem.IsReadyToPurchase(purchaser));
         
-        Assert.AreEqual(string.Empty, purchaser.Received);
+        Assert.IsEmpty(purchaser.Received);
 
         var isSuccessfulPurchase = purchasableItem.TryPurchaseItem(purchaser);
         
@@ -199,7 +194,7 @@ public class ItemStorefrontTest
         
         Assert.IsFalse(purchaser.Received.ContainsKey(purchasableItem.StoreItemData.Id));
         
-        Assert.AreEqual(int.MaxValue, purchaser.WalletLedger);
+        Assert.AreEqual(int.MaxValue, purchaser.WalletLedger.Value);
     }
     
     [Test]
@@ -222,10 +217,8 @@ public class ItemStorefrontTest
 
         var purchasableItem = purchasableItems[0];
 
-        var purchaser = new TestPurchaser
-        {
-            WalletLedger = int.MaxValue
-        };
+        var purchaser = new TestPurchaser();
+        purchaser.WalletLedger.Value = int.MaxValue;
 
         Assert.IsTrue(purchasableItem.IsItemInStock);
 

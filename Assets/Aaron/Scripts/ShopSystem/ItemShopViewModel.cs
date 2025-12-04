@@ -93,8 +93,8 @@ namespace Shop
             }
             
             var model = new ItemShopItemModel(item, _cachedModel.Purchaser, this);
-            confirmPurchaseViewModel.gameObject.SetActive(true);
             confirmPurchaseViewModel.Initialize(model);
+            confirmPurchaseViewModel.OpenDialog();
         }
     }
 }

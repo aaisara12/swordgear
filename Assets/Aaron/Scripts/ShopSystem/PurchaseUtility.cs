@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Shop
 {
@@ -15,20 +16,23 @@ namespace Shop
         
         public static bool IsItemReadyToPurchase(IStoreItem storeItem, IItemPurchaser purchaser, IReadOnlyDictionary<string, int> availableItemStock)
         {
-            return purchaser.WalletLedger >= storeItem.Cost && IsItemInStock(storeItem, availableItemStock);
+            return purchaser.WalletLedger.Value >= storeItem.Cost && IsItemInStock(storeItem, availableItemStock);
         }
         
-        public static bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, Dictionary<string, int> availableItemStock)
+        public static bool TryPurchaseItem(IStoreItem storeItem, IItemPurchaser purchaser, IDictionary<string, int> availableItemStock)
         {
             string itemId = storeItem.Id;
             int itemCost = storeItem.Cost;
             
-            if (IsItemReadyToPurchase(storeItem, purchaser, availableItemStock) == false)
+            // IDictionary interestingly does not implement IReadOnlyDictionary (see https://softwareengineering.stackexchange.com/questions/446473/why-does-idictionary-not-implement-ireadonlydictionary)
+            // Therefore, we're forced to convert the provided IDictionary to a regular Dictionary which DOES implement IReadOnlyDictionary
+            var newDictionary = availableItemStock.ToDictionary(x => x.Key, x => x.Value);
+            if (IsItemReadyToPurchase(storeItem, purchaser, newDictionary) == false)
             {
                 return false;
             }
             
-            purchaser.WalletLedger -= itemCost;
+            purchaser.WalletLedger.Value -= itemCost;
             purchaser.ReceiveItem(itemId, 1);
 
             availableItemStock[itemId] -= 1;

@@ -3,7 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 
-public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICollection
+public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICollection, IReadOnlyDictionary<TKey, TValue>
 {
     private readonly Dictionary<TKey, TValue> _dict;
 
@@ -29,6 +29,10 @@ public class ObservableDictionary<TKey, TValue> : IDictionary<TKey, TValue>, ICo
             }
         }
     }
+
+    IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys => _dict.Keys;
+
+    IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => _dict.Values;
 
     public ICollection<TKey> Keys => _dict.Keys;
     public ICollection<TValue> Values => _dict.Values;

@@ -17,7 +17,7 @@ namespace Shop
         }
         
         private readonly Dictionary<string, IStoreItem> _cachedItemData = new Dictionary<string, IStoreItem>();
-        private readonly Dictionary<string, int> _availableItemStock = new Dictionary<string, int>();
+        private readonly ObservableDictionary<string, int> _availableItemStock = new ObservableDictionary<string, int>();
         
         private readonly IItemCatalog _itemCatalog;
 
