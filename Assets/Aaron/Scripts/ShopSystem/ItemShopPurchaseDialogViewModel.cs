@@ -22,16 +22,7 @@ namespace Shop
             
             itemVisualViewModel.Initialize(model);
 
-            confirmPurchaseButton.interactable = model.Item.IsReadyToPurchase(model.Purchaser);
-
-            if (_cachedModel != null)
-            {
-                _cachedModel.Item.OnItemStockUpdated -= HandleItemStockUpdated;
-                _cachedModel.Purchaser.WalletLedger.OnValueChanged -= HandleWalletUpdated;
-            }
-
-            model.Item.OnItemStockUpdated += HandleItemStockUpdated;
-            model.Purchaser.WalletLedger.OnValueChanged += HandleWalletUpdated;
+            confirmPurchaseButton.interactable = model.Item.IsPurchaserAbleToBuy(model.Purchaser);
             
             _cachedModel = model;
         }
@@ -65,35 +56,10 @@ namespace Shop
             
             gameObject.SetActive(true);
         }
-        
-        private void HandleWalletUpdated(int newWalletVal)
-        {
-            if (_cachedModel == null)
-            {
-                return;
-            }
-            
-            if (confirmPurchaseButton == null)
-            {
-                return;
-            }
-            
-            confirmPurchaseButton.interactable = _cachedModel.Item.IsReadyToPurchase(_cachedModel.Purchaser);
-        }
 
-        private void HandleItemStockUpdated()
+        public void CloseDialog()
         {
-            if (_cachedModel == null)
-            {
-                return;
-            }
-
-            if (confirmPurchaseButton == null)
-            {
-                return;
-            }
-            
-            confirmPurchaseButton.interactable = _cachedModel.Item.IsReadyToPurchase(_cachedModel.Purchaser);
+            gameObject.SetActive(false);
         }
     }
 }

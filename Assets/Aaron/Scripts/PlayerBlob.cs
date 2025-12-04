@@ -5,10 +5,10 @@ using Shop;
 
 public class PlayerBlob : IItemPurchaser
 {
-    public Observable<int> WalletLedger { get; } = new Observable<int>(0);
-    
+    public Observable<int> CurrencyAmount = new Observable<int>(0);
     // TODO: Make this IReadOnlyObservableDictionary because we want to make sure users go through our API
     public ObservableDictionary<string, int> InventoryItems { get; } = new ObservableDictionary<string, int>();
+    public int WalletLedger { get => CurrencyAmount.Value; set => CurrencyAmount.Value = value; }
     
     public void ReceiveItem(string itemId, int quantity)
     {

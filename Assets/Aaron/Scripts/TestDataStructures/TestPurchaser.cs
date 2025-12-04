@@ -7,8 +7,17 @@ namespace Testing
 {
     public class TestPurchaser : IItemPurchaser
     {
-        public Observable<int> WalletLedger { get; } = new Observable<int>(0);
+        public int WalletLedger { get; set; }
         public readonly Dictionary<string, int> Received = new Dictionary<string, int>();
+
+        public TestPurchaser()
+        {
+        }
+
+        public TestPurchaser(int walletLedger)
+        {
+            WalletLedger = walletLedger;
+        }
 
         public void ReceiveItem(string id, int quantity)
         {

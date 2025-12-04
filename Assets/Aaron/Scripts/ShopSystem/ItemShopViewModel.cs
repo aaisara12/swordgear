@@ -76,6 +76,14 @@ namespace Shop
             }
             
             _cachedModel = model;
+            
+            if (confirmPurchaseViewModel == null)
+            {
+                Debug.LogError("[ItemShopViewModel] Confirm purchase view model is not assigned in the inspector. We cannot complete the initialization sequence.");
+                return;
+            }
+            
+            confirmPurchaseViewModel.CloseDialog();
         }
         
         public void ShowPurchaseDialogForItem(PurchasableItem item)

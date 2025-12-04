@@ -4,7 +4,7 @@ namespace Shop
 {
     public interface IItemPurchaser
     {
-        public Observable<int> WalletLedger { get; }
+        public int WalletLedger { get; set; }
         public void ReceiveItem(string itemId, int quantity);
     }
 }

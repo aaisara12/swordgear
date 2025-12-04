@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 
 namespace Shop
@@ -16,11 +17,14 @@ namespace Shop
             public int Quantity;
         }
         
+        private readonly List<PurchasableItem> _cachedPurchasableItems = new List<PurchasableItem>();
         private readonly Dictionary<string, IStoreItem> _cachedItemData = new Dictionary<string, IStoreItem>();
-        private readonly ObservableDictionary<string, int> _availableItemStock = new ObservableDictionary<string, int>();
+        private readonly Dictionary<string, int> _availableItemStock = new Dictionary<string, int>();
         
         private readonly IItemCatalog _itemCatalog;
 
+        public event Action? OnPurchasableItemsUpdated;
+        
         public ItemStorefront(IItemCatalog itemCatalog)
         {
             _itemCatalog = itemCatalog;
@@ -50,6 +54,16 @@ namespace Shop
                 _availableItemStock[newItem.ItemData.Id] += newItem.Quantity;
             }
 
+            _cachedPurchasableItems.Clear();
+
+            foreach (var itemIdAndData in _cachedItemData)
+            {
+                var purchasableItem = new PurchasableItem(itemIdAndData.Value, this);
+                _cachedPurchasableItems.Add(purchasableItem);
+            }
+            
+            OnPurchasableItemsUpdated?.Invoke();
+
             return true;
         }
 
@@ -57,20 +71,36 @@ namespace Shop
         {
             _cachedItemData.Clear();
             _availableItemStock.Clear();
+            _cachedPurchasableItems.Clear();
+
+            OnPurchasableItemsUpdated?.Invoke();
         }
         
         public List<PurchasableItem> GetPurchasableItems()
         {
-            var purchasableItems = new List<PurchasableItem>();
+            return _cachedPurchasableItems;
+        }
 
-            foreach (var itemIdAndItem in _cachedItemData)
+        public bool IsItemInStock(IStoreItem item)
+        {
+            return PurchaseUtility.IsItemInStock(item, _availableItemStock);
+        }
+
+        public bool IsPurchaserAbleToBuyItem(IItemPurchaser purchaser, IStoreItem item)
+        {
+            return PurchaseUtility.IsItemReadyToPurchase(item, purchaser, _availableItemStock);
+        }
+
+        public bool TryPurchaseItem(IStoreItem item, IItemPurchaser purchaser)
+        {
+            var wasPurchaseSuccessful = PurchaseUtility.TryPurchaseItem(item, purchaser, _availableItemStock);
+
+            if (wasPurchaseSuccessful)
             {
-                var purchasableItem = new PurchasableItem(itemIdAndItem.Value, _availableItemStock);
-                
-                purchasableItems.Add(purchasableItem);
+                OnPurchasableItemsUpdated?.Invoke();
             }
-            
-            return purchasableItems;
+
+            return wasPurchaseSuccessful;
         }
     }
 }
