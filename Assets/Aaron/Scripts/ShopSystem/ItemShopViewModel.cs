@@ -1,10 +1,12 @@
 #nullable enable
 
-using System;
 using UnityEngine;
 
 namespace Shop
 {
+    /// <summary>
+    /// The view model supporting the UI for the overall shop window that a purchaser interacts with.
+    /// </summary>
     public class ItemShopViewModel : MonoBehaviour
     {
         [SerializeField] private ItemShopModelEventChannelSO? itemShopModelProvider;
@@ -14,6 +16,7 @@ namespace Shop
         [SerializeField] private ItemShopElementViewModel? purchasableItemElementPrefab;
         
         [SerializeField] private ItemShopPurchaseDialogViewModel? confirmPurchaseViewModel;
+        [SerializeField] private TMPro.TMP_Text? purchaserWalletAmountText;
 
         private ItemShopModel? _cachedModel;
 
@@ -68,6 +71,18 @@ namespace Shop
                 return;
             }
             
+            if (confirmPurchaseViewModel == null)
+            {
+                Debug.LogError("[ItemShopViewModel] Confirm purchase view model is not assigned in the inspector. We cannot complete the initialization sequence.");
+                return;
+            }
+
+            if (purchaserWalletAmountText == null)
+            {
+                Debug.LogError("[ItemShopViewModel] Purchaser wallet text is not assigned in the inspector. We cannot complete the initialization sequence.");
+                return;
+            }
+            
             _scrollViewController.Clear();
             
             foreach (var item in purchasableItems)
@@ -77,13 +92,9 @@ namespace Shop
             
             _cachedModel = model;
             
-            if (confirmPurchaseViewModel == null)
-            {
-                Debug.LogError("[ItemShopViewModel] Confirm purchase view model is not assigned in the inspector. We cannot complete the initialization sequence.");
-                return;
-            }
-            
             confirmPurchaseViewModel.CloseDialog();
+
+            purchaserWalletAmountText.text = model.Purchaser.WalletLedger.ToString();
         }
         
         public void ShowPurchaseDialogForItem(PurchasableItem item)
