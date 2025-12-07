@@ -25,8 +25,8 @@ namespace Shop
             }
             
             itemNameText.text = model.Item.StoreItemData.DisplayName;
-            // TODO: itemDescText.text = model.Item.StoreItemData.Description;
-            // TODO: itemIcon = model.Item.StoreItemData.Icon;
+            itemDescText.text = model.Item.StoreItemData.Description;
+            itemIcon.sprite = model.Item.StoreItemData.Icon;
             priceText.text = model.Item.StoreItemData.Cost.ToString();
             
             _cachedModel = model;

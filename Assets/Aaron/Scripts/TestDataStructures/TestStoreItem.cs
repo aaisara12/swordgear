@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using Shop;
+using UnityEngine;
 
 namespace Testing
 {
@@ -8,13 +9,17 @@ namespace Testing
     {
         public string Id { get; }
         public string DisplayName { get; }
+        public string Description { get; }
         public int Cost { get; }
+        public Sprite? Icon { get; }
 
-        public TestStoreItem(string id, int cost, string displayName = "")
+        public TestStoreItem(string id, int cost, string? displayName = null, string? description = null, Sprite? icon = null)
         {
             Id = id;
-            DisplayName = displayName;
+            DisplayName = displayName ?? $"Test-{id}";
+            Description = description ?? $"This is the description text for {DisplayName}.";
             Cost = cost;
+            Icon = icon;
         }
     }
 }
