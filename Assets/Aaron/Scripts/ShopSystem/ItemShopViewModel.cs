@@ -87,6 +87,12 @@ namespace Shop
             
             foreach (var item in purchasableItems)
             {
+                // For this particular UI implementation, we don't show the item at all if it's out of stock... just bc it's simpler
+                if (item.IsItemInStock == false)
+                {
+                    continue;
+                }
+                
                 _scrollViewController.AddElement(new ItemShopItemModel(item, model.Purchaser, this));
             }
             
