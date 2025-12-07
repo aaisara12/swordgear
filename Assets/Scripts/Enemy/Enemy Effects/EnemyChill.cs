@@ -1,7 +1,7 @@
 using UnityEngine;
 using static GameManager;
 
-public class EnemyChill : IEnemyEffect
+public class EnemyChill : MonoBehaviour, IEnemyEffect
 {
     [SerializeField] float speedMultiplier = 0.5f;
 
