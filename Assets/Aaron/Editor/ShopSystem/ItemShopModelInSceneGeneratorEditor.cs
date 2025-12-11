@@ -2,7 +2,6 @@
 #if UNITY_EDITOR
 using Shop;
 using UnityEditor;
-using UnityEngine;
 
 [CustomEditor(typeof(ItemShopModelInSceneGenerator), true)]
 public class ItemShopModelInSceneGeneratorEditor : Editor
