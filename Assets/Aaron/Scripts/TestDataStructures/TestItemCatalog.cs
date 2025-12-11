@@ -18,7 +18,7 @@ namespace Testing
             }
         }
         
-        public List<IStoreItem> GetItems() => _items;
+        public IReadOnlyList<IStoreItem> GetItems() => _items;
         
         public bool TryFindItemData(string itemId, out IStoreItem storeItemData)
         {
