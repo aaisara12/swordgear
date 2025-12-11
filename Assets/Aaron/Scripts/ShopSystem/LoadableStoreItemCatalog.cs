@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Shop;
+using Testing;
 using UnityEngine;
 
 #if UNITY_EDITOR
@@ -18,7 +19,17 @@ public class LoadableStoreItemCatalog : ScriptableObject, IItemCatalog
 
     public bool TryFindItemData(string itemId, out IStoreItem storeItemData)
     {
-        throw new System.NotImplementedException();
+        var itemFound = _loadedItems.Find(item => item.Id == itemId);
+        
+        if (itemFound == null)
+        {
+            storeItemData = new TestStoreItem("unknown-id", -1);
+            return false;
+        }
+        
+        storeItemData = itemFound;
+
+        return true;
     }
     
 #if UNITY_EDITOR
