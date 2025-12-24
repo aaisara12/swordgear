@@ -3,6 +3,9 @@
 using System.Collections.Generic;
 using Shop;
 
+/// <summary>
+/// Represents the player's game state
+/// </summary>
 public class PlayerBlob : IItemPurchaser, IReadOnlyPlayerBlob
 {
     public IReadOnlyObservable<int> CurrencyAmount => currencyAmount;
