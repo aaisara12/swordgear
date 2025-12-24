@@ -129,7 +129,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.currentDamage));
         if (lightningActive)
         {
             ChainLightningProjectile lightning = Instantiate(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
@@ -144,7 +144,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
         ChainLightningProjectile lightning = Instantiate(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
         lightning.Initialize(transform);
     }

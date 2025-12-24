@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 public enum GearTile
 {
+    Debug,
     Bumper
 }
 
@@ -45,7 +46,7 @@ public class GearManager : MonoBehaviour
         SpawnSlots();
 
         // Debug 
-        SpawnFullRing(GearTile.Bumper);
+        SpawnFullRing(GearTile.Debug);
     }
 
     void SpawnFullRing(GearTile tile)
