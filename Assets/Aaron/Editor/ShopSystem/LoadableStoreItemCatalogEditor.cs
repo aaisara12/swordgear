@@ -1,3 +1,6 @@
+#nullable enable
+#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using Shop;
 using UnityEditor;
@@ -6,7 +9,7 @@ using UnityEngine;
 [CustomEditor(typeof(LoadableStoreItemCatalog))]
 public class LoadableStoreItemCatalogEditor : Editor
 {
-    private string folderPath;
+    private string? folderPath;
     
     public override void OnInspectorGUI()
     {
@@ -61,3 +64,5 @@ public class LoadableStoreItemCatalogEditor : Editor
         }
     }
 }
+
+#endif
