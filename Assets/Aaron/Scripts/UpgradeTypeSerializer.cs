@@ -30,6 +30,11 @@ public static class UpgradeTypeSerializer
         
         int indexOfStartOfUpgradeString = value.IndexOf(kElementUpgradeItemIdPrefix, StringComparison.Ordinal);
 
+        if (indexOfStartOfUpgradeString == -1)
+        {
+            return false;
+        }
+        
         // aisara => Unfortunately, Unity runtime uses .NET4.6 so we can't use ReadOnlySpans overload in TryParse
         string upgradeString = value.Substring(indexOfStartOfUpgradeString);
 

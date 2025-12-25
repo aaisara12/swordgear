@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Aaron/Scenes/BootUp.unity
+    guid: 4dd33831c25e948828bd054c22164528
+  - enabled: 1
     path: Assets/Scenes/Test Scenes/MingTest.unity
     guid: ad2d3b0a1a686984e838b07b4d158e3c
   - enabled: 1
