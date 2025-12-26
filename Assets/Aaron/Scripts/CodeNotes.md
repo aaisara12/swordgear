@@ -19,6 +19,16 @@ Of course, there's always the possibility that one such exception could end up i
 that's the tradeoff - throwing an exception makes the bug more obvious and thus easier to catch for
 developers, but it also makes the bug more obvious for players.
 
+Exceptions also have a place for when we simply have no idea what to do if we encounter
+a certain situation. We could argue it's better than logging an error and returning early
+because we literally would not be able to provide any helpful information in the error log
+and would just be spreading potential misinformation that could make it harder to resolve the bug.
+
+Exceptions also guarantee that the caller cannot use the return value of the method.
+You could also achieve a similar effect by returning null or some sentinel value, 
+but exceptions absolutely guarantee that the caller cannot proceed as if nothing happened.
+It's an extreme case of defensive programming.
+
 ### Logging Errors
 So when do we log errors instead of throwing exceptions? 
 * I gauge how likely it is that the error could occur.
@@ -60,8 +70,15 @@ then we should throw an exception or log an error instead. TryMethods are best u
 occurrence that the caller can reasonably handle on. Remember that TryMethods are passing on the problem to someone else,
 not solving it for them.
 
+### Silently Failing
 
-### Object Oriented versus Functional Programming
+There are some cases where we can simply fail silently without logging an error or throwing an exception.
+Oftentimes we do this when it's not our responsibility to handle the failure and log an error.
+For example, buttons often do not handle the case where their bound method returns false because
+the button's purpose is simply to call a method when clicked. If the method fails, it's up to the method
+to handle the failure, not the button.
+
+## Object Oriented versus Functional Programming
 
 Functional programming is basically keeping data separate from the functions that operate on that data.
 Oftentimes, I find myself trying to write code that falls on the functional side due to its lack of side effects and easier testability.

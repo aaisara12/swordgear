@@ -45,7 +45,7 @@ public class GameInitializer : MonoBehaviour
         gameStateSynchronizer = new GameStateSynchronizer(playerBlob, elementManager);
         gameStateSynchronizer.Start();
 
-        if (sceneTransitioner.TryChangeScene(startSceneName, out _) == false)
+        if (sceneTransitioner.TryChangeScene(startSceneName) == false)
         {
             Debug.LogError("Failed to load start scene: " + startSceneName + ". Perhaps it's not registered in the build settings?");
             

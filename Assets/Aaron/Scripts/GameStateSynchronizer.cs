@@ -5,6 +5,9 @@ using System;
 /// <summary>
 /// Tracks player's game state and synchronizes core game systems.
 /// </summary>
+// TODO: This class feels like it goes against OO principles - it needs to know how each
+// system works and processes things for them. Instead, it might be a cleaner separation of concerns
+// to have each system get initialized with a reference to the PlayerBlob and handle its own synchronization.
 public class GameStateSynchronizer : IDisposable
 {
     private PlayerBlob playerBlob;

@@ -1,8 +1,9 @@
 #nullable enable
 
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
-using UnityEngine.Serialization;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Wrapper around Unity's scene management API to provide support for smooth transition animations between scenes
@@ -12,46 +13,81 @@ using UnityEngine.Serialization;
 // aisara => MonoBehaviour because we may need to deal with animations or coroutines for transitions
 public class SceneTransitioner : MonoBehaviour
 {
+    [SerializeField] private StringEventChannelSO? sceneChangeRequestChannel;
     [SerializeField] private UnityEvent<string> onSceneTransitionFinished = new UnityEvent<string>();
     [SerializeField] private UnityEvent<string> onSceneTransitionStarted = new UnityEvent<string>();
     
-    private AsyncOperation? currentSceneTransitionTask;
-    private string? sceneBeingLoaded;
-    
-    public bool TryChangeScene(string sceneName, out AsyncOperation? sceneTransitionTask)
-    {
-        sceneTransitionTask = null;
-        
-        if (currentSceneTransitionTask != null)
-        {
-            return false;
-        }
-        
-        currentSceneTransitionTask = UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(sceneName, UnityEngine.SceneManagement.LoadSceneMode.Additive);
-        if (currentSceneTransitionTask == null)
-        {
-            return false;
-        }
-        
-        sceneTransitionTask = currentSceneTransitionTask;
+    private Task? ongoingSceneTransitionTask;
 
-        currentSceneTransitionTask.completed += HandleSceneLoaded;
-        sceneBeingLoaded = sceneName;
-        onSceneTransitionStarted.Invoke(sceneBeingLoaded);
+    private string? lastSceneLoaded;
+
+    private async Task TransitionToScene(string sceneName)
+    {
+        var loadNewSceneTask = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive)?.AsTask();
+
+        if (loadNewSceneTask == null)
+        {
+            Debug.LogError($"Failed to load new scene '{sceneName}'");
+            return;
+        }
+        
+        onSceneTransitionStarted.Invoke(sceneName);
+        
+        if (lastSceneLoaded == null)
+        {
+            await loadNewSceneTask;
+            lastSceneLoaded = sceneName;
+            onSceneTransitionFinished.Invoke(sceneName);
+            return;
+        }
+        
+        var unloadOldSceneTask = SceneManager.UnloadSceneAsync(lastSceneLoaded)?.AsTask();
+        
+        if (unloadOldSceneTask == null)
+        {
+            Debug.LogError($"Failed to unload old scene '{lastSceneLoaded}'");
+            return;
+        }
+        
+        await Task.WhenAll(new Task[] { loadNewSceneTask, unloadOldSceneTask });
+        
+        lastSceneLoaded = sceneName;
+        onSceneTransitionFinished.Invoke(sceneName);
+    }
+    
+    public bool TryChangeScene(string sceneName)
+    {
+        if (ongoingSceneTransitionTask is { IsCompleted: false })
+        {
+            return false;
+        }
+        
+        ongoingSceneTransitionTask = TransitionToScene(sceneName);
         
         return true;
     }
 
-    private void HandleSceneLoaded(AsyncOperation obj)
+    private void Awake()
     {
-        // aisara => I actually have no idea how currentSceneTransitionTask or sceneBeingLoaded could be null here
-        currentSceneTransitionTask.ThrowIfNull(nameof(currentSceneTransitionTask));
-        sceneBeingLoaded.ThrowIfNull(nameof(sceneBeingLoaded));
-        
-        onSceneTransitionFinished.Invoke(sceneBeingLoaded);
-        currentSceneTransitionTask.completed -= HandleSceneLoaded;
-        
-        currentSceneTransitionTask = null;
-        sceneBeingLoaded = null;
+        if (sceneChangeRequestChannel != null)
+        {
+            sceneChangeRequestChannel.OnDataChanged += HandleSceneChangeRequested;
+        }
+    }
+
+    private void HandleSceneChangeRequested(string requestedScene)
+    {
+        if (TryChangeScene(requestedScene) == false)
+        {
+            Debug.LogError("Requested scene change failed and will not transition to scene: " + requestedScene);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (sceneChangeRequestChannel != null)
+        {
+            sceneChangeRequestChannel.OnDataChanged -= HandleSceneChangeRequested;
+        }
     }
 }

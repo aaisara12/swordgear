@@ -251,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 477b30236ed24f41a0292a2577c60561, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}
   onSceneTransitionFinished:
     m_PersistentCalls:
       m_Calls: []
