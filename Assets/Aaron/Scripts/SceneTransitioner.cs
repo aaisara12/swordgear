@@ -21,6 +21,8 @@ public class SceneTransitioner : MonoBehaviour
 
     private string? lastSceneLoaded;
 
+    // aisara => Don't return bool because it's our responsibility to figure out what to do in a failed scene transition,
+    // not the caller's (for example, we could pop a UI that says scene transition failed or raise some events on our end).
     private async Task TransitionToScene(string sceneName)
     {
         var loadNewSceneTask = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive)?.AsTask();

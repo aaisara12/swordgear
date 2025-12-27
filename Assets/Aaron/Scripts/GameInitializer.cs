@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -7,21 +8,15 @@ using UnityEngine;
 /// </summary>
 public class GameInitializer : MonoBehaviour
 {
-    [SerializeField] private ElementManager? elementManager;
     [SerializeField] private PlayerBlobLoaderSO? playerBlobLoader;
     [SerializeField] private SceneTransitioner? sceneTransitioner;
-    [SerializeField] private string startSceneName = string.Empty;
+    [SerializeField, Scene] private string startSceneName = string.Empty;
 
-    private GameStateSynchronizer? gameStateSynchronizer;
+    [SerializeField] private List<InitializeableGameComponent> gameComponents = new List<InitializeableGameComponent>();
+    [SerializeField] private List<InitializeableUnrestrictedGameComponent> unrestrictedGameComponents = new List<InitializeableUnrestrictedGameComponent>();
     
     public void Awake()
     {
-        if (elementManager == null)
-        {
-            Debug.LogError($"{nameof(elementManager)} is null");
-            return;
-        }
-
         if (playerBlobLoader == null)
         {
             Debug.LogError($"{nameof(playerBlobLoader)} is null");
@@ -41,9 +36,16 @@ public class GameInitializer : MonoBehaviour
         }
         
         playerBlob.ThrowIfNull(nameof(playerBlob));
-        
-        gameStateSynchronizer = new GameStateSynchronizer(playerBlob, elementManager);
-        gameStateSynchronizer.Start();
+
+        foreach (var gameComponent in gameComponents)
+        {
+            gameComponent.InitializeOnGameStart(playerBlob);
+        }
+
+        foreach (var unrestrictedGameComponent in unrestrictedGameComponents)
+        {
+            unrestrictedGameComponent.InitializeOnGameStart_Dangerous(playerBlob);
+        }
 
         if (sceneTransitioner.TryChangeScene(startSceneName) == false)
         {
@@ -53,9 +55,5 @@ public class GameInitializer : MonoBehaviour
             Application.Quit();
         }
     }
-    
-    public void OnDestroy()
-    {
-        gameStateSynchronizer?.Dispose();
-    }
 }
+

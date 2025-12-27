@@ -411,10 +411,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3789c41c1c1f453c8f1042e2bb7e1cb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  elementManager: {fileID: 1874817347}
   playerBlobLoader: {fileID: 11400000, guid: 50985fc4d33a545aebab9d36c9745f4f, type: 2}
   sceneTransitioner: {fileID: 736223908}
   startSceneName: TitleScene
+  gameComponents:
+  - {fileID: 1874817347}
 --- !u!4 &1369852987
 Transform:
   m_ObjectHideFlags: 0

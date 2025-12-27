@@ -31,7 +31,7 @@ class ElementWeaponPair
     public MonoBehaviour weapon; // Must implement IElementalWeapon
 }
 
-public class ElementManager : MonoBehaviour
+public class ElementManager : InitializeableGameComponent
 {
     [SerializeField] List<ElementWeaponPair> elementalWeapons;
 
@@ -39,6 +39,8 @@ public class ElementManager : MonoBehaviour
 
     private IElementalWeapon activeWeapon = null;
     private HashSet<UpgradeType> currentUpgrades = new HashSet<UpgradeType>();
+    
+    private IReadOnlyPlayerBlob _playerBlob;
 
     public static ElementManager Instance = null;
 
@@ -59,6 +61,14 @@ public class ElementManager : MonoBehaviour
                 weapons[pair.element] = weaponImpl;
             else
                 Debug.LogWarning($"Weapon on {pair.element} does not implement IElementalWeapon.");
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (_playerBlob != null)
+        {
+            _playerBlob.InventoryItems.DictionaryChanged -= HandlePlayerInventoryChanged;
         }
     }
 
@@ -148,5 +158,78 @@ public class ElementManager : MonoBehaviour
 
         if (proj != null)
             activeWeapon.OnRangedHit(player, proj, hitSource, enemy, currentUpgrades);
+    }
+
+    public override void InitializeOnGameStart(IReadOnlyPlayerBlob playerBlob)
+    {
+        _playerBlob = playerBlob;
+        
+        GameUtility.LoadElementUpgradesFromPlayerBlob(_playerBlob, this);
+        
+        _playerBlob.InventoryItems.DictionaryChanged += HandlePlayerInventoryChanged;
+    }
+
+    private void HandlePlayerInventoryChanged(ObservableDictionaryChangedEventArgs<string, int> obj)
+    {
+        switch (obj.Action)
+        {
+            case ObservableDictionaryChangedEventArgs<string, int>.ChangeType.Add:
+            {
+                string? itemId = obj.Key;
+                itemId.ThrowIfNull(nameof(itemId));
+                
+                HandleInventoryCountChanged(itemId, obj.NewValue);
+
+                break;
+            }
+            case ObservableDictionaryChangedEventArgs<string, int>.ChangeType.Remove:
+            {
+                string? itemId = obj.Key;
+                itemId.ThrowIfNull(nameof(itemId));
+                
+                HandleInventoryCountChanged(itemId, 0);
+
+                break;
+            }
+            case ObservableDictionaryChangedEventArgs<string, int>.ChangeType.Replace:
+            {
+                string? itemId = obj.Key;
+                itemId.ThrowIfNull(nameof(itemId));
+                
+                HandleInventoryCountChanged(itemId, obj.NewValue);
+
+                break;
+            }
+            case ObservableDictionaryChangedEventArgs<string, int>.ChangeType.Clear:
+            {
+                HandleInventoryCleared();
+                break;
+            }
+        }
+    }
+
+    private void HandleInventoryCountChanged(string itemId, int newCount)
+    {
+        if (UpgradeTypeSerializer.TryDeserialize(itemId, out UpgradeType upgrade))
+        {
+            if (newCount == 0)
+            {
+                RemoveUpgrade(upgrade);
+            }
+            else if (newCount > 1)
+            {
+                if (HasUpgrade(upgrade))
+                {
+                    return;
+                }
+                
+                AddUpgrade(upgrade);
+            }
+        }
+    }
+    
+    private void HandleInventoryCleared()
+    {
+        ClearUpgrades();
     }
 }
