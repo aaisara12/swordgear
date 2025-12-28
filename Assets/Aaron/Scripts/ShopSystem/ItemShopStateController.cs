@@ -54,15 +54,10 @@ namespace Shop
                 return;
             }
             
+            view.gameObject.SetActive(false);
+            
             uiVisibilityEventChannel.OnDataChanged += HandleUIVisibilityChanged;
             uiDataEventChannel.OnDataChanged += HandleItemShopModelChanged;
-
-            view.gameObject.SetActive(uiVisibilityEventChannel.GetMostRecentData);
-            
-            if (uiDataEventChannel.GetMostRecentData != null)
-            {
-                HandleItemShopModelChanged(uiDataEventChannel.GetMostRecentData);
-            }
         }
 
         private void HandleItemShopModelChanged(ItemShopModel newModel)
