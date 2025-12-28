@@ -155,7 +155,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 52, y: -43}
-  m_SizeDelta: {x: 539.7393, y: 582.2327}
+  m_SizeDelta: {x: 581.8226, y: 367.9909}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &35619979
 MonoBehaviour:
@@ -171,7 +171,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
   m_Color: {r: 0, g: 0, b: 0, a: 0.7137255}
-  m_RaycastTarget: 1
+  m_RaycastTarget: 0
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
@@ -347,7 +347,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1684140332667474305, guid: 3171d63c66c8b4844842ed261ca45f7d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 4581036071413450881, guid: 3171d63c66c8b4844842ed261ca45f7d, type: 3}
       propertyPath: m_Name
@@ -439,7 +439,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5439744017208537313, guid: 3171d63c66c8b4844842ed261ca45f7d, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -0.000015258789
       objectReference: {fileID: 0}
     - target: {fileID: 6170085223921185521, guid: 3171d63c66c8b4844842ed261ca45f7d, type: 3}
       propertyPath: m_joystickCanvas
@@ -469,7 +469,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 83937471578851723, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.0000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 1326079308537979913, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_Pivot.x
@@ -565,7 +565,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6699700377431767434, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: 0.0000038146973
       objectReference: {fileID: 0}
     - target: {fileID: 8090670148895329199, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_joystickCanvas
@@ -18080,6 +18080,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   previewText: {fileID: 1788525654}
   startRoundButton: {fileID: 1261301675}
+  openShopEventChannel: {fileID: 11400000, guid: 89f0442172b0a498fbcbce3d4943918e, type: 2}
 --- !u!4 &1469755013
 Transform:
   m_ObjectHideFlags: 0
@@ -18196,9 +18197,9 @@ MonoBehaviour:
   maxHp: 100
   attackRadius: 5
   dashFactor: 0.2
-  projectileSpeed: 25
+  projectileSpeed: 10
   flickThreshold: 1
-  speed: 3
+  speed: 5
   sword: {fileID: 0}
   gear: {fileID: 0}
   elementWeaponDict:
@@ -18538,10 +18539,10 @@ MonoBehaviour:
       m_Calls: []
   m_FontData:
     m_Font: {fileID: 10102, guid: 0000000000000000e000000000000000, type: 0}
-    m_FontSize: 30
+    m_FontSize: 15
     m_FontStyle: 0
     m_BestFit: 0
-    m_MinSize: 10
+    m_MinSize: 1
     m_MaxSize: 41
     m_Alignment: 0
     m_AlignByGeometry: 0
@@ -18845,7 +18846,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: radius
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: slotCount
@@ -18858,14 +18859,22 @@ PrefabInstance:
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[0].prefab
       value: 
-      objectReference: {fileID: 2783300026856143536, guid: bbd6df23e509dbc42b37f9081c282ed1, type: 3}
+      objectReference: {fileID: 1035372564311983114, guid: fb4ce7201f85ec64a8b4fcc4fb41d9c9, type: 3}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[1].prefab
       value: 
       objectReference: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: tilePrefabPairs.Array.data[2].prefab
+      value: 
+      objectReference: {fileID: 1035372564311983114, guid: fb4ce7201f85ec64a8b4fcc4fb41d9c9, type: 3}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[1].gearTile
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: tilePrefabPairs.Array.data[2].gearTile
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7126362550526451437, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: m_Name
