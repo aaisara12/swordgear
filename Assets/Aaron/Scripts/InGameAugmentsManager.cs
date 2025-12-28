@@ -9,8 +9,14 @@ using UnityEngine;
 /// </summary>
 public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 {
+    [Header("Input")]
     [SerializeField] private TriggerEventChannelSO? triggerAugmentGenerationEventChannel;
-    [SerializeField] private ItemShopModelEventChannelSO? uiOutputEventChannel;
+    
+    [Header("Output")]
+    [SerializeField] private BoolEventChannelSO? uiVisibilityEventChannel;
+    [SerializeField] private ItemShopModelEventChannelSO? uiDataEventChannel;
+    
+    [Header("Other Dependencies")]
     [SerializeField] private LoadableStoreItemCatalog? augmentsCatalog;
     
     private ItemStorefront? itemStorefront;
@@ -35,6 +41,18 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             return;
         }
         
+        if(uiVisibilityEventChannel == null)
+        {
+            Debug.LogError("UIVisibilityEventChannel is null");
+            return;
+        }
+
+        if (uiDataEventChannel == null)
+        {
+            Debug.LogError("UIDataEventChannel is null");
+            return;
+        }
+        
         itemStorefront = new ItemStorefront(augmentsCatalog);
         itemStorefront.GetPurchasableItems();
         
@@ -53,6 +71,7 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
     {
         if (itemPurchaser == null)
         {
+            Debug.LogError("ItemPurchaser has not been set yet. This shouldn't happen because InitializeOnGameStart_Dangerous should have been called at game start.");
             return;
         }
 
@@ -62,7 +81,13 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             return;
         }
 
-        if (uiOutputEventChannel == null)
+        if (uiVisibilityEventChannel == null)
+        {
+            // We already have an error log elsewhere, so no need to log again.
+            return;
+        }
+
+        if (uiDataEventChannel == null)
         {
             // We already have an error log elsewhere, so no need to log again.
             return;
@@ -81,6 +106,7 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
         
         var model = new ItemShopModel(availableAugments, itemPurchaser);
         
-        uiOutputEventChannel.RaiseDataChanged(model);
+        uiVisibilityEventChannel.RaiseDataChanged(true);
+        uiDataEventChannel.RaiseDataChanged(model);
     }
 }

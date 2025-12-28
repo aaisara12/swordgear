@@ -1,6 +1,8 @@
 #nullable enable
 
 using UnityEngine;
+using UnityEngine.Events;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Shop
@@ -9,6 +11,9 @@ namespace Shop
     {
         [SerializeField] private ItemShopElementViewModel? itemVisualViewModel;
         [SerializeField] private Button? confirmPurchaseButton;
+        
+        // aisara => Expose event on data layer in case we want to hook in some animations in the editor
+        [SerializeField] private UnityEvent? onSuccessfulPurchase;
 
         private ItemShopItemModel? _cachedModel;
         
@@ -42,6 +47,7 @@ namespace Shop
                 return;
             }
             
+            onSuccessfulPurchase?.Invoke();
             gameObject.SetActive(false);
         }
 

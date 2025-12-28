@@ -9,6 +9,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 57310519ba6ae49f99d62429a00d1ff6, type: 3}
-  m_Name: MainItemShopModelChannel
+  m_Script: {fileID: 11500000, guid: 1f81f85f719c451d8b1c6a5e7860b856, type: 3}
+  m_Name: ShowNextAugmentSetChannel
   m_EditorClassIdentifier: 

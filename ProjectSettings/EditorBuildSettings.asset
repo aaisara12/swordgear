@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Aaron/Scenes/BootUp.unity
     guid: 4dd33831c25e948828bd054c22164528
   - enabled: 1
+    path: Assets/Aaron/Scenes/AugmentShop.unity
+    guid: 1aa3333f67d794eb580b64c2f5f4985a
+  - enabled: 1
     path: Assets/Scenes/Test Scenes/MingTest.unity
     guid: ad2d3b0a1a686984e838b07b4d158e3c
   - enabled: 1
@@ -17,9 +20,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/TitleScene.unity
     guid: 39001299cc3372b48a76950b2749d4de
-  - enabled: 1
-    path: Assets/Aaron/Scenes/ShopTest.unity
-    guid: e4e29e80741cb4574b61b2b0b5590105
   m_configObjects:
     com.unity.input.settings: {fileID: 11400000, guid: 21a7f3bf80afd55499e73e19abb517a2, type: 2}
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
