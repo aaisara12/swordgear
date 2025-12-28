@@ -10,5 +10,5 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 411fbb6ec8fe4e479cebc58d396b039b, type: 3}
-  m_Name: SceneChangeRequestEventChannel
+  m_Name: SceneTransitionEventChannel
   m_EditorClassIdentifier: 

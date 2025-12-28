@@ -1,9 +1,11 @@
+#if UNITY_EDITOR
+
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 [CustomPropertyDrawer(typeof(SceneAttribute))]
-public class StartSceneAttributeDrawer : PropertyDrawer
+public class SceneAttributeDrawer : PropertyDrawer
 {
     // Cache display options (with a <None> entry at index 0)
     private string[] displayOptions = null;
@@ -54,3 +56,5 @@ public class StartSceneAttributeDrawer : PropertyDrawer
         }
     }
 }
+
+#endif

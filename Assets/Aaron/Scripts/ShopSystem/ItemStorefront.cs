@@ -30,6 +30,8 @@ namespace Shop
             _itemCatalog = itemCatalog;
         }
 
+        // aisara => Pass in dictionary of item IDs and quantities to stock the storefront with instead of
+        // a list of IStoreItems so that caller doesn't need to go through trouble of looking up item data themselves.
         public bool TryStockItems(IReadOnlyDictionary<string, int> items)
         {
             NewItemStock[] newItems = new NewItemStock[items.Count];

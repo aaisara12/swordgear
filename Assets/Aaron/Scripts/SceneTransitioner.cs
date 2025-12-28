@@ -38,6 +38,7 @@ public class SceneTransitioner : MonoBehaviour
         if (lastSceneLoaded == null)
         {
             await loadNewSceneTask;
+            SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
             lastSceneLoaded = sceneName;
             onSceneTransitionFinished.Invoke(sceneName);
             return;
@@ -53,6 +54,7 @@ public class SceneTransitioner : MonoBehaviour
         
         await Task.WhenAll(new Task[] { loadNewSceneTask, unloadOldSceneTask });
         
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
         lastSceneLoaded = sceneName;
         onSceneTransitionFinished.Invoke(sceneName);
     }
@@ -67,6 +69,20 @@ public class SceneTransitioner : MonoBehaviour
         ongoingSceneTransitionTask = TransitionToScene(sceneName);
         
         return true;
+    }
+
+    /// <summary>
+    /// Add in a scene that's not intended to replace the current scene, e.g., a UI overlay scene.
+    /// </summary>
+    /// <param name="sceneName"></param>
+    public void AddAuxiliaryScene(string sceneName)
+    {
+        var loadSceneOperation = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive);
+
+        if (loadSceneOperation == null)
+        {
+            Debug.LogError($"Failed to load scene '{sceneName}'");
+        }
     }
 
     private void Awake()
