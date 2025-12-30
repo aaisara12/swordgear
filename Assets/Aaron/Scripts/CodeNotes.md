@@ -155,3 +155,129 @@ but can drown in the stress of micromanaging every last detail. It's important t
 
 At the end of the day, my main objective is to write code that is easy to understand, maintain, and extend. If that means
 hiding a bunch of parameters behind an object to keep the method signature clean, and readable for the team, then so be it.
+
+## Decoupling
+
+Decoupling is the principle of reducing dependencies between different parts of the code.
+
+We do it so that when we change one part of the code, we don't have to change other parts of the code that depend on it.
+This makes it much less of a pain to make changes to the codebase, and makes it easier to test parts of the code in isolation
+due to the ability to swap in dummy implementations of dependencies.
+
+However, it's important to note that when we apply patterns to decouple code, we aren't actually
+reducing dependencies in total - we're just shifting dependencies around such that we reduce
+the dependencies between classes we care about.
+
+### Interfaces
+
+Interfaces allow us to hide the concrete implementation of a dependency from the consumer of that dependency.
+
+Suppose we have `ClassA` that depends on `ClassB`. If we introduce an interface `IClassB` that `ClassB` implements,
+then `ClassA` can depend on `IClassB` instead of `ClassB`. This means that we can swap out `ClassB` for any other class that implements `IClassB` - for example, `ClassBmock` for testing purposes.
+
+Notice that we haven't reduced the number of dependencies. `ClassA` still depends on another type - `IClassB`. We've just shifted the dependency from `ClassA` depending on `ClassB` to `ClassA` depending on `IClassB`.
+
+So if we haven't reduced the number of dependencies, why do we bother with interfaces?
+
+Notice that `IClassB` is a much weaker dependency than `ClassB`. Weaker dependencies mean we can change more without breaking
+the code. The prime example being that we can swap out `ClassB` for `ClassBmock` without changing `ClassA` at all.
+
+I like to think of using interfaces as fitting the strength of a dependency to the needs of the consumer.
+Recognize that in using an interface, we LOSE some functionality that the concrete class might have.
+However, if the consumer doesn't need that functionality, then it's a win because we've reduced the strength of the dependency.
+It's like we're trading power for flexibility. If we don't need the power, then it's a good trade.
+
+
+### Events
+
+Events allow us to hide who's consuming data from the provider of that data.
+
+In this sense, we've FURTHER reduced the strength of the dependency between the provider and consumer.
+The provider ONLY must know the type of data it is providing. It has no knowledge of who is consuming that data
+AT ALL. It could be another class, it could be 10 different classes, it could be no classes at all.
+
+The provider is basically just coupled to a function signature and that's it. Not even an interface.
+
+However, this doesn't come for free.
+We've shifted the strength of the  dependency to the consumers - THEY now need to know about the provider
+in order to subscribe to the event. 
+
+We've gone from the provider having to know about the consumer to the consumer having to know about the provider.
+
+A net reduction of 0!
+
+With this in mind, why do we bother with events?
+
+As always, it's about reducing the strength of dependencies where it matters. In general, we want to reduce
+the strength of dependencies for classes that are more likely to change. In this case, the consumer
+can be quite literally anything that wants the data. It could be a UI element, it could be a gameplay system,
+it could be a debug logger. The provider doesn't care and therefore doesn't need to change what it's doing
+despite all these things changing in all shapes and forms! So long as the data type of the event
+remains the same, the provider is unaffected.
+
+```
+/////////////////
+/// Without Events
+/////////////////
+
+interface IConsumer
+{
+    void Use(Data data)
+    {
+        // Do something with the data
+    }
+}
+
+class Provider
+{
+    List<IConsumer> consumers;
+
+    void BroadcastData()
+    {
+        Data data = new Data();
+
+        // Notice how we have to know about the consumer to call its method
+        foreach (var consumer in consumers)
+        {
+            consumer.Use(data);
+        }
+    }
+}
+
+
+/////////////////
+/// With Events
+/////////////////
+
+class Consumer
+{
+    void OnEnable()
+    {
+        // Notice how we have to know about the Provider to subscribe to its event
+        Provider.SomeEvent += Use;
+    }
+
+    void OnDisable()
+    {
+        Provider.SomeEvent -= Use;
+    }
+
+    void Use(Data data)
+    {
+        // Do something with the data
+    }
+}
+
+class Provider
+{
+    public static event Action<Data> BroadcastDataEvent;
+
+    void BroadcastData()
+    {
+        Data data = new Data();
+        
+        // Notify consumers
+        BroadcastDataEvent?.Invoke(data);
+    }
+}
+```

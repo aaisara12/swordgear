@@ -4,12 +4,13 @@ using AYellowpaper.SerializedCollections;
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 
 public class PlayerController : MonoBehaviour
 {
-    public event Action? OnDeath;
+    [SerializeField] private UnityEvent onDeath = new UnityEvent();
 
     [Header("Player Stats")]
     [SerializeField] private float maxHp = 100f;
@@ -91,9 +92,7 @@ public class PlayerController : MonoBehaviour
     private void Die()
     {
         Debug.Log("Player has died!");
-        OnDeath?.Invoke();
-        // Commented out level change for ease of testing
-        // SceneManager.LoadScene("TitleScene");
+        onDeath.Invoke();
     }
 
     public void SetElement(Element element)
