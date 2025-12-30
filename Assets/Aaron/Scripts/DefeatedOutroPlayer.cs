@@ -31,8 +31,21 @@ public class DefeatedOutroPlayer : MonoBehaviour
 
     private void HandleOnDefeated()
     {
+        if (sceneTransitioner == null)
+        {
+            return;
+        }
+
+        TriggerDefeatedOutro(sceneTransitioner);
+    }
+    
+    private void TriggerDefeatedOutro(SceneTransitioner sceneTransitionerNonNull)
+    {
         // TODO: aisara => Perhaps show some defeated outro animation or screen here before transitioning
-        sceneTransitioner?.TryChangeScene(sceneToReturnTo.sceneName);
+        if (sceneTransitionerNonNull.TryChangeScene(sceneToReturnTo.sceneName) == false)
+        {
+            Debug.LogError("Failed to transition to scene on player defeated.");
+        }
     }
 
     private void OnDestroy()
