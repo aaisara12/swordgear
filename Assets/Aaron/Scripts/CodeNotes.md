@@ -166,7 +166,78 @@ due to the ability to swap in dummy implementations of dependencies.
 
 However, it's important to note that when we apply patterns to decouple code, we aren't actually
 reducing dependencies in total - we're just shifting dependencies around such that we reduce
-the dependencies between classes we care about.
+the strength of dependencies where it matters.
+
+When we reduce the strength of a dependency, we broaden the range of inputs we can accept without breaking
+the code. This means a block of code can be applied in more situations without requiring changes on its end.
+
+
+#### A word of caution
+Note that there's a hidden cost that comes with decoupling - complexity. Think of direct method calls that take
+explicit dependencies as the natural order of things. When we introduce patterns to decouple code,
+we're expending energy to break the natural order of things and redirect code flow through our own
+man-made mechanisms that can often make it harder to follow what's going on - it's no longer a simple
+flow of calling a method.
+
+More complexity means that when data isn't flowing as expected, it's harder to trace where the data is getting
+lost or corrupted. 
+
+Net dependency reduction might be 0, but we pretty much always incur some complexity cost. Therefore, it's not
+always the right decision to decouple code.
+
+### Object Oriented Design
+
+The basis of object-oriented design is to have objects take care of themselves. This means that objects are responsible for managing their own state and behavior.
+Therefore, classes will naturally HIDE dependencies from users of the class by encapsulating them behind private fields.
+
+This is a form of decoupling because the user of the class doesn't need to know about all the dependencies
+of the class. 
+
+Here's an example of some code that is not completely object-oriented:
+
+```
+public static void PurchaseItem(Item item, PurchasingAgent agent, Inventory inventory)
+{
+    agent.ChargePlayer(item.Price);
+    inventory.AddItem(item);
+}
+```
+
+Here's the same code written in a more object-oriented way:
+
+```
+public class Shop
+{
+    private PurchasingAgent _agent;
+    private Inventory _inventory;
+
+    public Shop(PurchasingAgent agent, Inventory inventory)
+    {
+        _agent = agent;
+        _inventory = inventory;
+    }
+
+    public void PurchaseItem(Item item)
+    {
+        _agent.ChargePlayer(item.Price);
+        _inventory.AddItem(item);
+    }
+}
+```
+
+Notice how the user of the `Shop` class doesn't need to know about the `PurchasingAgent` or `Inventory` dependencies.
+It doesn't need to know how to acquire them or initialize them or clean them up or anything! 
+
+Notice how we could swap out the `PurchasingAgent` or `Inventory` dependencies for completely different types
+like `WebStore` or even `Dictionary<string, Item>` and the caller of `Shop.PurchaseItem` wouldn't need to change at all.
+
+Remember how I mentioned that decoupling comes with a complexity cost? It's because object-oriented design inherently
+complicates data flow by hiding dependencies behind private fields that unit tests become more complicated for 
+object-oriented classes. We have to set up the dependencies before we can test the class, and we have to make sure
+that the dependencies are in the right state before we can test the class.
+
+Unit tests rely on being able to control all the inputs to a method in order to verify that the outputs are correct.
+When dependencies are hidden behind private fields, it becomes more complicated to control those inputs.
 
 ### Interfaces
 
@@ -175,7 +246,7 @@ Interfaces allow us to hide the concrete implementation of a dependency from the
 Suppose we have `ClassA` that depends on `ClassB`. If we introduce an interface `IClassB` that `ClassB` implements,
 then `ClassA` can depend on `IClassB` instead of `ClassB`. This means that we can swap out `ClassB` for any other class that implements `IClassB` - for example, `ClassBmock` for testing purposes.
 
-Notice that we haven't reduced the number of dependencies. `ClassA` still depends on another type - `IClassB`. We've just shifted the dependency from `ClassA` depending on `ClassB` to `ClassA` depending on `IClassB`.
+Notice that we haven't reduced the number of dependencies. We've just shifted `ClassA`'s dependency from `ClassB` to `IClassB`.
 
 So if we haven't reduced the number of dependencies, why do we bother with interfaces?
 
@@ -196,7 +267,7 @@ In this sense, we've FURTHER reduced the strength of the dependency between the 
 The provider ONLY must know the type of data it is providing. It has no knowledge of who is consuming that data
 AT ALL. It could be another class, it could be 10 different classes, it could be no classes at all.
 
-The provider is basically just coupled to a function signature and that's it. Not even an interface.
+The provider is basically just coupled to a function signature and that's it. Not even a concrete interface.
 
 However, this doesn't come for free.
 We've shifted the strength of the  dependency to the consumers - THEY now need to know about the provider
@@ -215,39 +286,9 @@ it could be a debug logger. The provider doesn't care and therefore doesn't need
 despite all these things changing in all shapes and forms! So long as the data type of the event
 remains the same, the provider is unaffected.
 
+Consider this example that uses events to decouple the provider and consumer:
+
 ```
-/////////////////
-/// Without Events
-/////////////////
-
-interface IConsumer
-{
-    void Use(Data data)
-    {
-        // Do something with the data
-    }
-}
-
-class Provider
-{
-    List<IConsumer> consumers;
-
-    void BroadcastData()
-    {
-        Data data = new Data();
-
-        // Notice how we have to know about the consumer to call its method
-        foreach (var consumer in consumers)
-        {
-            consumer.Use(data);
-        }
-    }
-}
-
-
-/////////////////
-/// With Events
-/////////////////
 
 class Consumer
 {
@@ -281,3 +322,34 @@ class Provider
     }
 }
 ```
+
+Now compare that to this example that does NOT use events:
+
+```
+
+interface IConsumer
+{
+    void Use(Data data)
+    {
+        // Do something with the data
+    }
+}
+
+class Provider
+{
+    List<IConsumer> consumers;
+
+    void BroadcastData()
+    {
+        Data data = new Data();
+
+        // Notice how we have to know about the consumer type to call its method
+        foreach (var consumer in consumers)
+        {
+            consumer.Use(data);
+        }
+    }
+}
+```
+
+
