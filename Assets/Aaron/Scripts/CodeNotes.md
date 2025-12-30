@@ -6,22 +6,21 @@ I'm keeping this here to make sure I'm consistent with my own principles, and to
 
 This isn't going to be an organized document. It's just going to be a brain dump of my thoughts on code architecture.
 
-## Throwing Exceptions versus Logging Errors versus TryMethods
+## What to do when we encounter an error
 
 When it comes to error handling in code, there are three main strategies I use:
 
-### Throwing Exceptions
+### Throw an exception!
 Exceptions are a way to absolutely guarantee that code will not proceed if some precondition is not met.
-They are extreme measures to stop code execution when something is very wrong and
-make the runtime throw a huge fit over it! This is great for catching bugs quickly.
+They are extreme measures to stop code execution. This is great for catching bugs quickly.
 
 Of course, there's always the possibility that one such exception could end up in runtime code, but 
 that's the tradeoff - throwing an exception makes the bug more obvious and thus easier to catch for
 developers, but it also makes the bug more obvious for players.
 
 Exceptions also have a place for when we simply have no idea what to do if we encounter
-a certain situation. We could argue it's better than logging an error and returning early
-because we literally would not be able to provide any helpful information in the error log
+a certain situation. We could argue it's better than us trying to handle it gracefully in some vague way
+because we literally would not be able to provide any helpful information in any error log or UI we write
 and would just be spreading potential misinformation that could make it harder to resolve the bug.
 
 Exceptions also guarantee that the caller cannot use the return value of the method.
@@ -29,27 +28,24 @@ You could also achieve a similar effect by returning null or some sentinel value
 but exceptions absolutely guarantee that the caller cannot proceed as if nothing happened.
 It's an extreme case of defensive programming.
 
-### Logging Errors
-So when do we log errors instead of throwing exceptions? 
-* I gauge how likely it is that the error could occur.
-If it's not unfathomable, then that's a point for error logs. 
-* If it's runtime game code, I almost always log errors.
-* If it's developer-facing code (like editor tools or unit tests), I'm pretty fine with exceptions. Remember
-that some exceptions we get for free like index out of range exceptions, null reference exceptions, etc. so
-it can save us work to just let those exceptions happen instead of preemptively checking for them.
+### Handle it ourselves
 
-In Unity, serialized dependencies can always be null if we forget to assign them in the editor.
-It's not unfathomable that a developer could forget to assign a dependency, so in this case, I log an error instead of throwing an exception. 
+We do not bother the caller with any information about the error because we have taken it upon
+ourselves to handle the error for them. We believe that we have the context to handle the error
+appropriately, so we do so and return a valid value to the caller.
 
-In general, there are very few cases where I would throw an exception in Unity runtime code.
-My mentor told me that one big downside of exceptions is that they completely throw a wrench in the
-code flow, making it hard to reason about what the code will do next and thus it's exponentially more
-difficult to know how the program will behave after that point. This means the player experience
-is left up to chance, which is never a good thing. However, if you're in a unit test or something that
-will never reach the player, then exceptions basically lose their downside of being completely game breaking
-because only developers will see them.
+We believe we will do a better job at handling the error than the caller would.
 
-### TryMethods
+Note that the caller will be blissfully unaware that an error occurred unless they check the logs.
+The caller may continue to use this default value as if nothing happened. Thus, if you think that
+the caller would benefit from knowing that an error occurred, then maybe you should defer handling to them.
+
+### Let the caller handle it
+
+If we can't come up with a blanket solution to handle the error that makes sense for all callers of a method,
+then we can let the caller decide how to handle failure.
+
+#### TryMethods
 
 TryMethods are methods that return a boolean indicating success or failure, and use an out parameter to return a value if successful.
 They are a way to handle errors without throwing exceptions or logging errors. Well, it's more like we defer whether we should
@@ -66,17 +62,67 @@ So basically, we can use TryMethods to give our callers more control over how to
 we don't have the context to know if a failure is critical or not. 
 
 Of course, we shouldn't overuse TryMethods. If a method is expected to always succeed and failure is truly exceptional,
-then we should throw an exception or log an error instead. TryMethods are best used when failure is a common and expected
-occurrence that the caller can reasonably handle on. Remember that TryMethods are passing on the problem to someone else,
+then we should throw an exception or log an error instead. 
+
+Oftentimes, TryMethods are seen when failure is not uncommon and maybe a somewhat expected
+occurrence that the caller should have logic to handle. For example, the TryRaycast method.
+
+Remember that TryMethods are passing on the problem to someone else,
 not solving it for them.
 
-### Silently Failing
+#### Return Null
 
-There are some cases where we can simply fail silently without logging an error or throwing an exception.
-Oftentimes we do this when it's not our responsibility to handle the failure and log an error.
-For example, buttons often do not handle the case where their bound method returns false because
-the button's purpose is simply to call a method when clicked. If the method fails, it's up to the method
-to handle the failure, not the button.
+I think of returning null as another form of TryMethod that's a little more dangerous because it relies on the caller to check for null.
+However, a null value communicates failure without needing an extra boolean return value.
+
+If the caller forgets to check for null, well then you would be back at the "throw an exception" approach.
+
+### Don't handle it
+
+Consider whether the data you're working with is even an erroneous state at all. Is it valid that we might end up in this state?
+Edge cases are not the same as errors.
+
+Remember that errors are only errors if they prevent us from fulfilling our contract to the caller.
+
+### Deciding what approach to use
+
+Consider these points:
+* How likely it is that the error could occur?
+  * If the error will occur frequently, then consider whether it's actually just an edge case that we don't have the context
+  to determine how to handle. If so, consider deferring handling to the caller.
+* Based on the information at my current scope, can I come up with a blanket solution to handle the error that makes sense for all callers of this method?
+  * If so, handle it ourselves.
+  * If not, consider deferring handling to the caller (or throwing an exception)
+* Is it user-facing code? 
+  * I almost never throw exceptions due to the negative player experience it can cause (unless I'm super super sure that it will practically never happen, so sure that I'm willing to be lazy and not worry about more complicated error handling)
+* Is it developer-facing code (like editor tools or unit tests)?
+  * I'm pretty fine with exceptions here. Remember
+    that some exceptions we get for free like index out of range exceptions, null reference exceptions, etc. so
+    it can save us work to just let those exceptions happen instead of preemptively checking for them.
+* Does the error prevent me from fulfilling my contract to the caller?
+  * If so, throw an exception or use a TryMethod to indicate failure.
+  * If not, handle it ourselves or fail silently.
+  * In my mind, callback code generally goes well with failing silently because:
+    * It has no contract to fulfill. It has no responsibility to do... anything really.
+    * It may be one of many callbacks being called in sequence by the event invoker, so throwing an exception or writing complicated code 
+    would prevent other callbacks from being called in a timely manner.
+    * By nature, callback code happens without any regard for the handler's current state. It should be expected
+    that the handler might not be in a state to do anything meaningful when the callback is invoked, and thus
+    the handler should just do nothing.
+    * You might argue that we could miss critical errors this way, but I think that if the error is critical,
+    then we probably would have handled it earlier in the code flow before reaching the callback. Of course, if there
+    is absolutely no way to handle the error earlier, then we can always try to handle things here.
+
+In Unity, serialized dependencies can always be null if we forget to assign them in the editor.
+It's not unfathomable that a developer could forget to assign a dependency, so in this case, I log an error instead of throwing an exception.
+
+In general, there are very few cases where I would throw an exception in Unity runtime code.
+My mentor told me that one big downside of exceptions is that they completely throw a wrench in the
+code flow, making it hard to reason about what the code will do next and thus it's exponentially more
+difficult to know how the program will behave after that point. This means the player experience
+is left up to chance, which is never a good thing. However, if you're in a unit test or something that
+will never reach the player, then exceptions basically lose their downside of being completely game breaking
+because only developers will see them.
 
 ## Object Oriented versus Functional Programming
 
