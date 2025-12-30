@@ -74,6 +74,14 @@ public class PlayerController : MonoBehaviour
         InputManager.OnDragInIdleZone += OnHoldInIdle;
     }
 
+    private void OnDestroy()
+    {
+        InputManager.OnReleaseInIdleZone -= OnReleaseInIdle;
+        InputManager.OnReleaseInMoveZone -= OnReleaseInMove;
+        InputManager.OnPressInIdleZone -= OnTapInIdle;
+        InputManager.OnDragInIdleZone -= OnHoldInIdle;
+    }
+
     public void TakeDamage(float damage)
     {
         if (currentHp <= 0) return; // Player is already dead
