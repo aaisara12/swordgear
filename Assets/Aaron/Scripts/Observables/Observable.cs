@@ -1,7 +1,7 @@
 #nullable enable
 using System.Collections.Generic;
 
-public class Observable<T>
+public class Observable<T> : IReadOnlyObservable<T>
 {
     private T _value;
 

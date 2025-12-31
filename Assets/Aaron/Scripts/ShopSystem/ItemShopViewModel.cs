@@ -9,8 +9,6 @@ namespace Shop
     /// </summary>
     public class ItemShopViewModel : MonoBehaviour
     {
-        [SerializeField] private ItemShopModelEventChannelSO? itemShopModelProvider;
-
         [SerializeField] private ScrollView? scrollView;
         
         [SerializeField] private ItemShopElementViewModel? purchasableItemElementPrefab;
@@ -18,18 +16,12 @@ namespace Shop
         [SerializeField] private ItemShopPurchaseDialogViewModel? confirmPurchaseViewModel;
         [SerializeField] private TMPro.TMP_Text? purchaserWalletAmountText;
 
-        private ItemShopModel? _cachedModel;
-
         private IScrollViewController<ItemShopItemModel>? _scrollViewController;
+        
+        private ItemShopModel? _cachedModel;
         
         private void Awake()
         {
-            if (itemShopModelProvider == null)
-            {
-                Debug.LogError("[ItemShopViewModel] ItemShopModelProvider is not assigned in the inspector. Cannot subscribe to model updates.");
-                return;
-            }
-
             if(purchasableItemElementPrefab == null || this.scrollView == null)
             {
                 Debug.LogError("[ItemShopViewModel] Not all serialized fields are assigned in the inspector. Cannot initialize scrollview.");
@@ -44,21 +36,6 @@ namespace Shop
             }
             
             _scrollViewController = scrollViewController;
-
-            itemShopModelProvider.OnDataChanged += Initialize;
-
-            if (itemShopModelProvider.GetMostRecentData != null)
-            {
-                Initialize(itemShopModelProvider.GetMostRecentData);
-            }
-        }
-
-        private void OnDestroy()
-        {
-            if (itemShopModelProvider != null)
-            {
-                itemShopModelProvider.OnDataChanged -= Initialize;
-            }
         }
 
         public void Initialize(ItemShopModel model)
@@ -120,6 +97,17 @@ namespace Shop
             var model = new ItemShopItemModel(item, _cachedModel.Purchaser, this);
             confirmPurchaseViewModel.Initialize(model);
             confirmPurchaseViewModel.OpenDialog();
+        }
+
+        /// <summary>
+        /// Clean up any opened dialogs when the shop UI is closed.
+        /// </summary>
+        public void CloseChildDialogs()
+        {
+            if (confirmPurchaseViewModel != null)
+            {
+                confirmPurchaseViewModel.CloseDialog();
+            }
         }
     }
 }

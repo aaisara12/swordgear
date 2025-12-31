@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI; // Required for Button/Text if you use UI elements
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using TMPro;
 
 public class TestGameManager : MonoBehaviour
@@ -18,6 +19,9 @@ public class TestGameManager : MonoBehaviour
     [Header("Game State")]
     private List<LevelBlueprint> currentRoundBlueprints;
     private int currentLevelInRound = 0;
+
+    [Header("Output")]
+    [SerializeField] private TriggerEventChannelSO openShopEventChannel;
 
     void Start()
     {
@@ -158,5 +162,10 @@ public class TestGameManager : MonoBehaviour
         GenerateAndShowPreviews();
         // Re-subscribe after generating new blueprints
         LevelLoader.Instance.OnLevelClear += HandleLevelClear;
+
+        if (openShopEventChannel != null)
+        {
+            openShopEventChannel.RaiseEventTriggered();
+        }
     }
 }

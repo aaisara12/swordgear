@@ -6,40 +6,46 @@ I'm keeping this here to make sure I'm consistent with my own principles, and to
 
 This isn't going to be an organized document. It's just going to be a brain dump of my thoughts on code architecture.
 
-## Throwing Exceptions versus Logging Errors versus TryMethods
+## What to do when we encounter an error
 
 When it comes to error handling in code, there are three main strategies I use:
 
-### Throwing Exceptions
+### Throw an exception!
 Exceptions are a way to absolutely guarantee that code will not proceed if some precondition is not met.
-They are extreme measures to stop code execution when something is very wrong and
-make the runtime throw a huge fit over it! This is great for catching bugs quickly.
+They are extreme measures to stop code execution. This is great for catching bugs quickly.
 
 Of course, there's always the possibility that one such exception could end up in runtime code, but 
 that's the tradeoff - throwing an exception makes the bug more obvious and thus easier to catch for
 developers, but it also makes the bug more obvious for players.
 
-### Logging Errors
-So when do we log errors instead of throwing exceptions? 
-* I gauge how likely it is that the error could occur.
-If it's not unfathomable, then that's a point for error logs. 
-* If it's runtime game code, I almost always log errors.
-* If it's developer-facing code (like editor tools or unit tests), I'm pretty fine with exceptions. Remember
-that some exceptions we get for free like index out of range exceptions, null reference exceptions, etc. so
-it can save us work to just let those exceptions happen instead of preemptively checking for them.
+Exceptions also have a place for when we simply have no idea what to do if we encounter
+a certain situation. We could argue it's better than us trying to handle it gracefully in some vague way
+because we literally would not be able to provide any helpful information in any error log or UI we write
+and would just be spreading potential misinformation that could make it harder to resolve the bug.
 
-In Unity, serialized dependencies can always be null if we forget to assign them in the editor.
-It's not unfathomable that a developer could forget to assign a dependency, so in this case, I log an error instead of throwing an exception. 
+Exceptions also guarantee that the caller cannot use the return value of the method.
+You could also achieve a similar effect by returning null or some sentinel value, 
+but exceptions absolutely guarantee that the caller cannot proceed as if nothing happened.
+It's an extreme case of defensive programming.
 
-In general, there are very few cases where I would throw an exception in Unity runtime code.
-My mentor told me that one big downside of exceptions is that they completely throw a wrench in the
-code flow, making it hard to reason about what the code will do next and thus it's exponentially more
-difficult to know how the program will behave after that point. This means the player experience
-is left up to chance, which is never a good thing. However, if you're in a unit test or something that
-will never reach the player, then exceptions basically lose their downside of being completely game breaking
-because only developers will see them.
+### Handle it ourselves
 
-### TryMethods
+We do not bother the caller with any information about the error because we have taken it upon
+ourselves to handle the error for them. We believe that we have the context to handle the error
+appropriately, so we do so and return a valid value to the caller.
+
+We believe we will do a better job at handling the error than the caller would.
+
+Note that the caller will be blissfully unaware that an error occurred unless they check the logs.
+The caller may continue to use this default value as if nothing happened. Thus, if you think that
+the caller would benefit from knowing that an error occurred, then maybe you should defer handling to them.
+
+### Let the caller handle it
+
+If we can't come up with a blanket solution to handle the error that makes sense for all callers of a method,
+then we can let the caller decide how to handle failure.
+
+#### TryMethods
 
 TryMethods are methods that return a boolean indicating success or failure, and use an out parameter to return a value if successful.
 They are a way to handle errors without throwing exceptions or logging errors. Well, it's more like we defer whether we should
@@ -56,12 +62,69 @@ So basically, we can use TryMethods to give our callers more control over how to
 we don't have the context to know if a failure is critical or not. 
 
 Of course, we shouldn't overuse TryMethods. If a method is expected to always succeed and failure is truly exceptional,
-then we should throw an exception or log an error instead. TryMethods are best used when failure is a common and expected
-occurrence that the caller can reasonably handle on. Remember that TryMethods are passing on the problem to someone else,
+then we should throw an exception or log an error instead. 
+
+Oftentimes, TryMethods are seen when failure is not uncommon and maybe a somewhat expected
+occurrence that the caller should have logic to handle. For example, the TryRaycast method.
+
+Remember that TryMethods are passing on the problem to someone else,
 not solving it for them.
 
+#### Return Null
 
-### Object Oriented versus Functional Programming
+I think of returning null as another form of TryMethod that's a little more dangerous because it relies on the caller to check for null.
+However, a null value communicates failure without needing an extra boolean return value.
+
+If the caller forgets to check for null, well then you would be back at the "throw an exception" approach.
+
+### Don't handle it
+
+Consider whether the data you're working with is even an erroneous state at all. Is it valid that we might end up in this state?
+Edge cases are not the same as errors.
+
+Remember that errors are only errors if they prevent us from fulfilling our contract to the caller.
+
+### Deciding what approach to use
+
+Consider these points:
+* How likely it is that the error could occur?
+  * If the error will occur frequently, then consider whether it's actually just an edge case that we don't have the context
+  to determine how to handle. If so, consider deferring handling to the caller.
+* Based on the information at my current scope, can I come up with a blanket solution to handle the error that makes sense for all callers of this method?
+  * If so, handle it ourselves.
+  * If not, consider deferring handling to the caller (or throwing an exception)
+* Is it user-facing code? 
+  * I almost never throw exceptions due to the negative player experience it can cause (unless I'm super super sure that it will practically never happen, so sure that I'm willing to be lazy and not worry about more complicated error handling)
+* Is it developer-facing code (like editor tools or unit tests)?
+  * I'm pretty fine with exceptions here. Remember
+    that some exceptions we get for free like index out of range exceptions, null reference exceptions, etc. so
+    it can save us work to just let those exceptions happen instead of preemptively checking for them.
+* Does the error prevent me from fulfilling my contract to the caller?
+  * If so, throw an exception or use a TryMethod to indicate failure.
+  * If not, handle it ourselves or fail silently.
+  * In my mind, callback code generally goes well with failing silently because:
+    * It has no contract to fulfill. It has no responsibility to do... anything really.
+    * It may be one of many callbacks being called in sequence by the event invoker, so throwing an exception or writing complicated code 
+    would prevent other callbacks from being called in a timely manner.
+    * By nature, callback code happens without any regard for the handler's current state. It should be expected
+    that the handler might not be in a state to do anything meaningful when the callback is invoked, and thus
+    the handler should just do nothing.
+    * You might argue that we could miss critical errors this way, but I think that if the error is critical,
+    then we probably would have handled it earlier in the code flow before reaching the callback. Of course, if there
+    is absolutely no way to handle the error earlier, then we can always try to handle things here.
+
+In Unity, serialized dependencies can always be null if we forget to assign them in the editor.
+It's not unfathomable that a developer could forget to assign a dependency, so in this case, I log an error instead of throwing an exception.
+
+In general, there are very few cases where I would throw an exception in Unity runtime code.
+My mentor told me that one big downside of exceptions is that they completely throw a wrench in the
+code flow, making it hard to reason about what the code will do next and thus it's exponentially more
+difficult to know how the program will behave after that point. This means the player experience
+is left up to chance, which is never a good thing. However, if you're in a unit test or something that
+will never reach the player, then exceptions basically lose their downside of being completely game breaking
+because only developers will see them.
+
+## Object Oriented versus Functional Programming
 
 Functional programming is basically keeping data separate from the functions that operate on that data.
 Oftentimes, I find myself trying to write code that falls on the functional side due to its lack of side effects and easier testability.
@@ -92,3 +155,201 @@ but can drown in the stress of micromanaging every last detail. It's important t
 
 At the end of the day, my main objective is to write code that is easy to understand, maintain, and extend. If that means
 hiding a bunch of parameters behind an object to keep the method signature clean, and readable for the team, then so be it.
+
+## Decoupling
+
+Decoupling is the principle of reducing dependencies between different parts of the code.
+
+We do it so that when we change one part of the code, we don't have to change other parts of the code that depend on it.
+This makes it much less of a pain to make changes to the codebase, and makes it easier to test parts of the code in isolation
+due to the ability to swap in dummy implementations of dependencies.
+
+However, it's important to note that when we apply patterns to decouple code, we aren't actually
+reducing dependencies in total - we're just shifting dependencies around such that we reduce
+the strength of dependencies where it matters.
+
+When we reduce the strength of a dependency, we broaden the range of inputs we can accept without breaking
+the code. This means a block of code can be applied in more situations without requiring changes on its end.
+
+
+#### A word of caution
+Note that there's a hidden cost that comes with decoupling - complexity. Think of direct method calls that take
+explicit dependencies as the natural order of things. When we introduce patterns to decouple code,
+we're expending energy to break the natural order of things and redirect code flow through our own
+man-made mechanisms that can often make it harder to follow what's going on - it's no longer a simple
+flow of calling a method.
+
+More complexity means that when data isn't flowing as expected, it's harder to trace where the data is getting
+lost or corrupted. 
+
+Net dependency reduction might be 0, but we pretty much always incur some complexity cost. Therefore, it's not
+always the right decision to decouple code.
+
+### Object Oriented Design
+
+The basis of object-oriented design is to have objects take care of themselves. This means that objects are responsible for managing their own state and behavior.
+Therefore, classes will naturally HIDE dependencies from users of the class by encapsulating them behind private fields.
+
+This is a form of decoupling because the user of the class doesn't need to know about all the dependencies
+of the class. 
+
+Here's an example of some code that is not completely object-oriented:
+
+```
+public static void PurchaseItem(Item item, PurchasingAgent agent, Inventory inventory)
+{
+    agent.ChargePlayer(item.Price);
+    inventory.AddItem(item);
+}
+```
+
+Here's the same code written in a more object-oriented way:
+
+```
+public class Shop
+{
+    private PurchasingAgent _agent;
+    private Inventory _inventory;
+
+    public Shop(PurchasingAgent agent, Inventory inventory)
+    {
+        _agent = agent;
+        _inventory = inventory;
+    }
+
+    public void PurchaseItem(Item item)
+    {
+        _agent.ChargePlayer(item.Price);
+        _inventory.AddItem(item);
+    }
+}
+```
+
+Notice how the user of the `Shop` class doesn't need to know about the `PurchasingAgent` or `Inventory` dependencies.
+It doesn't need to know how to acquire them or initialize them or clean them up or anything! 
+
+Notice how we could swap out the `PurchasingAgent` or `Inventory` dependencies for completely different types
+like `WebStore` or even `Dictionary<string, Item>` and the caller of `Shop.PurchaseItem` wouldn't need to change at all.
+
+Remember how I mentioned that decoupling comes with a complexity cost? It's because object-oriented design inherently
+complicates data flow by hiding dependencies behind private fields that unit tests become more complicated for 
+object-oriented classes. We have to set up the dependencies before we can test the class, and we have to make sure
+that the dependencies are in the right state before we can test the class.
+
+Unit tests rely on being able to control all the inputs to a method in order to verify that the outputs are correct.
+When dependencies are hidden behind private fields, it becomes more complicated to control those inputs.
+
+### Interfaces
+
+Interfaces allow us to hide the concrete implementation of a dependency from the consumer of that dependency.
+
+Suppose we have `ClassA` that depends on `ClassB`. If we introduce an interface `IClassB` that `ClassB` implements,
+then `ClassA` can depend on `IClassB` instead of `ClassB`. This means that we can swap out `ClassB` for any other class that implements `IClassB` - for example, `ClassBmock` for testing purposes.
+
+Notice that we haven't reduced the number of dependencies. We've just shifted `ClassA`'s dependency from `ClassB` to `IClassB`.
+
+So if we haven't reduced the number of dependencies, why do we bother with interfaces?
+
+Notice that `IClassB` is a much weaker dependency than `ClassB`. Weaker dependencies mean we can change more without breaking
+the code. The prime example being that we can swap out `ClassB` for `ClassBmock` without changing `ClassA` at all.
+
+I like to think of using interfaces as fitting the strength of a dependency to the needs of the consumer.
+Recognize that in using an interface, we LOSE some functionality that the concrete class might have.
+However, if the consumer doesn't need that functionality, then it's a win because we've reduced the strength of the dependency.
+It's like we're trading power for flexibility. If we don't need the power, then it's a good trade.
+
+
+### Events
+
+Events allow us to hide who's consuming data from the provider of that data.
+
+In this sense, we've FURTHER reduced the strength of the dependency between the provider and consumer.
+The provider ONLY must know the type of data it is providing. It has no knowledge of who is consuming that data
+AT ALL. It could be another class, it could be 10 different classes, it could be no classes at all.
+
+The provider is basically just coupled to a function signature and that's it. Not even a concrete interface.
+
+However, this doesn't come for free.
+We've shifted the strength of the  dependency to the consumers - THEY now need to know about the provider
+in order to subscribe to the event. 
+
+We've gone from the provider having to know about the consumer to the consumer having to know about the provider.
+
+A net reduction of 0!
+
+With this in mind, why do we bother with events?
+
+As always, it's about reducing the strength of dependencies where it matters. In general, we want to reduce
+the strength of dependencies for classes that are more likely to change. In this case, the consumer
+can be quite literally anything that wants the data. It could be a UI element, it could be a gameplay system,
+it could be a debug logger. The provider doesn't care and therefore doesn't need to change what it's doing
+despite all these things changing in all shapes and forms! So long as the data type of the event
+remains the same, the provider is unaffected.
+
+Consider this example that uses events to decouple the provider and consumer:
+
+```
+
+class Consumer
+{
+    void OnEnable()
+    {
+        // Notice how we have to know about the Provider to subscribe to its event
+        Provider.SomeEvent += Use;
+    }
+
+    void OnDisable()
+    {
+        Provider.SomeEvent -= Use;
+    }
+
+    void Use(Data data)
+    {
+        // Do something with the data
+    }
+}
+
+class Provider
+{
+    public static event Action<Data> BroadcastDataEvent;
+
+    void BroadcastData()
+    {
+        Data data = new Data();
+        
+        // Notify consumers
+        BroadcastDataEvent?.Invoke(data);
+    }
+}
+```
+
+Now compare that to this example that does NOT use events:
+
+```
+
+interface IConsumer
+{
+    void Use(Data data)
+    {
+        // Do something with the data
+    }
+}
+
+class Provider
+{
+    List<IConsumer> consumers;
+
+    void BroadcastData()
+    {
+        Data data = new Data();
+
+        // Notice how we have to know about the consumer type to call its method
+        foreach (var consumer in consumers)
+        {
+            consumer.Use(data);
+        }
+    }
+}
+```
+
+
