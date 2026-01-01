@@ -10,8 +10,9 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class ChargeZoneInteraction : IInputInteraction<Vector3>
 {
-    public float activeZoneMin = 0f;
-    public float activeZoneMax = 0.2f;
+    // aisara => Represents how much leeway away we give the player when trying to hold down on the joystick at the center
+    // Note that this pretty much only applies to mobile controls since the charge button is on top of the joystick
+    public float joystickSafeZone = 0.2f;
     
     private bool isDisabled = false;
     
@@ -23,7 +24,7 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
         bool isChargeButtonPressed = input.z > 0.5f;
         
         float magnitude = joystickInput.magnitude;
-        bool isInActiveZone = magnitude >= activeZoneMin && magnitude <= activeZoneMax;
+        bool isInSafeZone = magnitude <= joystickSafeZone;
         switch (context.phase)
         {
             case InputActionPhase.Waiting:
@@ -35,7 +36,7 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
                         isDisabled = false;
                     }
                 }
-                else if (isInActiveZone && isChargeButtonPressed)
+                else if (isInSafeZone && isChargeButtonPressed)
                 {
                     // aisara => Notice how control might technically not be actuated but could still be in active zone if activeZoneMin is 0
                     context.Started();
@@ -45,7 +46,7 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
             }
             case InputActionPhase.Started:
             {
-                if (isInActiveZone == false)
+                if (isInSafeZone == false)
                 {
                     context.Canceled();
                     isDisabled = true;
