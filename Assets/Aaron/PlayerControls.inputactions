@@ -1,8 +1,8 @@
 {
-    "name": "AaronPlayerControls",
+    "name": "PlayerControls",
     "maps": [
         {
-            "name": "Player",
+            "name": "Gameplay",
             "id": "04715df6-78c5-4c50-ace7-a2896f7e1fbc",
             "actions": [
                 {
@@ -11,7 +11,7 @@
                     "id": "0be25b09-19c7-4f3c-871e-08ed32ece4dd",
                     "expectedControlType": "",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "Tap",
                     "initialStateCheck": false
                 },
                 {
@@ -29,7 +29,16 @@
                     "id": "a5459cd4-6107-48dc-b0fc-2277da6f052b",
                     "expectedControlType": "Vector2",
                     "processors": "",
-                    "interactions": "",
+                    "interactions": "ZoneRelease",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ChargeAttack",
+                    "type": "Value",
+                    "id": "b186e3dd-df06-484d-bcf3-e67590b83d2a",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "ChargeZone",
                     "initialStateCheck": true
                 }
             ],
@@ -48,7 +57,7 @@
                 {
                     "name": "",
                     "id": "d7b0a509-4c70-4303-a6ad-b5372474ae59",
-                    "path": "<Gamepad>/rightStickPress",
+                    "path": "<Gamepad>/buttonEast",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -126,7 +135,7 @@
                     "name": "Right Hand Keyboard",
                     "id": "c56ad1d0-40d6-415b-9018-93319257666c",
                     "path": "2DVector",
-                    "interactions": "HoldInteraction2d",
+                    "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Throw",
@@ -136,7 +145,7 @@
                 {
                     "name": "up",
                     "id": "7bbe1d64-9158-46a1-983c-b293c252bd95",
-                    "path": "<Keyboard>/p",
+                    "path": "<Keyboard>/i",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -147,7 +156,7 @@
                 {
                     "name": "down",
                     "id": "ec35afe2-9c47-4161-9a55-a0248e526540",
-                    "path": "<Keyboard>/semicolon",
+                    "path": "<Keyboard>/k",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -158,7 +167,7 @@
                 {
                     "name": "left",
                     "id": "9a2f278b-dba6-4422-80f4-7ec05d07842d",
-                    "path": "<Keyboard>/l",
+                    "path": "<Keyboard>/j",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -169,7 +178,7 @@
                 {
                     "name": "right",
                     "id": "d46017d0-58c6-4f5c-8ee5-f36340697cb6",
-                    "path": "<Keyboard>/quote",
+                    "path": "<Keyboard>/l",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -187,6 +196,138 @@
                     "action": "Throw",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Gamepad",
+                    "id": "2c486fe2-ffc0-4c2c-9f04-530d8995d0d7",
+                    "path": "3DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "ac7bd18e-c6c3-490b-94c7-dc1347378a6c",
+                    "path": "<Gamepad>/rightStick/up",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "609ae436-cf4d-44e5-a49c-98ea3ed368b7",
+                    "path": "<Gamepad>/rightStick/down",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "4d9a0288-9897-4741-9af9-168ed7b320c4",
+                    "path": "<Gamepad>/rightStick/left",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "323ce121-f874-4f35-b140-4e97ce85a334",
+                    "path": "<Gamepad>/rightStick/right",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "forward",
+                    "id": "5283ce47-5d47-4933-8088-7f62e347eb8f",
+                    "path": "<Gamepad>/buttonEast",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "Right Hand Keyboard",
+                    "id": "0c3e4835-8751-4e71-b311-7590a5108819",
+                    "path": "3DVector",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "up",
+                    "id": "485a0268-9229-4313-bca2-2c0a37920246",
+                    "path": "<Keyboard>/i",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "down",
+                    "id": "38efbeb4-064c-45e3-a864-3029f8d76665",
+                    "path": "<Keyboard>/k",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "left",
+                    "id": "a458ab37-adaa-4947-ab03-edc7ab560f38",
+                    "path": "<Keyboard>/j",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "right",
+                    "id": "ff9fc28a-4c39-458d-9a14-0ef0f2033056",
+                    "path": "<Keyboard>/l",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "forward",
+                    "id": "77d3e746-e913-4067-a2ff-6012b6cdc721",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "ChargeAttack",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }

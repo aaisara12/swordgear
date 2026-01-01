@@ -45,10 +45,9 @@ namespace Testing
             projectileDirectionIndicator.transform.rotation = Quaternion.Euler(0, 0, rotationAngle - 90);
         }
         
-        
-        private void OnThrow(InputValue value)
+        public void Throw(Vector2 direction)
         {
-            var newProjectileAimDirection = value.Get<Vector2>().normalized;
+            var newProjectileAimDirection = direction.normalized;
 
             if (newProjectileAimDirection.magnitude == 0)
             {
@@ -56,6 +55,11 @@ namespace Testing
             }
             
             projectileAimDirection = newProjectileAimDirection;
+        }
+        
+        private void OnThrow(InputValue value)
+        {
+            Throw(value.Get<Vector2>().normalized);
         }
 
         private IEnumerator GetProjectileMoveEnumerator(GameObject prefab, Vector2 direction, float distance, float speed)

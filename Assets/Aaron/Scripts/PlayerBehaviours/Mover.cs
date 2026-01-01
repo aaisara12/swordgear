@@ -9,18 +9,22 @@ namespace Testing
     {
         [SerializeField] private float moveSpeed = 5f;
     
-        private Vector2 currentMoveDireciton;
+        private Vector2 currentMoveDirection;
 
         // Update is called once per frame
         private void Update()
         {
-            transform.Translate(new Vector2(currentMoveDireciton.x, currentMoveDireciton.y) * (moveSpeed * Time.deltaTime));
+            transform.Translate(new Vector2(currentMoveDirection.x, currentMoveDirection.y) * (moveSpeed * Time.deltaTime));
         }
 
-
+        public void Move(Vector2 direction)
+        {
+            currentMoveDirection = direction.normalized;
+        }
+        
         private void OnMove(InputValue value)
         {
-            currentMoveDireciton = value.Get<Vector2>().normalized;
+            Move(value.Get<Vector2>().normalized);
         }
     }
 }

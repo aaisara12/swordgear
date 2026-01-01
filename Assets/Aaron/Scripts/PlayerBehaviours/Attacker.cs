@@ -4,6 +4,7 @@ using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Vector2 = System.Numerics.Vector2;
 
 namespace Testing
 {
@@ -26,7 +27,7 @@ namespace Testing
             attackIndicator.SetActive(false);
         }
         
-        private void OnAttack(InputValue value)
+        public void Attack()
         {
             if (attackIndicator == null)
             {
@@ -57,6 +58,11 @@ namespace Testing
             }
             
             activeAttackCoroutine = StartCoroutine(GetAttackForSecondsEnumerator(attackIndicator, cooldownSeconds));
+        }
+        
+        private void OnAttack(InputValue value)
+        {
+            Attack();
         }
     
         private IEnumerator GetAttackForSecondsEnumerator(GameObject attackIndicatorRef, float seconds)
