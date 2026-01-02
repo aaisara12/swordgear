@@ -10,38 +10,34 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class ChargeZoneInteraction : IInputInteraction<Vector3>
 {
+    private enum WaitingSubStateType
+    {
+        READY_FOR_HOLD,
+        VERIFYING_HOLD,
+        DISABLED,
+    }
+    
     // aisara => Represents how much leeway away we give the player when trying to hold down on the joystick at the center
     // Note that this pretty much only applies to mobile controls since the charge button is on top of the joystick
     public float joystickSafeZone = 0.2f;
+    public float secondsToHoldBeforeStart = 0.3f;
     
-    private bool isDisabled = false;
+    private WaitingSubStateType waitingSubState = WaitingSubStateType.READY_FOR_HOLD;
     
     public void Process(ref InputInteractionContext context)
     {
         var input = context.ReadValue<Vector3>();
         
         var joystickInput = new Vector2(input.x, input.y);
-        bool isChargeButtonPressed = input.z > 0.5f;
         
         float magnitude = joystickInput.magnitude;
         bool isInSafeZone = magnitude <= joystickSafeZone;
+        
         switch (context.phase)
         {
             case InputActionPhase.Waiting:
             {
-                if (isDisabled)
-                {
-                    if (context.ControlIsActuated() == false)
-                    {
-                        isDisabled = false;
-                    }
-                }
-                else if (isInSafeZone && isChargeButtonPressed)
-                {
-                    // aisara => Notice how control might technically not be actuated but could still be in active zone if activeZoneMin is 0
-                    context.Started();
-                }
-
+                ProcessWaitingState(ref context);
                 break;
             }
             case InputActionPhase.Started:
@@ -49,7 +45,7 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
                 if (isInSafeZone == false)
                 {
                     context.Canceled();
-                    isDisabled = true;
+                    waitingSubState = WaitingSubStateType.DISABLED;
                 }
                 else if (context.ControlIsActuated() == false)
                 {
@@ -63,5 +59,58 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
 
     public void Reset()
     {
+    }
+    
+    private void ProcessWaitingState(ref InputInteractionContext context)
+    {
+        var input = context.ReadValue<Vector3>();
+        
+        var joystickInput = new Vector2(input.x, input.y);
+        bool isChargeButtonPressed = input.z > 0.5f;
+        
+        float magnitude = joystickInput.magnitude;
+        bool isInSafeZone = magnitude <= joystickSafeZone;
+        
+        switch (waitingSubState)
+        {
+            case WaitingSubStateType.READY_FOR_HOLD:
+            {
+                if (isChargeButtonPressed == false || isInSafeZone == false)
+                {
+                    break;
+                }
+                    
+                context.SetTimeout(secondsToHoldBeforeStart);
+                waitingSubState = WaitingSubStateType.VERIFYING_HOLD;
+                break;
+            }
+            case WaitingSubStateType.VERIFYING_HOLD:
+            {
+                if (isChargeButtonPressed == false || isInSafeZone == false)
+                {
+                    waitingSubState = WaitingSubStateType.READY_FOR_HOLD;
+                    break;
+                }
+                    
+                if (context.timerHasExpired)
+                {
+                    // If we're in this clause, it means the hold timer has expired and the player has successfully held long enough
+
+                    waitingSubState = WaitingSubStateType.READY_FOR_HOLD;
+                    context.Started();
+                }
+
+                break;
+            }
+            case WaitingSubStateType.DISABLED:
+            {
+                if (isChargeButtonPressed == false)
+                {
+                    waitingSubState = WaitingSubStateType.READY_FOR_HOLD;
+                }
+
+                break;
+            }
+        }
     }
 }
