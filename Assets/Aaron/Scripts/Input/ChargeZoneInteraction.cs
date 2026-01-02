@@ -28,6 +28,8 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
     {
         var input = context.ReadValue<Vector3>();
         
+        // NOTE: aisara => The reason we read in a composite input that puts joystick on x/y and charge button on z
+        // is because this interaction depends on the state of both the joystick and the charge button at the same time.
         var joystickInput = new Vector2(input.x, input.y);
         bool isChargeButtonPressed = input.z > 0.5f;
         
