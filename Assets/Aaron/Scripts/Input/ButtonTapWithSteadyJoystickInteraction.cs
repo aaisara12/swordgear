@@ -6,10 +6,10 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// Represents an interaction where a button tap is only registered if the joystick is held steady, within some threshold.
 /// </summary>
-public class JoystickLockedButtonTapInteraction : IInputInteraction<Vector3>
+public class ButtonTapWithSteadyJoystickInteraction : IInputInteraction<Vector3>
 {
-    public float joystickSafeZone = 0.2f;
-    public float secondsBeforeTapInvalidated = 0.3f;
+    public float JoystickSafeZone = 0.2f;
+    public float SecondsBeforeTapInvalidated = 0.3f;
 
     private bool isDisabled = false;
     
@@ -21,7 +21,7 @@ public class JoystickLockedButtonTapInteraction : IInputInteraction<Vector3>
         bool isButtonPressed = input.z > 0.5f;
         
         float magnitude = joystickInput.magnitude;
-        bool isInSafeZone = magnitude <= joystickSafeZone;
+        bool isInSafeZone = magnitude <= JoystickSafeZone;
 
         switch (context.phase)
         {
@@ -45,7 +45,7 @@ public class JoystickLockedButtonTapInteraction : IInputInteraction<Vector3>
                 if (isButtonPressed)
                 {
                     context.Started();
-                    context.SetTimeout(secondsBeforeTapInvalidated);
+                    context.SetTimeout(SecondsBeforeTapInvalidated);
                 }
 
                 break;

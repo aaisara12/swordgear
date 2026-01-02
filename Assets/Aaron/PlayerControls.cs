@@ -33,7 +33,16 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""c1947ffd-c6ea-4c31-b1d4-f623cd7cacf5"",
                     ""expectedControlType"": ""Vector3"",
                     ""processors"": """",
-                    ""interactions"": ""JoystickLockedButtonTap(secondsBeforeTapInvalidated=0.2)"",
+                    ""interactions"": ""ButtonTapWithSteadyJoystick(secondsBeforeTapInvalidated=0.2)"",
+                    ""initialStateCheck"": true
+                },
+                {
+                    ""name"": ""ChargeAttack"",
+                    ""type"": ""Value"",
+                    ""id"": ""b186e3dd-df06-484d-bcf3-e67590b83d2a"",
+                    ""expectedControlType"": ""Vector3"",
+                    ""processors"": """",
+                    ""interactions"": ""ButtonHoldWithSteadyJoystick"",
                     ""initialStateCheck"": true
                 },
                 {
@@ -52,15 +61,6 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""expectedControlType"": ""Vector2"",
                     ""processors"": """",
                     ""interactions"": ""ZoneRelease"",
-                    ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""ChargeAttack"",
-                    ""type"": ""Value"",
-                    ""id"": ""b186e3dd-df06-484d-bcf3-e67590b83d2a"",
-                    ""expectedControlType"": ""Vector3"",
-                    ""processors"": """",
-                    ""interactions"": ""ChargeZone"",
                     ""initialStateCheck"": true
                 }
             ],
@@ -469,9 +469,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         // Gameplay
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
         m_Gameplay_Attack = m_Gameplay.FindAction("Attack", throwIfNotFound: true);
+        m_Gameplay_ChargeAttack = m_Gameplay.FindAction("ChargeAttack", throwIfNotFound: true);
         m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
         m_Gameplay_Throw = m_Gameplay.FindAction("Throw", throwIfNotFound: true);
-        m_Gameplay_ChargeAttack = m_Gameplay.FindAction("ChargeAttack", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -539,17 +539,17 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private readonly InputActionMap m_Gameplay;
     private List<IGameplayActions> m_GameplayActionsCallbackInterfaces = new List<IGameplayActions>();
     private readonly InputAction m_Gameplay_Attack;
+    private readonly InputAction m_Gameplay_ChargeAttack;
     private readonly InputAction m_Gameplay_Move;
     private readonly InputAction m_Gameplay_Throw;
-    private readonly InputAction m_Gameplay_ChargeAttack;
     public struct GameplayActions
     {
         private @PlayerControls m_Wrapper;
         public GameplayActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Attack => m_Wrapper.m_Gameplay_Attack;
+        public InputAction @ChargeAttack => m_Wrapper.m_Gameplay_ChargeAttack;
         public InputAction @Move => m_Wrapper.m_Gameplay_Move;
         public InputAction @Throw => m_Wrapper.m_Gameplay_Throw;
-        public InputAction @ChargeAttack => m_Wrapper.m_Gameplay_ChargeAttack;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -562,15 +562,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Attack.started += instance.OnAttack;
             @Attack.performed += instance.OnAttack;
             @Attack.canceled += instance.OnAttack;
+            @ChargeAttack.started += instance.OnChargeAttack;
+            @ChargeAttack.performed += instance.OnChargeAttack;
+            @ChargeAttack.canceled += instance.OnChargeAttack;
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
             @Throw.started += instance.OnThrow;
             @Throw.performed += instance.OnThrow;
             @Throw.canceled += instance.OnThrow;
-            @ChargeAttack.started += instance.OnChargeAttack;
-            @ChargeAttack.performed += instance.OnChargeAttack;
-            @ChargeAttack.canceled += instance.OnChargeAttack;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -578,15 +578,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @Attack.started -= instance.OnAttack;
             @Attack.performed -= instance.OnAttack;
             @Attack.canceled -= instance.OnAttack;
+            @ChargeAttack.started -= instance.OnChargeAttack;
+            @ChargeAttack.performed -= instance.OnChargeAttack;
+            @ChargeAttack.canceled -= instance.OnChargeAttack;
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
             @Throw.started -= instance.OnThrow;
             @Throw.performed -= instance.OnThrow;
             @Throw.canceled -= instance.OnThrow;
-            @ChargeAttack.started -= instance.OnChargeAttack;
-            @ChargeAttack.performed -= instance.OnChargeAttack;
-            @ChargeAttack.canceled -= instance.OnChargeAttack;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -607,8 +607,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     public interface IGameplayActions
     {
         void OnAttack(InputAction.CallbackContext context);
+        void OnChargeAttack(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
         void OnThrow(InputAction.CallbackContext context);
-        void OnChargeAttack(InputAction.CallbackContext context);
     }
 }

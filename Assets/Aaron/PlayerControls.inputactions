@@ -11,7 +11,16 @@
                     "id": "c1947ffd-c6ea-4c31-b1d4-f623cd7cacf5",
                     "expectedControlType": "Vector3",
                     "processors": "",
-                    "interactions": "JoystickLockedButtonTap(secondsBeforeTapInvalidated=0.2)",
+                    "interactions": "ButtonTapWithSteadyJoystick(secondsBeforeTapInvalidated=0.2)",
+                    "initialStateCheck": true
+                },
+                {
+                    "name": "ChargeAttack",
+                    "type": "Value",
+                    "id": "b186e3dd-df06-484d-bcf3-e67590b83d2a",
+                    "expectedControlType": "Vector3",
+                    "processors": "",
+                    "interactions": "ButtonHoldWithSteadyJoystick",
                     "initialStateCheck": true
                 },
                 {
@@ -30,15 +39,6 @@
                     "expectedControlType": "Vector2",
                     "processors": "",
                     "interactions": "ZoneRelease",
-                    "initialStateCheck": true
-                },
-                {
-                    "name": "ChargeAttack",
-                    "type": "Value",
-                    "id": "b186e3dd-df06-484d-bcf3-e67590b83d2a",
-                    "expectedControlType": "Vector3",
-                    "processors": "",
-                    "interactions": "ChargeZone",
                     "initialStateCheck": true
                 }
             ],
