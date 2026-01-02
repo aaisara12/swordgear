@@ -29,6 +29,7 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
         var input = context.ReadValue<Vector3>();
         
         var joystickInput = new Vector2(input.x, input.y);
+        bool isChargeButtonPressed = input.z > 0.5f;
         
         float magnitude = joystickInput.magnitude;
         bool isInSafeZone = magnitude <= joystickSafeZone;
@@ -46,8 +47,10 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
                 {
                     context.Canceled();
                     waitingSubState = WaitingSubStateType.DISABLED;
+                    break;
                 }
-                else if (context.ControlIsActuated() == false)
+                
+                if (isChargeButtonPressed == false)
                 {
                     context.Performed();
                 }
