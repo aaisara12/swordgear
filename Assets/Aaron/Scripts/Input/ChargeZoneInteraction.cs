@@ -80,8 +80,17 @@ public class ChargeZoneInteraction : IInputInteraction<Vector3>
         {
             case WaitingSubStateType.READY_FOR_HOLD:
             {
-                if (isChargeButtonPressed == false || isInSafeZone == false)
+                if (isChargeButtonPressed == false)
                 {
+                    break;
+                }
+                
+                if (isInSafeZone == false)
+                {
+                    // aisara => We disable here because it feels weird if you're allowed to start charging by
+                    // moving the joystick into the safe zone with the charge button pressed 
+                    // as opposed to being in the safe zone FIRST and then pressing the charge button (the intended way to start charging)
+                    waitingSubState = WaitingSubStateType.DISABLED;
                     break;
                 }
                     
