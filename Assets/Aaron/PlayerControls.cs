@@ -46,6 +46,15 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""initialStateCheck"": true
                 },
                 {
+                    ""name"": ""AimedAttack"",
+                    ""type"": ""Value"",
+                    ""id"": ""a5459cd4-6107-48dc-b0fc-2277da6f052b"",
+                    ""expectedControlType"": ""Vector2"",
+                    ""processors"": """",
+                    ""interactions"": ""ZoneRelease"",
+                    ""initialStateCheck"": true
+                },
+                {
                     ""name"": ""Move"",
                     ""type"": ""Value"",
                     ""id"": ""bac31b1c-6faa-45a9-bb69-e45c67144ee7"",
@@ -53,20 +62,11 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""processors"": """",
                     ""interactions"": """",
                     ""initialStateCheck"": true
-                },
-                {
-                    ""name"": ""Throw"",
-                    ""type"": ""Value"",
-                    ""id"": ""a5459cd4-6107-48dc-b0fc-2277da6f052b"",
-                    ""expectedControlType"": ""Vector2"",
-                    ""processors"": """",
-                    ""interactions"": ""ZoneRelease"",
-                    ""initialStateCheck"": true
                 }
             ],
             ""bindings"": [
                 {
-                    ""name"": ""WASD"",
+                    ""name"": ""Left Hand Keyboard"",
                     ""id"": ""0ebe8ae9-a576-4132-a5f8-c58aca65a550"",
                     ""path"": ""2DVector"",
                     ""interactions"": ""HoldInteraction2d"",
@@ -138,7 +138,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
@@ -149,7 +149,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -160,7 +160,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -171,7 +171,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -182,7 +182,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -193,75 +193,9 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Throw"",
+                    ""action"": ""AimedAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""Gamepad"",
-                    ""id"": ""2c486fe2-ffc0-4c2c-9f04-530d8995d0d7"",
-                    ""path"": ""3DVector"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": true,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": ""up"",
-                    ""id"": ""ac7bd18e-c6c3-490b-94c7-dc1347378a6c"",
-                    ""path"": ""<Gamepad>/rightStick/up"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""down"",
-                    ""id"": ""609ae436-cf4d-44e5-a49c-98ea3ed368b7"",
-                    ""path"": ""<Gamepad>/rightStick/down"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""left"",
-                    ""id"": ""4d9a0288-9897-4741-9af9-168ed7b320c4"",
-                    ""path"": ""<Gamepad>/rightStick/left"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""right"",
-                    ""id"": ""323ce121-f874-4f35-b140-4e97ce85a334"",
-                    ""path"": ""<Gamepad>/rightStick/right"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
-                },
-                {
-                    ""name"": ""forward"",
-                    ""id"": ""5283ce47-5d47-4933-8088-7f62e347eb8f"",
-                    ""path"": ""<Gamepad>/buttonEast"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""ChargeAttack"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""Right Hand Keyboard"",
@@ -330,68 +264,68 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""isPartOfComposite"": true
                 },
                 {
-                    ""name"": ""Gamepad"",
-                    ""id"": ""c160ac27-76f2-4902-a381-5b492065122a"",
+                    ""name"": ""Right Stick + Primary Button [Gamepad]"",
+                    ""id"": ""2c486fe2-ffc0-4c2c-9f04-530d8995d0d7"",
                     ""path"": ""3DVector"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": true,
                     ""isPartOfComposite"": false
                 },
                 {
                     ""name"": ""up"",
-                    ""id"": ""6b860184-48b2-4e09-9de7-a356690e88f8"",
+                    ""id"": ""ac7bd18e-c6c3-490b-94c7-dc1347378a6c"",
                     ""path"": ""<Gamepad>/rightStick/up"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""down"",
-                    ""id"": ""04924bfe-77b3-472e-a9ef-21a3f157cef4"",
+                    ""id"": ""609ae436-cf4d-44e5-a49c-98ea3ed368b7"",
                     ""path"": ""<Gamepad>/rightStick/down"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""left"",
-                    ""id"": ""2c0efb6c-2707-423f-a517-8175d01d36d6"",
+                    ""id"": ""4d9a0288-9897-4741-9af9-168ed7b320c4"",
                     ""path"": ""<Gamepad>/rightStick/left"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""right"",
-                    ""id"": ""ec4dcf86-672b-42c3-a2e0-5b308ee97f41"",
+                    ""id"": ""323ce121-f874-4f35-b140-4e97ce85a334"",
                     ""path"": ""<Gamepad>/rightStick/right"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
                 {
                     ""name"": ""forward"",
-                    ""id"": ""4af4b255-3e5c-4e2e-a402-8fe78d91a0ec"",
+                    ""id"": ""5283ce47-5d47-4933-8088-7f62e347eb8f"",
                     ""path"": ""<Gamepad>/buttonEast"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
-                    ""action"": ""Attack"",
+                    ""action"": ""ChargeAttack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
                 },
@@ -460,6 +394,72 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""action"": ""Attack"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""Right Stick + Primary Button [Gamepad]"",
+                    ""id"": ""c160ac27-76f2-4902-a381-5b492065122a"",
+                    ""path"": ""3DVector"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""up"",
+                    ""id"": ""6b860184-48b2-4e09-9de7-a356690e88f8"",
+                    ""path"": ""<Gamepad>/rightStick/up"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""down"",
+                    ""id"": ""04924bfe-77b3-472e-a9ef-21a3f157cef4"",
+                    ""path"": ""<Gamepad>/rightStick/down"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""left"",
+                    ""id"": ""2c0efb6c-2707-423f-a517-8175d01d36d6"",
+                    ""path"": ""<Gamepad>/rightStick/left"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""right"",
+                    ""id"": ""ec4dcf86-672b-42c3-a2e0-5b308ee97f41"",
+                    ""path"": ""<Gamepad>/rightStick/right"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""forward"",
+                    ""id"": ""4af4b255-3e5c-4e2e-a402-8fe78d91a0ec"",
+                    ""path"": ""<Gamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Attack"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -470,8 +470,8 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
         m_Gameplay = asset.FindActionMap("Gameplay", throwIfNotFound: true);
         m_Gameplay_Attack = m_Gameplay.FindAction("Attack", throwIfNotFound: true);
         m_Gameplay_ChargeAttack = m_Gameplay.FindAction("ChargeAttack", throwIfNotFound: true);
+        m_Gameplay_AimedAttack = m_Gameplay.FindAction("AimedAttack", throwIfNotFound: true);
         m_Gameplay_Move = m_Gameplay.FindAction("Move", throwIfNotFound: true);
-        m_Gameplay_Throw = m_Gameplay.FindAction("Throw", throwIfNotFound: true);
     }
 
     ~@PlayerControls()
@@ -540,16 +540,16 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     private List<IGameplayActions> m_GameplayActionsCallbackInterfaces = new List<IGameplayActions>();
     private readonly InputAction m_Gameplay_Attack;
     private readonly InputAction m_Gameplay_ChargeAttack;
+    private readonly InputAction m_Gameplay_AimedAttack;
     private readonly InputAction m_Gameplay_Move;
-    private readonly InputAction m_Gameplay_Throw;
     public struct GameplayActions
     {
         private @PlayerControls m_Wrapper;
         public GameplayActions(@PlayerControls wrapper) { m_Wrapper = wrapper; }
         public InputAction @Attack => m_Wrapper.m_Gameplay_Attack;
         public InputAction @ChargeAttack => m_Wrapper.m_Gameplay_ChargeAttack;
+        public InputAction @AimedAttack => m_Wrapper.m_Gameplay_AimedAttack;
         public InputAction @Move => m_Wrapper.m_Gameplay_Move;
-        public InputAction @Throw => m_Wrapper.m_Gameplay_Throw;
         public InputActionMap Get() { return m_Wrapper.m_Gameplay; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -565,12 +565,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ChargeAttack.started += instance.OnChargeAttack;
             @ChargeAttack.performed += instance.OnChargeAttack;
             @ChargeAttack.canceled += instance.OnChargeAttack;
+            @AimedAttack.started += instance.OnAimedAttack;
+            @AimedAttack.performed += instance.OnAimedAttack;
+            @AimedAttack.canceled += instance.OnAimedAttack;
             @Move.started += instance.OnMove;
             @Move.performed += instance.OnMove;
             @Move.canceled += instance.OnMove;
-            @Throw.started += instance.OnThrow;
-            @Throw.performed += instance.OnThrow;
-            @Throw.canceled += instance.OnThrow;
         }
 
         private void UnregisterCallbacks(IGameplayActions instance)
@@ -581,12 +581,12 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
             @ChargeAttack.started -= instance.OnChargeAttack;
             @ChargeAttack.performed -= instance.OnChargeAttack;
             @ChargeAttack.canceled -= instance.OnChargeAttack;
+            @AimedAttack.started -= instance.OnAimedAttack;
+            @AimedAttack.performed -= instance.OnAimedAttack;
+            @AimedAttack.canceled -= instance.OnAimedAttack;
             @Move.started -= instance.OnMove;
             @Move.performed -= instance.OnMove;
             @Move.canceled -= instance.OnMove;
-            @Throw.started -= instance.OnThrow;
-            @Throw.performed -= instance.OnThrow;
-            @Throw.canceled -= instance.OnThrow;
         }
 
         public void RemoveCallbacks(IGameplayActions instance)
@@ -608,7 +608,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
     {
         void OnAttack(InputAction.CallbackContext context);
         void OnChargeAttack(InputAction.CallbackContext context);
+        void OnAimedAttack(InputAction.CallbackContext context);
         void OnMove(InputAction.CallbackContext context);
-        void OnThrow(InputAction.CallbackContext context);
     }
 }

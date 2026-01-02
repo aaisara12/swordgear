@@ -30,9 +30,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
         gameplayActions.ChargeAttack.performed += HandleChargeAttackPerformed;
         gameplayActions.ChargeAttack.canceled += HandleChargeAttackCanceled;
         
-        gameplayActions.Throw.started += HandleThrowStarted;
-        gameplayActions.Throw.performed += HandleThrowPerformed;
-        gameplayActions.Throw.canceled += HandleThrowCanceled;
+        gameplayActions.AimedAttack.started += HandleAimedAttackStarted;
+        gameplayActions.AimedAttack.performed += HandleAimedAttackPerformed;
+        gameplayActions.AimedAttack.canceled += HandleAimedAttackCanceled;
         
         gameplayActions.Move.performed += HandleMove;
         gameplayActions.Move.canceled += HandleMove;
@@ -68,13 +68,13 @@ public class PlayerGameplayInputManager : MonoBehaviour
         pawn.ReleaseChargeAttack();
     }
 
-    private void HandleThrowCanceled(InputAction.CallbackContext obj)
+    private void HandleAimedAttackCanceled(InputAction.CallbackContext obj)
     {
         ToggleAimDirectionUpdate(false);
         lastReadAimDirection = Vector2.zero;
     }
     
-    private void HandleThrowPerformed(InputAction.CallbackContext obj)
+    private void HandleAimedAttackPerformed(InputAction.CallbackContext obj)
     {
         if (pawn == null)
         {
@@ -82,10 +82,10 @@ public class PlayerGameplayInputManager : MonoBehaviour
         }
         
         // aisara => We don't use the current input value here because it will be zero (since performed is registered on release when stick moves back to zero)
-        pawn.ThrowSwordInDirection(lastReadAimDirection);
+        pawn.DoAimedAttackInDirection(lastReadAimDirection);
     }
 
-    private void HandleThrowStarted(InputAction.CallbackContext obj)
+    private void HandleAimedAttackStarted(InputAction.CallbackContext obj)
     {
         ToggleAimDirectionUpdate(true);
     }
@@ -106,9 +106,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
     {
         while (true)
         {
-            var throwSwordAction = gameplayActions.Throw;
+            var throwSwordAction = gameplayActions.AimedAttack;
             lastReadAimDirection = throwSwordAction.ReadValue<Vector2>();
-            pawn?.AimSwordInDirection(lastReadAimDirection);
+            pawn?.AimInDirection(lastReadAimDirection);
             
             yield return new WaitForEndOfFrame();
         }
@@ -143,9 +143,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
         gameplayActions.ChargeAttack.performed -= HandleChargeAttackPerformed;
         gameplayActions.ChargeAttack.canceled -= HandleChargeAttackCanceled;
         
-        gameplayActions.Throw.started -= HandleThrowStarted;
-        gameplayActions.Throw.performed -= HandleThrowPerformed;
-        gameplayActions.Throw.canceled -= HandleThrowCanceled;
+        gameplayActions.AimedAttack.started -= HandleAimedAttackStarted;
+        gameplayActions.AimedAttack.performed -= HandleAimedAttackPerformed;
+        gameplayActions.AimedAttack.canceled -= HandleAimedAttackCanceled;
         
         gameplayActions.Move.performed -= HandleMove;
         gameplayActions.Move.canceled -= HandleMove;

@@ -13,8 +13,8 @@ public abstract class PlayerGameplayPawn : MonoBehaviour
     public abstract void ReleaseChargeAttack();
     public abstract void CancelChargeAttack();
     
-    public abstract void AimSwordInDirection(Vector2 direction);
-    public abstract void ThrowSwordInDirection(Vector2 direction);
+    public abstract void AimInDirection(Vector2 direction);
+    public abstract void DoAimedAttackInDirection(Vector2 direction);
     
     public abstract void MoveInDirection(Vector2 direction);
 }

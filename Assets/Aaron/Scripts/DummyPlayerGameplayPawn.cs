@@ -19,12 +19,12 @@ namespace Testing
             attacker?.Attack();
         }
 
-        public override void AimSwordInDirection(Vector2 direction)
+        public override void AimInDirection(Vector2 direction)
         {
             shootDirectionVisualizer?.SetShootDirection(direction);
         }
 
-        public override void ThrowSwordInDirection(Vector2 direction)
+        public override void DoAimedAttackInDirection(Vector2 direction)
         {
             shooter?.ShootInDirection(direction);
         }
