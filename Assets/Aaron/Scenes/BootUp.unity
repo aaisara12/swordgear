@@ -687,7 +687,7 @@ MonoBehaviour:
   playerBlobLoader: {fileID: 11400000, guid: 50985fc4d33a545aebab9d36c9745f4f, type: 2}
   sceneTransitioner: {fileID: 736223908}
   startScene:
-    sceneName: TitleSceneTest
+    sceneName: TitleScene
   auxiliaryScenes:
   - sceneName: AugmentShop
   gameComponents:
