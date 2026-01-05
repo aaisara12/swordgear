@@ -14,7 +14,7 @@ namespace Testing
             pawn.ThrowIfNull(nameof(pawn));
             gameplayInputManager.ThrowIfNull(nameof(gameplayInputManager));
             
-            gameplayInputManager.AssignPawn(pawn);
+            gameplayInputManager.LinkPawn(pawn);
         }
     }
 }

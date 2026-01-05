@@ -34,6 +34,16 @@ namespace Testing
             mover?.Move(direction);
         }
 
+        public override void DoSpawnAnimation()
+        {
+            Debug.Log("Player is doing spawn in animation.");
+        }
+
+        public override void DoDefeatAnimation()
+        {
+            Debug.Log("Player is doing defeat animation.");
+        }
+
         public override void BeginChargeAttack()
         {
             Debug.Log("Charge attack started");

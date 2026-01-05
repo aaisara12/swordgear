@@ -20,7 +20,7 @@ namespace Testing
             
             pawn.ThrowIfNull(nameof(pawn));
             
-            gameplayInputManager.AssignPawn(pawn);
+            gameplayInputManager.LinkPawn(pawn);
         }
     }
 }

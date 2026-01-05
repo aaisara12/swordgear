@@ -4,16 +4,9 @@ using AYellowpaper.SerializedCollections;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 
 public class PlayerController : PlayerGameplayPawn
 {
-    [SerializeField] private UnityEvent onDeath = new UnityEvent();
-
-    [Header("Player Stats")]
-    [SerializeField] private float maxHp = 100f;
-    private float currentHp;
-
     [Header("Combat")]
     [SerializeField] private float attackRadius = 5f;
     [SerializeField] private float dashFactor = 0.2f;
@@ -58,28 +51,11 @@ public class PlayerController : PlayerGameplayPawn
             IMeleeWeapon weapon = weaponObj.GetComponent<IMeleeWeapon>();
             elementToWeapon[elem] = weapon;
         }
-        currentHp = maxHp;
     }
     
     public void TakeDamage(float damage)
     {
-        if (currentHp <= 0) return; // Player is already dead
-
-        currentHp -= damage;
-        // You might want to display a damage UI here or trigger a hit animation.
-        // For example, if GameManager has a method:
-        // GameManager.Instance?.DisplayDamageUI(transform.position, damage);
-
-        if (currentHp <= 0f)
-        {
-            Die();
-        }
-    }
-
-    private void Die()
-    {
-        Debug.Log("Player has died!");
-        onDeath.Invoke();
+        RegisterDamage(damage);
     }
 
     void SwordThrow(Vector2 direction)
@@ -198,5 +174,15 @@ public class PlayerController : PlayerGameplayPawn
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
         rb.linearVelocity = direction * speed;
+    }
+
+    public override void DoSpawnAnimation()
+    {
+        // TODO: Implement spawn animation
+    }
+
+    public override void DoDefeatAnimation()
+    {
+        // TODO: Implement defeat animation
     }
 }

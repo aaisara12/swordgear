@@ -14,6 +14,7 @@ public class GameInitializer : MonoBehaviour
     [SerializeField] private SceneReference startScene = new SceneReference();
     [SerializeField] private List<SceneReference> auxiliaryScenes = new List<SceneReference>();
 
+    // TODO: aisara => "GameComponent" is probably not a good name because it's not very descriptive and doesn't capture the essence of being initialized with a player blob. Think of a better name later
     [SerializeField] private List<InitializeableGameComponent> gameComponents = new List<InitializeableGameComponent>();
     [SerializeField] private List<InitializeableUnrestrictedGameComponent> unrestrictedGameComponents = new List<InitializeableUnrestrictedGameComponent>();
 
