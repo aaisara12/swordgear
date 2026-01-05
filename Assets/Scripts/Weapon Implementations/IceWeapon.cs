@@ -14,6 +14,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] private string animName;
+    [SerializeField] private GameObject effectObject;
     [Header("Ranged")]
     [SerializeField] private GameObject chillFieldObject;
     [SerializeField] private float fieldSpawnInterval = 0.2f;
@@ -43,7 +44,18 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
         float elapsedTime = 0f;
 
-        anim.Play(animName);
+        GameObject effect = null;
+        if (effectObject != null)
+        {
+            effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect.transform.up = player.up;
+            IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+            attackAnimator.PlayAnimation();
+        }
+        else
+        {
+            anim.Play(animName);
+        }
         while (elapsedTime < swingDuration)
         {
 
@@ -52,6 +64,10 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         }
 
         Destroy(weaponHitbox);
+        if (effect != null)
+        {
+            Destroy(effect);
+        }
     }
 
     public void Strike(Transform player)

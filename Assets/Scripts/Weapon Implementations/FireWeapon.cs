@@ -10,6 +10,8 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] float spinSpeed = 50f;
     [SerializeField] private float maxChargeTime = 1f;
     [SerializeField] private string[] chargeAnimNames;
+    [SerializeField] private GameObject weakEffectObject;
+    [SerializeField] private GameObject strongEffectObject;
 
     bool applyBurn = false;
     bool isCharging = false;
@@ -40,8 +42,28 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
 
+        GameObject effect = null;
+        if (weakEffectObject != null && strongEffectObject != null)
+        {
+            if (chargeTier == chargeAnimNames.Length - 1)
+            {
+                effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            } 
+            else
+            {
+                effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            }
+            
+            effect.transform.up = player.up;
+            IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+            attackAnimator.PlayAnimation();
+        }
+        else
+        {
+            anim.Play(chargeAnimNames[chargeTier]);
+        }
+
         float elapsedTime = 0f;
-        anim.Play(chargeAnimNames[chargeTier]);
         while (elapsedTime < swingDuration)
         {
             // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -51,6 +73,10 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
         }
 
         Destroy(weaponHitbox);
+        if (effect != null)
+        {
+            Destroy(effect);
+        }
         applyBurn = false;
     }
 
