@@ -8,16 +8,10 @@ using UnityEngine.Events;
 /// </summary>
 public class MonoBehaviourCallbackNotifier : MonoBehaviour
 {
-    [SerializeField] private UnityEvent onAwake = new UnityEvent();
     [SerializeField] private UnityEvent onStart = new UnityEvent();
     [SerializeField] private UnityEvent onEnable = new UnityEvent();
     [SerializeField] private UnityEvent onDisable = new UnityEvent();
     [SerializeField] private UnityEvent onDestroy = new UnityEvent();
-    
-    private void Awake()
-    {
-        onAwake.Invoke();
-    }
 
     private void Start()
     {

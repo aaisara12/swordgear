@@ -15,7 +15,7 @@ class TilePrefabPair
 
 }
 
-public class GearManager : MonoBehaviour
+public class GearManager : InitializeableGameComponent
 {
     [Header("Slot Settings")]
     public int slotCount = 8;
@@ -59,7 +59,14 @@ public class GearManager : MonoBehaviour
 
     private void Update()
     {
-        if (GameManager.Instance.player != null)
+        var gameManager = GameManager.Instance;
+        
+        if (gameManager == null)
+        {
+            return;
+        }
+        
+        if (gameManager.player != null)
         {
             // Follow player position 
             transform.position = GameManager.Instance.player.transform.position;
@@ -131,5 +138,10 @@ public class GearManager : MonoBehaviour
 
         GameObject instance = Instantiate(prefab, slot.position, slot.rotation, slot);
         return instance;
+    }
+
+    public override void InitializeOnGameStart(IReadOnlyPlayerBlob playerBlob)
+    {
+        // TODO: aisara => Setup gear based on playerBlob data and subscribe to updates
     }
 }

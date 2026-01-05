@@ -6,7 +6,7 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Aaron/Scenes/BootUp.unity
+    path: Assets/Scenes/Main/BootUp.unity
     guid: 4dd33831c25e948828bd054c22164528
   - enabled: 1
     path: Assets/Aaron/Scenes/AugmentShop.unity
@@ -18,10 +18,10 @@ EditorBuildSettings:
     path: Assets/Scenes/Prototype3.unity
     guid: 46455d094da5d3c478ec0949ea7c03c8
   - enabled: 1
-    path: Assets/Scenes/TitleScene.unity
+    path: Assets/Scenes/Main/TitleScene.unity
     guid: 39001299cc3372b48a76950b2749d4de
   - enabled: 1
-    path: Assets/Aaron/Scenes/ArenaTest.unity
+    path: Assets/Scenes/Main/Arena.unity
     guid: d2e32754c07414ec0948a5d4a784c691
   - enabled: 1
     path: Assets/Aaron/Scenes/TitleSceneTest.unity

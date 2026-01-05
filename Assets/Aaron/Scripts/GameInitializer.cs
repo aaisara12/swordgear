@@ -12,7 +12,6 @@ public class GameInitializer : MonoBehaviour
     [SerializeField] private PlayerBlobLoaderSO? playerBlobLoader;
     [SerializeField] private SceneTransitioner? sceneTransitioner;
     [SerializeField] private SceneReference startScene = new SceneReference();
-    [SerializeField] private List<SceneReference> auxiliaryScenes = new List<SceneReference>();
 
     // TODO: aisara => "GameComponent" is probably not a good name because it's not very descriptive and doesn't capture the essence of being initialized with a player blob. Think of a better name later
     [SerializeField] private List<InitializeableGameComponent> gameComponents = new List<InitializeableGameComponent>();
@@ -56,11 +55,6 @@ public class GameInitializer : MonoBehaviour
 
             // aisara => Quit the application if we can't load the start scene because the game is in an undefined state
             Application.Quit();
-        }
-
-        foreach (var scene in auxiliaryScenes)
-        {
-            sceneTransitioner.AddAuxiliaryScene(scene.sceneName);
         }
     }
 }

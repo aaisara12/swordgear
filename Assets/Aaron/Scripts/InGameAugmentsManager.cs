@@ -2,6 +2,7 @@
 
 using System.Collections.Generic;
 using Shop;
+using Testing;
 using UnityEngine;
 
 /// <summary>
@@ -20,7 +21,7 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
     [SerializeField] private LoadableStoreItemCatalog? augmentsCatalog;
     
     private ItemStorefront? itemStorefront;
-    private IItemPurchaser? itemPurchaser;
+    private IItemPurchaser itemPurchaser = new TestPurchaser(1000); // Default if not initialized properly.
     
     public override void InitializeOnGameStart_Dangerous(PlayerBlob playerBlob)
     {
@@ -69,12 +70,6 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 
     private void HandleTriggerAugmentGeneration()
     {
-        if (itemPurchaser == null)
-        {
-            Debug.LogError("ItemPurchaser has not been set yet. This shouldn't happen because InitializeOnGameStart_Dangerous should have been called at game start.");
-            return;
-        }
-
         if (itemStorefront == null)
         {
             Debug.LogError("ItemStorefront is null. This shouldn't happen because it is initialized in Awake at the same time as this subscription.");
