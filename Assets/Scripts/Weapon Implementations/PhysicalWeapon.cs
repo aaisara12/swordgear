@@ -9,6 +9,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] private string animName;
+    [SerializeField] private GameObject effectObject;
     [Header("Combat")]
     [SerializeField] private float attackRadius = 3f;
     [SerializeField] private float dashFactor = 0.2f;
@@ -25,7 +26,19 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
         float elapsedTime = 0f;
 
-        anim.Play(animName);
+        GameObject effect = null;
+        if (effectObject != null)
+        {
+            effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect.transform.up = player.up;
+            IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+            attackAnimator.PlayAnimation();
+        } 
+        else
+        {
+            anim.Play(animName);
+        }
+        
         while (elapsedTime < swingDuration)
         {
             // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -34,7 +47,11 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox); 
+        Destroy(weaponHitbox);
+        if (effect != null)
+        {
+            Destroy(effect);
+        }
     }
 
     public void Strike(Transform player)

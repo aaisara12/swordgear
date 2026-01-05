@@ -9,6 +9,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] private string slashAnimName;
     [SerializeField] private string thrustAnimName;
+    [SerializeField] private GameObject weakEffectObject;
+    [SerializeField] private GameObject strongEffectObject;
 
     [SerializeField] GameObject lightningPrefab;
 
@@ -30,7 +32,18 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
         float elapsedTime = 0f;
 
-        anim.Play(slashAnimName);
+        GameObject effect = null;
+        if (weakEffectObject != null)
+        {
+            effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect.transform.up = player.up;
+            IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+            attackAnimator.PlayAnimation();
+        }
+        else
+        {
+            anim.Play(slashAnimName);
+        }
         while (elapsedTime < swingDuration)
         {
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -40,6 +53,10 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         }
 
         Destroy(weaponHitbox);
+        if (effect != null)
+        {
+            Destroy(effect);
+        }
     }
 
     IEnumerator Thrust(Transform player)
@@ -53,7 +70,19 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         Vector2 startPos = player.position;
         Vector2 dest = player.position + player.up * thrustDistance;
 
-        anim.Play(thrustAnimName);
+        GameObject effect = null;
+        if (strongEffectObject != null)
+        {
+            effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect.transform.up = player.up;
+            IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+            attackAnimator.PlayAnimation();
+        }
+        else
+        {
+            anim.Play(thrustAnimName);
+        }
+
         while (elapsedTime < swingDuration)
         {
             Vector2 pos = Vector2.Lerp(startPos, dest, elapsedTime * 8 / swingDuration);
@@ -65,6 +94,10 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         }
 
         Destroy(weaponHitbox);
+        if (effect != null)
+        {
+            Destroy(effect);
+        }
         lightningActive = false;
     }
 
