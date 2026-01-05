@@ -257,7 +257,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneTransitioner: {fileID: 736223908}
   sceneToReturnTo:
-    sceneName: TitleSceneTest
+    sceneName: TitleScene
   onDefeatedEventChannel: {fileID: 11400000, guid: 4445eb8f6b5334d1591c68ff272262f9, type: 2}
 --- !u!1 &249930812
 GameObject:
