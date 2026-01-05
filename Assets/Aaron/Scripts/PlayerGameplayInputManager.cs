@@ -16,6 +16,11 @@ public class PlayerGameplayInputManager : MonoBehaviour
     {
         this.pawn = pawn;
     }
+    
+    public void ClearAssignedPawn()
+    {
+        pawn = null;
+    }
 
     private void Awake()
     {

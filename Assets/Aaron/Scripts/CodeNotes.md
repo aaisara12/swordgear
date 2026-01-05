@@ -352,4 +352,66 @@ class Provider
 }
 ```
 
+## Architecture Notes
 
+This is a description of the current architecture plan for this project. The intent is to
+ensure that we stay consistent with the design.
+
+### Managers/Core Systems
+
+Managers (or Core Systems) are singleton-like classes that provide core functionality to the game.
+
+They should be treated as services that can be called upon from any scene. They exist to SUPPORT gameplay
+rather than to drive the gameplay.
+
+The idea is that logic that lives within a given scene should drive gameplay that happens in that scene and should
+call upon the managers to help it achieve its goals. Rather than having the managers dictate what happens in the scene.
+
+Managers are TOOLS that scene logic can use to achieve its goals.
+
+The rationale behind this approach is that we have lots more flexibility as game designers to build new content.
+A designer can simply start in a fresh new scene from scratch, build whatever logic makes sense for their scene,
+and call upon the managers to help them achieve their goals if they need. 
+
+When we treat scenes as individual units of the game that can be built independently of each other,
+we can more easily create new content without worrying about how it fits into a larger framework.
+This should reduce the amount of coordination needed between different team members
+when building new content because most scenes can just worry about what's happening
+in their own scene.
+
+The downside is that we're now forced to use more complicated communication patterns to connect
+scene logic to the managers. 
+
+#### Communication with Managers
+
+Because they are utility classes that provide services to the game, it makes sense for them to be easily
+accessible from anywhere in the code. This makes singletons very tempting to use for managers.
+
+However, we must be careful with singletons because they encourage lots of coupling and global state.
+
+Remember that coupling is not inherently bad, but we want to be intentional about where we couple.
+Coupling to singletons everywhere means that lots of code will need to change if we ever want to
+change the singleton APIs.
+
+Remember that global state is not inherently bad either, but the more it's referenced, the harder
+it is to understand how the data got into its current state when debugging or just understanding
+the code flow.
+
+Event channels can be an alternative to singletons in some cases.
+
+They greatly decouple the communication between gameplay logic and managers.
+However, they are not always the right tool for the job because they introduce complexity
+that makes it harder to trace data flow when debugging. They also make it much more complicated
+to exchange information back to the caller because events are inherently one-way communication.
+You can't easily have a manager return a value to the caller via an event - you would need
+some sort of callback mechanism or perhaps another event to send the data back.
+
+We often forget that we can also just pass in manager references to the classes that need them.
+This is a simple and straightforward approach that avoids the complexity of singletons. Of course,
+we run into an issue in Unity if we have managers that live in a different scene than the caller.
+In these cases, we can opt for singletons/service locators or event channels.
+
+All this said, I think singletons are still the most straightforward approach for managers in Unity,
+especially in these early stages when we want to be able to easily set up new scenes with
+new logic and quickly reference managers. However, we should just be mindful of whether new logic we
+write really does need to be a singleton.
