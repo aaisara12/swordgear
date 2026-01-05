@@ -33,7 +33,7 @@ public class PlayerGameplayManager : MonoBehaviour
         
         spawnedPawn.gameObject.SetActive(true);
         spawnedPawn.DoSpawnAnimation();
-        inputManager.AssignPawn(spawnedPawn);
+        inputManager.LinkPawn(spawnedPawn);
         
         currentHp = maxHp;
         
@@ -54,7 +54,7 @@ public class PlayerGameplayManager : MonoBehaviour
         }
         
         spawnedPawn.OnRegisterDamage -= HandlePawnRegisterDamage;
-        inputManager.ClearAssignedPawn();
+        inputManager.UnlinkCurrentPawn();
         spawnedPawn.gameObject.SetActive(false);
         
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn

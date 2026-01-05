@@ -1,6 +1,7 @@
 #nullable enable
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -12,14 +13,16 @@ public class PlayerGameplayInputManager : MonoBehaviour
     private PlayerControls.GameplayActions gameplayActions;
     private Vector2 lastReadAimDirection;
     
-    public void AssignPawn(PlayerGameplayPawn pawn)
+    public void LinkPawn(PlayerGameplayPawn pawn)
     {
         this.pawn = pawn;
+        gameplayActions.Enable();
     }
     
-    public void ClearAssignedPawn()
+    public void UnlinkCurrentPawn()
     {
         pawn = null;
+        gameplayActions.Disable();
     }
 
     private void Awake()
@@ -27,7 +30,6 @@ public class PlayerGameplayInputManager : MonoBehaviour
         var playerControls = new PlayerControls();
         playerControls.Enable();
         gameplayActions = playerControls.Gameplay;
-        gameplayActions.Enable();
         
         gameplayActions.Attack.performed += HandleAttack;
         
