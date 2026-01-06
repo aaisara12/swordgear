@@ -55,6 +55,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             }
             
             effect.transform.up = player.up;
+            effect.transform.localScale = Vector3.one * (1 + 0.2f * chargeTier);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }

@@ -49,6 +49,10 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         {
             effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             effect.transform.up = player.up;
+            if (combo > 0)
+            {
+                effect.transform.localScale += Vector3.left * 2; // x = -1 scale
+            }
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
