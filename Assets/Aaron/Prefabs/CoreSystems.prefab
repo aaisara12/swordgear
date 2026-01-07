@@ -53,8 +53,8 @@ MonoBehaviour:
   - FireWeakSwipe
   - FireMediumSwipe
   - FireStrongSwipe
-  weakEffectObject: {fileID: 0}
-  strongEffectObject: {fileID: 0}
+  weakEffectObject: {fileID: 4924145055515192846, guid: 3e31b181a52490041b62a9c198263531, type: 3}
+  strongEffectObject: {fileID: 3295937853743057273, guid: c35302333a29d214782dce3eb8004a92, type: 3}
 --- !u!1 &2111316169992709984
 GameObject:
   m_ObjectHideFlags: 0
@@ -166,8 +166,8 @@ MonoBehaviour:
   distanceFromPlayer: 0.5
   slashAnimName: EnergySwipe
   thrustAnimName: FireThrust
-  weakEffectObject: {fileID: 0}
-  strongEffectObject: {fileID: 0}
+  weakEffectObject: {fileID: 8056408506086346163, guid: ee8819334d560c7419ff45e4d5e97a31, type: 3}
+  strongEffectObject: {fileID: 541986225594799853, guid: 31c1a3d349b7c95439fde4df246ef8ac, type: 3}
   lightningPrefab: {fileID: 5926290009230079728, guid: a44ca6b70c4f71a4b95a974f77ac5dcd, type: 3}
   attackRadius: 2
   dashFactor: 0.2
@@ -275,7 +275,7 @@ MonoBehaviour:
   swingDuration: 0.5
   distanceFromPlayer: 0.5
   animName: EnergySwipe
-  effectObject: {fileID: 0}
+  effectObject: {fileID: 2325353192704701246, guid: a3dee1705f267694ab830e809fa6f1c6, type: 3}
   attackRadius: 3
   dashFactor: 0.2
 --- !u!1 &4242799776733528313
@@ -377,7 +377,7 @@ MonoBehaviour:
   swingDuration: 0.5
   distanceFromPlayer: 0.5
   animName: EnergySwipe
-  effectObject: {fileID: 0}
+  effectObject: {fileID: 4925662194938975265, guid: c0f3d83f88dbc3643b3a5d66aefd6807, type: 3}
   chillFieldObject: {fileID: 8092953990564353765, guid: c141323742f6d4c44961232906a9e351, type: 3}
   fieldSpawnInterval: 0.2
   fieldDuration: 3
