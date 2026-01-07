@@ -16,15 +16,27 @@ public class LevelLoader : MonoBehaviour
 
     private bool isWaveAdvancing = false;
 
+    private GameObject currentRoom;
+    private GameObject currentTransition;
+
     public void LoadLevel(LevelBlueprint blueprint)
     {
         // Clear existing room/enemies (Implementation depends on your scene management)
         currentBlueprint = blueprint;
         currentWaveIndex = 0;
+        if(currentRoom != null)
+        {
+            Destroy(currentRoom);
+
+        }
+        if(currentTransition != null)
+        {
+            Destroy(currentTransition);
+        }
 
         // Instantiate Room Geometry and Transition
-        GameObject room = Instantiate(blueprint.Layout.LevelPrefab);
-        Instantiate(blueprint.Transition.TransitionPrefab, room.transform);
+        currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
+        currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
         // Start the first wave
         StartNextWave();
     }

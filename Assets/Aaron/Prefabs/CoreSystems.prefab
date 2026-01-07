@@ -437,8 +437,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1376d32d199a9724285833b5274358e3, type: 2}
   TransitionPool:
   - {fileID: 11400000, guid: e53d347a0774ee3409a6f0627149586a, type: 2}
-  MinWavesPerLevel: 2
-  MaxWavesPerLevel: 4
+  MinWavesPerLevel: 1
+  MaxWavesPerLevel: 1
 --- !u!1 &7185509176701853602
 GameObject:
   m_ObjectHideFlags: 0
