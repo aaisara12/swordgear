@@ -50,8 +50,9 @@ public class RangedAttackStrategy : MonoBehaviour, IAttackStrategy
     public void Attack(Transform selfTransform, Transform targetTransform)
     {
         // Core logic for the ranged attack
-        GameObject projectile = Instantiate(projectilePrefab, selfTransform.position, Quaternion.identity);
         Vector2 direction = (targetTransform.position - selfTransform.position).normalized;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
+        GameObject projectile = Instantiate(projectilePrefab, selfTransform.position, Quaternion.Euler(0, 0, angle));
 
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)

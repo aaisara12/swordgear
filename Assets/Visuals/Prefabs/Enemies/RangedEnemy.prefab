@@ -13,12 +13,12 @@ GameObject:
   - component: {fileID: 3457207750712895610}
   - component: {fileID: 6908658003919645349}
   - component: {fileID: 3030213629378047486}
-  - component: {fileID: 7868449032308609468}
   - component: {fileID: 5514362759253591608}
-  - component: {fileID: 3239566695407575123}
   - component: {fileID: 3690023069366871206}
+  - component: {fileID: 7868449032308609468}
+  - component: {fileID: 3239566695407575123}
   m_Layer: 8
-  m_Name: Enemy
+  m_Name: RangedEnemy
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -34,7 +34,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -6.4, y: -6.97, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -83,12 +83,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 83528856c38db46b3a01358806506550, type: 3}
+  m_Color: {r: 0.754717, g: 0.754717, b: 0.754717, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.64, y: 0.64}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -175,18 +175,6 @@ CircleCollider2D:
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
   m_Radius: 0.5
---- !u!114 &7868449032308609468
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4519183777221867105}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d828480b8e4e63468f3df7fd8f32b1c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &5514362759253591608
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -199,11 +187,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e43d6de336471e442b0f66e22d0fcc74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strafeDistance: 10
-  strafeSpeed: 2
+  strafeDistance: 5
+  strafeSpeed: 3
   strafeDistanceTolerance: 1
-  directionChangeTimeRange: {x: 2, y: 5}
---- !u!114 &3239566695407575123
+  directionChangeTimeRange: {x: 3, y: 6}
+--- !u!114 &3690023069366871206
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -212,12 +200,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 4519183777221867105}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd454e6d331bf104b8b3ed5a9d4e674a, type: 3}
+  m_Script: {fileID: 11500000, guid: b190068685001d94a938e89502aeec8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackDamage: 10
-  attackFrequency: 1
---- !u!114 &3690023069366871206
+  projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
+  attackFrequency: 0.25
+  attackRange: 7
+  projectileSpeed: 10
+  chargeUpTime: 1
+--- !u!114 &7868449032308609468
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -226,11 +217,20 @@ MonoBehaviour:
   m_GameObject: {fileID: 4519183777221867105}
   m_Enabled: 0
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b190068685001d94a938e89502aeec8a, type: 3}
+  m_Script: {fileID: 11500000, guid: 3d828480b8e4e63468f3df7fd8f32b1c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
-  attackFrequency: 0.2
-  attackRange: 10
-  projectileSpeed: 5
-  chargeUpTime: 1
+--- !u!114 &3239566695407575123
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4519183777221867105}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fd454e6d331bf104b8b3ed5a9d4e674a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attackDamage: 10
+  attackFrequency: 1
