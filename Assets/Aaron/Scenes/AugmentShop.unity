@@ -183,9 +183,33 @@ PrefabInstance:
       propertyPath: m_Name
       value: Augment Shop UI
       objectReference: {fileID: 0}
+    - target: {fileID: 4618033577722917480, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4618033577722917480, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4618033577722917480, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 95.05
+      objectReference: {fileID: 0}
+    - target: {fileID: 4618033577722917480, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 201.46371
+      objectReference: {fileID: 0}
+    - target: {fileID: 4618033577722917480, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: -110.32
+      objectReference: {fileID: 0}
     - target: {fileID: 4661729671797100565, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
       propertyPath: m_Size
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4661729671797100565, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_Value
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5532917410261394240, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
       propertyPath: m_AnchorMax.y
@@ -249,7 +273,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6550359816796430691, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -1189.3539
+      value: -2231.6145
       objectReference: {fileID: 0}
     - target: {fileID: 6647815442316137557, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
       propertyPath: m_AnchorMax.x
@@ -257,6 +281,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6647815442316137557, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
       propertyPath: m_AnchorMax.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6647815442316137557, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
+      propertyPath: m_AnchorMin.x
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 6669719382097739401, guid: 7be72e60035b94e1caa6f96acfa7a2a6, type: 3}
