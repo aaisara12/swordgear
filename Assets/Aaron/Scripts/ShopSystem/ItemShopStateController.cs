@@ -23,7 +23,7 @@ namespace Shop
             if (viewModel != null && view != null)
             {
                 viewModel.CloseChildDialogs();
-                view.gameObject.SetActive(false);
+                //view.gameObject.SetActive(false);
             }
         }
         

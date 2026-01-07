@@ -4,10 +4,9 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 
-namespace Testing
-{
     public class RoundStarter : MonoBehaviour
     {
+        public static RoundStarter? Instance;
         [SerializeField] private UnityEvent onRoundFinished = new UnityEvent();
         
         private List<LevelBlueprint> currentRoundBlueprints = new List<LevelBlueprint>();
@@ -15,6 +14,8 @@ namespace Testing
 
         private LevelLoader? levelLoader;
         private int levelsCleared = 0;
+
+        void Awake() { Instance = this; }
 
         public void StartRound()
         {
@@ -73,4 +74,3 @@ namespace Testing
             }
         }
     }
-}
