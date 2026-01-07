@@ -7,7 +7,11 @@ public class GameManager : MonoBehaviour
     public static GameManager Instance;
     public GameObject player; // Assign this in the Inspector
     PlayerController playerController;
+
+    [Header("Damage visual references")]
     [SerializeField] GameObject damageUI;
+
+    [Header("Damage settings")]
 
     public float baseDamage = 10;
     public float currentDamage = 10;
@@ -53,19 +57,7 @@ public class GameManager : MonoBehaviour
 
         GameObject ui = Instantiate(damageUI, position, Quaternion.identity);
 
-        Color color = Color.white;
-        switch (currentElement)
-        {
-            case Element.Fire:
-                color = Color.red;
-                break;
-            case Element.Ice:
-                color = Color.cyan;
-                break;
-
-        }
-
-        ui.GetComponent<DamageUI>().ShowNumber(amt, color);
+        ui.GetComponent<DamageUI>().ShowNumber(amt, currentElement);
     }
 
     public float CalculateDamage(Element enemyElement, Element swordElement, float swordDamage)

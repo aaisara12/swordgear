@@ -46,7 +46,41 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   display: {fileID: 8482022943619303357}
+  physicalHitEffect: {fileID: 4652446434329024592, guid: b44f80f279f8952439f63a81183863bc, type: 3}
+  fireHitEffect: {fileID: 3721156832401719521, guid: f307199b1ad13ba40be229245783c842, type: 3}
+  iceHitEffect: {fileID: 5104058604161350066, guid: eca3285394588554b9bac5ba77061c53, type: 3}
+  lightningHitEffect: {fileID: 558708115160705712, guid: 16f8801aeea5213449c52b2f8edc8887, type: 3}
   duration: 1
+  minSize: 0.5
+  maxSize: 1.8
+  minDamage: 5
+  maxDamage: 30
+  popOvershoot: 0.3
+  popDuration: 0.12
+  popCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
 --- !u!1 &5526081004527228980
 GameObject:
   m_ObjectHideFlags: 0
