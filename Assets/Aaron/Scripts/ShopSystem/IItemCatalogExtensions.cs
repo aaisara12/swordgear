@@ -7,7 +7,7 @@ namespace Shop
     public static class IItemCatalogExtensions
     {
         // This is intended more for debugging purposes
-        public static List<IStoreItem> GetAnItem(this IItemCatalog catalog, int amt = 1)
+        public static List<IStoreItem> GetRandomItems(this IItemCatalog catalog, int numberOfItems)
         {
             var items = catalog.GetItems();
 
@@ -24,7 +24,7 @@ namespace Shop
                 indices.Add(i);
             }
 
-            for (int i = 0; i < amt; ++i)
+            for (int i = 0; i < numberOfItems; ++i)
             {
                 if (indices.Count == 0) break;
                 int j = UnityEngine.Random.Range(0, indices.Count);
