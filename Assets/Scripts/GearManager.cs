@@ -4,7 +4,10 @@ using System.Collections.Generic;
 public enum GearTile
 {
     Debug,
-    Bumper
+    Bumper,
+    Lightning,
+    Fire,
+    Ice,
 }
 
 [System.Serializable]
@@ -46,7 +49,18 @@ public class GearManager : InitializeableGameComponent
         SpawnSlots();
 
         // Debug 
-        SpawnFullRing(GearTile.Debug);
+        SpawnEachTileOnce();
+        //SpawnFullRing(GearTile.Debug);
+    }
+
+    void SpawnEachTileOnce()
+    {
+        if (slots.Count < 4) return;
+
+        SpawnTileAt(0, GearTile.Bumper);
+        SpawnTileAt(1, GearTile.Lightning);
+        SpawnTileAt(2, GearTile.Fire);
+        SpawnTileAt(3, GearTile.Ice);
     }
 
     void SpawnFullRing(GearTile tile)

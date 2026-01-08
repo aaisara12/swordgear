@@ -26,8 +26,11 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             chargeDuration = 0;
             return;
         }
-        isCharging = true;
-        chargeDuration = 0;
+        if (upgrades.Contains(UpgradeType.Fire_ChargeMelee))
+        {
+            isCharging = true;
+            chargeDuration = 0;
+        }
     }
 
     private IEnumerator Swing(Transform player)
@@ -133,5 +136,9 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.currentDamage * GameManager.Instance.rangedMultiplier));
+        if (upgrades.Contains(UpgradeType.Fire_RangedBurn))
+        {
+            GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);
+        }
     }
 }

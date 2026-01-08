@@ -82,7 +82,11 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        combo = (combo + 1) % 2;
+        if (upgrades.Contains(UpgradeType.Ice_EmpowerMelee))
+            combo = (combo + 1) % 2;
+        else
+            combo = 0;
+
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject? nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
@@ -136,7 +140,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
         flightTime = (flightTime += Time.deltaTime) % fieldSpawnInterval;
-        if (flightTime < Time.deltaTime)
+        if (flightTime < Time.deltaTime && upgrades.Contains(UpgradeType.Ice_RangedChill))
         {
             IceChillField field = Instantiate(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
             field.lingerDuration = fieldDuration;

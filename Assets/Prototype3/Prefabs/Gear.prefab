@@ -51,6 +51,14 @@ MonoBehaviour:
   tilePrefabPairs:
   - gearTile: 0
     prefab: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}
+  - gearTile: 1
+    prefab: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}
+  - gearTile: 2
+    prefab: {fileID: 1035372564311983114, guid: fb4ce7201f85ec64a8b4fcc4fb41d9c9, type: 3}
+  - gearTile: 3
+    prefab: {fileID: 584159102277339285, guid: a0cfd25c185fbff469967a339ab2fd3d, type: 3}
+  - gearTile: 4
+    prefab: {fileID: 2783300026856143536, guid: bbd6df23e509dbc42b37f9081c282ed1, type: 3}
 --- !u!212 &3377753912994020425
 SpriteRenderer:
   m_ObjectHideFlags: 0

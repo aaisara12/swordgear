@@ -125,7 +125,7 @@ public class GameManager : MonoBehaviour
         public void EffectEnd(EnemyController enemy);
     }
 
-    public Dictionary<EnemyEffect, IEnemyEffect> enemyEffect = new();
+    [SerializeField] public Dictionary<EnemyEffect, IEnemyEffect> enemyEffect = new();
 
     private Dictionary<EnemyController, List<(IEnemyEffect effect, int duration)>> _activeEffects = new();
 

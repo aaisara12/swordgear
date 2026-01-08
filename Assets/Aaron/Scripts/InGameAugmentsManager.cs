@@ -95,7 +95,7 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 
         // TODO: aisara => Add logic to clear and set up new augments based on game state, augments player already has, etc.
         var mysteryItems = augmentsCatalog.GetRandomItems(3);
-
+        Debug.Log(mysteryItems.Count);
         var storeStock = new Dictionary<string, int>();
         foreach(IStoreItem mysteryItem in mysteryItems)
         {
