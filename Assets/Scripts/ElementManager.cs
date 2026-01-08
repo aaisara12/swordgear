@@ -6,6 +6,12 @@ public enum UpgradeType
 {
     // Every upgrade should be named in the format <element-name>_<upgrade-name>
     Nonelemental_DemoUpgrade,
+    Ice_EmpowerMelee,
+    Ice_RangedChill,
+    Fire_ChargeMelee,
+    Fire_RangedBurn,
+    Lightning_DashStrike,
+    Lightning_ApplyStatic,
 }
 
 public interface IElementalWeapon

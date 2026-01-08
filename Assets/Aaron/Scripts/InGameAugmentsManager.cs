@@ -94,9 +94,16 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
         }
 
         // TODO: aisara => Add logic to clear and set up new augments based on game state, augments player already has, etc.
-        var mysteryItem = augmentsCatalog.GetAnItem();
+        var mysteryItems = augmentsCatalog.GetAnItem();
+
+        var storeStock = new Dictionary<string, int>();
+        foreach(IStoreItem mysteryItem in mysteryItems)
+        {
+            storeStock[mysteryItem.Id] = 1;
+        }
+
         itemStorefront.ClearItems();
-        itemStorefront.TryStockItems(new Dictionary<string, int>{ { mysteryItem.Id, 1 } });
+        itemStorefront.TryStockItems(storeStock);
         var availableAugments = itemStorefront.GetPurchasableItems();
         
         var model = new ItemShopModel(availableAugments, itemPurchaser);

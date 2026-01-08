@@ -104,11 +104,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
         sword.sprite.transform.localEulerAngles = Vector3.zero;
+        sword.ToggleSwingTrail(false);
     }
 
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        
+        sword.ToggleSwingTrail(true);
     }
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
@@ -124,6 +125,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     {
         SpriteRenderer sprite = sword.sprite;
 
+        sword.ToggleSwingTrail(true);
         sprite.color = Color.red;
         sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
     }

@@ -32,6 +32,7 @@ public class SwordProjectile : MonoBehaviour
     }
     public float buffPower = 0;
     bool isFlying = false;  // For damage checks
+    [SerializeField] ParticleSystem swingTrail;
 
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
@@ -83,6 +84,19 @@ public class SwordProjectile : MonoBehaviour
         rb.angularVelocity = 0;
         sprite.enabled = false;
         isFlying = false;
+    }
+
+    public void ToggleSwingTrail(bool on)
+    {
+        if (on)
+        {
+            if (!swingTrail.isPlaying)
+                swingTrail.Play();
+        }
+        else
+        {
+            swingTrail.Stop();
+        }
     }
 
     private void FixedUpdate()

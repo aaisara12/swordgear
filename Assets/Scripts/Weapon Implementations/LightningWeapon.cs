@@ -105,7 +105,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         lightningActive = false;
     }
 
-    public void Strike(Transform player)
+    public void Strike(Transform player, HashSet<UpgradeType> upgrades)
     {
         transform.position = player.position + player.up * distanceFromPlayer;
         transform.up = player.up;
@@ -117,10 +117,11 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
                 StartCoroutine(Swing(player));
                 break;
             case 2:
+
                 StartCoroutine(Thrust(player));
                 break;
         }
-        combo = (combo + 1) % 3;
+        combo = (combo + 1) % (upgrades.Contains(UpgradeType.Lightning_DashStrike) ? 3 : 2);
     }
 
 
@@ -142,7 +143,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
         if (nearestEnemy == null)
         {
-            Strike(player);
+            Strike(player, upgrades);
             return;
         }
 
@@ -151,7 +152,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
         player.position = dashPosition;
-        Strike(player);
+        Strike(player, upgrades);
     }
 
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
