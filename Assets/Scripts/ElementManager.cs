@@ -222,7 +222,7 @@ public class ElementManager : InitializeableGameComponent
             {
                 RemoveUpgrade(upgrade);
             }
-            else if (newCount > 1)
+            else if (newCount >= 1)
             {
                 if (HasUpgrade(upgrade))
                 {

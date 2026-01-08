@@ -36,7 +36,7 @@ public static class UpgradeTypeSerializer
         }
         
         // aisara => Unfortunately, Unity runtime uses .NET4.6 so we can't use ReadOnlySpans overload in TryParse
-        string upgradeString = value.Substring(indexOfStartOfUpgradeString);
+        string upgradeString = value.Substring(indexOfStartOfUpgradeString + kElementUpgradeItemIdPrefix.Length);
 
         return Enum.TryParse(upgradeString, ignoreCase: true, result: out upgrade);
     }
