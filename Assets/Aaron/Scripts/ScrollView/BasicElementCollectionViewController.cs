@@ -1,11 +1,11 @@
 using UnityEngine;
 
-public class BasicScrollViewController<TData, TElementViewModel> : IScrollViewController<TData> where TElementViewModel : MonoBehaviour, IScrollViewElementInitializable<TData>
+public class BasicElementCollectionViewController<TData, TElementViewModel> : IElementCollectionViewController<TData> where TElementViewModel : MonoBehaviour, IScrollViewElementInitializable<TData>
 {
     private Transform _contentTransform;
     private TElementViewModel _elementPrefab;
     
-    public BasicScrollViewController(Transform contentTransform, TElementViewModel elementPrefab)
+    public BasicElementCollectionViewController(Transform contentTransform, TElementViewModel elementPrefab)
     {
         _contentTransform = contentTransform;
         _elementPrefab = elementPrefab;
