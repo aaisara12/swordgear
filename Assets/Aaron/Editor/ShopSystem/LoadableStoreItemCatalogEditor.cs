@@ -36,7 +36,12 @@ public class LoadableStoreItemCatalogEditor : Editor
         if (GUILayout.Button("Load From Folder"))
         {
             catalog.Load();
+            
+            EditorUtility.SetDirty(catalog);
+            serializedObject.Update();
+            
             AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
         }
 
         IReadOnlyList<IStoreItem> items = catalog.GetItems();
