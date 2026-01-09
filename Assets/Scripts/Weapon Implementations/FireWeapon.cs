@@ -46,6 +46,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
         if (chargeTier == chargeAnimNames.Length - 1)
         {
             weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            SpawnBombCascade(player);
         }
         else
             weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
@@ -91,6 +92,53 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             Destroy(effect);
         }
         applyBurn = false;
+    }
+
+    [Header("Bomb Cascade")]
+    [SerializeField] private GameObject bombObject;
+    [SerializeField] private int waves = 3;
+    [SerializeField] private int bombsPerWave = 5;
+    [SerializeField] private float fanAngle = 60f;          // total arc angle
+    [SerializeField] private float startDistance = 1.5f;    // first wave distance
+    [SerializeField] private float waveDistanceStep = 1.2f; // how much farther each wave is
+    [SerializeField] private float waveDelay = 0.15f;
+
+    void SpawnBombCascade(Transform player)
+    {
+        StartCoroutine(SpawnBombCascadeRoutine(player));
+    }
+
+    private IEnumerator SpawnBombCascadeRoutine(Transform player)
+    {
+        Vector2 forward = player.up;
+
+        for (int wave = 0; wave < waves; wave++)
+        {
+            float distance = startDistance + wave * waveDistanceStep;
+
+            float angleStep = bombsPerWave > 1
+                ? fanAngle / (bombsPerWave - 1)
+                : 0f;
+
+            float startAngle = -fanAngle * 0.5f;
+
+            for (int i = 0; i < bombsPerWave; i++)
+            {
+                float angle = startAngle + angleStep * i;
+
+                // Rotate forward vector around Z
+                Vector2 dir = Quaternion.Euler(0f, 0f, angle) * forward;
+                Vector2 spawnPos = (Vector2)player.position + dir.normalized * distance;
+
+                Instantiate(
+                    bombObject,
+                    spawnPos,
+                    Quaternion.identity
+                );
+            }
+
+            yield return new WaitForSeconds(waveDelay);
+        }
     }
 
     public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
