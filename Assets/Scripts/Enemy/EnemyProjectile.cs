@@ -5,6 +5,7 @@ public class EnemyProjectile : MonoBehaviour
     [SerializeField] private float lifetime = 5f;
     [Header("Visuals")]
     [SerializeField] private SpriteRenderer? spriteRenderer;
+    [SerializeField] private GameObject? destroyEffect;
     [SerializeField] private Color physicalColor = Color.white;
     [SerializeField] private Color fireColor = Color.red;
     [SerializeField] private Color iceColor = Color.blue;
@@ -60,6 +61,12 @@ public class EnemyProjectile : MonoBehaviour
         }
         if (other.CompareTag("ProjectileBlocking"))
         {
+            if (destroyEffect != null)
+            {
+                IAttackAnimator effect = Instantiate(destroyEffect, transform.position, Quaternion.identity).GetComponent<IAttackAnimator>();
+                effect.PlayAnimation();
+            }
+
             // Destroy the projectile if the player hits it with a melee attack
             Destroy(gameObject);
         }
