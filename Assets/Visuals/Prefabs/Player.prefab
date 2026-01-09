@@ -5361,7 +5361,8 @@ MonoBehaviour:
   dashFactor: 0.2
   projectileSpeed: 10
   flickThreshold: 1
-  speed: 5
+  swordCatchRadius: 1
+  speed: 7
   sword: {fileID: 0}
   gear: {fileID: 0}
   elementWeaponDict:

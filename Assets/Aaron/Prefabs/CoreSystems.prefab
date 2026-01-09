@@ -178,7 +178,7 @@ MonoBehaviour:
   weakEffectObject: {fileID: 8056408506086346163, guid: ee8819334d560c7419ff45e4d5e97a31, type: 3}
   strongEffectObject: {fileID: 541986225594799853, guid: 31c1a3d349b7c95439fde4df246ef8ac, type: 3}
   lightningPrefab: {fileID: 5926290009230079728, guid: a44ca6b70c4f71a4b95a974f77ac5dcd, type: 3}
-  attackRadius: 2
+  attackRadius: 3.5
   dashFactor: 0.2
   thrustDistance: 1.5
 --- !u!1 &3925378626850400808
@@ -229,6 +229,7 @@ MonoBehaviour:
   dashFactor: 0.2
   projectileSpeed: 5
   flickThreshold: 50
+  swordCatchRadius: 1
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
