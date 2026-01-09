@@ -5,6 +5,7 @@ using UnityEngine;
 public class FireWeapon : MonoBehaviour, IElementalWeapon
 {
     [SerializeField] private GameObject weaponCollider;
+    [SerializeField] private GameObject strongCollider;
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] float spinSpeed = 50f;
@@ -41,7 +42,14 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             applyBurn = true;
         }
 
-        GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        GameObject weaponHitbox;
+        if (chargeTier == chargeAnimNames.Length - 1)
+        {
+            weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        }
+        else
+            weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        weaponHitbox.transform.up = player.up;
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
 
@@ -59,6 +67,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             
             effect.transform.up = player.up;
             effect.transform.localScale = Vector3.one * (1 + 0.2f * chargeTier);
+            weaponHitbox.transform.localScale = Vector3.one * (1 + 0.2f * chargeTier);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
@@ -117,6 +126,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.currentDamage * (1f + 0.2f * chargeTier)));
         if (applyBurn)
         {

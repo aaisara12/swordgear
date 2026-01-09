@@ -23,6 +23,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     {
         GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
+        weaponHitbox.transform.up = player.up;
 
         float elapsedTime = 0f;
 
@@ -105,6 +106,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.currentDamage));
     }
 

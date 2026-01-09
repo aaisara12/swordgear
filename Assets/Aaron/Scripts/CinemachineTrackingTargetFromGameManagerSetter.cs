@@ -17,6 +17,7 @@ namespace Testing
         private void Start()
         {
             gameManager = GameManager.Instance;
+            impulseSource = impulseSourceObject;
         }
 
         private void Update()
@@ -32,6 +33,15 @@ namespace Testing
             {
                 camera.Target = new CameraTarget{ TrackingTarget = player.transform };
             }
+        }
+
+        [SerializeField] private CinemachineImpulseSource? impulseSourceObject;
+        private static CinemachineImpulseSource? impulseSource = null;
+
+        public static void Shake()
+        {
+            if (impulseSource != null)
+                impulseSource.GenerateImpulse();
         }
     }
 }

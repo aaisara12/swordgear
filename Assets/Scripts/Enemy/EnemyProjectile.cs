@@ -25,5 +25,10 @@ public class EnemyProjectile : MonoBehaviour
             // Destroy the projectile after it hits the player
             Destroy(gameObject);
         }
+        if (other.CompareTag("ProjectileBlocking"))
+        {
+            // Destroy the projectile if the player hits it with a melee attack
+            Destroy(gameObject);
+        }
     }
 }

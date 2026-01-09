@@ -13,6 +13,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private GameObject strongCollider;  // Second hit of combo
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
+    [SerializeField] private float strongHitScaling = 1.2f;
     [SerializeField] private string animName;
     [SerializeField] private GameObject effectObject;
     [Header("Ranged")]
@@ -41,6 +42,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
+        weaponHitbox.transform.up = player.up;
 
         float elapsedTime = 0f;
 
@@ -52,6 +54,8 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             if (combo > 0)
             {
                 effect.transform.localScale += Vector3.left * 2; // x = -1 scale
+                effect.transform.localScale *= strongHitScaling;
+                weaponHitbox.transform.localScale *= strongHitScaling;
             }
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
@@ -127,6 +131,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage + strongHitBonusDmg * combo));
 
         if (combo == 1)

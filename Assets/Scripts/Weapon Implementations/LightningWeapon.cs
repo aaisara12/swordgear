@@ -5,6 +5,7 @@ using UnityEngine;
 public class LightningWeapon : MonoBehaviour, IElementalWeapon
 {
     [SerializeField] private GameObject weaponCollider;  // TODO: Add separate, larger collider for weapon thrust 
+    [SerializeField] private GameObject strongCollider;
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] private string slashAnimName;
@@ -29,6 +30,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     {
         GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
+        weaponHitbox.transform.up = player.up;
 
         float elapsedTime = 0f;
 
@@ -65,8 +67,9 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     IEnumerator Thrust(Transform player)
     {
-        GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        GameObject weaponHitbox = Instantiate(strongCollider, player.position, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
+        weaponHitbox.transform.up = player.up;
 
         float elapsedTime = 0f;
         lightningActive = true;
@@ -77,7 +80,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (strongEffectObject != null)
         {
-            effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = Instantiate(strongEffectObject, player.position, Quaternion.identity);
             effect.transform.up = player.up;
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
@@ -92,7 +95,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
             Vector2 pos = Vector2.Lerp(startPos, dest, elapsedTime * 8 / swingDuration);
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
             player.position = pos;
-            transform.position = player.position + player.up * distanceFromPlayer;
+            weaponHitbox.transform.position = player.position;
+            effect.transform.position = player.position;
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -107,8 +111,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void Strike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        transform.position = player.position + player.up * distanceFromPlayer;
-        transform.up = player.up;
+        //transform.position = player.position + player.up * distanceFromPlayer;
+        //transform.up = player.up;
 
         switch (combo)
         {
@@ -167,6 +171,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.currentDamage));
         if (lightningActive && upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
         {

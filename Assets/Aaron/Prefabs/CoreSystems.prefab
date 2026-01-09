@@ -44,10 +44,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 73d861f25d04eec4398f0555b9b1b56a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
-  swingDuration: 0.5
+  weaponCollider: {fileID: 8508157194047922119, guid: 8b409f372dafb6f40815cb3bf0e759d3, type: 3}
+  strongCollider: {fileID: 9191782737052001940, guid: b95baa95a65a7b14399e8ab99026ceee, type: 3}
+  swingDuration: 0.4
   distanceFromPlayer: 0.5
-  spinSpeed: 100
+  spinSpeed: 800
   maxChargeTime: 1
   chargeAnimNames:
   - FireWeakSwipe
@@ -161,8 +162,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8388bbeeee6d0ce488fcfc510b286b54, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
-  swingDuration: 0.5
+  weaponCollider: {fileID: 9104607031324086835, guid: 69a54ff4df6eada4b87251b2689c661c, type: 3}
+  strongCollider: {fileID: 1405370936348264821, guid: 7d68bf7930c7d1649a724f79c8682008, type: 3}
+  swingDuration: 0.3
   distanceFromPlayer: 0.5
   slashAnimName: EnergySwipe
   thrustAnimName: FireThrust
@@ -317,7 +319,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
-  swingDuration: 0.5
+  swingDuration: 0.3
   distanceFromPlayer: 0.5
   animName: EnergySwipe
   effectObject: {fileID: 2325353192704701246, guid: a3dee1705f267694ab830e809fa6f1c6, type: 3}
@@ -417,10 +419,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 36db828ed13bb9a4180570505d1b280e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  weakCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
-  strongCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
-  swingDuration: 0.5
+  weakCollider: {fileID: 3317733405805591048, guid: 1713d0b6c3eace546a75eb17eded4fb8, type: 3}
+  strongCollider: {fileID: 3317733405805591048, guid: 1713d0b6c3eace546a75eb17eded4fb8, type: 3}
+  swingDuration: 0.3
   distanceFromPlayer: 0.5
+  strongHitScaling: 1.2
   animName: EnergySwipe
   effectObject: {fileID: 4925662194938975265, guid: c0f3d83f88dbc3643b3a5d66aefd6807, type: 3}
   chillFieldObject: {fileID: 8092953990564353765, guid: c141323742f6d4c44961232906a9e351, type: 3}
