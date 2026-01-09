@@ -167,6 +167,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   lifetime: 5
   spriteRenderer: {fileID: 2003682939346029878}
+  destroyEffect: {fileID: 3698256524222866416, guid: c2c6365caad1b9240a2f8b3ce63185a7, type: 3}
   physicalColor: {r: 1, g: 1, b: 1, a: 1}
   fireColor: {r: 0.8679245, g: 0, b: 0, a: 1}
   iceColor: {r: 0.495283, g: 0.9715425, b: 1, a: 1}
