@@ -158,12 +158,9 @@ public class ElementManager : InitializeableGameComponent
     {
         if (activeWeapon == null) return;
 
-        // hitSource should be the projectile transform.
-        SwordProjectile proj = hitSource.GetComponent<SwordProjectile>();
         Transform player = transform; // Or a PlayerManager.PlayerTransform reference
 
-        if (proj != null)
-            activeWeapon.OnRangedHit(player, proj, hitSource, enemy, currentUpgrades);
+        activeWeapon.OnRangedHit(player, SwordProjectile.Instance, hitSource, enemy, currentUpgrades);
     }
 
     public override void InitializeOnGameStart(IReadOnlyPlayerBlob playerBlob)
