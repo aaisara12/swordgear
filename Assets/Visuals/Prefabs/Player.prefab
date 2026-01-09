@@ -5182,7 +5182,7 @@ SpriteRenderer:
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 10.83, y: 12.86}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -6235,6 +6235,3 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bde0d6e08a8f00b43bf86fd6391aa4be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerRigidbody: {fileID: 1845130600189013062}
-  rotationSpeed: 10
-  minVelocity: 0.1
