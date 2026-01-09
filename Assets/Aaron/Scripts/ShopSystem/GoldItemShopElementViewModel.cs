@@ -5,18 +5,18 @@ using UnityEngine.UI;
 
 namespace Shop
 {
-    public class ItemShopElementViewModel : MonoBehaviour, IScrollViewElementInitializable<ItemShopItemModel>
+    public class GoldItemShopElementViewModel : MonoBehaviour, IScrollViewElementInitializable<GoldItemShopItemModel>
     {
         [SerializeField] private TMPro.TMP_Text? itemNameText;
         [SerializeField] private TMPro.TMP_Text? itemDescText;
         [SerializeField] private TMPro.TMP_Text? priceText;
         [SerializeField] private Image? itemIcon;
         
-        private ItemShopItemModel? _cachedModel;
+        private GoldItemShopItemModel? _cachedModel;
 
-        public void InitializeElement(ItemShopItemModel model) => Initialize(model);
+        public void InitializeElement(GoldItemShopItemModel model) => Initialize(model);
         
-        public void Initialize(ItemShopItemModel model)
+        public void Initialize(GoldItemShopItemModel model)
         {
             if(itemNameText == null || itemDescText == null || priceText == null || itemIcon == null)
             {

@@ -12,12 +12,12 @@ namespace Shop
     {
         [SerializeField] private ElementCollectionView? goldItemsView;
         
-        [SerializeField] private ItemShopElementViewModel? purchasableItemElementPrefab;
+        [SerializeField] private GoldItemShopElementViewModel? purchasableItemElementPrefab;
         
-        [SerializeField] private ItemShopPurchaseDialogViewModel? confirmPurchaseViewModel;
+        [SerializeField] private GoldItemShopPurchaseDialogViewModel? confirmPurchaseViewModel;
         [SerializeField] private TMPro.TMP_Text? purchaserWalletAmountText;
 
-        private IElementCollectionViewController<ItemShopItemModel>? _scrollViewController;
+        private IElementCollectionViewController<GoldItemShopItemModel>? _scrollViewController;
         
         private ItemShopModel? _cachedModel;
         
@@ -29,7 +29,7 @@ namespace Shop
                 return;
             }
             
-            if (goldItemsView.TryInitialize<ItemShopItemModel, ItemShopElementViewModel>(
+            if (goldItemsView.TryInitialize<GoldItemShopItemModel, GoldItemShopElementViewModel>(
                     purchasableItemElementPrefab, out var scrollViewController) == false)
             {
                 Debug.LogError("[ItemShopViewModel] ScrollView has already been initialized!");
@@ -71,7 +71,7 @@ namespace Shop
                     continue;
                 }
                 
-                _scrollViewController.AddElement(new ItemShopItemModel(item, model.Purchaser, this));
+                _scrollViewController.AddElement(new GoldItemShopItemModel(item, model.Purchaser, this));
             }
             
             _cachedModel = model;
@@ -80,7 +80,12 @@ namespace Shop
 
             purchaserWalletAmountText.text = model.Purchaser.WalletLedger.ToString();
         }
-        
+
+        public override void CleanUp()
+        {
+            CloseChildDialogs();
+        }
+
         public void ShowPurchaseDialogForItem(PurchasableItem item)
         {
             if (_cachedModel == null)
@@ -95,7 +100,7 @@ namespace Shop
                 return;
             }
             
-            var model = new ItemShopItemModel(item, _cachedModel.Purchaser, this);
+            var model = new GoldItemShopItemModel(item, _cachedModel.Purchaser, this);
             confirmPurchaseViewModel.Initialize(model);
             confirmPurchaseViewModel.OpenDialog();
         }
