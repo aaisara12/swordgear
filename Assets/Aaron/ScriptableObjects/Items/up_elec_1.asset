@@ -17,5 +17,5 @@ MonoBehaviour:
   description: Weapon throw and Thunder Strike now apply shock to enemies, causing
     chain lightning on repeated procs
   cost: 100
-  icon: {fileID: 5690170795954601879, guid: a67f55e2587d67146943ac3aa81ff5a1, type: 3}
+  icon: {fileID: -7605884262271363320, guid: 84f8acf01f7eb2d40a838bf7cb4d0b6f, type: 3}
   elementUpgrade: 6
