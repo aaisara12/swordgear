@@ -56,6 +56,13 @@ MonoBehaviour:
   - FireStrongSwipe
   weakEffectObject: {fileID: 4924145055515192846, guid: 3e31b181a52490041b62a9c198263531, type: 3}
   strongEffectObject: {fileID: 3295937853743057273, guid: c35302333a29d214782dce3eb8004a92, type: 3}
+  bombObject: {fileID: 6440557294651380317, guid: 0a4e93c3511ef9d44bf6b8677bea28db, type: 3}
+  waves: 5
+  bombsPerWave: 5
+  fanAngle: 60
+  startDistance: 1.5
+  waveDistanceStep: 1.8
+  waveDelay: 0.25
 --- !u!1 &2111316169992709984
 GameObject:
   m_ObjectHideFlags: 0
@@ -374,7 +381,7 @@ MonoBehaviour:
   damageUI: {fileID: 711078255971275636, guid: f68cac8fbc27d924eb9f1fd291b324fb, type: 3}
   baseDamage: 10
   currentDamage: 10
-  rangedMultiplier: 1.2
+  rangedMultiplier: 2
 --- !u!1 &4786421348998010262
 GameObject:
   m_ObjectHideFlags: 0

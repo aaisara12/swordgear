@@ -17,7 +17,7 @@ public class PlayerGameplayManager : MonoBehaviour
     [Header("Input")]
     [SerializeField] private TransformEventChannelSO? spawnPawnAtLocationEventChannel;
     
-    private float maxHp = 100f;
+    private float maxHp = 10000f;
     private float currentHp;
     
     private PlayerGameplayPawn? spawnedPawn;
