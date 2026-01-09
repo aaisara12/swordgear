@@ -52,13 +52,13 @@ public class DamageUI : MonoBehaviour
                 break;
 
             case Element.Lightning:
-                color = Color.cyan;
+                color = Color.yellow;
                 effectObject = Instantiate(lightningHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
 
             case Element.Ice:
-                color = Color.blue;
+                color = Color.cyan;
                 effectObject = Instantiate(iceHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
