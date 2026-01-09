@@ -36,7 +36,9 @@ public class LevelLoader : MonoBehaviour
 
         // Instantiate Room Geometry and Transition
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
-        currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
+
+        // TODO implement transitions later
+        // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
         // Start the first wave
         StartNextWave();
     }
