@@ -4,9 +4,9 @@ namespace Shop
     {
         public PurchasableItem Item { get; }
         public IItemPurchaser Purchaser { get; }
-        public ItemShopViewModel ParentViewModel { get; }
+        public GoldItemShopViewModel ParentViewModel { get; }
         
-        public ItemShopItemModel(PurchasableItem item, IItemPurchaser purchaser, ItemShopViewModel parentViewModel)
+        public ItemShopItemModel(PurchasableItem item, IItemPurchaser purchaser, GoldItemShopViewModel parentViewModel)
         {
             Item = item;
             Purchaser = purchaser;

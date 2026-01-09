@@ -655,7 +655,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 201.46371, y: -110.32}
-  m_SizeDelta: {x: 0, y: 99.16}
+  m_SizeDelta: {x: 95.05, y: 99.16}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &606076895824237155
 CanvasRenderer:
@@ -1137,8 +1137,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 3698053325332122475}
   m_HandleRect: {fileID: 6647815442316137557}
   m_Direction: 0
-  m_Value: -0.0000001098766
-  m_Size: 0.5152449
+  m_Value: -0.00000010894503
+  m_Size: 0.5110999
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -1600,7 +1600,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5572679049699682527}
   m_Layer: 0
-  m_Name: Augment Shop UI
+  m_Name: Gold Shop UI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1907,7 +1907,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f55607ff0f44175bc10744fd080bc5a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  scrollView: {fileID: 2823384322019493543}
+  goldItemsView: {fileID: 2823384322019493543}
   purchasableItemElementPrefab: {fileID: 6491481608716563286, guid: 1b14e6414fc0644d1b6e958a4d3da55c, type: 3}
   confirmPurchaseViewModel: {fileID: 5712463473193605131}
   purchaserWalletAmountText: {fileID: 1951066014010153608}
@@ -3466,8 +3466,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 5551158745617121733}
   m_HandleRect: {fileID: 329183311750128313}
   m_Direction: 2
-  m_Value: 0
-  m_Size: 0.99999994
+  m_Value: 1
+  m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:

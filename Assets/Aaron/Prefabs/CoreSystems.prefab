@@ -919,7 +919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneTransitioner: {fileID: 4235604047870542123}
   auxiliaryScene:
-    sceneName: AugmentShop
+    sceneName: GoldShop
 --- !u!1 &8794328470218554921
 GameObject:
   m_ObjectHideFlags: 0
