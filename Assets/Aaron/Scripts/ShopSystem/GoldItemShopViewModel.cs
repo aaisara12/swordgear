@@ -80,7 +80,12 @@ namespace Shop
 
             purchaserWalletAmountText.text = model.Purchaser.WalletLedger.ToString();
         }
-        
+
+        public override void CleanUp()
+        {
+            CloseChildDialogs();
+        }
+
         public void ShowPurchaseDialogForItem(PurchasableItem item)
         {
             if (_cachedModel == null)

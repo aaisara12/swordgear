@@ -1,4 +1,5 @@
 #nullable enable
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -49,12 +50,25 @@ namespace Shop
                 Debug.LogError("Failed to stock items in ItemStorefront. This shouldn't happen because the initial stock is validated by the editor.");
                 return;
             }
-        
+
+            _itemStorefront.OnPurchasableItemsUpdated += HandlePurchasableItemsUpdated;
+        }
+
+        private void Start()
+        {
+            if (_eventChannel == null)
+            {
+                return;
+            }
+
+            if (_itemStorefront == null)
+            {
+                return;
+            }
+            
             var model = new ItemShopModel(_itemStorefront.GetPurchasableItems(), GetPurchaser());
         
             _eventChannel.RaiseDataChanged(model);
-
-            _itemStorefront.OnPurchasableItemsUpdated += HandlePurchasableItemsUpdated;
         }
 
         private void HandlePurchasableItemsUpdated()

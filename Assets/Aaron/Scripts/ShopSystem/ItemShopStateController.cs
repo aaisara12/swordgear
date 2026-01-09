@@ -14,7 +14,7 @@ namespace Shop
         [SerializeField] private ItemShopModelEventChannelSO? uiDataEventChannel;
 
         [Header("Scene References")]
-        [SerializeField] private GoldItemShopViewModel? viewModel;
+        [SerializeField] private ItemShopViewModel? viewModel;
         [SerializeField] private Transform? view;
 
         public void CloseShopUi()
@@ -22,8 +22,8 @@ namespace Shop
             // aisara => Either clean up viewmodel and view or neither to keep them in sync
             if (viewModel != null && view != null)
             {
-                viewModel.CloseChildDialogs();
-                //view.gameObject.SetActive(false);
+                viewModel.CleanUp();
+                view.gameObject.SetActive(false);
             }
         }
         
@@ -32,7 +32,7 @@ namespace Shop
             // TODO: aisara => Perhaps we can centralize this null logging logic somewhere
             if (uiVisibilityEventChannel == null)
             {
-                Debug.LogError($"[{nameof(GoldItemShopViewModel)}] {nameof(uiVisibilityEventChannel)} is not assigned in the inspector.");
+                Debug.LogError($"[{nameof(ItemShopViewModel)}] {nameof(uiVisibilityEventChannel)} is not assigned in the inspector.");
                 return;
             }
             
