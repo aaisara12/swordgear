@@ -168,6 +168,6 @@ MonoBehaviour:
   lifetime: 5
   spriteRenderer: {fileID: 2003682939346029878}
   physicalColor: {r: 1, g: 1, b: 1, a: 1}
-  fireColor: {r: 1, g: 0, b: 0, a: 1}
-  iceColor: {r: 0, g: 0, b: 1, a: 1}
-  lightningColor: {r: 0, g: 1, b: 1, a: 1}
+  fireColor: {r: 0.8679245, g: 0, b: 0, a: 1}
+  iceColor: {r: 0.495283, g: 0.9715425, b: 1, a: 1}
+  lightningColor: {r: 1, g: 0.96452594, b: 0.2783019, a: 1}
