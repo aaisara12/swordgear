@@ -109,6 +109,7 @@ MonoBehaviour:
   player: {fileID: 0}
   speed: 2
   hp: 20
+  deathFX: {fileID: 1967554748689354029, guid: 2cc9fbb660212af41886c7a9c26e1182, type: 3}
   speedMultiplier: 1
   element: 0
   floatingPoints: {fileID: 4990889899338701661, guid: 3fdbfa7af3cedf048b934ae2806cae87, type: 3}
