@@ -5363,7 +5363,7 @@ MonoBehaviour:
   projectileSpeed: 10
   flickThreshold: 1
   swordCatchRadius: 1
-  speed: 5
+  speed: 7
   sword: {fileID: 0}
   gear: {fileID: 0}
   elementWeaponDict:
