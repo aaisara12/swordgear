@@ -167,6 +167,78 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: MaxWavesPerLevel
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: MinWavesPerLevel
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: WavePool.Array.size
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[0]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[1]'
+      value: 
+      objectReference: {fileID: 11400000, guid: fbfb468532bb4494f84c89b381320450, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[2]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[3]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 7b98159c9d16d9d4799f53ca5f81c644, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[4]'
+      value: 
+      objectReference: {fileID: 11400000, guid: a80a670b9b09b7147af540d1e4cd8cfd, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[5]'
+      value: 
+      objectReference: {fileID: 11400000, guid: da64decdc4a64324f933fb2c85a31d47, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[6]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 2c302109d0d74994f84c9fbd1e5fd095, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[7]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 571d02623d49d894cb4d06b5913fd9ea, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[8]'
+      value: 
+      objectReference: {fileID: 11400000, guid: b00514f919aaf91448c3cd43eb0c0029, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[9]'
+      value: 
+      objectReference: {fileID: 11400000, guid: c56f9b6ae7e601e4bbdfa74f91003499, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[10]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 52ed31d7cc15ae6438efe093af883957, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[11]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 1fff520916a1ce2489940ba12b021924, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[12]'
+      value: 
+      objectReference: {fileID: 11400000, guid: d516c995b558688479821d096519fd0d, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[13]'
+      value: 
+      objectReference: {fileID: 11400000, guid: dfa628719eaf47d40b4813d32e4083e8, type: 2}
+    - target: {fileID: 5060864002020458970, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+      propertyPath: 'WavePool.Array.data[14]'
+      value: 
+      objectReference: {fileID: 11400000, guid: 1376d32d199a9724285833b5274358e3, type: 2}
     - target: {fileID: 8240674318395454783, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: m_Name
       value: CoreSystems

@@ -94,9 +94,8 @@ public class PlayerGameplayManager : MonoBehaviour
     private void TakeDamage(float damage)
     {
         if (currentHp <= 0) return; // Player is already dead
-
         currentHp -= damage;
-
+        Debug.Log("player currently has: " +  currentHp);
         if (currentHp <= 0f)
         {
             Defeat();

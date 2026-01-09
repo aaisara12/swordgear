@@ -72,12 +72,14 @@ public class LevelLoader : MonoBehaviour
 
         if (spawnPoints.Length == 0) return;
 
-        int spawnIndex = 0;
         foreach (var enemyCount in wave.Enemies)
         {
             for (int i = 0; i < enemyCount.Count; i++)
             {
-                // Instantiate the enemy prefab
+                // Pick a random index every time an enemy is created
+                int spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
+
+                // Instantiate the enemy prefab at the random spawn point
                 GameObject enemyGO = Instantiate(enemyCount.EnemyPrefab, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
 
                 // Get the controller component
@@ -85,14 +87,12 @@ public class LevelLoader : MonoBehaviour
 
                 if (enemyController != null)
                 {
-                    // CRUCIAL STEP: Subscribe to the enemy's death event
+                    // Subscribe to the enemy's death event
                     enemyController.OnDeath += EnemyDied;
 
                     // Add the controller to the list
                     activeEnemies.Add(enemyController);
                 }
-
-                spawnIndex = (spawnIndex + 1) % spawnPoints.Length;
             }
         }
     }
