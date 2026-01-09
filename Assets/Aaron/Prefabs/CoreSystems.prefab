@@ -482,7 +482,20 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
   - {fileID: 11400000, guid: b3175b9e2630c8641baabd209337f075, type: 2}
   WavePool:
+  - {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
+  - {fileID: 11400000, guid: fbfb468532bb4494f84c89b381320450, type: 2}
+  - {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
+  - {fileID: 11400000, guid: 7b98159c9d16d9d4799f53ca5f81c644, type: 2}
+  - {fileID: 11400000, guid: a80a670b9b09b7147af540d1e4cd8cfd, type: 2}
+  - {fileID: 11400000, guid: da64decdc4a64324f933fb2c85a31d47, type: 2}
+  - {fileID: 11400000, guid: 2c302109d0d74994f84c9fbd1e5fd095, type: 2}
   - {fileID: 11400000, guid: 571d02623d49d894cb4d06b5913fd9ea, type: 2}
+  - {fileID: 11400000, guid: b00514f919aaf91448c3cd43eb0c0029, type: 2}
+  - {fileID: 11400000, guid: c56f9b6ae7e601e4bbdfa74f91003499, type: 2}
+  - {fileID: 11400000, guid: 52ed31d7cc15ae6438efe093af883957, type: 2}
+  - {fileID: 11400000, guid: 1fff520916a1ce2489940ba12b021924, type: 2}
+  - {fileID: 11400000, guid: d516c995b558688479821d096519fd0d, type: 2}
+  - {fileID: 11400000, guid: dfa628719eaf47d40b4813d32e4083e8, type: 2}
   - {fileID: 11400000, guid: 1376d32d199a9724285833b5274358e3, type: 2}
   TransitionPool:
   - {fileID: 11400000, guid: e53d347a0774ee3409a6f0627149586a, type: 2}

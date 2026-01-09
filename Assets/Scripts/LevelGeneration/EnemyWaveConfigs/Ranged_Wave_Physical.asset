@@ -14,5 +14,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Enemies:
   - EnemyPrefab: {fileID: 4519183777221867105, guid: dc31ddd9613a84258ab3527a2a557cc3, type: 3}
-    Count: 2
+    Count: 4
   DelayAfterClear: 1

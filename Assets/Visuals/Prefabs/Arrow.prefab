@@ -165,5 +165,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cc64925ceb4461409f1ab2af0c85a2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  damage: 10
   lifetime: 5
+  spriteRenderer: {fileID: 2003682939346029878}
+  physicalColor: {r: 1, g: 1, b: 1, a: 1}
+  fireColor: {r: 1, g: 0, b: 0, a: 1}
+  iceColor: {r: 0, g: 0, b: 1, a: 1}
+  lightningColor: {r: 0, g: 1, b: 1, a: 1}
