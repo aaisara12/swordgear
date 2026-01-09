@@ -60,14 +60,15 @@ public class GameManager : MonoBehaviour
         ui.GetComponent<DamageUI>().ShowNumber(amt, currentElement);
     }
 
-    public float CalculateDamage(Element enemyElement, Element swordElement, float swordDamage)
+    public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)
     {
         // add multipliers in the future
-        float finalDamage = swordDamage;
+        float finalDamage = baseDamage;
         //// Apply all embue multipliers
         //finalDamage *= embue.damageMultiplier;
         // apply elemental multiplier
-        finalDamage *= ElementalInteractions.interactionMatrix[swordElement][enemyElement];
+        // interactionMatrix[attackerElement][defenderElement] returns the damage multiplier
+        finalDamage *= ElementalInteractions.interactionMatrix[attackerElement][defenderElement];
         return finalDamage;
     }
 
