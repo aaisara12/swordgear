@@ -7,17 +7,17 @@ using UnityEngine.UI;
 
 namespace Shop
 {
-    public class ItemShopPurchaseDialogViewModel : MonoBehaviour
+    public class GoldItemShopPurchaseDialogViewModel : MonoBehaviour
     {
-        [SerializeField] private ItemShopElementViewModel? itemVisualViewModel;
+        [SerializeField] private GoldItemShopElementViewModel? itemVisualViewModel;
         [SerializeField] private Button? confirmPurchaseButton;
         
         // aisara => Expose event on data layer in case we want to hook in some animations in the editor
         [SerializeField] private UnityEvent? onSuccessfulPurchase;
 
-        private ItemShopItemModel? _cachedModel;
+        private GoldItemShopItemModel? _cachedModel;
         
-        public void Initialize(ItemShopItemModel model)
+        public void Initialize(GoldItemShopItemModel model)
         {
             if(itemVisualViewModel == null || confirmPurchaseButton == null)
             {
