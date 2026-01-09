@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Thunder Strike
   description: Every 3rd melee hit is empowered.
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: 5690170795954601879, guid: a67f55e2587d67146943ac3aa81ff5a1, type: 3}
   elementUpgrade: 5

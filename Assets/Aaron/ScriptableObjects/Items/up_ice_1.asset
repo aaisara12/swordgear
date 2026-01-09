@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Frost Bite
   description: Every second melee strike is empowered
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: -3937427332633864194, guid: abc810ec6167eeb4d8c18d3913471bb6, type: 3}
   elementUpgrade: 1

@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Eruption
   description: Melee attacks can be charged for increased damage
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: 4559546834057775049, guid: 93442a30944f0874a871bbcf7d273f30, type: 3}
   elementUpgrade: 3

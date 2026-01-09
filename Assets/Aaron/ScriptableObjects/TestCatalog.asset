@@ -14,11 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _folderToLoadFrom: Assets/Aaron/ScriptableObjects/Items
   _loadedItems:
-  - {fileID: 11400000, guid: e462b38054e374bf0a186aafbb9aab76, type: 2}
   - {fileID: 11400000, guid: 1e47d20cb145e45779e0e0bb8f0eb79c, type: 2}
   - {fileID: 11400000, guid: 7eda82ea6aa34ea4494ce53cfac434b6, type: 2}
   - {fileID: 11400000, guid: a219caad47b202d4ea6f1186fbf4ac35, type: 2}
   - {fileID: 11400000, guid: 0e97d05689b0d3c439e20c26cd11f016, type: 2}
-  - {fileID: 11400000, guid: deda4db166690458aa921ac8287044b5, type: 2}
   - {fileID: 11400000, guid: ff678e29c5665ca478c834ef44db1bfd, type: 2}
   - {fileID: 11400000, guid: a12c0bd215f649a459e1e74568163826, type: 2}

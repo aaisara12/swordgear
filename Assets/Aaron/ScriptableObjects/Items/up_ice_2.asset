@@ -16,5 +16,5 @@ MonoBehaviour:
   displayName: Hail Storm
   description: Weapon throw leaves a trail of slowing mist
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: -8818361356930933056, guid: 0191b326963832f44813ddd40b91c359, type: 3}
   elementUpgrade: 2
