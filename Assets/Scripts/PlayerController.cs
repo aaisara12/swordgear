@@ -12,6 +12,7 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float flickThreshold = 50f;
+    [SerializeField] private float swordCatchRadius = 1f;
 
     [Header("Movement")]
     [SerializeField] private float speed = 3f;
@@ -102,7 +103,7 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         if (playerState == PlayerState.SwordThrown &&
-            Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < 0.5f)
+            Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < swordCatchRadius)
         {
             CatchSword();
         }
