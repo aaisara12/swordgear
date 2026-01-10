@@ -5363,6 +5363,7 @@ MonoBehaviour:
   projectileSpeed: 10
   flickThreshold: 1
   swordCatchRadius: 1
+  playerDamageFX: {fileID: 1423386123474127677, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
   speed: 7
   sword: {fileID: 0}
   gear: {fileID: 0}

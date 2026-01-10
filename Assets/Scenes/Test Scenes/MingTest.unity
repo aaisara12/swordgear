@@ -1676,6 +1676,8 @@ MonoBehaviour:
   dashFactor: 0.2
   projectileSpeed: 5
   flickThreshold: 1
+  swordCatchRadius: 1
+  playerDamageFX: {fileID: 0}
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
@@ -7797,6 +7799,63 @@ GameObject:
   m_CorrespondingSourceObject: {fileID: 711078255971275636, guid: f68cac8fbc27d924eb9f1fd291b324fb, type: 3}
   m_PrefabInstance: {fileID: 376401163291740296}
   m_PrefabAsset: {fileID: 0}
+--- !u!1001 &1172909092926717116
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1423386123474127677, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_Name
+      value: PlayerHitFX
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7142369260613506755, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
 --- !u!1001 &1470740476211247805
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -8630,3 +8689,4 @@ SceneRoots:
   - {fileID: 1868808374}
   - {fileID: 6287276691235968752}
   - {fileID: 8749141615291116312}
+  - {fileID: 1172909092926717116}

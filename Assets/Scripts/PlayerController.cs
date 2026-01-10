@@ -13,6 +13,7 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float flickThreshold = 50f;
     [SerializeField] private float swordCatchRadius = 1f;
+    [SerializeField] private GameObject? playerDamageFX;
 
     [Header("Movement")]
     [SerializeField] private float speed = 3f;
@@ -56,7 +57,16 @@ public class PlayerController : PlayerGameplayPawn
     
     public void TakeDamage(float damage)
     {
+        PlayDamageEffect();
         RegisterDamage(damage);
+    }
+
+    void PlayDamageEffect()
+    {
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
+        if (playerDamageFX == null) return;
+        IAttackAnimator effect = Instantiate(playerDamageFX, transform.position, Quaternion.identity).GetComponent<IAttackAnimator>();
+        if (effect != null) effect.PlayAnimation();
     }
 
     void SwordThrow(Vector2 direction)
