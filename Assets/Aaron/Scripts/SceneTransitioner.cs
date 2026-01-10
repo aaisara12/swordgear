@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Wrapper around Unity's scene management API to provide support for smooth transition animations between scenes
@@ -13,9 +14,15 @@ using UnityEngine.SceneManagement;
 // aisara => MonoBehaviour because we may need to deal with animations or coroutines for transitions
 public class SceneTransitioner : MonoBehaviour
 {
-    [SerializeField] private StringEventChannelSO? sceneChangeRequestChannel;
     [SerializeField] private UnityEvent<string> onSceneTransitionFinished = new UnityEvent<string>();
     [SerializeField] private UnityEvent<string> onSceneTransitionStarted = new UnityEvent<string>();
+    
+    [Header("Input")]
+    [SerializeField] private StringEventChannelSO? sceneChangeRequestChannel;
+    
+    [Header("Output")]
+    [SerializeField] private BoolEventChannelSO? toggleLoadingScreenChannel;
+    [SerializeField] private float delayBeforeTogglingLoadingScreen = 0.5f;
     
     private Task? ongoingSceneTransitionTask;
 
@@ -25,6 +32,14 @@ public class SceneTransitioner : MonoBehaviour
     // not the caller's (for example, we could pop a UI that says scene transition failed or raise some events on our end).
     private async Task TransitionToScene(string sceneName)
     {
+        if (toggleLoadingScreenChannel == null)
+        {
+            return;
+        }
+        
+        toggleLoadingScreenChannel.RaiseDataChanged(true);
+        await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
+        
         var loadNewSceneTask = SceneManager.LoadSceneAsync(sceneName, LoadSceneMode.Additive)?.AsTask();
 
         if (loadNewSceneTask == null)
@@ -55,6 +70,10 @@ public class SceneTransitioner : MonoBehaviour
         await Task.WhenAll(new Task[] { loadNewSceneTask, unloadOldSceneTask });
         
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+        
+        toggleLoadingScreenChannel.RaiseDataChanged(false);
+        await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
+        
         lastSceneLoaded = sceneName;
         onSceneTransitionFinished.Invoke(sceneName);
     }

@@ -632,6 +632,7 @@ GameObject:
   m_Component:
   - component: {fileID: 183496913663069811}
   - component: {fileID: 4235604047870542123}
+  - component: {fileID: 7838835215667373562}
   m_Layer: 0
   m_Name: Scene Transitioner
   m_TagString: Untagged
@@ -673,6 +674,23 @@ MonoBehaviour:
   onSceneTransitionStarted:
     m_PersistentCalls:
       m_Calls: []
+  toggleLoadingScreenChannel: {fileID: 11400000, guid: b30a0b4446b08487b827673eaf8987f7, type: 2}
+  delayBeforeTogglingLoadingScreen: 0.5
+--- !u!114 &7838835215667373562
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7420552075449193958}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db3a06ad0f14de5a484e0dd6d924c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneTransitioner: {fileID: 4235604047870542123}
+  auxiliaryScene:
+    sceneName: Loading
 --- !u!1 &7465348785280717500
 GameObject:
   m_ObjectHideFlags: 0

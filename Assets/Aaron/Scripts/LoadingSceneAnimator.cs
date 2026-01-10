@@ -3,13 +3,28 @@
 
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 public class LoadingScreenAnimator : MonoBehaviour
 {
     [SerializeField] private CanvasGroup? canvasGroup;
     private Tween? fadeTween;
 
-    private const float DefaultDuration = 0.5f;
+    [SerializeField] private float durationOfFadeAnimation = 0.5f;
+
+    private void Awake()
+    {
+        if (canvasGroup == null)
+        {
+            Debug.LogError("CanvasGroup is not assigned in LoadingScreenAnimator!");
+            return;
+        }
+        
+        // aisara => Starting state is fully transparent and non-interactable (don't want to have to send an initialization signal to get it in this state)
+        canvasGroup.alpha = 0f;
+        canvasGroup.interactable = false;
+        canvasGroup.blocksRaycasts = false;
+    }
 
     public void FadeInLoadingScreen()
     {
@@ -19,7 +34,7 @@ public class LoadingScreenAnimator : MonoBehaviour
             return;
         }
 
-        StartFade(1f, DefaultDuration);
+        StartFade(1f, durationOfFadeAnimation);
     }
 
     public void FadeOutLoadingScreen()
@@ -30,7 +45,7 @@ public class LoadingScreenAnimator : MonoBehaviour
             return;
         }
 
-        StartFade(0f, DefaultDuration);
+        StartFade(0f, durationOfFadeAnimation);
     }
 
     private void StartFade(float targetAlpha, float duration)
