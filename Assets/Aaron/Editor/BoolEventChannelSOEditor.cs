@@ -1,4 +1,6 @@
 #nullable enable
+
+#if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 
@@ -33,3 +35,4 @@ public class BoolEventChannelSOEditor : Editor
         }
     }
 }
+#endif

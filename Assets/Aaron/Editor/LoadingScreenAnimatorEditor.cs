@@ -1,4 +1,6 @@
 #nullable enable
+
+#if UNITY_EDITOR
 using UnityEditor;
 using UnityEngine;
 
@@ -39,3 +41,4 @@ public class LoadingScreenAnimatorEditor : Editor
         serializedObject.ApplyModifiedProperties();
     }
 }
+#endif
