@@ -3,6 +3,54 @@ name: CI/CD
 on: [push, pull_request, workflow_dispatch]
 
 jobs:
+  buildForWindowsPlatform:
+      name: Build for Windows 64-bit
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+  
+        - uses: actions/cache@v3
+          with:
+            path: Library
+            key: Library-Windows64
+  
+        - uses: game-ci/unity-builder@v4
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            targetPlatform: StandaloneWindows64
+  
+        - uses: actions/upload-artifact@v4
+          with:
+            name: build-Windows64
+            path: build/Windows64
+
+  buildForMacPlatform:
+      name: Build for MacOS
+      runs-on: ubuntu-latest
+      steps:
+        - uses: actions/checkout@v4
+  
+        - uses: actions/cache@v3
+          with:
+            path: Library
+            key: Library-MacOS
+  
+        - uses: game-ci/unity-builder@v4
+          env:
+            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
+            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
+            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
+          with:
+            targetPlatform: StandaloneOSX
+  
+        - uses: actions/upload-artifact@v4
+          with:
+            name: build-MacOS
+            path: build/MacOS
+            
   buildForiOSPlatform:
     name: Build for iOS
     runs-on: ubuntu-latest
