@@ -26,8 +26,8 @@ jobs:
   
         - uses: actions/upload-artifact@v4
           with:
-            name: build-Windows64
-            path: build/Windows64
+            name: Build
+            path: build
 
   buildForMacPlatform:
       name: Build for MacOS
@@ -52,8 +52,8 @@ jobs:
   
         - uses: actions/upload-artifact@v4
           with:
-            name: build-MacOS
-            path: build/MacOS
+            name: Build
+            path: build
             
   buildForiOSPlatform:
     name: Build for iOS
