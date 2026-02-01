@@ -28,32 +28,6 @@ jobs:
           with:
             name: build-windows64
             path: build
-
-  buildForMacPlatform:
-      name: Build for MacOS
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v4
-  
-        - uses: actions/cache@v3
-          with:
-            path: Library
-            key: Library-${{ hashFiles('Assets/**', 'Packages/**', 'ProjectSettings/**') }}
-            restore-keys: |
-              Library-
-  
-        - uses: game-ci/unity-builder@v4
-          env:
-            UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-            UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-            UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-          with:
-            targetPlatform: StandaloneOSX
-  
-        - uses: actions/upload-artifact@v4
-          with:
-            name: build-macos
-            path: build
             
   buildForiOSPlatform:
     name: Build for iOS
