@@ -36,6 +36,13 @@ public class JoystickVisual
         set => knob.position = new Vector3(value.x, value.y, 0f) * canvasDisplayingJoystick.scaleFactor;
     }
 
+    public Vector2 JoystickValue
+    {
+        get => (KnobPosition - OriginPosition) / KnobRange;
+        set => KnobPosition = value * KnobRange + OriginPosition;
+    }
+    
+
     public JoystickVisual(
         RectTransform origin,
         RectTransform knob,
