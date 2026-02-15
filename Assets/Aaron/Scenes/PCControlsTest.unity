@@ -1191,6 +1191,7 @@ MonoBehaviour:
   _canvas: {fileID: 1574954611}
   _joystickProvider: {fileID: 5052391050290405333}
   _100UnitLine: {fileID: 557010703}
+  _enableVisualization: 1
   m_ControlPath: <Gamepad>/rightStick
 --- !u!1660057539 &9223372036854775807
 SceneRoots:

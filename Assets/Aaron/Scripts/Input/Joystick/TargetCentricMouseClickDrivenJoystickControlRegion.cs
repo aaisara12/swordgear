@@ -22,6 +22,7 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
     [Header("Visualization")]
     [SerializeField] private JoystickVisualProvider? _joystickProvider;
     [SerializeField] private RectTransform? _100UnitLine;
+    [SerializeField] private bool _enableVisualization;
 
     private JoystickVisual? _joystick;
     
@@ -41,6 +42,28 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
 
         _joystick = _joystickProvider.Visual;
     }
+
+    // TODO: aisara => Decouple visualization from functionality so that we don't have to run editor-only code in Update or other visualization code mixed in with functionality
+    #if UNITY_EDITOR
+    private void Update()
+    {
+        if (_joystick == null || _100UnitLine == null)
+        {
+            return;
+        }
+        
+        if (_enableVisualization)
+        {
+            _100UnitLine.gameObject.SetActive(true);
+            _joystick.Show();
+        }
+        else
+        {
+            _100UnitLine.gameObject.SetActive(false);
+            _joystick.Hide();
+        }
+    }
+    #endif
 
     private void PointJoystickTowardsScreenPoint(JoystickVisual joystick, Vector2 screenPoint)
     {
@@ -107,6 +130,11 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
         if (_joystick == null)
         {
             return;
+        }
+
+        if (_100UnitLine != null)
+        {
+            _100UnitLine.localScale = Vector3.zero;
         }
         
         _joystick.ResetPositions();
