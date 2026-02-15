@@ -9,17 +9,18 @@ using UnityEngine.InputSystem.OnScreen;
 public class PlayerCentricJoystickControlRegion : OnScreenControl, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [SerializeField] private RectTransform? _base;
-    [SerializeField] private RectTransform? _100UnitLine;
+    
+    [Header("Input Screen Click Position References")]
     [SerializeField] private Camera? _camera;
     [SerializeField] private Canvas? _canvas;
 
+    [Header("Visualization")]
     [SerializeField] private JoystickVisualProvider? _joystickProvider;
+    [SerializeField] private RectTransform? _100UnitLine;
 
     private JoystickVisual? _joystick;
     
-    private Vector2 _lastPointerPosition;
-    private PointerEventData.InputButton _lastPointerButton;
-    
+    [Header("Output Control")]
     [InputControl(layout = "Vector2")]
     [SerializeField] private string m_ControlPath = string.Empty;
 
@@ -36,15 +37,14 @@ public class PlayerCentricJoystickControlRegion : OnScreenControl, IPointerDownH
         _joystick = _joystickProvider.Visual;
     }
 
-    private void RenderJoystick()
+    private void PointJoystickTowardsScreenPoint(JoystickVisual joystick, Vector2 screenPoint)
     {
         if (_base == null) return;
         if(_100UnitLine == null) return;
         if(_camera == null) return;
         if(_canvas == null) return;
-        if(_joystick == null) return;
 
-        Vector2 direction = _lastPointerPosition - new Vector2(_base.position.x, _base.position.y);
+        Vector2 direction = screenPoint - new Vector2(_base.position.x, _base.position.y);
 
         _100UnitLine.position = _base.position;
         
@@ -54,29 +54,47 @@ public class PlayerCentricJoystickControlRegion : OnScreenControl, IPointerDownH
         
         _100UnitLine.rotation = Quaternion.Euler(0, 0, angle);
 
-        _joystick.OriginPosition = _base.position/_canvas.scaleFactor;
-        _joystick.KnobPosition = _joystick.OriginPosition + direction.normalized * _joystick.KnobRange;
-        
-        _joystick.JoystickValue *= (_lastPointerButton == PointerEventData.InputButton.Left) ? 0.1f : 1;
-        
-        SendValueToControl(_joystick.JoystickValue);
+        joystick.OriginPosition = _base.position/_canvas.scaleFactor;
+        joystick.KnobPosition = joystick.OriginPosition + direction.normalized * joystick.KnobRange;
     }
     
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        _lastPointerPosition = eventData.position;
-        _lastPointerButton = eventData.button;
+        if (_joystick == null)
+        {
+            return;
+        }
         
-        RenderJoystick();
+        PointJoystickTowardsScreenPoint(_joystick, eventData.position);
+
+        _joystick.JoystickValue = _joystick.JoystickValue.normalized;
+
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            _joystick.JoystickValue *= 0.1f;
+        }
+        
+        SendValueToControl(_joystick.JoystickValue);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        _lastPointerPosition = eventData.position;
-        _lastPointerButton = eventData.button;
+        if (_joystick == null)
+        {
+            return;
+        }
         
-        RenderJoystick();
+        PointJoystickTowardsScreenPoint(_joystick, eventData.position);
+
+        _joystick.JoystickValue = _joystick.JoystickValue.normalized;
+
+        if (eventData.button == PointerEventData.InputButton.Left)
+        {
+            _joystick.JoystickValue *= 0.1f;
+        }
+        
+        SendValueToControl(_joystick.JoystickValue);
     }
 
     public void OnPointerUp(PointerEventData eventData)
