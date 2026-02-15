@@ -7,6 +7,7 @@ public class JoystickVisual
     private RectTransform origin;
     private RectTransform knob;
     private RectTransform knobRangeRepresentation;
+    private CanvasGroup visibilityCanvasGroup;
     private float knobRange;
     private Canvas canvasDisplayingJoystick;
 
@@ -47,12 +48,14 @@ public class JoystickVisual
         RectTransform origin,
         RectTransform knob,
         RectTransform knobRangeRepresentation,
+        CanvasGroup visibilityCanvasGroup,
         float knobRange,
         Canvas canvasDisplayingJoystick)
     {
         this.origin = origin;
         this.knob = knob;
         this.knobRangeRepresentation = knobRangeRepresentation;
+        this.visibilityCanvasGroup = visibilityCanvasGroup;
         KnobRange = knobRange;
         this.canvasDisplayingJoystick = canvasDisplayingJoystick;
     }
@@ -75,6 +78,11 @@ public class JoystickVisual
         knob.position = origin.position;
         knobRangeRepresentation.position = origin.position;
         knobRangeRepresentation.localScale = new Vector3(KnobRange * 2, KnobRange * 2, 1);
+    }
+    
+    public void SetVisibility(bool isVisible)
+    {
+        visibilityCanvasGroup.alpha = isVisible ? 1f : 0f;
     }
 }
 
