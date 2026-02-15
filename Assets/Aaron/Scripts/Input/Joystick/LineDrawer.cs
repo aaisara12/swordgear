@@ -3,8 +3,10 @@
 using System;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem.Layouts;
+using UnityEngine.InputSystem.OnScreen;
 
-public class LineDrawer : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+public class LineDrawer : OnScreenControl, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
     [SerializeField] private RectTransform? _base;
     [SerializeField] private RectTransform? _100UnitLine;
@@ -17,7 +19,15 @@ public class LineDrawer : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
     
     private Vector2 _lastPointerPosition;
     private PointerEventData.InputButton _lastPointerButton;
-    private bool _isAiming;
+    
+    [InputControl(layout = "Vector2")]
+    [SerializeField] private string m_ControlPath = string.Empty;
+
+    protected override string controlPathInternal
+    {
+        get => m_ControlPath;
+        set => m_ControlPath = value;
+    }
     
     private void Awake()
     {
@@ -26,7 +36,7 @@ public class LineDrawer : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
         _joystick = _joystickProvider.Visual;
     }
 
-    private void Update()
+    private void RenderJoystick()
     {
         if (_base == null) return;
         if(_100UnitLine == null) return;
@@ -47,25 +57,36 @@ public class LineDrawer : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
         _joystick.OriginPosition = _base.position/_canvas.scaleFactor;
         _joystick.KnobPosition = _joystick.OriginPosition + direction.normalized * _joystick.KnobRange;
         
-        _joystick.JoystickValue *= (_lastPointerButton == PointerEventData.InputButton.Left) ? 0.5f : 1;
+        _joystick.JoystickValue *= (_lastPointerButton == PointerEventData.InputButton.Left) ? 0.1f : 1;
+        
+        SendValueToControl(_joystick.JoystickValue);
     }
     
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        _isAiming = true;
         _lastPointerPosition = eventData.position;
         _lastPointerButton = eventData.button;
+        
+        RenderJoystick();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
         _lastPointerPosition = eventData.position;
         _lastPointerButton = eventData.button;
+        
+        RenderJoystick();
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        _isAiming = false;
+        if (_joystick == null)
+        {
+            return;
+        }
+        
+        _joystick.ResetPositions();
+        SendValueToControl(_joystick.JoystickValue);
     }
 }
