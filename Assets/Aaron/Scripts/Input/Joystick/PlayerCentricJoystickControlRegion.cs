@@ -6,117 +6,87 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem.Layouts;
 using UnityEngine.InputSystem.OnScreen;
 
-/// <summary>
-/// Represents a joystick centered on the player character. The position of the click on screen relative to the player
-/// character determines the direction of the joystick input. This is similar to what is done in Hades.
-/// </summary>
-public class PlayerCentricJoystickControlRegion : OnScreenControl, IPointerDownHandler, IPointerUpHandler, IDragHandler
+public class PlayerCentricJoystickControlRegion : OnScreenControl, IPointerDownHandler, IDragHandler, IPointerUpHandler
 {
+    [SerializeField] private RectTransform? _base;
+    [SerializeField] private RectTransform? _100UnitLine;
+    [SerializeField] private Camera? _camera;
+    [SerializeField] private Canvas? _canvas;
+
+    [SerializeField] private JoystickVisualProvider? _joystickProvider;
+
+    private JoystickVisual? _joystick;
+    
+    private Vector2 _lastPointerPosition;
+    private PointerEventData.InputButton _lastPointerButton;
+    
     [InputControl(layout = "Vector2")]
     [SerializeField] private string m_ControlPath = string.Empty;
-    
-    [SerializeField] private Transform? playerTransform;
-    
-    // aisara => Optional parameter for visualizing the joystick input
-    [SerializeField] private JoystickVisualProvider? joystickVisualProvider;
-    
-    private JoystickVisual? joystickVisual;
-    
+
     protected override string controlPathInternal
     {
         get => m_ControlPath;
         set => m_ControlPath = value;
     }
-
+    
     private void Awake()
     {
-        if (joystickVisualProvider != null)
-        {
-            joystickVisual = joystickVisualProvider.Visual;
-        }
+        if (_joystickProvider == null) return;
+
+        _joystick = _joystickProvider.Visual;
     }
 
-    private void Update()
+    private void RenderJoystick()
     {
-        var playerScreenPoint = GetPlayerScreenPoint();
+        if (_base == null) return;
+        if(_100UnitLine == null) return;
+        if(_camera == null) return;
+        if(_canvas == null) return;
+        if(_joystick == null) return;
 
-        if (playerScreenPoint.HasValue && joystickVisual != null)
-        {
-            joystickVisual.Move(playerScreenPoint.Value);
-        }
+        Vector2 direction = _lastPointerPosition - new Vector2(_base.position.x, _base.position.y);
+
+        _100UnitLine.position = _base.position;
+        
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        
+        _100UnitLine.localScale = new Vector3(direction.magnitude/_canvas.scaleFactor / 100f, 1, 1);
+        
+        _100UnitLine.rotation = Quaternion.Euler(0, 0, angle);
+
+        _joystick.OriginPosition = _base.position/_canvas.scaleFactor;
+        _joystick.KnobPosition = _joystick.OriginPosition + direction.normalized * _joystick.KnobRange;
+        
+        _joystick.JoystickValue *= (_lastPointerButton == PointerEventData.InputButton.Left) ? 0.1f : 1;
+        
+        SendValueToControl(_joystick.JoystickValue);
     }
+    
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        var playerScreenPoint = GetPlayerScreenPoint();
-
-        if (playerScreenPoint.HasValue == false)
-        {
-            return;
-        }
+        _lastPointerPosition = eventData.position;
+        _lastPointerButton = eventData.button;
         
-        var joystickVector = (eventData.position - new Vector2(playerScreenPoint.Value.x, playerScreenPoint.Value.y)).normalized * 0.1f;
-        
-        SendValueToControl(joystickVector);
-        
-        if (joystickVisual != null)
-        {
-            joystickVisual.KnobPosition = new Vector2(joystickVector.x, joystickVector.y) * joystickVisual.KnobRange;
-        }
-    }
-
-    public void OnPointerUp(PointerEventData eventData)
-    {
-        SendValueToControl(Vector2.zero);
-        
-        if (joystickVisual != null)
-        {
-            joystickVisual.KnobPosition = Vector2.zero;
-        }
+        RenderJoystick();
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        var playerScreenPoint = GetPlayerScreenPoint();
+        _lastPointerPosition = eventData.position;
+        _lastPointerButton = eventData.button;
+        
+        RenderJoystick();
+    }
 
-        if (playerScreenPoint.HasValue == false)
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (_joystick == null)
         {
             return;
         }
         
-        var joystickVector = (eventData.position - new Vector2(playerScreenPoint.Value.x, playerScreenPoint.Value.y)).normalized * 0.1f;
-        
-        SendValueToControl(joystickVector);
-        
-        if (joystickVisual != null)
-        {
-            joystickVisual.KnobPosition = new Vector2(joystickVector.x, joystickVector.y) * joystickVisual.KnobRange;
-        }
-    }
-    
-    private Vector2? GetPlayerScreenPoint()
-    {
-        // TODO: Refactor this once we're no longer using GameManager singleton. Until then, we're forced to check every frame.
-        // var player = GameManager.Instance.player;
-        //
-        // if(player == null)
-        //     return null;
-        //
-        // var playerTransform = player.transform;
-        
-        if (playerTransform == null)
-            return null;
-
-        // TODO: Refactor this once we've done the GameManager refactor - ideally the camera would be provided via dependency injection or similar
-        var cam = Camera.main;
-        if (cam == null)
-            return null;
-
-        Vector3 screenPoint3 = cam.WorldToScreenPoint(playerTransform.position);
-        // if behind the camera, z will be negative — treat as not visible
-        if (screenPoint3.z < 0f)
-            return null;
-
-        return new Vector2(screenPoint3.x, screenPoint3.y);
+        _joystick.ResetPositions();
+        SendValueToControl(_joystick.JoystickValue);
     }
 }
