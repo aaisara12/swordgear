@@ -16,7 +16,6 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
     [SerializeField] private RectTransform? _target;
     
     [Header("Input Screen Click Position References")]
-    [SerializeField] private Camera? _camera;
     [SerializeField] private Canvas? _canvas;
 
     [Header("Visualization")]
@@ -36,7 +35,7 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
         set => m_ControlPath = value;
     }
     
-    private void Awake()
+    private void Start()
     {
         if (_joystickProvider == null) return;
 
@@ -69,11 +68,12 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
     {
         if (_target == null) return;
         if(_100UnitLine == null) return;
-        if(_camera == null) return;
         if(_canvas == null) return;
+        
+        Vector2 targetScreenPoint = new Vector2(_target.position.x, _target.position.y);
 
-        Vector2 direction = screenPoint - new Vector2(_target.position.x, _target.position.y);
-
+        Vector2 direction = screenPoint - targetScreenPoint;
+        
         _100UnitLine.position = _target.position;
         
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
@@ -82,7 +82,7 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
         
         _100UnitLine.rotation = Quaternion.Euler(0, 0, angle);
 
-        joystick.OriginPosition = _target.position/_canvas.scaleFactor;
+        joystick.OriginPosition = targetScreenPoint / _canvas.scaleFactor;
         joystick.KnobPosition = joystick.OriginPosition + direction.normalized * joystick.KnobRange;
     }
     
