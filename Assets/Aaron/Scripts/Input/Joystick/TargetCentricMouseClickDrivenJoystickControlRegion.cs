@@ -24,6 +24,8 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
     [SerializeField] private bool _enableVisualization;
 
     private JoystickVisual? _joystick;
+    private Vector2 _joystickValue;
+    private Vector2 _targetToLastClickPoint;
     
     [Header("Output Control")]
     [InputControl(layout = "Vector2")]
@@ -53,8 +55,8 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
         
         if (_enableVisualization)
         {
-            _100UnitLine.gameObject.SetActive(true);
-            _joystick.Show();
+            RenderJoystick(_joystickValue);
+            RenderDirectionLine(_targetToLastClickPoint);
         }
         else
         {
@@ -63,81 +65,84 @@ public class TargetCentricMouseClickDrivenJoystickControlRegion : OnScreenContro
         }
     }
     #endif
-
-    private void PointJoystickTowardsScreenPoint(JoystickVisual joystick, Vector2 screenPoint)
+    
+    private void RenderDirectionLine(Vector2 lineValue)
     {
+        if (_100UnitLine == null) return;
+        if (_canvas == null) return;
         if (_target == null) return;
-        if(_100UnitLine == null) return;
-        if(_canvas == null) return;
         
-        Vector2 targetScreenPoint = new Vector2(_target.position.x, _target.position.y);
-
-        Vector2 direction = screenPoint - targetScreenPoint;
+        _100UnitLine.gameObject.SetActive(true);
         
         _100UnitLine.position = _target.position;
         
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(lineValue.y, lineValue.x) * Mathf.Rad2Deg;
         
-        _100UnitLine.localScale = new Vector3(direction.magnitude/_canvas.scaleFactor / 100f, 1, 1);
+        _100UnitLine.localScale = new Vector3(lineValue.magnitude / _canvas.scaleFactor / 100f, 1, 1);
         
         _100UnitLine.rotation = Quaternion.Euler(0, 0, angle);
-
-        joystick.OriginPosition = targetScreenPoint / _canvas.scaleFactor;
-        joystick.KnobPosition = joystick.OriginPosition + direction.normalized * joystick.KnobRange;
     }
-    
+
+    private void RenderJoystick(Vector2 joystickValue)
+    {
+        if (_joystick == null) return;
+        if (_target == null) return;
+        if (_canvas == null) return;
+        
+        var normalizedPosition = _target.position / _canvas.scaleFactor;
+        
+        _joystick.Show();
+
+        _joystick.OriginPosition = normalizedPosition;
+        _joystick.JoystickValue = joystickValue;
+    }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (_joystick == null)
-        {
-            return;
-        }
+        if (_joystick == null) return;
+        if (_target == null) return;
         
-        PointJoystickTowardsScreenPoint(_joystick, eventData.position);
+        Vector2 targetScreenPoint = new Vector2(_target.position.x, _target.position.y);
+        Vector2 direction = (eventData.position - targetScreenPoint).normalized;
 
-        _joystick.JoystickValue = _joystick.JoystickValue.normalized;
-
+        var joystickValue = direction;
+        
+        // aisara => Left click forces a smaller joystick magnitude since our joysticks read different inputs based on magnitude
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            _joystick.JoystickValue *= 0.1f;
+            joystickValue *= 0.1f;
         }
         
-        SendValueToControl(_joystick.JoystickValue);
+        SendValueToControl(joystickValue);
+        _joystickValue = joystickValue;
+        _targetToLastClickPoint = eventData.position - targetScreenPoint;
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        if (_joystick == null)
-        {
-            return;
-        }
+        if (_joystick == null) return;
+        if (_target == null) return;
         
-        PointJoystickTowardsScreenPoint(_joystick, eventData.position);
+        Vector2 targetScreenPoint = new Vector2(_target.position.x, _target.position.y);
+        Vector2 direction = (eventData.position - targetScreenPoint).normalized;
 
-        _joystick.JoystickValue = _joystick.JoystickValue.normalized;
-
+        var joystickValue = direction;
+        
+        // aisara => Left click forces a smaller joystick magnitude since our joysticks read different inputs based on magnitude
         if (eventData.button == PointerEventData.InputButton.Left)
         {
-            _joystick.JoystickValue *= 0.1f;
+            joystickValue *= 0.1f;
         }
         
-        SendValueToControl(_joystick.JoystickValue);
+        SendValueToControl(joystickValue);
+        _joystickValue = joystickValue;
+        _targetToLastClickPoint = eventData.position - targetScreenPoint;
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        if (_joystick == null)
-        {
-            return;
-        }
-
-        if (_100UnitLine != null)
-        {
-            _100UnitLine.localScale = Vector3.zero;
-        }
-        
-        _joystick.ResetPositions();
-        SendValueToControl(_joystick.JoystickValue);
+        SendValueToControl(Vector2.zero);
+        _joystickValue = Vector2.zero;
+        _targetToLastClickPoint = Vector2.zero;
     }
 }
