@@ -16,7 +16,8 @@ public class ElementUpgradeLoadableStoreItemEditor : Editor
     private SerializedProperty? descriptionProp;
     private SerializedProperty? costProp;
     private SerializedProperty? iconProp;
-    
+    private SerializedProperty? qualityTierProp;
+
     // ElementUpgradeLoadableStoreItem specific property
     private SerializedProperty? elementUpgradeProp;
 
@@ -31,6 +32,7 @@ public class ElementUpgradeLoadableStoreItemEditor : Editor
         descriptionProp = serializedObject.FindProperty("description");
         costProp = serializedObject.FindProperty("cost");
         iconProp = serializedObject.FindProperty("icon");
+        qualityTierProp = serializedObject.FindProperty("qualityTier");
     }
 
     public override void OnInspectorGUI()
@@ -108,7 +110,12 @@ public class ElementUpgradeLoadableStoreItemEditor : Editor
             EditorGUILayout.PropertyField(iconProp);
         else
             EditorGUILayout.LabelField("icon property not found.");
-        
+
+        if (qualityTierProp != null)
+            EditorGUILayout.PropertyField(qualityTierProp);
+        else
+            EditorGUILayout.LabelField("qualityTier property not found.");
+
         if (elementUpgradeProp != null)
             EditorGUILayout.PropertyField(elementUpgradeProp);
         else

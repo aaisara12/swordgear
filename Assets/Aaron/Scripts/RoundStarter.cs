@@ -23,6 +23,19 @@ using UnityEngine.Events;
             levelsCleared = 0;
             currentLevelInRound = 0;
             currentRoundBlueprints = RoundGenerator.Instance.GenerateNewRound();
+            
+            // Reset combo system and ultimate meter for new round
+            if (ComboSystem.Instance != null)
+            {
+                ComboSystem.Instance.ResetForNewRound();
+            }
+            
+            var ultimateMeter = FindObjectOfType<UltimateMeter>();
+            if (ultimateMeter != null)
+            {
+                ultimateMeter.ResetForNewRound();
+            }
+            
             LoadLevel(currentLevelInRound);
         }
         

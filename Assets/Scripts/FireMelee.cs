@@ -100,7 +100,7 @@ public class FireMelee : MonoBehaviour, IMeleeWeapon
         if (collision.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.currentDamage));
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage()));
             if (applyBurn)
             {
                 GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);

@@ -6,7 +6,12 @@ using TMPro;
 
 public class EnemyController : MonoBehaviour
 {
+    // Fired when this specific enemy dies.
     public event Action? OnDeath;
+
+    // Global events so systems like ComboSystem can listen to all enemy hits/deaths.
+    public static event Action<EnemyController, float, Element>? OnAnyEnemyHit;
+    public static event Action<EnemyController>? OnAnyEnemyDeath;
 
     [SerializeField] private GameObject? player;
     [SerializeField] private float speed = 2f;
@@ -49,7 +54,17 @@ public class EnemyController : MonoBehaviour
         if (GameManager.Instance)
             GameManager.Instance.DisplayDamageUI(transform.position, damage);
 
+        // Notify global listeners that this enemy was hit.
+        var gm = GameManager.Instance;
+        if (gm != null)
+        {
+            OnAnyEnemyHit?.Invoke(this, damage, gm.currentElement);
+        }
+
         hp -= damage;
+
+        // Notify systems that player dealt damage (e.g. lifesteal)
+        GameManager.NotifyPlayerDealtDamage(damage);
 
         // Note: The floating points code is commented out here as it was in your original script.
         // if (floatingPoints != null)
@@ -66,6 +81,9 @@ public class EnemyController : MonoBehaviour
 
     private void Die()
     {
+        // Global death event for systems that care about any enemy death.
+        OnAnyEnemyDeath?.Invoke(this);
+
         OnDeath?.Invoke();
         GameObject? effectObject = Instantiate(deathFX, transform.position, Quaternion.identity);
         IAttackAnimator? effect = null;

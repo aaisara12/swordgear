@@ -116,7 +116,7 @@ public class LightningMelee : MonoBehaviour, IMeleeWeapon
         if (collision.CompareTag("Enemy"))
         {
             EnemyController enemy = collision.GetComponent<EnemyController>();
-            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.currentDamage));
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage()));
             if (lightningActive)
             {
                 ChainLightningProjectile lightning = Instantiate(lightningPrefab, collision.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
