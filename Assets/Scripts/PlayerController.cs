@@ -173,6 +173,11 @@ public class PlayerController : PlayerGameplayPawn
         }
     }
 
+    public override void StopAiming()
+    {
+        // RETROFIT: No corresponding functionality from old code
+    }
+
     public override void MoveInDirection(Vector2 direction)
     {
         // RETROFIT: From OnMove

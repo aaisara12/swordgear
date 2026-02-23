@@ -105,6 +105,12 @@ public class PlayerGameplayInputManager : MonoBehaviour
 
     private void HandleAimedAttackCanceled(InputAction.CallbackContext obj)
     {
+        if (pawn == null)
+        {
+            return;
+        }
+        
+        pawn.StopAiming();
         ToggleAimDirectionUpdate(false);
         lastReadAimDirection = Vector2.zero;
     }
@@ -118,6 +124,7 @@ public class PlayerGameplayInputManager : MonoBehaviour
         
         // aisara => We don't use the current input value here because it will be zero (since performed is registered on release when stick moves back to zero)
         pawn.DoAimedAttackInDirection(lastReadAimDirection);
+        pawn.StopAiming();
         ToggleAimDirectionUpdate(false);
     }
 

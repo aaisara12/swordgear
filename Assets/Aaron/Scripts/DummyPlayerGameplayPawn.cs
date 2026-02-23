@@ -41,6 +41,11 @@ namespace Testing
             shooter?.ShootInDirection(direction);
         }
 
+        public override void StopAiming()
+        {
+            shootDirectionVisualizer?.ClearShootDirection();
+        }
+
         public override void MoveInDirection(Vector2 direction)
         {
             mover?.Move(direction);
