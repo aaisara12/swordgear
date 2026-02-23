@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Collections;
 using UnityEngine;
 
@@ -63,11 +64,13 @@ namespace Testing
             }
 
             float timePassed = 0f;
+            var startRotation = playerVisual.rotation;
             var targetRotation = Quaternion.LookRotation(Vector3.forward, direction);
             
             while (timePassed < durationSeconds)
             {
-                playerVisual.rotation = Quaternion.Slerp(playerVisual.rotation, targetRotation, timePassed / durationSeconds);
+                double t = Math.Cbrt(timePassed/durationSeconds);
+                playerVisual.rotation = Quaternion.Slerp(startRotation, targetRotation, (float)t);
                 timePassed += Time.deltaTime;
                 yield return new WaitForEndOfFrame();
             }
