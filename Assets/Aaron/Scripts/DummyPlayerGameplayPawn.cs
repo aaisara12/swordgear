@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using UnityEngine;
 
 namespace Testing
@@ -14,7 +15,16 @@ namespace Testing
         [SerializeField] private Shooter? shooter;
         [SerializeField] private ShootDirectionVisualizer? shootDirectionVisualizer;
         [SerializeField] private PlayerVisual? visual;
-        
+
+        private void Awake()
+        {
+            // TODO: Refactor this once we do game manager refactor - this is here as a hacky way to make the UI read the player movements correctly
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.player = gameObject;
+            }
+        }
+
         public override void Attack(Vector2 direction)
         {
             attacker?.Attack();
