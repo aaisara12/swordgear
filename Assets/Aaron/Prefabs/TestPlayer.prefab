@@ -208,8 +208,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18b28d1335d84e3cbaba99ea3018c62e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  snapRotationDurationSeconds: 0.1
-  normalRotationDurationSeconds: 0.25
+  snapRotationDurationSeconds: 0.05
+  normalRotationDurationSeconds: 0.1
   playerVisual: {fileID: 8703284407882168380}
 --- !u!1 &6637283140111110359
 GameObject:
