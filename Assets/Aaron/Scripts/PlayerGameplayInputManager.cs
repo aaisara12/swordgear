@@ -15,6 +15,7 @@ public class PlayerGameplayInputManager : MonoBehaviour
     private Vector2 lastReadAttackDirection;
 
     private Coroutine? attackDirectionCoroutine;
+    private Coroutine? aimedAttackDirectionCoroutine;
     
     public void LinkPawn(PlayerGameplayPawn pawn)
     {
@@ -117,8 +118,7 @@ public class PlayerGameplayInputManager : MonoBehaviour
         
         // aisara => We don't use the current input value here because it will be zero (since performed is registered on release when stick moves back to zero)
         pawn.DoAimedAttackInDirection(lastReadAimDirection);
-        
-        // TODO: This probably needs a ToggleAimDirectionUpdate(false) here, not adding it because it's not related to the current change
+        ToggleAimDirectionUpdate(false);
     }
 
     private void HandleAimedAttackStarted(InputAction.CallbackContext obj)
@@ -130,12 +130,18 @@ public class PlayerGameplayInputManager : MonoBehaviour
     {
         if (shouldUpdate)
         {
-            StartCoroutine(UpdateAimDirectionCoroutine());
+            aimedAttackDirectionCoroutine = StartCoroutine(UpdateAimDirectionCoroutine());
         }
         else
         {
-            // TODO: aisara => This doesn't actually work, need to save a reference to the coroutine
-            StopCoroutine(UpdateAimDirectionCoroutine());
+            if (aimedAttackDirectionCoroutine == null)
+            {
+                return;
+            }
+            
+            StopCoroutine(aimedAttackDirectionCoroutine);
+
+            aimedAttackDirectionCoroutine = null;
         }
     }
     
