@@ -12,6 +12,8 @@ public abstract class PlayerGameplayPawn : MonoBehaviour
     public event Action<float>? OnRegisterDamage;
     
     public abstract void Attack(Vector2 direction);
+    
+    // TODO: Charge attacks will also need support for directionality (given that basic attack has directionality)
     public abstract void BeginChargeAttack();
     public abstract void ReleaseChargeAttack();
     public abstract void CancelChargeAttack();

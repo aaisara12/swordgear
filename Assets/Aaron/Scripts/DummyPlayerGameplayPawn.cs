@@ -13,10 +13,12 @@ namespace Testing
         [SerializeField] private Attacker? attacker;
         [SerializeField] private Shooter? shooter;
         [SerializeField] private ShootDirectionVisualizer? shootDirectionVisualizer;
+        [SerializeField] private PlayerVisual? visual;
         
         public override void Attack(Vector2 direction)
         {
             attacker?.Attack();
+            visual?.SnapTowardsDirection(direction);
         }
 
         public override void AimInDirection(Vector2 direction)
@@ -32,6 +34,7 @@ namespace Testing
         public override void MoveInDirection(Vector2 direction)
         {
             mover?.Move(direction);
+            visual?.RotateTowardsDirection(direction);
         }
 
         public override void DoSpawnAnimation()
