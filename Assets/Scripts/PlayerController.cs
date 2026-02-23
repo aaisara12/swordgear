@@ -72,7 +72,8 @@ public class PlayerController : PlayerGameplayPawn
     void SwordThrow(Vector2 direction)
     {
         ElementManager.Instance.MeleeCharge(transform, true);
-        SwordProjectile.Instance.StartFlight(transform.position, direction * projectileSpeed);
+        float effectiveProjectileSpeed = projectileSpeed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
+        SwordProjectile.Instance.StartFlight(transform.position, direction * effectiveProjectileSpeed);
         playerState = PlayerState.SwordThrown;
     }
 
@@ -184,7 +185,8 @@ public class PlayerController : PlayerGameplayPawn
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
-        rb.linearVelocity = direction * speed;
+        float effectiveSpeed = speed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MoveSpeedMultiplier : 1f);
+        rb.linearVelocity = direction * effectiveSpeed;
     }
 
     public override void DoSpawnAnimation()

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -8,6 +9,12 @@ public class GameManager : MonoBehaviour
     public GameObject player; // Assign this in the Inspector
     PlayerController playerController;
 
+    /// <summary> Fired when the player deals damage to an enemy (for lifesteal etc). </summary>
+    public static event Action<float>? OnPlayerDealtDamage;
+
+    /// <summary> Call this when the player deals damage; raises OnPlayerDealtDamage for subscribers. </summary>
+    public static void NotifyPlayerDealtDamage(float damage) => OnPlayerDealtDamage?.Invoke(damage);
+
     [Header("Damage visual references")]
     [SerializeField] GameObject damageUI;
 
@@ -16,6 +23,18 @@ public class GameManager : MonoBehaviour
     public float baseDamage = 10;
     public float currentDamage = 10;
     public float rangedMultiplier = 1.2f;
+
+    public float GetEffectiveBaseDamage()
+    {
+        float flat = PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.DamageFlatBonus : 0f;
+        return baseDamage + flat;
+    }
+
+    public float GetEffectiveRangedMultiplier()
+    {
+        float bonus = PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.RangedDamageMultiplierBonus : 0f;
+        return rangedMultiplier + bonus;
+    }
     private Element _currentElement = Element.Physical;
     public Element currentElement
     {
@@ -49,6 +68,7 @@ public class GameManager : MonoBehaviour
         // For enemy effect handling
         StartCoroutine(EffectTickLoop());
         currentElement = Element.Physical;
+        currentDamage = GetEffectiveBaseDamage();
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)
@@ -91,7 +111,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator EmpowermentRoutine(Element elementToApply, float damageMultiplierToApply, float duration)
     {
         // --- Apply Empowerment ---
-        currentDamage = baseDamage * damageMultiplierToApply;
+        currentDamage = GetEffectiveBaseDamage() * damageMultiplierToApply;
         currentElement = elementToApply;
 
         Debug.Log($"Sword {gameObject.name} is now {elementToApply}. Current Damage: {currentDamage}");
@@ -102,7 +122,7 @@ public class GameManager : MonoBehaviour
         // --- Undo Empowerment ---
         Debug.Log($"Empower effect for {elementToApply} on {gameObject.name} finished.");
 
-        currentDamage = baseDamage;
+        currentDamage = GetEffectiveBaseDamage();
         currentElement = Element.Physical; // Reset to default/physical
 
         // Clear the coroutine reference as it has now finished executing.
