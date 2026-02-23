@@ -22,6 +22,8 @@ public class AudioSystem : MonoBehaviour
 
         // Throwing
         Throw,
+        Bounce,
+        Basic_Flight,
         Fire_Flight,
         Ice_Flight,
         Lightning_Flight

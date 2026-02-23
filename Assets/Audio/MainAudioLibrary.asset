@@ -12,4 +12,55 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 229f4282b7e5f834095525e07dccf0a9, type: 3}
   m_Name: MainAudioLibrary
   m_EditorClassIdentifier: 
-  entries: []
+  entries:
+  - sound: 0
+    clip: {fileID: 8300000, guid: 1d1a8836ec05bd14dbd3abdd8d72e0a7, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 1
+    clip: {fileID: 8300000, guid: 89f0a7b52539551498007595f78aab5f, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 2
+    clip: {fileID: 8300000, guid: 9976842d6bdcb014bbe0ca9e2f2f4c22, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 3
+    clip: {fileID: 8300000, guid: 91ea41d4ad327de46842742a92c00af4, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 4
+    clip: {fileID: 8300000, guid: 325664bae72155147959e1dcd64adbfe, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 5
+    clip: {fileID: 8300000, guid: 549f5d61c6bb51e4b8865b0687e299ff, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 6
+    clip: {fileID: 8300000, guid: 4adb3d51a7d028b40a0e62355dc45b06, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 7
+    clip: {fileID: 8300000, guid: 930a744b6d4a3224a80859017e613d2e, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 8
+    clip: {fileID: 8300000, guid: 6a096a43cf6a4934fa26c521e36d1cc1, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 9
+    clip: {fileID: 8300000, guid: 2673f5ac3fcb42942b4154a6544f80af, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 10
+    clip: {fileID: 8300000, guid: 0a1c88f0527f95b44be5e1a3849939ce, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 11
+    clip: {fileID: 8300000, guid: 025520ccbca710d4590c92832b27c301, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 12
+    clip: {fileID: 8300000, guid: 43ef6599cf850b040933987696867538, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 13
+    clip: {fileID: 8300000, guid: 32f1f3efe659bd14f8d5f373d2f45382, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 14
+    clip: {fileID: 8300000, guid: bc4b33ae3b624be4caf60d6ba3967b23, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 15
+    clip: {fileID: 8300000, guid: d2685a180c74ffe4aaf420df79ff6ef3, type: 3}
+    mixerGroup: {fileID: 0}
+  - sound: 16
+    clip: {fileID: 8300000, guid: 3c62856ef1a85524b9cb51be64e3867f, type: 3}
+    mixerGroup: {fileID: 0}
