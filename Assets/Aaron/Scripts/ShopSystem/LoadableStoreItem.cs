@@ -12,11 +12,13 @@ namespace Shop
         [SerializeField] private string description = string.Empty;
         [SerializeField] private int cost;
         [SerializeField] private Sprite? icon;
+        [SerializeField] private AugmentQualityTier qualityTier = AugmentQualityTier.Medium;
 
         public string Id => id;
         public string DisplayName => displayName;
         public string Description => description;
         public int Cost => cost;
         public Sprite? Icon => icon;
+        public AugmentQualityTier QualityTier => qualityTier;
     }
 }
