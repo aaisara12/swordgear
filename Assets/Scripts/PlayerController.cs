@@ -102,7 +102,7 @@ public class PlayerController : PlayerGameplayPawn
     
     // PlayerGameplayPawn
     
-    public override void Attack()
+    public override void Attack(Vector2 direction)
     {
         // RETROFIT: From OnReleaseInIdle
         

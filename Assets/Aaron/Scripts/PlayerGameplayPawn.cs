@@ -11,7 +11,7 @@ public abstract class PlayerGameplayPawn : MonoBehaviour
 {
     public event Action<float>? OnRegisterDamage;
     
-    public abstract void Attack();
+    public abstract void Attack(Vector2 direction);
     public abstract void BeginChargeAttack();
     public abstract void ReleaseChargeAttack();
     public abstract void CancelChargeAttack();

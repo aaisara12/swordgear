@@ -14,7 +14,7 @@ namespace Testing
         [SerializeField] private Shooter? shooter;
         [SerializeField] private ShootDirectionVisualizer? shootDirectionVisualizer;
         
-        public override void Attack()
+        public override void Attack(Vector2 direction)
         {
             attacker?.Attack();
         }
