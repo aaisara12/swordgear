@@ -1,17 +1,30 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 public class AudioSystem : MonoBehaviour
 {
     public enum Sound
     {
-        Shoot,
-        Explosion,
-        Jump,
-        Dash,
-        Hit,
-        UI_Click
+        // Player
+        Player_Walking,
+        Player_Recall,
+        Player_Hurt,
+
+        // Slashes
+        Slash_Basic,
+        Slash_FireBasic,
+        Slash_FireCharged,
+        Slash_FireEruption,
+        Slash_IceBasic,
+        Slash_IceEmpowered,
+        Slash_LightningBasic,
+        Slash_LightningEmpowered,
+
+        // Throwing
+        Throw,
+        Fire_Flight,
+        Ice_Flight,
+        Lightning_Flight
     }
 
     public AudioLibrary library;
@@ -20,14 +33,14 @@ public class AudioSystem : MonoBehaviour
 
     static AudioSystem instance;
 
-    List<PooledSource> pool = new();
-
     class PooledSource
     {
         public AudioSource source;
         public float lastUsedTime;
-        public bool InUse => source.isPlaying;
     }
+
+    List<PooledSource> pool = new();
+    Dictionary<string, PooledSource> activeLoops = new();
 
     void Awake()
     {
@@ -38,7 +51,6 @@ public class AudioSystem : MonoBehaviour
         }
 
         instance = this;
-
         library.Init();
 
         for (int i = 0; i < initialPoolSize; i++)
@@ -57,9 +69,9 @@ public class AudioSystem : MonoBehaviour
 
         AudioSource src = go.AddComponent<AudioSource>();
         src.playOnAwake = false;
-        src.spatialBlend = 0f; // 2D
+        src.spatialBlend = 0f;
 
-        PooledSource ps = new PooledSource
+        var ps = new PooledSource
         {
             source = src,
             lastUsedTime = Time.time
@@ -73,7 +85,7 @@ public class AudioSystem : MonoBehaviour
     {
         foreach (var p in pool)
         {
-            if (!p.InUse)
+            if (!p.source.isPlaying && !activeLoops.ContainsValue(p))
                 return p;
         }
 
@@ -88,7 +100,11 @@ public class AudioSystem : MonoBehaviour
         {
             var p = pool[i];
 
-            if (!p.InUse && now - p.lastUsedTime > unusedLifetime)
+            bool isLoopReserved = activeLoops.ContainsValue(p);
+
+            if (!p.source.isPlaying &&
+                !isLoopReserved &&
+                now - p.lastUsedTime > unusedLifetime)
             {
                 Destroy(p.source.gameObject);
                 pool.RemoveAt(i);
@@ -96,31 +112,78 @@ public class AudioSystem : MonoBehaviour
         }
     }
 
-    // -------- STATIC PLAY METHOD --------
+    // ---------------- ONE SHOT ----------------
 
     public static void Play(Sound sound, float volume = 1f, float pitch = 1f)
     {
-        if (instance == null)
-        {
-            Debug.LogWarning("AudioSystem missing in scene.");
-            return;
-        }
+        if (instance == null) return;
 
-        var clip = instance.library.Get(sound);
-
-        if (clip == null)
+        if (!instance.library.TryGet(sound, out var entry))
         {
-            Debug.LogWarning($"No clip mapped for {sound}");
+            Debug.LogWarning($"No clip for {sound}");
             return;
         }
 
         var pooled = instance.GetAvailable();
+        var src = pooled.source;
 
-        pooled.source.clip = clip;
-        pooled.source.volume = volume;
-        pooled.source.pitch = pitch;
-        pooled.source.Play();
+        src.clip = entry.clip;
+        src.volume = volume;
+        src.pitch = pitch;
+        src.loop = false;
+
+        if (entry.mixerGroup != null)
+            src.outputAudioMixerGroup = entry.mixerGroup;
+
+        src.Play();
+        pooled.lastUsedTime = Time.time;
+    }
+
+    // ---------------- LOOP PLAY ----------------
+
+    public static void PlayLoop(string id, Sound sound, float volume = 1f, float pitch = 1f)
+    {
+        if (instance == null) return;
+
+        if (instance.activeLoops.ContainsKey(id))
+            return; // already playing
+
+        if (!instance.library.TryGet(sound, out var entry))
+        {
+            Debug.LogWarning($"No clip for {sound}");
+            return;
+        }
+
+        var pooled = instance.GetAvailable();
+        var src = pooled.source;
+
+        src.clip = entry.clip;
+        src.volume = volume;
+        src.pitch = pitch;
+        src.loop = true;
+
+        if (entry.mixerGroup != null)
+            src.outputAudioMixerGroup = entry.mixerGroup;
+
+        src.Play();
 
         pooled.lastUsedTime = Time.time;
+        instance.activeLoops.Add(id, pooled);
+    }
+
+    // ---------------- LOOP STOP ----------------
+
+    public static void StopLoop(string id)
+    {
+        if (instance == null) return;
+
+        if (!instance.activeLoops.TryGetValue(id, out var pooled))
+            return;
+
+        pooled.source.Stop();
+        pooled.source.loop = false;
+        pooled.lastUsedTime = Time.time;
+
+        instance.activeLoops.Remove(id);
     }
 }

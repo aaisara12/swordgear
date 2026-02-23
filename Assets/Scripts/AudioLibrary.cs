@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Audio;
 using System;
 using System.Collections.Generic;
 
@@ -12,26 +13,27 @@ public class AudioLibrary : ScriptableObject
     {
         public AudioSystem.Sound sound;
         public AudioClip clip;
+        public AudioMixerGroup mixerGroup; // optional
     }
 
-    Dictionary<AudioSystem.Sound, AudioClip> lookup;
+    Dictionary<AudioSystem.Sound, Entry> lookup;
 
     public void Init()
     {
-        lookup = new Dictionary<AudioSystem.Sound, AudioClip>();
+        lookup = new Dictionary<AudioSystem.Sound, Entry>();
 
         foreach (var e in entries)
         {
             if (!lookup.ContainsKey(e.sound))
-                lookup.Add(e.sound, e.clip);
+                lookup.Add(e.sound, e);
         }
     }
 
-    public AudioClip Get(AudioSystem.Sound sound)
+    public bool TryGet(AudioSystem.Sound sound, out Entry entry)
     {
         if (lookup == null)
             Init();
 
-        return lookup.TryGetValue(sound, out var clip) ? clip : null;
+        return lookup.TryGetValue(sound, out entry);
     }
 }
