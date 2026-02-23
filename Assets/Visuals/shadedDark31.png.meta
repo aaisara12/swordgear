@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: f3e48453266f32a4399d4364ebe9c4b9
+guid: a3caf486418fd47babcf7c5918e860ba
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -7991352274191217035
-    second: geartile_0
+      213: -2439307746527924259
+    second: shadedDark31_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -96,30 +96,17 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
-  - serializedVersion: 4
-    buildTarget: WebGL
-    maxTextureSize: 2048
-    resizeAlgorithm: 0
-    textureFormat: -1
-    textureCompression: 1
-    compressionQuality: 50
-    crunchedCompression: 0
-    allowsAlphaSplitting: 0
-    overridden: 0
-    ignorePlatformSupport: 0
-    androidETC2FallbackOverride: 0
-    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: geartile_0
+      name: shadedDark31_0
       rect:
         serializedVersion: 2
-        x: 61
-        y: 49
-        width: 1171
-        height: 623
+        x: 0
+        y: 0
+        width: 48
+        height: 48
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +115,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 57e82d55273091190800000000000000
-      internalID: -7991352274191217035
+      spriteID: ddf285e4786d52ed0800000000000000
+      internalID: -2439307746527924259
       vertices: []
       indices: 
       edges: []
@@ -147,8 +134,7 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable:
-      geartile_0: -7991352274191217035
+    nameFileIdTable: {}
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

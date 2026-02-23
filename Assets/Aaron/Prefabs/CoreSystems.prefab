@@ -125,6 +125,7 @@ MonoBehaviour:
   pawnPrefab: {fileID: 8377646472276769222, guid: 74697b7d91d2c43eca0de5c9735a968e, type: 3}
   inputManager: {fileID: 7203599953307044813}
   spawnPawnAtLocationEventChannel: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}
+  baseMaxHp: 10000
 --- !u!1 &3535113181673445424
 GameObject:
   m_ObjectHideFlags: 0
@@ -230,6 +231,7 @@ MonoBehaviour:
   projectileSpeed: 5
   flickThreshold: 50
   swordCatchRadius: 1
+  playerDamageFX: {fileID: 0}
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
@@ -441,6 +443,90 @@ MonoBehaviour:
   dashFactor: 0.2
   strongHitBonusDmg: 10
   chillDuration: 5
+--- !u!1 &5213471353205213649
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6938645566719422643}
+  - component: {fileID: 6656048822555038011}
+  - component: {fileID: 3556660828415765117}
+  - component: {fileID: 2373295590521712962}
+  m_Layer: 0
+  m_Name: ComboSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6938645566719422643
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213471353205213649}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4848120501802802916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6656048822555038011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213471353205213649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f5e46700d6b24630a0509577428e58c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  comboDuration: 3
+  hitBasePoints: 1
+  killBonusPoints: 4
+  rapidStreakBonusPoints: 2
+  rapidWindowSeconds: 0.5
+  rapidHitsRequired: 3
+  maxMultiplier: 5
+  mediumPointsThreshold: 800
+  highPointsThreshold: 1000
+  elitePointsThreshold: 2000
+--- !u!114 &3556660828415765117
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213471353205213649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 80788d15b9b364b1583b046c058d062a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  pointsRequiredForFullCharge: 1000
+--- !u!114 &2373295590521712962
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213471353205213649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db3a06ad0f14de5a484e0dd6d924c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  sceneTransitioner: {fileID: 4235604047870542123}
+  auxiliaryScene:
+    sceneName: CombatHUD
 --- !u!1 &5612751369122866687
 GameObject:
   m_ObjectHideFlags: 0
@@ -509,6 +595,50 @@ MonoBehaviour:
   - {fileID: 11400000, guid: e53d347a0774ee3409a6f0627149586a, type: 2}
   MinWavesPerLevel: 1
   MaxWavesPerLevel: 1
+--- !u!1 &6371493897507162642
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8452913076818391153}
+  - component: {fileID: 4070417383262906815}
+  m_Layer: 0
+  m_Name: PlayerStatManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8452913076818391153
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6371493897507162642}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4848120501802802916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4070417383262906815
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6371493897507162642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68c0fa388b2694854b16029fd22ca12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &6404030227195070505
 GameObject:
   m_ObjectHideFlags: 0
@@ -667,13 +797,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 477b30236ed24f41a0292a2577c60561, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}
   onSceneTransitionFinished:
     m_PersistentCalls:
       m_Calls: []
   onSceneTransitionStarted:
     m_PersistentCalls:
       m_Calls: []
+  sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}
   toggleLoadingScreenChannel: {fileID: 11400000, guid: b30a0b4446b08487b827673eaf8987f7, type: 2}
   delayBeforeTogglingLoadingScreen: 0.5
 --- !u!114 &7838835215667373562
@@ -848,6 +978,8 @@ Transform:
   - {fileID: 8514832836023132385}
   - {fileID: 2794930822806513319}
   - {fileID: 1971953760448075443}
+  - {fileID: 6938645566719422643}
+  - {fileID: 8452913076818391153}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8501615934743745264
