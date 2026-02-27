@@ -7,6 +7,7 @@ public class JoystickVisual
     private RectTransform origin;
     private RectTransform knob;
     private RectTransform knobRangeRepresentation;
+    private CanvasGroup visibilityCanvasGroup;
     private float knobRange;
     private Canvas canvasDisplayingJoystick;
 
@@ -36,16 +37,25 @@ public class JoystickVisual
         set => knob.position = new Vector3(value.x, value.y, 0f) * canvasDisplayingJoystick.scaleFactor;
     }
 
+    public Vector2 JoystickValue
+    {
+        get => (KnobPosition - OriginPosition) / KnobRange;
+        set => KnobPosition = value * KnobRange + OriginPosition;
+    }
+    
+
     public JoystickVisual(
         RectTransform origin,
         RectTransform knob,
         RectTransform knobRangeRepresentation,
+        CanvasGroup visibilityCanvasGroup,
         float knobRange,
         Canvas canvasDisplayingJoystick)
     {
         this.origin = origin;
         this.knob = knob;
         this.knobRangeRepresentation = knobRangeRepresentation;
+        this.visibilityCanvasGroup = visibilityCanvasGroup;
         KnobRange = knobRange;
         this.canvasDisplayingJoystick = canvasDisplayingJoystick;
     }
@@ -68,6 +78,18 @@ public class JoystickVisual
         knob.position = origin.position;
         knobRangeRepresentation.position = origin.position;
         knobRangeRepresentation.localScale = new Vector3(KnobRange * 2, KnobRange * 2, 1);
+    }
+
+    public void Show()
+    {
+        visibilityCanvasGroup.alpha = 1f;
+    }
+    
+    // TODO: We may want to add a fade in/out animation or another method to do an intermediate alpha value instead of just 0 or 1 (like when the joystick isn't in use but we still want to show a faint visual)
+
+    public void Hide()
+    {
+        visibilityCanvasGroup.alpha = 0f;
     }
 }
 

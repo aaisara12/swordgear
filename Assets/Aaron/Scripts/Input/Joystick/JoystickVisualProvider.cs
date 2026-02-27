@@ -9,6 +9,7 @@ public class JoystickVisualProvider : MonoBehaviour
     [SerializeField] private RectTransform? m_rangeIndicator1meter;
     [SerializeField] private Canvas? m_joystickCanvas;
     [SerializeField] private int m_range = 300;
+    [SerializeField] private CanvasGroup? m_joystickVisibilityCanvasGroup;
     
     private JoystickVisual? joystickVisual;
 
@@ -39,8 +40,9 @@ public class JoystickVisualProvider : MonoBehaviour
         m_joystickKnob.ThrowIfNull(nameof(m_joystickKnob));
         m_rangeIndicator1meter.ThrowIfNull(nameof(m_rangeIndicator1meter));
         m_joystickCanvas.ThrowIfNull(nameof(m_joystickCanvas));
+        m_joystickVisibilityCanvasGroup.ThrowIfNull(nameof(m_joystickVisibilityCanvasGroup));
         
-        return new JoystickVisual(m_joystickOrigin, m_joystickKnob, m_rangeIndicator1meter, m_range, m_joystickCanvas);
+        return new JoystickVisual(m_joystickOrigin, m_joystickKnob, m_rangeIndicator1meter, m_joystickVisibilityCanvasGroup, m_range, m_joystickCanvas);
     }
     
     private void OnValidate()

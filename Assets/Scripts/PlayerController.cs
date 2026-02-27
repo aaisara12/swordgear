@@ -103,7 +103,7 @@ public class PlayerController : PlayerGameplayPawn
     
     // PlayerGameplayPawn
     
-    public override void Attack()
+    public override void Attack(Vector2 direction)
     {
         // RETROFIT: From OnReleaseInIdle
         
@@ -172,6 +172,11 @@ public class PlayerController : PlayerGameplayPawn
         {
             SwordThrow(direction.normalized);
         }
+    }
+
+    public override void StopAiming()
+    {
+        // RETROFIT: No corresponding functionality from old code
     }
 
     public override void MoveInDirection(Vector2 direction)

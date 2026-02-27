@@ -192,6 +192,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9044212862459902059}
   - component: {fileID: 6956448689961842281}
+  - component: {fileID: 6037943935531274313}
   m_Layer: 0
   m_Name: PLACEHOLDER PLAYER
   m_TagString: Untagged
@@ -239,6 +240,33 @@ MonoBehaviour:
     _serializedList: []
   recallParticles: {fileID: 0}
   recallTime: 1
+--- !u!50 &6037943935531274313
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3925378626850400808}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &4036743303751491451
 GameObject:
   m_ObjectHideFlags: 0

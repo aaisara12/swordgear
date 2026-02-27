@@ -96,6 +96,7 @@ MonoBehaviour:
   m_rangeIndicator1meter: {fileID: 6699700377431767434}
   m_joystickCanvas: {fileID: 0}
   m_range: 155
+  m_joystickVisibilityCanvasGroup: {fileID: 7445991659885663924}
 --- !u!114 &4351662129617570111
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -210,6 +211,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 598798501718820311}
+  - component: {fileID: 7445991659885663924}
   m_Layer: 5
   m_Name: Joystick
   m_TagString: Untagged
@@ -239,6 +241,18 @@ RectTransform:
   m_AnchoredPosition: {x: -266.94012, y: 392.3}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!225 &7445991659885663924
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6108065357138461200}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &7450482144262450167
 GameObject:
   m_ObjectHideFlags: 0
