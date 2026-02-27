@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -16,9 +17,13 @@ public class PlayerGameplayManager : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private TransformEventChannelSO? spawnPawnAtLocationEventChannel;
-    
+
+    [Header("Health")]
+    [SerializeField] private float baseMaxHp = 10000f;
+
     private float maxHp = 10000f;
     private float currentHp;
+    private Coroutine? _regenCoroutine;
     
     private PlayerGameplayPawn? spawnedPawn;
     
@@ -34,7 +39,8 @@ public class PlayerGameplayManager : MonoBehaviour
         spawnedPawn.gameObject.SetActive(true);
         spawnedPawn.DoSpawnAnimation();
         inputManager.LinkPawn(spawnedPawn);
-        
+
+        maxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
         currentHp = maxHp;
         
         spawnedPawn.OnRegisterDamage += HandlePawnRegisterDamage;
@@ -43,6 +49,10 @@ public class PlayerGameplayManager : MonoBehaviour
 
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = spawnedPawn.gameObject;
+
+        GameManager.OnPlayerDealtDamage += HandlePlayerDealtDamage;
+        PlayerStatModifiers.OnStatsChanged += HandleStatsChanged;
+        StartRegenIfNeeded();
     }
 
     public void DespawnPawn()
@@ -56,9 +66,65 @@ public class PlayerGameplayManager : MonoBehaviour
         spawnedPawn.OnRegisterDamage -= HandlePawnRegisterDamage;
         inputManager.UnlinkCurrentPawn();
         spawnedPawn.gameObject.SetActive(false);
-        
+
+        GameManager.OnPlayerDealtDamage -= HandlePlayerDealtDamage;
+        PlayerStatModifiers.OnStatsChanged -= HandleStatsChanged;
+        StopRegen();
+
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = null;
+    }
+
+    public void Heal(float amount)
+    {
+        if (currentHp <= 0) return;
+        currentHp = Mathf.Min(currentHp + amount, maxHp);
+    }
+
+    private void HandlePlayerDealtDamage(float damage)
+    {
+        if (PlayerStatModifiers.Instance == null) return;
+        float lifesteal = damage * (PlayerStatModifiers.Instance.LifestealPercent / 100f);
+        if (lifesteal > 0f) Heal(lifesteal);
+    }
+
+    private void StartRegenIfNeeded()
+    {
+        if (_regenCoroutine != null) return;
+        if (PlayerStatModifiers.Instance == null || PlayerStatModifiers.Instance.RegenPercentPerSecond <= 0f)
+            return;
+        _regenCoroutine = StartCoroutine(RegenTick());
+    }
+
+    private void HandleStatsChanged()
+    {
+        if (spawnedPawn == null || !spawnedPawn.gameObject.activeInHierarchy) return;
+        float newMaxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
+        maxHp = newMaxHp;
+        currentHp = Mathf.Clamp(currentHp, 0f, maxHp);
+        StartRegenIfNeeded();
+    }
+
+    private void StopRegen()
+    {
+        if (_regenCoroutine != null)
+        {
+            StopCoroutine(_regenCoroutine);
+            _regenCoroutine = null;
+        }
+    }
+
+    private IEnumerator RegenTick()
+    {
+        WaitForSeconds wait = new WaitForSeconds(1f);
+        while (true)
+        {
+            yield return wait;
+            if (currentHp <= 0 || maxHp <= 0) continue;
+            if (PlayerStatModifiers.Instance == null) continue;
+            float regen = maxHp * (PlayerStatModifiers.Instance.RegenPercentPerSecond / 100f);
+            if (regen > 0f) Heal(regen);
+        }
     }
 
     private void Awake()
@@ -93,9 +159,8 @@ public class PlayerGameplayManager : MonoBehaviour
 
     private void TakeDamage(float damage)
     {
-        if (currentHp <= 0) return; // Player is already dead
+        if (currentHp <= 0) return;
         currentHp -= damage;
-        Debug.Log("player currently has: " +  currentHp);
         if (currentHp <= 0f)
         {
             Defeat();

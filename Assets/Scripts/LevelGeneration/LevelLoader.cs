@@ -21,6 +21,12 @@ public class LevelLoader : MonoBehaviour
 
     public void LoadLevel(LevelBlueprint blueprint)
     {
+        // Reset combo/scoring state for the new level.
+        if (ComboSystem.Instance != null)
+        {
+            ComboSystem.Instance.ResetForNewLevel();
+        }
+
         // Clear existing room/enemies (Implementation depends on your scene management)
         currentBlueprint = blueprint;
         currentWaveIndex = 0;
@@ -49,6 +55,10 @@ public class LevelLoader : MonoBehaviour
         {
             Debug.Log("Level Complete! Activating transition.");
             // TODO: Activate the transition object/mechanic here
+            if (ComboSystem.Instance != null)
+            {
+                ComboSystem.Instance.OnLevelFinished();
+            }
             OnLevelClear?.Invoke();
 
             // You should also perform cleanup here to prevent memory leaks!
