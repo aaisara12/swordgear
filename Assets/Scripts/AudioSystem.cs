@@ -42,7 +42,7 @@ public class AudioSystem : MonoBehaviour
     }
 
     List<PooledSource> pool = new();
-    Dictionary<string, PooledSource> activeLoops = new();
+    Dictionary<int, PooledSource> activeLoops = new();
 
     void Awake()
     {
@@ -143,21 +143,20 @@ public class AudioSystem : MonoBehaviour
 
     // ---------------- LOOP PLAY ----------------
 
-    public static void PlayLoop(string id, Sound sound, float volume = 1f, float pitch = 1f)
+    public static int PlayLoop(Sound sound, float volume = 1f, float pitch = 1f)
     {
-        if (instance == null) return;
-
-        if (instance.activeLoops.ContainsKey(id))
-            return; // already playing
+        if (instance == null) return 0;
 
         if (!instance.library.TryGet(sound, out var entry))
         {
             Debug.LogWarning($"No clip for {sound}");
-            return;
+            return 0;
         }
 
         var pooled = instance.GetAvailable();
         var src = pooled.source;
+
+        int id = src.GetInstanceID();
 
         src.clip = entry.clip;
         src.volume = volume;
@@ -171,11 +170,12 @@ public class AudioSystem : MonoBehaviour
 
         pooled.lastUsedTime = Time.time;
         instance.activeLoops.Add(id, pooled);
+        return id;
     }
 
     // ---------------- LOOP STOP ----------------
 
-    public static void StopLoop(string id)
+    public static void StopLoop(int id)
     {
         if (instance == null) return;
 
