@@ -16,9 +16,8 @@ public class PlayerBlob : IItemPurchaser, IReadOnlyPlayerBlob
     
     public void ReceiveItem(string itemId, int quantity)
     {
-        if (!inventoryItems.TryAdd(itemId, 1))
-        {
-            inventoryItems[itemId] += 1;
-        }
+        if (string.IsNullOrEmpty(itemId) || quantity <= 0) return;
+        if (!inventoryItems.TryAdd(itemId, quantity))
+            inventoryItems[itemId] += quantity;
     }
 }

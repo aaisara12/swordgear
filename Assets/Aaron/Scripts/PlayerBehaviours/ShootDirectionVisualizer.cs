@@ -13,7 +13,17 @@ namespace Testing
         
         public void SetShootDirection(Vector2 direction)
         {
+            if (direction == Vector2.zero)
+            {
+                return;
+            }
+            
             projectileAimDirection = direction.normalized;
+        }
+        
+        public void ClearShootDirection()
+        {
+            projectileAimDirection = Vector2.zero;
         }
         
         private void Update()

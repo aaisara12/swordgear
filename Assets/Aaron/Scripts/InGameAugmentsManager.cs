@@ -93,8 +93,15 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             return;
         }
 
-        // TODO: aisara => Add logic to clear and set up new augments based on game state, augments player already has, etc.
-        var mysteryItems = augmentsCatalog.GetRandomItems(3);
+        // Determine augment quality tier based on the player's combo performance
+        AugmentQualityTier tier = AugmentQualityTier.Medium;
+        if (ComboSystem.Instance != null)
+        {
+            tier = ComboSystem.Instance.GetAugmentQualityTier();
+        }
+
+        // Use the catalog helper to get items appropriate for the requested tier.
+        var mysteryItems = augmentsCatalog.GetRandomItemsForTier(3, tier);
         Debug.Log(mysteryItems.Count);
         var storeStock = new Dictionary<string, int>();
         foreach(IStoreItem mysteryItem in mysteryItems)

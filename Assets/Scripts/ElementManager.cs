@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
@@ -50,6 +51,11 @@ public class ElementManager : InitializeableGameComponent
 
     public static ElementManager Instance = null;
 
+    /// <summary>
+    /// Fired when the player switches active element (e.g. bouncing between embues).
+    /// </summary>
+    public static event Action<Element>? OnActiveElementChanged;
+
     private void Awake()
     {
         if (Instance != null)
@@ -87,6 +93,7 @@ public class ElementManager : InitializeableGameComponent
             OnBuffEnd(GameManager.Instance.player.transform, SwordProjectile.Instance);
             activeWeapon = found;
             OnBuffStart(GameManager.Instance.player.transform, SwordProjectile.Instance);
+            OnActiveElementChanged?.Invoke(element);
         }
         else
             Debug.LogError($"No weapon registered for element {element}");
