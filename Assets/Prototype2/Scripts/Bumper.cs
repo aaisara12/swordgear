@@ -50,6 +50,7 @@ public class Bumper : MonoBehaviour
         Vector2 normal = collision.contacts[0].normal;
         Vector2 reflectedVelocity = Vector2.Reflect(incomingVelocity, normal) * forceMultiplier;
 
+        AudioSystem.Play(AudioSystem.Sound.Bounce);
         rb.linearVelocity = reflectedVelocity;
         collision.transform.up = reflectedVelocity;
     }
