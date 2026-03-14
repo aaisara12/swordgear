@@ -34,6 +34,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
             effect.transform.up = player.up;
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
+            AudioSystem.Play(AudioSystem.Sound.Slash_Basic);
         } 
         else
         {
