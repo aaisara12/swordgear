@@ -40,10 +40,19 @@ public class EnemyController : MonoBehaviour
         {
             return;
         }
-        // rotate to face player
-        Vector2 direction = (Vector2)player.transform.position - rb.position;
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        rb.MoveRotation(angle);
+
+        Vector3 scale = transform.localScale;
+        float directionX = player.transform.position.x - rb.position.x;
+        if (directionX > 0)
+        {
+            scale.x = Mathf.Abs(scale.x);
+        }
+        else
+        {
+            scale.x = -Mathf.Abs(scale.x);
+        }
+
+        transform.localScale = scale;
 
         // move 
         movementStrategy.Move(rb, player.transform, speed * speedMultiplier);
