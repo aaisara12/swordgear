@@ -16,7 +16,8 @@ public class GameInitializer : MonoBehaviour
     // TODO: aisara => "GameComponent" is probably not a good name because it's not very descriptive and doesn't capture the essence of being initialized with a player blob. Think of a better name later
     [SerializeField] private List<InitializeableGameComponent> gameComponents = new List<InitializeableGameComponent>();
     [SerializeField] private List<InitializeableUnrestrictedGameComponent> unrestrictedGameComponents = new List<InitializeableUnrestrictedGameComponent>();
-
+    [SerializeField] private List<InitializeableObject> standaloneManagers = new ();
+    
     public void Awake()
     {
         if (playerBlobLoader == null)
@@ -47,6 +48,11 @@ public class GameInitializer : MonoBehaviour
         foreach (var unrestrictedGameComponent in unrestrictedGameComponents)
         {
             unrestrictedGameComponent.InitializeOnGameStart_Dangerous(playerBlob);
+        }
+
+        foreach (var standaloneManager in standaloneManagers)
+        {
+            standaloneManager.InitializeOnGameStart_Dangerous(playerBlob);
         }
 
         if (sceneTransitioner.TryChangeScene(startScene.sceneName) == false)

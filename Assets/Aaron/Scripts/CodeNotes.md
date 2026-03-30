@@ -415,3 +415,13 @@ All this said, I think singletons are still the most straightforward approach fo
 especially in these early stages when we want to be able to easily set up new scenes with
 new logic and quickly reference managers. However, we should just be mindful of whether new logic we
 write really does need to be a singleton.
+
+#### Experimental: Manager ScriptableObjects
+
+If managers are just tools that provide services to the game, then maybe we can treat them as assets that we can reference from anywhere in the project. This would allow us to avoid singletons and the issues that come with them.
+This way, any component that needs access to a manager can literally be passed one.
+A potential downside is that we now have to decide how to handle calling manager methods
+outside of playmode.
+
+Manager as ScriptableObjects also allows us to keep managers as tangible data within the project
+files instead of having them be invisible objects that only exist in the scene. This could make it easier to manage and organize our managers, and also make it easier to reference them from other assets like prefabs or scriptable objects.
