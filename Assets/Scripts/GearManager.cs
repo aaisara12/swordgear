@@ -27,7 +27,14 @@ public class GearManager : InitializeableGameComponent
 
     private List<Transform> slots = new List<Transform>();
 
+    // runtime gear state
+    private List<GearTile?> slotTiles = new List<GearTile?>();
 
+    // inventory
+    private List<GearTile> inventoryTiles = new List<GearTile>();
+
+    public IReadOnlyList<GearTile?> GetSlots() => slotTiles;
+    public IReadOnlyList<GearTile> GetInventory() => inventoryTiles;
 
     [Header("Tile Prefabs")]
     [SerializeField] List<TilePrefabPair> tilePrefabPairs = new();
@@ -48,9 +55,21 @@ public class GearManager : InitializeableGameComponent
     {
         SpawnSlots();
 
-        // Debug 
-        SpawnEachTileOnce();
-        //SpawnFullRing(GearTile.Debug);
+        // Initialize slots
+        slotTiles = new List<GearTile?>(new GearTile?[slotCount]);
+
+        // Debug setup
+        SetTile(0, GearTile.Bumper);
+        SetTile(1, GearTile.Lightning);
+        SetTile(2, GearTile.Fire);
+        SetTile(3, GearTile.Ice);
+
+        // Give some inventory
+        inventoryTiles.Add(GearTile.Fire);
+        inventoryTiles.Add(GearTile.Fire);
+        inventoryTiles.Add(GearTile.Ice);
+
+        RefreshVisuals();
     }
 
     void SpawnEachTileOnce()
@@ -69,6 +88,44 @@ public class GearManager : InitializeableGameComponent
         {
             SpawnTileAt(i, tile);
         }
+    }
+
+    public void RefreshVisuals()
+    {
+        // Clear existing children
+        foreach (Transform slot in slots)
+        {
+            foreach (Transform child in slot)
+            {
+                Destroy(child.gameObject);
+            }
+        }
+
+        // Rebuild
+        for (int i = 0; i < slotTiles.Count; i++)
+        {
+            if (slotTiles[i].HasValue)
+            {
+                SpawnTileAt(i, slotTiles[i].Value);
+            }
+        }
+    }
+
+    public void SetTile(int index, GearTile? tile)
+    {
+        if (index < 0 || index >= slotTiles.Count) return;
+
+        slotTiles[index] = tile;
+    }
+
+    public void AddToInventory(GearTile tile)
+    {
+        inventoryTiles.Add(tile);
+    }
+
+    public void RemoveFromInventory(GearTile tile)
+    {
+        inventoryTiles.Remove(tile);
     }
 
     private void Update()
