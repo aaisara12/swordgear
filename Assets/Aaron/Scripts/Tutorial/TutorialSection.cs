@@ -3,22 +3,39 @@
 using System;
 using UnityEngine;
 
-public class TutorialSection : MonoBehaviour
+namespace Tutorial
 {
-    public GameObject? EnterGate;
-    public GameObject? ExitGate;
-
-    public void Awake()
+    public class TutorialSection : MonoBehaviour
     {
-        EnterGate.ThrowIfNull(nameof(EnterGate));
+        public GameObject? EnterGate;
+        public GameObject? ExitGate;
 
-        EnterGate.SetActive(false);
-    }
+        public void Awake()
+        {
+            EnterGate.ThrowIfNull(nameof(EnterGate));
+            ExitGate.ThrowIfNull(nameof(ExitGate));
 
-    public void OnTriggerEnter2D(Collider2D other)
-    {
-        EnterGate.ThrowIfNull(nameof(EnterGate));
+            EnterGate.SetActive(false);
+            ExitGate.SetActive(true);
+        }
+
+        public void OnTriggerEnter2D(Collider2D other)
+        {
+            if (!other.CompareTag("Player"))
+            {
+                return;
+            }
+            
+            EnterGate.ThrowIfNull(nameof(EnterGate));
         
-        EnterGate.SetActive(true);
+            EnterGate.SetActive(true);
+        }
+    
+        public void CompleteSection()
+        {
+            ExitGate.ThrowIfNull(nameof(ExitGate));
+        
+            ExitGate.SetActive(false);
+        }
     }
 }
