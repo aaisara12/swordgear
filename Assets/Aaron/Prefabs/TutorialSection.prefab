@@ -114,7 +114,7 @@ GameObject:
   - component: {fileID: 5671163298304982181}
   - component: {fileID: 3683012201706532053}
   m_Layer: 0
-  m_Name: EastGate
+  m_Name: ExitGate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -750,7 +750,7 @@ GameObject:
   - component: {fileID: 2837164595530193667}
   - component: {fileID: 2684944311092027438}
   m_Layer: 0
-  m_Name: WestGate
+  m_Name: EnterGate
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

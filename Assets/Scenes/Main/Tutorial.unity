@@ -17316,6 +17316,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: DummyEnemy
       objectReference: {fileID: 0}
+    - target: {fileID: 7868449032308609468, guid: 92fef44b40f03401bbba0b4970a84e03, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -17465,6 +17469,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: TutorialSection
       objectReference: {fileID: 0}
+    - target: {fileID: 8812446048812230900, guid: c5dac20a747994871887dd02a21a0904, type: 3}
+      propertyPath: 'enemies.Array.data[0]'
+      value: 
+      objectReference: {fileID: 1825850317}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects:
