@@ -9,12 +9,13 @@ namespace Aaron.Scripts
     /// </summary>
     public class PlatformAssetSwitcher : MonoBehaviour
     {
+        [SerializeField] private bool forceMobileControls = true;
         [SerializeField] private GameObject[]? pcAssets;
         [SerializeField] private GameObject[]? mobileAssets;
-
+        
         private void Awake()
         {
-            if (Application.isMobilePlatform)
+            if (forceMobileControls || Application.isMobilePlatform)
             {
                 if (mobileAssets != null)
                 {
