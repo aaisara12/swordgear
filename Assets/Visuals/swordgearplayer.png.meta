@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a67f55e2587d67146943ac3aa81ff5a1
+guid: b3b2f800a7344594a8ce0f4ed0d20a77
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5690170795954601879
-    second: swordgear_thunderstrike_image_0
+      213: 4014757256036266962
+    second: swordgearplayer_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: swordgear_thunderstrike_image_0
+      name: swordgearplayer_0
       rect:
         serializedVersion: 2
-        x: 166
-        y: 45
-        width: 692
-        height: 500
+        x: 115
+        y: 17
+        width: 168
+        height: 375
       alignment: 0
-      pivot: {x: 0.5, y: 0.5}
+      pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 79ffc2ce03c87fe40800000000000000
-      internalID: 5690170795954601879
+      spriteID: 2d3b679047847b730800000000000000
+      internalID: 4014757256036266962
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 38f9d5f40945c84409dd321f089fcf8a
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      swordgear_thunderstrike_image_0: 5690170795954601879
+      swordgearplayer_0: 4014757256036266962
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

@@ -7,7 +7,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager Instance;
     public GameObject player; // Assign this in the Inspector
-    PlayerController playerController;
+    public PlayerController playerController;
 
     /// <summary> Fired when the player deals damage to an enemy (for lifesteal etc). </summary>
     public static event Action<float>? OnPlayerDealtDamage;

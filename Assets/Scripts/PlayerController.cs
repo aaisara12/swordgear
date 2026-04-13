@@ -7,6 +7,10 @@ using UnityEngine;
 
 public class PlayerController : PlayerGameplayPawn
 {
+    [Header("References")]
+    [SerializeField] private Transform? playerDirectionReference;  // Need this since we are no longer turning the player object when moving
+    public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
+    
     [Header("Combat")]
     [SerializeField] private float attackRadius = 5f;
     [SerializeField] private float dashFactor = 0.2f;
@@ -146,6 +150,14 @@ public class PlayerController : PlayerGameplayPawn
             StopCoroutine(recallSwordCoroutine);
             recallSwordCoroutine = null;
         }
+        else
+        {
+            if (playerState == PlayerState.MeleeReady)
+            {
+                //MeleeAttack();
+                ElementManager.Instance.MeleeStrike(transform);
+            }
+        }
     }
 
     public override void CancelChargeAttack()
@@ -157,6 +169,7 @@ public class PlayerController : PlayerGameplayPawn
             StopCoroutine(recallSwordCoroutine);
             recallSwordCoroutine = null;
         }
+        ElementManager.Instance.MeleeCharge(transform, true);
     }
 
     public override void AimInDirection(Vector2 direction)

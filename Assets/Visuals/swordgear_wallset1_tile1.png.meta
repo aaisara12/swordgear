@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: a67f55e2587d67146943ac3aa81ff5a1
+guid: 250cea1656fbaf041a906240d59e8498
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 5690170795954601879
-    second: swordgear_thunderstrike_image_0
+      213: -2902083566679129800
+    second: swordgear_wallset1_tile1_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 1
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 100
+  spritePixelsToUnits: 512
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: swordgear_thunderstrike_image_0
+      name: swordgear_wallset1_tile1_0
       rect:
         serializedVersion: 2
-        x: 166
-        y: 45
-        width: 692
-        height: 500
+        x: 0
+        y: 0
+        width: 512
+        height: 512
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 79ffc2ce03c87fe40800000000000000
-      internalID: 5690170795954601879
+      spriteID: 831879b3f5ab9b7d0800000000000000
+      internalID: -2902083566679129800
       vertices: []
       indices: 
       edges: []
@@ -138,7 +138,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 38f9d5f40945c84409dd321f089fcf8a
+    spriteID: e0c187f82310e1f4bb59d53fb596df5c
     internalID: 0
     vertices: []
     indices: 
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      swordgear_thunderstrike_image_0: 5690170795954601879
+      swordgear_wallset1_tile1_0: -2902083566679129800
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
