@@ -267,7 +267,7 @@ PLATFORMS
   x86_64-linux-musl
 
 DEPENDENCIES
-  fastlane (~> 2.232)
+  fastlane
   fastlane-plugin-github_action!
 
 BUNDLED WITH
