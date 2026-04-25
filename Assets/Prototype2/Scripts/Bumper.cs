@@ -1,10 +1,18 @@
-using System.Collections.Generic;
+using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class Bumper : MonoBehaviour
 {
     [SerializeField] float forceMultiplier = 1.2f;
-
+    [SerializeField] float onHitActivationDuration = 0.2f;
+    
+    [SerializeField] GameObject activatedState;
+    [SerializeField] GameObject inactiveState;
+    
+    Coroutine lastHitEffectCoroutine;
+    
     // Bumper will reflect an incoming object with increased speed.
     //private void OnTriggerEnter2D(Collider2D collision)
     //{
@@ -37,6 +45,12 @@ public class Bumper : MonoBehaviour
         return Vector2.zero;
     }
 
+    private void Awake()
+    {
+        inactiveState.SetActive(true);
+        activatedState.SetActive(false);
+    }
+
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -53,5 +67,21 @@ public class Bumper : MonoBehaviour
         AudioSystem.Play(AudioSystem.Sound.Bounce);
         rb.linearVelocity = reflectedVelocity;
         collision.transform.up = reflectedVelocity;
+
+        if (lastHitEffectCoroutine != null)
+        {
+            StopCoroutine(lastHitEffectCoroutine);
+        }
+        
+        lastHitEffectCoroutine = StartCoroutine(PlayHitEffectCoroutine());
+    }
+
+    private IEnumerator PlayHitEffectCoroutine()
+    {
+        activatedState.SetActive(true);
+        inactiveState.SetActive(false);
+        yield return new WaitForSeconds(onHitActivationDuration);
+        activatedState.SetActive(false);
+        inactiveState.SetActive(true);
     }
 }
