@@ -56,6 +56,11 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
                 effect.transform.localScale += Vector3.left * 2; // x = -1 scale
                 effect.transform.localScale *= strongHitScaling;
                 weaponHitbox.transform.localScale *= strongHitScaling;
+                AudioSystem.Play(AudioSystem.Sound.Slash_IceEmpowered);
+            }
+            else
+            {
+                AudioSystem.Play(AudioSystem.Sound.Slash_IceBasic);
             }
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();

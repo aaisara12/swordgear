@@ -60,10 +60,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             if (chargeTier == chargeAnimNames.Length - 1)
             {
                 effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                AudioSystem.Play(AudioSystem.Sound.Slash_FireCharged);
             } 
             else
             {
                 effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                AudioSystem.Play(AudioSystem.Sound.Slash_FireBasic);
             }
             
             effect.transform.up = player.up;
@@ -136,7 +138,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
                     Quaternion.identity
                 );
             }
-
+            AudioSystem.Play(AudioSystem.Sound.Slash_FireEruption);
             yield return new WaitForSeconds(waveDelay);
         }
     }

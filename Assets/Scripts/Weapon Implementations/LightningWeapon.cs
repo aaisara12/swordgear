@@ -48,8 +48,11 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         }
         else
         {
-            anim.Play(slashAnimName);
+            anim.Play(slashAnimName);  // Old implementation
         }
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_LightningBasic);
+
         while (elapsedTime < swingDuration)
         {
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
@@ -89,6 +92,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         {
             anim.Play(thrustAnimName);
         }
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_LightningEmpowered);
 
         while (elapsedTime < swingDuration)
         {

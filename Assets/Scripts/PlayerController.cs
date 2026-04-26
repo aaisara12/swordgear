@@ -67,18 +67,24 @@ public class PlayerController : PlayerGameplayPawn
 
     void PlayDamageEffect()
     {
+        AudioSystem.Play(AudioSystem.Sound.Player_Hurt);
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         if (playerDamageFX == null) return;
         IAttackAnimator effect = Instantiate(playerDamageFX, transform.position, Quaternion.identity).GetComponent<IAttackAnimator>();
         if (effect != null) effect.PlayAnimation();
     }
 
+    int swordFlightSound = -1;
+
     void SwordThrow(Vector2 direction)
     {
+        AudioSystem.Play(AudioSystem.Sound.Throw);
         ElementManager.Instance.MeleeCharge(transform, true);
         float effectiveProjectileSpeed = projectileSpeed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
         SwordProjectile.Instance.StartFlight(transform.position, direction * effectiveProjectileSpeed);
         playerState = PlayerState.SwordThrown;
+        // TODO: Add per-element handling for starting & stopping flight
+        swordFlightSound = AudioSystem.PlayLoop(AudioSystem.Sound.Basic_Flight);
     }
 
     void RecallSword()
@@ -87,19 +93,24 @@ public class PlayerController : PlayerGameplayPawn
         SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
         recallParticles.Stop();
+        AudioSystem.StopLoop(swordFlightSound);
     }
 
     void CatchSword()
     {
         SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
+        AudioSystem.StopLoop(swordFlightSound);
     }
-    
+
+    int recallSoundLoop;
     private IEnumerator RecallSwordAfterDelayCoroutine(float delaySecs)
     {
         // RETROFIT: From OnHoldInIdle
+        recallSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Recall);
         
         yield return new WaitForSeconds(delaySecs);
+        AudioSystem.StopLoop(recallSoundLoop);
         
         RecallSword();
     }
@@ -148,6 +159,7 @@ public class PlayerController : PlayerGameplayPawn
         if (recallSwordCoroutine != null)
         {
             StopCoroutine(recallSwordCoroutine);
+            AudioSystem.StopLoop(recallSoundLoop);
             recallSwordCoroutine = null;
         }
         else
@@ -192,6 +204,8 @@ public class PlayerController : PlayerGameplayPawn
         // RETROFIT: No corresponding functionality from old code
     }
 
+    int walkSoundLoop = -1;
+
     public override void MoveInDirection(Vector2 direction)
     {
         // RETROFIT: From OnMove
@@ -200,8 +214,21 @@ public class PlayerController : PlayerGameplayPawn
 
         if (direction.sqrMagnitude > 0.001f)
         {
+            if (walkSoundLoop == -1)  // No sound playing, so start sound
+            {
+                walkSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Walking);
+            }
+
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
             transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
+        else
+        {
+            if (walkSoundLoop != -1)  // Sound playing, so stop sound
+            {
+                AudioSystem.StopLoop(walkSoundLoop);
+                walkSoundLoop = -1;
+            }
         }
         float effectiveSpeed = speed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MoveSpeedMultiplier : 1f);
         rb.linearVelocity = direction * effectiveSpeed;
