@@ -1,0 +1,81 @@
+# Enemy System
+
+## Purpose
+Drives enemy movement, attacking, status effects, and death — using the Strategy pattern so behaviours are composable without subclassing.
+
+---
+
+## Key Scripts
+
+| Script | Path |
+|---|---|
+| `EnemyController` | `Assets/Scripts/Enemy/EnemyController.cs` |
+| `IMovementStrategy` | `Assets/Scripts/Enemy/IMovementStrategy.cs` |
+| `IAttackStrategy` | `Assets/Scripts/Enemy/IAttackStrategy.cs` |
+| `FollowPlayerStrategy` | `Assets/Scripts/Enemy/FollowPlayerStrategy.cs` |
+| `StrafeMovementStrategy` | `Assets/Scripts/Enemy/StrafeMovementStrategy.cs` |
+| `MeleeAttackStrategy` | `Assets/Scripts/Enemy/MeleeAttackStrategy.cs` |
+| `RangedAttackStrategy` | `Assets/Scripts/Enemy/RangedAttackStrategy.cs` |
+| `EnemySpawner` | `Assets/Scripts/Enemy/EnemySpawner.cs` |
+| `EnemyProjectile` | `Assets/Scripts/Enemy/EnemyProjectile.cs` |
+| `HitEffectAnimator` | `Assets/Scripts/Enemy/HitEffectAnimator.cs` |
+| `EnemyBurn` | `Assets/Scripts/Enemy/Enemy Effects/EnemyBurn.cs` |
+| `EnemyChill` | `Assets/Scripts/Enemy/Enemy Effects/EnemyChill.cs` |
+| `EnemyStatic` | `Assets/Scripts/Enemy/Enemy Effects/EnemyStatic.cs` |
+
+---
+
+## Strategy Pattern
+
+Each enemy prefab attaches concrete strategy components. `EnemyController` discovers them at runtime via `GetComponent<IMovementStrategy>()` / `GetComponent<IAttackStrategy>()` in `Start()`.
+
+To add a new movement or attack behaviour, implement the appropriate interface and attach it to the prefab — no changes to `EnemyController` are required.
+
+---
+
+## Global Events
+
+`EnemyController` fires two static events used by `ComboSystem` and `UltimateMeter`:
+
+```csharp
+public static event Action<EnemyController, float, Element>? OnAnyEnemyHit;
+public static event Action<EnemyController>? OnAnyEnemyDeath;
+```
+
+It also fires a per-instance `OnDeath` event for systems that track a specific enemy (e.g., `EnemyDeathTracker` in the tutorial).
+
+---
+
+## Status Effects
+
+Status effects are managed by `GameManager` (see `GameManager.AddEffect` / `EffectTickLoop`). Effects implement `GameManager.IEnemyEffect` with `EffectBegin`, `EffectTick`, and `EffectEnd` callbacks. Effects are applied by weapon scripts and tick every second.
+
+| Effect | Applied by |
+|---|---|
+| `Burn` | Fire weapons |
+| `Chill` | Ice weapons — slows enemy via `speedMultiplier` |
+| `Static` | Lightning weapons |
+
+---
+
+## Damage Flow
+
+```
+Weapon hits enemy
+  → EnemyController.TakeDamage(damage)
+    → GameManager.DisplayDamageUI(...)
+    → OnAnyEnemyHit fired
+    → GameManager.NotifyPlayerDealtDamage(damage)  ← lifesteal
+    → hp -= damage
+    → if hp ≤ 0 → Die()
+      → OnAnyEnemyDeath fired
+      → OnDeath fired
+      → death VFX instantiated
+      → gameObject destroyed
+```
+
+---
+
+## Spawning
+
+`EnemySpawner` instantiates enemy prefabs at designated `EnemySpawnPoint` locations, driven by `EnemyWaveConfig` ScriptableObjects. See [LevelGeneration.md](LevelGeneration.md) for how waves are selected.
