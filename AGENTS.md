@@ -2,6 +2,8 @@
 
 This file is an orientation guide for AI coding agents and new contributors. It describes the project's structure, core systems, and code conventions to help you navigate and extend the codebase confidently.
 
+> **For AI agents:** Before searching through source files, always check the [Table of Contents — Feature Documentation](#table-of-contents--feature-documentation) below. The feature docs describe the purpose, key scripts, and design of each system and will often answer your question faster than a code search.
+
 ---
 
 ## Project Overview
