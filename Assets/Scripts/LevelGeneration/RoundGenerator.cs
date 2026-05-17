@@ -10,6 +10,9 @@ public class RoundGenerator : MonoBehaviour
     public List<EnemyWaveConfig> WavePool;
     public List<LevelTransitionType> TransitionPool;
 
+    [Header("Shop")]
+    public ArenaLayoutTemplate ShopLayout;
+
     [Header("Wave Generation Settings")]
     public int MinWavesPerLevel = 2;
     public int MaxWavesPerLevel = 4; // Max is inclusive, Unity's Random is exclusive, we'll fix in the code
@@ -46,6 +49,16 @@ public class RoundGenerator : MonoBehaviour
                 Transition = selectedTransition
             };
             currentRound.Add(newBlueprint);
+        }
+
+        if (ShopLayout != null)
+        {
+            currentRound.Add(new LevelBlueprint
+            {
+                Layout = ShopLayout,
+                Waves = new List<EnemyWaveConfig>(),
+                IsShopLevel = true
+            });
         }
 
         return currentRound;

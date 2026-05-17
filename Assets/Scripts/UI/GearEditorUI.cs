@@ -54,6 +54,15 @@ public class GearEditorUI : MonoBehaviour
 
     private void BuildUI()
     {
+        if (gearManager == null)
+        {
+            gearManager = FindObjectOfType<GearManager>();
+            if (gearManager == null)
+            {
+                Debug.LogError("GearManager not found in scene!");
+                return;
+            }
+        }
         ClearUI();
 
         BuildSlots();
@@ -197,5 +206,11 @@ public class GearEditorUI : MonoBehaviour
     public bool IsOpen()
     {
         return isOpen;
+    }
+
+    // TODO: Move this util function elsewhere when we finalize the shop round
+    public void EndShopRound()
+    {
+        LevelLoader.Instance.AdvanceManually();
     }
 }

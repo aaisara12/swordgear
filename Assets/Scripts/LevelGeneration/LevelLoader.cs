@@ -45,7 +45,10 @@ public class LevelLoader : MonoBehaviour
 
         // TODO implement transitions later
         // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
-        // Start the first wave
+
+        if (blueprint.IsShopLevel)
+            return;
+
         StartNextWave();
     }
 
@@ -132,6 +135,14 @@ public class LevelLoader : MonoBehaviour
             currentWaveIndex++;
             StartNextWave();
         }
+    }
+
+    public void AdvanceManually()
+    {
+        ComboSystem.Instance?.OnLevelFinished();
+
+        OnLevelClear?.Invoke();
+        CleanupWaveSubscriptions();
     }
 
     private void CleanupWaveSubscriptions()

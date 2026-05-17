@@ -59,10 +59,11 @@ public class GearManager : InitializeableGameComponent
         slotTiles = new List<GearTile?>(new GearTile?[slotCount]);
 
         // Debug setup
-        SetTile(0, GearTile.Bumper);
-        SetTile(1, GearTile.Lightning);
-        SetTile(2, GearTile.Fire);
-        SetTile(3, GearTile.Ice);
+        // SetTile(0, GearTile.Bumper);
+        // SetTile(1, GearTile.Lightning);
+        // SetTile(2, GearTile.Fire);
+        // SetTile(3, GearTile.Ice);
+        SpawnEachTileOnce();
 
         // Give some inventory
         inventoryTiles.Add(GearTile.Fire);
@@ -76,10 +77,10 @@ public class GearManager : InitializeableGameComponent
     {
         if (slots.Count < 4) return;
 
-        SpawnTileAt(0, GearTile.Bumper);
-        SpawnTileAt(1, GearTile.Lightning);
-        SpawnTileAt(2, GearTile.Fire);
-        SpawnTileAt(3, GearTile.Ice);
+        SetTile(0, GearTile.Bumper);
+        SetTile(1, GearTile.Lightning);
+        SetTile(2, GearTile.Fire);
+        SetTile(3, GearTile.Ice);
     }
 
     void SpawnFullRing(GearTile tile)

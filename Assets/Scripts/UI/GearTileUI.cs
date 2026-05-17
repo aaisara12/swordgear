@@ -54,8 +54,13 @@ public class GearTileUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDr
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        transform.SetParent(originalParent);
+        if (originalParent == null)
+        {
+            Destroy(gameObject);
+            return;
+        }
 
+        transform.SetParent(originalParent);
         canvasGroup.blocksRaycasts = true;
     }
 }
