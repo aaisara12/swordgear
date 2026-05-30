@@ -12,5 +12,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 18efdbbf5f109c143b88e9cfd9fcee0f, type: 3}
   m_Name: Shop_Arena
   m_EditorClassIdentifier: 
-  LevelPrefab: {fileID: 0}
+  LevelPrefab: {fileID: 1608100751036992354, guid: 5a77ac36eb705bd47b07a14b187e58e1, type: 3}
   PreviewDiagram: {fileID: 0}
