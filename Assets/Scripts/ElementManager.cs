@@ -18,7 +18,7 @@ public enum UpgradeType
 public interface IElementalWeapon
 {
     // Melee
-    public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades);
+    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades);
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false);
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades);
 
@@ -107,11 +107,11 @@ public class ElementManager : InitializeableGameComponent
 
     // ----------- IElementalWeapon Forwards -----------
 
-    public void MeleeStrike(Transform player)
+    public float MeleeStrike(Transform player)
     {
-        if (activeWeapon == null) return;
+        if (activeWeapon == null) return 0f;
         Debug.Log(activeWeapon);
-        activeWeapon.MeleeStrike(player, currentUpgrades);
+        return activeWeapon.MeleeStrike(player, currentUpgrades);
     }
 
     public void MeleeCharge(Transform player, bool cancel = false)

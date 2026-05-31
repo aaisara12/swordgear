@@ -19,6 +19,9 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private float swordCatchRadius = 1f;
     [SerializeField] private GameObject? playerDamageFX;
 
+    [Header("Attack Cooldowns")]
+    [SerializeField] private float swordThrowCooldown = 0.5f;
+
     [Header("Movement")]
     [SerializeField] private float speed = 3f;
 
@@ -37,6 +40,20 @@ public class PlayerController : PlayerGameplayPawn
 
     PlayerState playerState = PlayerState.MeleeReady;
     private Rigidbody2D? rb;
+    private float _attackCooldownRemaining = 0f;
+
+    private bool IsOnAttackCooldown => _attackCooldownRemaining > 0f;
+
+    public void ApplyAttackCooldown(float seconds)
+    {
+        _attackCooldownRemaining = seconds;
+    }
+
+    private void Update()
+    {
+        if (_attackCooldownRemaining > 0f)
+            _attackCooldownRemaining -= Time.deltaTime;
+    }
 
     [Header("Sword Recall")]
     [SerializeField] ParticleSystem? recallParticles;
@@ -121,11 +138,11 @@ public class PlayerController : PlayerGameplayPawn
     public override void Attack(Vector2 direction)
     {
         // RETROFIT: From OnReleaseInIdle
-        
-        if (playerState == PlayerState.MeleeReady)
+
+        if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             //MeleeAttack();
-            ElementManager.Instance.MeleeStrike(transform);
+            ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
         }
 
         if (playerState == PlayerState.SwordThrown &&
@@ -164,10 +181,10 @@ public class PlayerController : PlayerGameplayPawn
         }
         else
         {
-            if (playerState == PlayerState.MeleeReady)
+            if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
                 //MeleeAttack();
-                ElementManager.Instance.MeleeStrike(transform);
+                ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
             }
         }
     }
@@ -193,9 +210,10 @@ public class PlayerController : PlayerGameplayPawn
     {
         // RETROFIT: From OnReleaseInMove
 
-        if (playerState == PlayerState.MeleeReady)
+        if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             SwordThrow(direction.normalized);
+            ApplyAttackCooldown(swordThrowCooldown);
         }
     }
 

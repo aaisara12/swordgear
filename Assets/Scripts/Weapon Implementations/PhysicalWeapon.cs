@@ -13,6 +13,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     [Header("Combat")]
     [SerializeField] private float attackRadius = 3f;
     [SerializeField] private float dashFactor = 0.2f;
+    [SerializeField] private float meleeCooldown = 0.3f;
 
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
@@ -62,9 +63,8 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
         StartCoroutine(Swing(player));
     }
 
-    public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject? nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
@@ -82,7 +82,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
         if (nearestEnemy == null)
         {
             Strike(player);
-            return;
+            return meleeCooldown;
         }
 
         Vector2 direction = (nearestEnemy.transform.position - player.position).normalized;
@@ -91,8 +91,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
         player.position = dashPosition;
         Strike(player);
-
-        
+        return meleeCooldown;
     }
 
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)

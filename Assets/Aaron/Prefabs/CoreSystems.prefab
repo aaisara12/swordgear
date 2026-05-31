@@ -50,6 +50,7 @@ MonoBehaviour:
   distanceFromPlayer: 0.5
   spinSpeed: 800
   maxChargeTime: 1
+  meleeCooldown: 0.35
   chargeAnimNames:
   - FireWeakSwipe
   - FireMediumSwipe
@@ -182,6 +183,7 @@ MonoBehaviour:
   attackRadius: 3.5
   dashFactor: 0.2
   thrustDistance: 1.5
+  meleeCooldown: 0.15
 --- !u!1 &3925378626850400808
 GameObject:
   m_ObjectHideFlags: 0
@@ -234,6 +236,7 @@ MonoBehaviour:
   flickThreshold: 50
   swordCatchRadius: 1
   playerDamageFX: {fileID: 0}
+  swordThrowCooldown: 0.5
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
@@ -364,6 +367,7 @@ MonoBehaviour:
   effectObject: {fileID: 2325353192704701246, guid: a3dee1705f267694ab830e809fa6f1c6, type: 3}
   attackRadius: 3
   dashFactor: 0.2
+  meleeCooldown: 0.25
 --- !u!1 &4242799776733528313
 GameObject:
   m_ObjectHideFlags: 0
@@ -471,6 +475,7 @@ MonoBehaviour:
   fieldDuration: 3
   attackRadius: 3
   dashFactor: 0.2
+  meleeCooldown: 0.3
   strongHitBonusDmg: 10
   chillDuration: 5
 --- !u!1 &5018969045373207494
