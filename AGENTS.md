@@ -56,6 +56,23 @@ New game code belongs in **`Assets/Aaron/Scripts/`** or **`Assets/Scripts/`** de
 
 ---
 
+## Unity MCP Workflow
+
+This project uses [CoplayDev Unity MCP](https://github.com/CoplayDev/unity-mcp) so agents can drive the Unity Editor directly. Cursor connects via `.cursor/mcp.json` (`http://127.0.0.1:8080/mcp`).
+
+**Prerequisites:** Unity Editor must be open with the SwordGear project loaded and the MCP bridge running.
+
+**Agent loop (follow every time you change C# or scenes):**
+1. Check `FeatureDocumentation/` before broad code searches.
+2. After script edits → `read_console` for compile errors; wait until compilation finishes before using new types.
+3. After shop/serializer changes → run EditMode tests via `run_tests` (21 tests in `Assets/Tests/`, ~1s).
+4. Scene work → use `manage_scene`, `manage_gameobject`, and `manage_components`; main flow scenes live in `Assets/Scenes/Main/` (BootUp → Title → Arena).
+5. Multi-step editor setup → prefer `batch_execute` (max 25 commands per batch).
+
+**PlayMode tests:** One PlayMode test exists; use a long `init_timeout` (~120000 ms) if running it.
+
+---
+
 ## Code Conventions
 
 ### Nullable Reference Types
