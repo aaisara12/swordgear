@@ -10,6 +10,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float distanceFromPlayer = 0.5f;
     [SerializeField] float spinSpeed = 50f;
     [SerializeField] private float maxChargeTime = 1f;
+    [SerializeField] private float meleeCooldown = 0.3f;
     [SerializeField] private string[] chargeAnimNames;
     [SerializeField] private GameObject weakEffectObject;
     [SerializeField] private GameObject strongEffectObject;
@@ -143,13 +144,14 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
         }
     }
 
-    public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
         transform.position = player.position + player.up * distanceFromPlayer;
         transform.up = player.up;
         isCharging = false;
         StartCoroutine(Swing(player));
         chargeDuration = 0;
+        return meleeCooldown;
     }
     private void Update()
     {

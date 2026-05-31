@@ -19,6 +19,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float attackRadius = 2f;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float thrustDistance = 1.5f;
+    [SerializeField] private float meleeCooldown = 0.3f;
 
     int combo = 0;
     bool lightningActive = false;
@@ -134,7 +135,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     }
 
 
-    public void MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         GameObject? nearestEnemy = null;
@@ -153,7 +154,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         if (nearestEnemy == null)
         {
             Strike(player, upgrades);
-            return;
+            return meleeCooldown;
         }
 
         Vector2 direction = (nearestEnemy.transform.position - player.position).normalized;
@@ -162,6 +163,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
         player.position = dashPosition;
         Strike(player, upgrades);
+        return meleeCooldown;
     }
 
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
