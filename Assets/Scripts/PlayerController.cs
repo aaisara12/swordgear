@@ -102,6 +102,10 @@ public class PlayerController : PlayerGameplayPawn
         {
             Debug.LogError("Rigidbody2D component is missing!");
         }
+        else
+        {
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
         foreach (Element elem in elementWeaponDict.Keys)
         {
             GameObject weaponObj = Instantiate(elementWeaponDict[elem]);

@@ -57,12 +57,14 @@ Material:
     - _Cull: 0
     - _DissolveFalloff: 0.01
     - _DstBlend: 1
+    - _DstBlendAlpha: 1
     - _Intensity: 2
     - _Opacity: 1
     - _QueueControl: 0
     - _QueueOffset: 0
     - _Rot: 90
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _StartFrame: 1
     - _Surface: 1
     - _ZTest: 4
