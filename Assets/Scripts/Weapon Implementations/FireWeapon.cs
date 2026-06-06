@@ -28,7 +28,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             chargeDuration = 0;
             return;
         }
-        if (upgrades.Contains(UpgradeType.Fire_ChargeMelee) || true)
+        if (upgrades.Contains(UpgradeType.Fire_ChargeMelee))
         {
             isCharging = true;
             chargeDuration = 0;
