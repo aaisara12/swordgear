@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 public class ObservableDictionary<TKey, TValue> : IReadOnlyObservableDictionary<TKey, TValue>, IDictionary<TKey, TValue>
 {
@@ -59,7 +60,7 @@ public class ObservableDictionary<TKey, TValue> : IReadOnlyObservableDictionary<
         return false;
     }
 
-    public bool TryGetValue(TKey key, out TValue? value) => _dict.TryGetValue(key, out value!);
+    public bool TryGetValue(TKey key, [MaybeNullWhen(false)] out TValue value) => _dict.TryGetValue(key, out value);
 
     public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
 
