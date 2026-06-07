@@ -3,7 +3,7 @@ using UnityEngine;
 using System.Collections.Generic;
 public class RoundController : MonoBehaviour
 {
-    public static RoundController Instance { get; private set; }
+    public static RoundController Instance { get; private set; } = null!;
 
     private int currentRound = 0;
     private int currentLevel = 0;
@@ -37,7 +37,7 @@ public class RoundController : MonoBehaviour
         Instantiate(level.arena);
 
         // temp hacky solution
-        EnemySpawner.Instance.StartLevel();
+        EnemySpawner.Instance?.StartLevel();
 
     }
 
@@ -58,7 +58,7 @@ public class RoundController : MonoBehaviour
         Debug.Log("New round generated");
     }
 
-    private GameObject GenerateArena()
+    private GameObject? GenerateArena()
     {
         Debug.Log("Generating Arena...");
         return arenaPrefab;
@@ -73,7 +73,7 @@ public class RoundController : MonoBehaviour
         {
             Wave newWave = new Wave
             {
-                enemy = new List<GameObject> { enemyPrefab }
+                enemy = enemyPrefab != null ? new List<GameObject> { enemyPrefab } : new List<GameObject>()
             };
             waves.Add(newWave);
         }
@@ -90,6 +90,6 @@ struct Wave
 
 struct Level
 {
-    public GameObject arena;
+    public GameObject? arena;
     public List<Wave> waves;
 }
