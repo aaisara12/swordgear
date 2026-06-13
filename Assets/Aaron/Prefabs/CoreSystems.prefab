@@ -237,6 +237,10 @@ MonoBehaviour:
   swordCatchRadius: 1
   playerDamageFX: {fileID: 0}
   swordThrowCooldown: 0.5
+  dashSpeed: 10
+  dashDuration: 0.2
+  dashCooldown: 1
+  enemyPhysicsLayer: Enemies
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
@@ -678,6 +682,55 @@ MonoBehaviour:
   ShopLayout: {fileID: 11400000, guid: 07bce16f5b29f3641be4dc0c2b5800d6, type: 2}
   MinWavesPerLevel: 1
   MaxWavesPerLevel: 1
+--- !u!1 &5928453369654428072
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4794878085778131070}
+  - component: {fileID: 1657227221764735254}
+  m_Layer: 0
+  m_Name: Augment Debug Menu
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4794878085778131070
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5928453369654428072}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4848120501802802916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1657227221764735254
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5928453369654428072}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82ed8c1c64c95c64b9a730c5a1dec707, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::AugmentDebugMenu
+  augmentCatalogs:
+  - {fileID: 11400000, guid: 6e63c7f213b4b4eb88e23fd3410c3c04, type: 2}
+  - {fileID: 11400000, guid: b8e4f1a92c3d4e5f9a0b1c2d3e4f5a6b, type: 2}
+  toggleKey: 96
+  debugGoldAmount: 1000
 --- !u!1 &6371493897507162642
 GameObject:
   m_ObjectHideFlags: 0
@@ -1064,6 +1117,7 @@ Transform:
   - {fileID: 6938645566719422643}
   - {fileID: 8452913076818391153}
   - {fileID: 5475771778885528882}
+  - {fileID: 4794878085778131070}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8501615934743745264

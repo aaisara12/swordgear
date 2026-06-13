@@ -20,4 +20,19 @@ public class PlayerBlob : IItemPurchaser, IReadOnlyPlayerBlob
         if (!inventoryItems.TryAdd(itemId, quantity))
             inventoryItems[itemId] += quantity;
     }
+
+    public int GetItemCount(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+        {
+            return 0;
+        }
+
+        return inventoryItems.TryGetValue(itemId, out int count) ? count : 0;
+    }
+
+    public void ClearInventory()
+    {
+        inventoryItems.Clear();
+    }
 }
