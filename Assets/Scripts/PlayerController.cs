@@ -12,10 +12,7 @@ public class PlayerController : PlayerGameplayPawn
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
     
     [Header("Combat")]
-    [SerializeField] private float attackRadius = 5f;
-    [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float projectileSpeed = 5f;
-    [SerializeField] private float flickThreshold = 50f;
     [SerializeField] private float swordCatchRadius = 1f;
     [SerializeField] private GameObject? playerDamageFX;
 
@@ -68,7 +65,6 @@ public class PlayerController : PlayerGameplayPawn
 
     private IEnumerator DashCoroutine(Vector2 direction)
     {
-        Debug.Log("dashing");
         _isDashing = true;
         _dashCooldownRemaining = dashCooldown;
 
@@ -248,7 +244,6 @@ public class PlayerController : PlayerGameplayPawn
     public override void DoAimedAttackInDirection(Vector2 direction)
     {
         // RETROFIT: From OnReleaseInMove
-
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             SwordThrow(direction.normalized);

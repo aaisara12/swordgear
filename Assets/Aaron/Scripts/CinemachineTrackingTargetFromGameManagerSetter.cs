@@ -10,7 +10,7 @@ namespace Testing
     /// </summary>
     public class CinemachineTrackingTargetFromGameManagerSetter : MonoBehaviour
     {
-        [SerializeField] private CinemachineCamera? camera;
+        [SerializeField] private new CinemachineCamera? camera;
 
         private GameManager? gameManager;
         

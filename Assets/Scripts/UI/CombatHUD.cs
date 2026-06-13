@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -61,7 +63,7 @@ public class CombatHUD : MonoBehaviour
 
         if (ultimateMeter == null)
         {
-            ultimateMeter = FindObjectOfType<UltimateMeter>();
+            ultimateMeter = FindFirstObjectByType<UltimateMeter>();
         }
 
         if (ultimateMeter != null)

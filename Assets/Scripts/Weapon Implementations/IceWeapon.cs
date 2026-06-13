@@ -98,7 +98,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             combo = 0;
 
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject? nearestEnemy = null;
+        GameObject nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
 
         foreach (GameObject enemy in enemies)

@@ -30,7 +30,7 @@ using UnityEngine.Events;
                 ComboSystem.Instance.ResetForNewRound();
             }
             
-            var ultimateMeter = FindObjectOfType<UltimateMeter>();
+            var ultimateMeter = FindFirstObjectByType<UltimateMeter>();
             if (ultimateMeter != null)
             {
                 ultimateMeter.ResetForNewRound();

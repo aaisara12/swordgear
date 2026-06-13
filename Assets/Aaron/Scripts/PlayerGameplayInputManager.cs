@@ -196,7 +196,6 @@ public class PlayerGameplayInputManager : MonoBehaviour
             
             // aisara => Attack input is actually a composite input of a button press and an "optional" directional input. The button press is on Z and the direcitonal input is on X-Y
             lastReadAttackDirection = attackAction.ReadValue<Vector3>();
-            Debug.Log(lastReadAttackDirection);
             
             yield return new WaitForEndOfFrame();
         }
