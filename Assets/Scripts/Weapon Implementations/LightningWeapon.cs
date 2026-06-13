@@ -137,7 +137,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, ActiveEnemyRegistry.AutoTargetRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player, upgrades);
             return meleeCooldown;

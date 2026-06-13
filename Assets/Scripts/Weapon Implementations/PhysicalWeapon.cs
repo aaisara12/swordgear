@@ -65,7 +65,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, ActiveEnemyRegistry.AutoTargetRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player);
             return meleeCooldown;

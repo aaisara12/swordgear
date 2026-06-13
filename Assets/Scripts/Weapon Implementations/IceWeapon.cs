@@ -97,7 +97,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         else
             combo = 0;
 
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, ActiveEnemyRegistry.AutoTargetRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player);
             return meleeCooldown;

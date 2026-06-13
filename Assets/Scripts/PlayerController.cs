@@ -13,9 +13,7 @@ public class PlayerController : PlayerGameplayPawn
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
     
     [Header("Combat")]
-    [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float projectileSpeed = 5f;
-    [SerializeField] private float flickThreshold = 50f;
     [SerializeField] private float swordCatchRadius = 1f;
     [SerializeField] private GameObject? playerDamageFX;
 
@@ -69,7 +67,6 @@ public class PlayerController : PlayerGameplayPawn
 
     private IEnumerator DashCoroutine(Vector2 direction)
     {
-        Debug.Log("dashing");
         _isDashing = true;
         _dashCooldownRemaining = dashCooldown;
 
@@ -93,6 +90,8 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Sword Recall")]
     [SerializeField] ParticleSystem? recallParticles;
     [SerializeField] float recallTime = 1f;
+    [SerializeField] float recallSpeed = 8f;
+    [SerializeField] float recallMaxDuration = 3f;
     private Coroutine? recallSwordCoroutine;
 
     private void Awake()
@@ -179,9 +178,65 @@ public class PlayerController : PlayerGameplayPawn
         }
     }
 
-    void FinishEquippedState()
+    void FinishRecall(bool countAsCatch)
     {
+        if (playerState == PlayerState.MeleeReady)
+        {
+            return;
+        }
+
+        if (recallSwordCoroutine != null)
+        {
+            StopCoroutine(recallSwordCoroutine);
+            recallSwordCoroutine = null;
+        }
+
+        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        AudioSystem.StopLoop(recallSoundLoop);
+
+        SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
+        AudioSystem.StopLoop(swordFlightSound);
+        weaponIndicator?.SetEquippedVisible(true);
+
+        if (countAsCatch)
+        {
+            // Hook for future catch feedback / rewards.
+        }
+    }
+
+    void CatchSword()
+    {
+        FinishRecall(countAsCatch: true);
+    }
+
+    int recallSoundLoop = -1;
+    private IEnumerator RecallSwordAfterDelayCoroutine(float delaySecs)
+    {
+        // RETROFIT: From OnHoldInIdle
+        recallSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Recall);
+        
+        yield return new WaitForSeconds(delaySecs);
+        AudioSystem.StopLoop(recallSoundLoop);
+        recallSoundLoop = -1;
+
+        recallParticles?.Stop();
+
+        recallSwordCoroutine = null;
+
+        float effectiveRecallSpeed = recallSpeed *
+            (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
+        SwordProjectile.Instance.StartRecallFlight(
+            transform,
+            effectiveRecallSpeed,
+            swordCatchRadius,
+            recallMaxDuration,
+            FinishRecall);
+    }
+
+    void CancelRecallChannel()
+    {
+        recallParticles?.Stop();
 
         if (recallSwordCoroutine != null)
         {
@@ -190,37 +245,21 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         AudioSystem.StopLoop(recallSoundLoop);
-        if (recallParticles != null)
-        {
-            recallParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        }
+        recallSoundLoop = -1;
+    }
 
-        weaponIndicator?.SetEquippedVisible(true);
+    private void OnDisable()
+    {
+        bool recallChannelActive = recallSwordCoroutine != null;
+        bool recallFlightActive = SwordProjectile.Instance != null && SwordProjectile.Instance.IsRecalling;
+
+        CancelRecallChannel();
         AudioSystem.StopLoop(swordFlightSound);
-    }
 
-    void RecallSword()
-    {
-        SwordProjectile.Instance.StopFlight();
-        FinishEquippedState();
-    }
-
-    void CatchSword()
-    {
-        SwordProjectile.Instance.StopFlight();
-        FinishEquippedState();
-    }
-
-    int recallSoundLoop;
-    private IEnumerator RecallSwordAfterDelayCoroutine(float delaySecs)
-    {
-        // RETROFIT: From OnHoldInIdle
-        recallSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Recall);
-        
-        yield return new WaitForSeconds(delaySecs);
-        AudioSystem.StopLoop(recallSoundLoop);
-        
-        RecallSword();
+        if ((recallChannelActive || recallFlightActive) && SwordProjectile.Instance != null)
+        {
+            SwordProjectile.Instance.StopFlight();
+        }
     }
 
     
@@ -248,7 +287,7 @@ public class PlayerController : PlayerGameplayPawn
         // RETROFIT: From OnTapInIdle
         
         recallParticles.ThrowIfNull(nameof(recallParticles));
-        if (playerState == PlayerState.SwordThrown)
+        if (playerState == PlayerState.SwordThrown && !SwordProjectile.Instance.IsRecalling)
         {
             recallParticles.Play();
             recallSwordCoroutine = StartCoroutine(RecallSwordAfterDelayCoroutine(recallTime));
@@ -262,15 +301,10 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void ReleaseChargeAttack()
     {
-        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-        
-        if (recallSwordCoroutine != null)
-        {
-            StopCoroutine(recallSwordCoroutine);
-            AudioSystem.StopLoop(recallSoundLoop);
-            recallSwordCoroutine = null;
-        }
-        else
+        bool hadRecallChannel = recallSwordCoroutine != null;
+        CancelRecallChannel();
+
+        if (!hadRecallChannel)
         {
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
@@ -282,15 +316,7 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void CancelChargeAttack()
     {
-        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
-
-        if (recallSwordCoroutine != null)
-        {
-            StopCoroutine(recallSwordCoroutine);
-            recallSwordCoroutine = null;
-        }
-
-        AudioSystem.StopLoop(recallSoundLoop);
+        CancelRecallChannel();
         ElementManager.Instance.MeleeCharge(transform, true);
     }
 
@@ -302,7 +328,6 @@ public class PlayerController : PlayerGameplayPawn
     public override void DoAimedAttackInDirection(Vector2 direction)
     {
         // RETROFIT: From OnReleaseInMove
-
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             if (direction.sqrMagnitude < 0.001f && weaponIndicator != null)
