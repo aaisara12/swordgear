@@ -1,3 +1,4 @@
+#nullable enable
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -5,9 +6,9 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    public static GameManager Instance;
-    public GameObject player; // Assign this in the Inspector
-    public PlayerController playerController;
+    public static GameManager Instance = null!;
+    public GameObject? player; // Assign this in the Inspector
+    public PlayerController? playerController;
 
     /// <summary> Fired when the player deals damage to an enemy (for lifesteal etc). </summary>
     public static event Action<float>? OnPlayerDealtDamage;
@@ -16,7 +17,7 @@ public class GameManager : MonoBehaviour
     public static void NotifyPlayerDealtDamage(float damage) => OnPlayerDealtDamage?.Invoke(damage);
 
     [Header("Damage visual references")]
-    [SerializeField] GameObject damageUI;
+    [SerializeField] GameObject? damageUI;
 
     [Header("Damage settings")]
 
@@ -55,12 +56,12 @@ public class GameManager : MonoBehaviour
 
 
     // A private field to store the reference to the currently running empowerment coroutine
-    private Coroutine _currentEmpowermentRoutine;
+    private Coroutine? _currentEmpowermentRoutine;
 
     private void Awake()
     {
         Instance = this;
-        playerController = player.GetComponent<PlayerController>();
+        playerController = player != null ? player.GetComponent<PlayerController>() : null;
     }
 
     private void Start()
@@ -207,7 +208,7 @@ public class GameManager : MonoBehaviour
 
                 if (!enemy)
                 {
-                    enemiesToRemove.Add(enemy);
+                    enemiesToRemove.Add(kvp.Key);
                     continue;
                 }
 

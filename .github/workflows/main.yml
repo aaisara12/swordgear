@@ -1,20 +1,24 @@
 name: CI/CD
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:          
   buildForiOSPlatform:
     name: Build for iOS
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v5
         with:
           path: Library
           key: Library-iOS
 
-      - uses: game-ci/unity-builder@v4
+      - uses: game-ci/unity-builder@v5
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
@@ -22,7 +26,7 @@ jobs:
         with:
           targetPlatform: iOS
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: build-iOS
           path: build/iOS
@@ -33,10 +37,10 @@ jobs:
     needs: buildForiOSPlatform
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Download iOS Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: build-iOS
           path: build/iOS
@@ -72,13 +76,13 @@ jobs:
           bundle exec fastlane ios build
           
       - name: Upload .IPA build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: SwordGear.ipa
           path: SwordGear.ipa
 
       - name: Cleanup to avoid storage limit
         if: always()
-        uses: geekyeggo/delete-artifact@v5
+        uses: geekyeggo/delete-artifact@v6
         with:
           name: build-iOS

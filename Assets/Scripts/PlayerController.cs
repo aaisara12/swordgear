@@ -22,6 +22,12 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Attack Cooldowns")]
     [SerializeField] private float swordThrowCooldown = 0.5f;
 
+    [Header("Dash")]
+    [SerializeField] private float dashSpeed = 10f;
+    [SerializeField] private float dashDuration = 0.2f;
+    [SerializeField] private float dashCooldown = 1f;
+    [SerializeField] private string enemyPhysicsLayer = "Enemies";
+
     [Header("Movement")]
     [SerializeField] private float speed = 3f;
 
@@ -41,8 +47,11 @@ public class PlayerController : PlayerGameplayPawn
     PlayerState playerState = PlayerState.MeleeReady;
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
+    private float _dashCooldownRemaining = 0f;
+    private bool _isDashing = false;
 
     private bool IsOnAttackCooldown => _attackCooldownRemaining > 0f;
+    private bool IsOnDashCooldown => _dashCooldownRemaining > 0f;
 
     public void ApplyAttackCooldown(float seconds)
     {
@@ -53,6 +62,31 @@ public class PlayerController : PlayerGameplayPawn
     {
         if (_attackCooldownRemaining > 0f)
             _attackCooldownRemaining -= Time.deltaTime;
+        if (_dashCooldownRemaining > 0f)
+            _dashCooldownRemaining -= Time.deltaTime;
+    }
+
+    private IEnumerator DashCoroutine(Vector2 direction)
+    {
+        Debug.Log("dashing");
+        _isDashing = true;
+        _dashCooldownRemaining = dashCooldown;
+
+        int playerLayer = gameObject.layer;
+        int enemyLayer = LayerMask.NameToLayer(enemyPhysicsLayer);
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
+
+        float elapsed = 0f;
+        while (elapsed < dashDuration)
+        {
+            rb!.linearVelocity = direction * dashSpeed;
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+        rb!.linearVelocity = Vector2.zero;
+        _isDashing = false;
     }
 
     [Header("Sword Recall")]
@@ -68,6 +102,10 @@ public class PlayerController : PlayerGameplayPawn
         {
             Debug.LogError("Rigidbody2D component is missing!");
         }
+        else
+        {
+            rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
         foreach (Element elem in elementWeaponDict.Keys)
         {
             GameObject weaponObj = Instantiate(elementWeaponDict[elem]);
@@ -78,6 +116,7 @@ public class PlayerController : PlayerGameplayPawn
     
     public void TakeDamage(float damage)
     {
+        if (_isDashing) return;
         PlayDamageEffect();
         RegisterDamage(damage);
     }
@@ -215,6 +254,10 @@ public class PlayerController : PlayerGameplayPawn
             SwordThrow(direction.normalized);
             ApplyAttackCooldown(swordThrowCooldown);
         }
+        else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
+        {
+            StartCoroutine(DashCoroutine(direction.normalized));
+        }
     }
 
     public override void StopAiming()
@@ -227,7 +270,7 @@ public class PlayerController : PlayerGameplayPawn
     public override void MoveInDirection(Vector2 direction)
     {
         // RETROFIT: From OnMove
-        
+        if (_isDashing) return;
         rb.ThrowIfNull(nameof(rb));
 
         if (direction.sqrMagnitude > 0.001f)

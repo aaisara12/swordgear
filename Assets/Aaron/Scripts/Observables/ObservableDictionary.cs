@@ -59,7 +59,7 @@ public class ObservableDictionary<TKey, TValue> : IReadOnlyObservableDictionary<
         return false;
     }
 
-    public bool TryGetValue(TKey key, out TValue? value) => _dict.TryGetValue(key, out value!);
+    public bool TryGetValue(TKey key, out TValue value) => _dict.TryGetValue(key, out value);
 
     public void Add(KeyValuePair<TKey, TValue> item) => Add(item.Key, item.Value);
 

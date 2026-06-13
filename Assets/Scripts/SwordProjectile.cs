@@ -47,6 +47,10 @@ public class SwordProjectile : MonoBehaviour
 
     public static SwordProjectile Instance;
 
+    [Header("Terrain")]
+    [SerializeField] private LayerMask terrainLayers;
+    [SerializeField] private string gearPhysicsLayer = "Gear";
+
     [Header("Lightning Projectile")]
     private bool lightningActive = false;
     [SerializeField] GameObject lightningPrefab;
@@ -79,11 +83,21 @@ public class SwordProjectile : MonoBehaviour
 
     public void StopFlight()
     {
+        Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), false);
         gameObject.SetActive(false);
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
         sprite.enabled = false;
         isFlying = false;
+    }
+
+    public void StickToTerrain()
+    {
+        rb.linearVelocity = Vector2.zero;
+        rb.angularVelocity = 0;
+        swingTrail.Stop();
+        isFlying = false;
+        Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), true);
     }
 
     public void ToggleSwingTrail(bool on)
@@ -101,7 +115,7 @@ public class SwordProjectile : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (rb == null) return;
+        if (rb == null || !isFlying) return;
 
         float speed = rb.linearVelocity.magnitude;
         if (speed > maxSpeed)
@@ -139,12 +153,21 @@ public class SwordProjectile : MonoBehaviour
 
     void Update()
     {
+        if (!isFlying) return;
         ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
         //DisplaySword();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (!isFlying) return;
+
+        if ((terrainLayers.value & (1 << collision.gameObject.layer)) != 0)
+        {
+            StickToTerrain();
+            return;
+        }
+
         //if (collision.CompareTag("Enemy"))
         //{
         //    EnemyController enemy = collision.GetComponent<EnemyController>();

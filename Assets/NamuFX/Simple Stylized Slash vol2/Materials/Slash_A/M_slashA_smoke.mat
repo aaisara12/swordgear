@@ -145,6 +145,7 @@ Material:
     - _Dissolve_Tex_Oneminus: 0
     - _DissovleTexRot: 0
     - _DstBlend: 1
+    - _DstBlendAlpha: 1
     - _EdgeWidth: 0
     - _Emission: 0
     - _EnvironmentReflections: 1
@@ -172,6 +173,7 @@ Material:
     - _SoftParticlePow: 1
     - _SpecularHighlights: 1
     - _SrcBlend: 5
+    - _SrcBlendAlpha: 1
     - _StylizeAmount: 1
     - _StylizedValue: 0
     - _SubmaskRot: 0

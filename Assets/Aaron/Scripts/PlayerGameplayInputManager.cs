@@ -62,7 +62,12 @@ public class PlayerGameplayInputManager : MonoBehaviour
         {
             return;
         }
-        
+
+        Vector3 val = gameplayActions.Attack.ReadValue<Vector3>();
+        Vector2 dir = new Vector2(val.x, val.y);
+        if (dir.sqrMagnitude > 0.001f)
+            lastReadAttackDirection = dir;
+
         pawn.Attack(lastReadAttackDirection);
         ToggleAttackDirectionUpdate(false);
     }
