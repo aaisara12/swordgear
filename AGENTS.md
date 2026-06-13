@@ -41,6 +41,7 @@ New game code belongs in **`Assets/Aaron/Scripts/`** or **`Assets/Scripts/`** de
 
 | Feature | Doc |
 |---|---|
+| **Project Index** (start here for session orientation) | [FeatureDocumentation/ProjectIndex.md](FeatureDocumentation/ProjectIndex.md) |
 | Game Initialization & Player State | [FeatureDocumentation/GameInitialization.md](FeatureDocumentation/GameInitialization.md) |
 | Player Gameplay (pawn, health, behaviours) | [FeatureDocumentation/PlayerGameplay.md](FeatureDocumentation/PlayerGameplay.md) |
 | Stat Modifiers & Augment Stacking | [FeatureDocumentation/StatModifiers.md](FeatureDocumentation/StatModifiers.md) |
