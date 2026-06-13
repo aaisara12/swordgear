@@ -87,6 +87,7 @@ public class SwordProjectile : MonoBehaviour
     public void StartFlight(Vector3 position, Vector2 velocity)
     {
         ClearRecallState();
+        EnsureTerrainCollisionsEnabled();
         gameObject.SetActive(true);
         transform.position = position;
         transform.up = velocity.normalized;
@@ -199,6 +200,20 @@ public class SwordProjectile : MonoBehaviour
         }
 
         _recallIgnoredLayers.Clear();
+    }
+
+    void EnsureTerrainCollisionsEnabled()
+    {
+        int swordLayer = gameObject.layer;
+        for (int layer = 0; layer < 32; layer++)
+        {
+            if ((terrainLayers.value & (1 << layer)) == 0)
+            {
+                continue;
+            }
+
+            Physics2D.IgnoreLayerCollision(swordLayer, layer, false);
+        }
     }
 
     void DoRecallSteer()
