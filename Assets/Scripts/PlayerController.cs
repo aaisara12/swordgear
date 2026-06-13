@@ -88,6 +88,8 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Sword Recall")]
     [SerializeField] ParticleSystem? recallParticles;
     [SerializeField] float recallTime = 1f;
+    [SerializeField] float recallSpeed = 8f;
+    [SerializeField] float recallMaxDuration = 3f;
     private Coroutine? recallSwordCoroutine;
 
     private void Awake()
@@ -139,23 +141,32 @@ public class PlayerController : PlayerGameplayPawn
         swordFlightSound = AudioSystem.PlayLoop(AudioSystem.Sound.Basic_Flight);
     }
 
-    void RecallSword()
+    void FinishRecall(bool countAsCatch)
     {
-        recallParticles.ThrowIfNull(nameof(recallParticles));
+        if (playerState == PlayerState.MeleeReady)
+        {
+            return;
+        }
+
+        recallParticles?.Stop();
+        AudioSystem.StopLoop(recallSoundLoop);
+
         SwordProjectile.Instance.StopFlight();
         playerState = PlayerState.MeleeReady;
-        recallParticles.Stop();
         AudioSystem.StopLoop(swordFlightSound);
+
+        if (countAsCatch)
+        {
+            // Hook for future catch feedback / rewards.
+        }
     }
 
     void CatchSword()
     {
-        SwordProjectile.Instance.StopFlight();
-        playerState = PlayerState.MeleeReady;
-        AudioSystem.StopLoop(swordFlightSound);
+        FinishRecall(countAsCatch: true);
     }
 
-    int recallSoundLoop;
+    int recallSoundLoop = -1;
     private IEnumerator RecallSwordAfterDelayCoroutine(float delaySecs)
     {
         // RETROFIT: From OnHoldInIdle
@@ -163,8 +174,48 @@ public class PlayerController : PlayerGameplayPawn
         
         yield return new WaitForSeconds(delaySecs);
         AudioSystem.StopLoop(recallSoundLoop);
-        
-        RecallSword();
+        recallSoundLoop = -1;
+
+        recallParticles?.Stop();
+
+        recallSwordCoroutine = null;
+
+        float effectiveRecallSpeed = recallSpeed *
+            (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
+        SwordProjectile.Instance.StartRecallFlight(
+            transform,
+            effectiveRecallSpeed,
+            swordCatchRadius,
+            recallMaxDuration,
+            FinishRecall);
+    }
+
+    void CancelRecallChannel()
+    {
+        recallParticles?.Stop();
+
+        if (recallSwordCoroutine != null)
+        {
+            StopCoroutine(recallSwordCoroutine);
+            recallSwordCoroutine = null;
+        }
+
+        AudioSystem.StopLoop(recallSoundLoop);
+        recallSoundLoop = -1;
+    }
+
+    private void OnDisable()
+    {
+        bool recallChannelActive = recallSwordCoroutine != null;
+        bool recallFlightActive = SwordProjectile.Instance != null && SwordProjectile.Instance.IsRecalling;
+
+        CancelRecallChannel();
+        AudioSystem.StopLoop(swordFlightSound);
+
+        if ((recallChannelActive || recallFlightActive) && SwordProjectile.Instance != null)
+        {
+            SwordProjectile.Instance.StopFlight();
+        }
     }
 
     
@@ -192,7 +243,7 @@ public class PlayerController : PlayerGameplayPawn
         // RETROFIT: From OnTapInIdle
         
         recallParticles.ThrowIfNull(nameof(recallParticles));
-        if (playerState == PlayerState.SwordThrown)
+        if (playerState == PlayerState.SwordThrown && !SwordProjectile.Instance.IsRecalling)
         {
             recallParticles.Play();
             recallSwordCoroutine = StartCoroutine(RecallSwordAfterDelayCoroutine(recallTime));
@@ -206,15 +257,10 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void ReleaseChargeAttack()
     {
-        recallParticles?.Stop();
-        
-        if (recallSwordCoroutine != null)
-        {
-            StopCoroutine(recallSwordCoroutine);
-            AudioSystem.StopLoop(recallSoundLoop);
-            recallSwordCoroutine = null;
-        }
-        else
+        bool hadRecallChannel = recallSwordCoroutine != null;
+        CancelRecallChannel();
+
+        if (!hadRecallChannel)
         {
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
@@ -226,13 +272,7 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void CancelChargeAttack()
     {
-        recallParticles?.Stop();
-
-        if (recallSwordCoroutine != null)
-        {
-            StopCoroutine(recallSwordCoroutine);
-            recallSwordCoroutine = null;
-        }
+        CancelRecallChannel();
         ElementManager.Instance.MeleeCharge(transform, true);
     }
 
