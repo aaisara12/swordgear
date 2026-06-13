@@ -45,6 +45,7 @@ public class PlayerController : PlayerGameplayPawn
     }
 
     PlayerState playerState = PlayerState.MeleeReady;
+    public bool IsMeleeReady => playerState == PlayerState.MeleeReady;
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;

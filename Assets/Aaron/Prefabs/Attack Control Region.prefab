@@ -212,6 +212,7 @@ GameObject:
   m_Component:
   - component: {fileID: 598798501718820311}
   - component: {fileID: 7445991659885663924}
+  - component: {fileID: 7964370688833469060}
   m_Layer: 5
   m_Name: Joystick
   m_TagString: Untagged
@@ -253,6 +254,27 @@ CanvasGroup:
   m_Interactable: 1
   m_BlocksRaycasts: 1
   m_IgnoreParentGroups: 0
+--- !u!114 &7964370688833469060
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6108065357138461200}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3cc536a8bc507dd4d97a51cdeabbc07d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::ChargeAttackJoystickIndicator
+  rangeIndicatorImage: {fileID: 9219878326355407520}
+  chargeOverlayImage: {fileID: 0}
+  chargeGlowImage: {fileID: 0}
+  overlayAlpha: 0.72
+  glowAlpha: 0.38
+  minOverlayScale: 0.04
+  glowScaleMultiplier: 1.18
+  chargePulseSpeed: 12
+  chargePulseAmount: 0.07
 --- !u!1 &7450482144262450167
 GameObject:
   m_ObjectHideFlags: 0

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
-public class FireWeapon : MonoBehaviour, IElementalWeapon
+public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 {
     [SerializeField] private GameObject weaponCollider;
     [SerializeField] private GameObject strongCollider;
@@ -20,14 +20,25 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     float chargeDuration = 0f;
     int chargeTier = 0;
 
+    public bool IsCharging => isCharging;
+
+    public float ChargeProgress =>
+        isCharging && maxChargeTime > 0f ? Mathf.Clamp01(chargeDuration / maxChargeTime) : 0f;
+
+    public bool IsMaxCharge =>
+        isCharging && maxChargeTime > 0f && chargeDuration >= maxChargeTime;
+
+    public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
+        player.IsMeleeReady && upgrades.Contains(UpgradeType.Fire_ChargeMelee);
+
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
         if (cancel)
         {
-            isCharging = false;
-            chargeDuration = 0;
+            ResetCharge();
             return;
         }
+
         if (upgrades.Contains(UpgradeType.Fire_ChargeMelee))
         {
             isCharging = true;
@@ -148,11 +159,17 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     {
         transform.position = player.position + player.up * distanceFromPlayer;
         transform.up = player.up;
-        isCharging = false;
+        ResetCharge();
         StartCoroutine(Swing(player));
-        chargeDuration = 0;
         return meleeCooldown;
     }
+
+    private void ResetCharge()
+    {
+        isCharging = false;
+        chargeDuration = 0;
+    }
+
     private void Update()
     {
         if (isCharging && chargeDuration < maxChargeTime)
@@ -160,13 +177,14 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             chargeDuration += Time.deltaTime;
             if (chargeDuration >= maxChargeTime)
             {
-                // Play effect 
+                chargeDuration = maxChargeTime;
             }
         }
     }
 
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
+        ResetCharge();
         sword.sprite.transform.localEulerAngles = Vector3.zero;
         sword.ToggleSwingTrail(false);
     }
