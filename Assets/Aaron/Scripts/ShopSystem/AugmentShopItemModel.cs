@@ -9,12 +9,12 @@ namespace Shop
         public string DisplayName { get; }
         public string Description { get; }
         
-        public Sprite Icon { get; }
+        public Sprite? Icon { get; }
         
         private int augmentIndex;
         private AugmentShopViewModel parent;
 
-        public AugmentShopItemModel(int augmentIndex, string displayName, string description, Sprite icon, AugmentShopViewModel parent)
+        public AugmentShopItemModel(int augmentIndex, string displayName, string description, Sprite? icon, AugmentShopViewModel parent)
         {
             DisplayName = displayName;
             Description = description;

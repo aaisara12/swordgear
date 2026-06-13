@@ -66,7 +66,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject? nearestEnemy = null;
+        GameObject nearestEnemy = null;
         float shortestDistance = Mathf.Infinity;
 
         foreach (GameObject enemy in enemies)

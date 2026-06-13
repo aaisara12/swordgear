@@ -52,7 +52,6 @@ public class SwordProjectile : MonoBehaviour
     [SerializeField] private string gearPhysicsLayer = "Gear";
 
     [Header("Lightning Projectile")]
-    private bool lightningActive = false;
     [SerializeField] GameObject lightningPrefab;
 
     private void Awake()
@@ -187,9 +186,6 @@ public class SwordProjectile : MonoBehaviour
             case Element.Fire:
                 sprite.transform.localEulerAngles = Vector3.zero;
                 break;
-            case Element.Ice:
-                lightningActive = false;
-                break;
         }
     }
 
@@ -198,9 +194,6 @@ public class SwordProjectile : MonoBehaviour
         switch (buff)
         {
             case Element.Fire:
-                break;
-            case Element.Ice:
-                lightningActive = true;
                 break;
         }
     }
