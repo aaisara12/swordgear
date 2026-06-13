@@ -1,6 +1,13 @@
 {
   "mcpServers": {
-    "unityMCP": {
+    "unity-mcp": {
+      "command": "/Users/aaronisara/.unity/relay/relay_mac_arm64.app/Contents/MacOS/relay_mac_arm64",
+      "args": [
+        "--mcp"
+      ],
+      "env": {}
+    },
+    "coplay-unity-mcp": {
       "url": "http://127.0.0.1:8080/mcp",
       "type": "http"
     }
