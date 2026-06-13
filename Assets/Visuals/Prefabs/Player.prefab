@@ -5389,6 +5389,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerDirectionReference: {fileID: 3864638014259052123}
+  weaponIndicator: {fileID: 9158325853920699210}
   attackRadius: 5
   dashFactor: 0.2
   projectileSpeed: 10
@@ -5427,14 +5428,17 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::MeleeChargeWorldIndicator
   chargeVfxPrefab: {fileID: 1737976268886657197, guid: 7a72c399071bf1a4d936afa4823b94f8, type: 3}
   minVfxScale: 1.35
-  maxVfxScale: 1.85
+  maxChargeVfxScale: 1.95
   minEmissionRate: 40
-  maxEmissionRate: 110
+  maxChargeEmissionRate: 130
   circleRadius: 0.55
   circleThickness: 0.35
   minParticleSize: 0.32
   maxParticleSize: 0.58
   particleSortingOrder: 20
+  maxChargePulseDuration: 0.45
+  maxChargePulseScale: 0.08
+  maxChargePulseEmissionBoost: 25
 --- !u!1 &2605354968175412357
 GameObject:
   m_ObjectHideFlags: 0
@@ -6119,7 +6123,7 @@ SpriteRenderer:
   m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 25
   m_MaskInteraction: 0
   m_Sprite: {fileID: 21300000, guid: 2e71a8202d3b4a3448ec85ced5a40265, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
@@ -6278,7 +6282,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3864638014259052123}
-  - component: {fileID: 2100211888213512857}
+  - component: {fileID: 9158325853920699210}
   m_Layer: 0
   m_Name: CursorParent
   m_TagString: Untagged
@@ -6302,7 +6306,7 @@ Transform:
   - {fileID: 423908584403813393}
   m_Father: {fileID: 1575673035308155229}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &2100211888213512857
+--- !u!114 &9158325853920699210
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -6311,6 +6315,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 8064584514606405322}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: bde0d6e08a8f00b43bf86fd6391aa4be, type: 3}
+  m_Script: {fileID: 11500000, guid: 16616996c23051043851a770067fcc44, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: 
+  m_EditorClassIdentifier: Main::PlayerWeaponIndicator
+  pivot: {fileID: 3864638014259052123}
+  swordVisual: {fileID: 423908584403813393}
+  swordRenderer: {fileID: 2790190979768043863}
+  playerRoot: {fileID: 1575673035308155229}
+  targetRadius: 5

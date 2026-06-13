@@ -16,7 +16,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] GameObject lightningPrefab;
 
     [Header("Combat")]
-    [SerializeField] private float attackRadius = 2f;
+    [SerializeField] private float attackRadius = ActiveEnemyRegistry.AutoTargetRadius;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float thrustDistance = 1.5f;
     [SerializeField] private float meleeCooldown = 0.3f;
@@ -137,27 +137,13 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject? nearestEnemy = null;
-        float shortestDistance = Mathf.Infinity;
-
-        foreach (GameObject enemy in enemies)
-        {
-            float distance = Vector2.Distance(player.position, enemy.transform.position);
-            if (distance < shortestDistance && distance <= attackRadius)
-            {
-                shortestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        }
-
-        if (nearestEnemy == null)
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, ActiveEnemyRegistry.AutoTargetRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player, upgrades);
             return meleeCooldown;
         }
 
-        Vector2 direction = (nearestEnemy.transform.position - player.position).normalized;
+        Vector2 direction = ((Vector2)nearestEnemy.transform.position - (Vector2)player.position).normalized;
         player.up = direction;
 
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);

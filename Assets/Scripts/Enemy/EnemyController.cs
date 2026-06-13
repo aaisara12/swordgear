@@ -27,6 +27,16 @@ public class EnemyController : MonoBehaviour
 
     public GameObject? floatingPoints;
 
+    private void OnEnable()
+    {
+        ActiveEnemyRegistry.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveEnemyRegistry.Unregister(this);
+    }
+
     private void Start()
     {
         player = GameManager.Instance?.player;

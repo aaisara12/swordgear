@@ -9,10 +9,10 @@ public class PlayerController : PlayerGameplayPawn
 {
     [Header("References")]
     [SerializeField] private Transform? playerDirectionReference;  // Need this since we are no longer turning the player object when moving
+    [SerializeField] private PlayerWeaponIndicator? weaponIndicator;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
     
     [Header("Combat")]
-    [SerializeField] private float attackRadius = 5f;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float flickThreshold = 50f;
@@ -113,6 +113,11 @@ public class PlayerController : PlayerGameplayPawn
             IMeleeWeapon weapon = weaponObj.GetComponent<IMeleeWeapon>();
             elementToWeapon[elem] = weapon;
         }
+
+        if (weaponIndicator == null)
+        {
+            Debug.LogError("PlayerController: weaponIndicator is null");
+        }
     }
     
     public void TakeDamage(float damage)
@@ -135,29 +140,75 @@ public class PlayerController : PlayerGameplayPawn
 
     void SwordThrow(Vector2 direction)
     {
+        if (direction.sqrMagnitude < 0.001f && weaponIndicator != null)
+        {
+            direction = weaponIndicator.GetFacingDirection();
+        }
+
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            return;
+        }
+
+        direction = direction.normalized;
+
         AudioSystem.Play(AudioSystem.Sound.Throw);
         ElementManager.Instance.MeleeCharge(transform, true);
         float effectiveProjectileSpeed = projectileSpeed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
-        SwordProjectile.Instance.StartFlight(transform.position, direction * effectiveProjectileSpeed);
+        Vector3 throwOrigin = weaponIndicator != null ? weaponIndicator.GetThrowOrigin() : transform.position;
+        weaponIndicator?.SetEquippedVisible(false);
+        SwordProjectile.Instance.StartFlight(throwOrigin, direction * effectiveProjectileSpeed);
         playerState = PlayerState.SwordThrown;
-        // TODO: Add per-element handling for starting & stopping flight
         swordFlightSound = AudioSystem.PlayLoop(AudioSystem.Sound.Basic_Flight);
+    }
+
+    void SyncMeleeFacingFromIndicator(Vector2 attackDirection = default)
+    {
+        if (weaponIndicator == null)
+        {
+            return;
+        }
+
+        Vector2 direction = attackDirection.sqrMagnitude > 0.001f
+            ? attackDirection.normalized
+            : weaponIndicator.GetFacingDirection();
+
+        if (direction.sqrMagnitude > 0.001f)
+        {
+            transform.up = direction;
+        }
+    }
+
+    void FinishEquippedState()
+    {
+        playerState = PlayerState.MeleeReady;
+
+        if (recallSwordCoroutine != null)
+        {
+            StopCoroutine(recallSwordCoroutine);
+            recallSwordCoroutine = null;
+        }
+
+        AudioSystem.StopLoop(recallSoundLoop);
+        if (recallParticles != null)
+        {
+            recallParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        weaponIndicator?.SetEquippedVisible(true);
+        AudioSystem.StopLoop(swordFlightSound);
     }
 
     void RecallSword()
     {
-        recallParticles.ThrowIfNull(nameof(recallParticles));
         SwordProjectile.Instance.StopFlight();
-        playerState = PlayerState.MeleeReady;
-        recallParticles.Stop();
-        AudioSystem.StopLoop(swordFlightSound);
+        FinishEquippedState();
     }
 
     void CatchSword()
     {
         SwordProjectile.Instance.StopFlight();
-        playerState = PlayerState.MeleeReady;
-        AudioSystem.StopLoop(swordFlightSound);
+        FinishEquippedState();
     }
 
     int recallSoundLoop;
@@ -181,7 +232,7 @@ public class PlayerController : PlayerGameplayPawn
 
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
-            //MeleeAttack();
+            SyncMeleeFacingFromIndicator(direction);
             ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
         }
 
@@ -211,7 +262,7 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void ReleaseChargeAttack()
     {
-        recallParticles?.Stop();
+        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
         
         if (recallSwordCoroutine != null)
         {
@@ -223,7 +274,7 @@ public class PlayerController : PlayerGameplayPawn
         {
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
-                //MeleeAttack();
+                SyncMeleeFacingFromIndicator();
                 ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
             }
         }
@@ -231,19 +282,21 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void CancelChargeAttack()
     {
-        recallParticles?.Stop();
+        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
 
         if (recallSwordCoroutine != null)
         {
             StopCoroutine(recallSwordCoroutine);
             recallSwordCoroutine = null;
         }
+
+        AudioSystem.StopLoop(recallSoundLoop);
         ElementManager.Instance.MeleeCharge(transform, true);
     }
 
     public override void AimInDirection(Vector2 direction)
     {
-        // RETROFIT: No corresponding functionality from old code
+        weaponIndicator?.UpdateThrowAim(direction);
     }
 
     public override void DoAimedAttackInDirection(Vector2 direction)
@@ -252,7 +305,12 @@ public class PlayerController : PlayerGameplayPawn
 
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
-            SwordThrow(direction.normalized);
+            if (direction.sqrMagnitude < 0.001f && weaponIndicator != null)
+            {
+                direction = weaponIndicator.GetFacingDirection();
+            }
+
+            SwordThrow(direction);
             ApplyAttackCooldown(swordThrowCooldown);
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
@@ -263,7 +321,7 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void StopAiming()
     {
-        // RETROFIT: No corresponding functionality from old code
+        weaponIndicator?.EndThrowAim();
     }
 
     int walkSoundLoop = -1;
@@ -276,13 +334,12 @@ public class PlayerController : PlayerGameplayPawn
 
         if (direction.sqrMagnitude > 0.001f)
         {
-            if (walkSoundLoop == -1)  // No sound playing, so start sound
+            if (walkSoundLoop == -1)
             {
                 walkSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Walking);
             }
 
-            float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+            weaponIndicator?.SetMoveFallbackDirection(direction);
         }
         else
         {
