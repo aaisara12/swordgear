@@ -27,11 +27,6 @@ public class DamageUI : MonoBehaviour
     AnimationCurve popCurve =
         AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
-    void Awake()
-    {
-        // if (!display) display = GetComponent<TMP_Text>();
-    }
-
     public void ShowNumber(float amt, Element element)
     {
         StartCoroutine(Show(amt, element));
@@ -47,25 +42,25 @@ public class DamageUI : MonoBehaviour
         {
             case Element.Fire:
                 color = Color.red;
-                effectObject = Instantiate(fireHitEffect, transform.position, Quaternion.identity);
+                effectObject = PrefabPool.Instance!.Spawn(fireHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
 
             case Element.Lightning:
                 color = Color.yellow;
-                effectObject = Instantiate(lightningHitEffect, transform.position, Quaternion.identity);
+                effectObject = PrefabPool.Instance!.Spawn(lightningHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
 
             case Element.Ice:
                 color = Color.cyan;
-                effectObject = Instantiate(iceHitEffect, transform.position, Quaternion.identity);
+                effectObject = PrefabPool.Instance!.Spawn(iceHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
 
             default:
                 color = Color.white;
-                effectObject = Instantiate(physicalHitEffect, transform.position, Quaternion.identity);
+                effectObject = PrefabPool.Instance!.Spawn(physicalHitEffect, transform.position, Quaternion.identity);
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
         }
@@ -74,29 +69,23 @@ public class DamageUI : MonoBehaviour
         display.text = $"{Mathf.RoundToInt(num)}";
         display.color = color;
 
-        // --- SCALE BASED ON DAMAGE ---
         float t = Mathf.InverseLerp(minDamage, maxDamage, num);
         float targetScale = Mathf.Lerp(minSize, maxSize, t);
 
-        // --- POP ANIMATION ---
         float elapsedPop = 0f;
 
         float popScale = targetScale * (1f + popOvershoot);
 
-        // start slightly small for a snappier feel
         transform.localScale = Vector3.one * (targetScale * 0.6f);
 
-        // play hit effect
         effect.PlayAnimation();
 
         while (elapsedPop < popDuration)
         {
             float p = elapsedPop / popDuration;
 
-            // curve controls how snappy / bouncy the pop is
             float curved = popCurve.Evaluate(p);
 
-            // interpolate from overshoot -> final size
             float scale = Mathf.Lerp(popScale, targetScale, curved);
             transform.localScale = Vector3.one * scale;
 
@@ -104,10 +93,8 @@ public class DamageUI : MonoBehaviour
             yield return null;
         }
 
-        // ensure exact final size
         transform.localScale = Vector3.one * targetScale;
 
-        // --- FADE OUT ---
         float elapsedTime = 0f;
 
         while (elapsedTime < duration)
@@ -119,7 +106,7 @@ public class DamageUI : MonoBehaviour
             yield return null;
         }
 
-        Destroy(effectObject);
-        Destroy(gameObject);
+        PrefabPool.Instance!.Release(effectObject);
+        PrefabPool.Instance!.Release(gameObject);
     }
 }

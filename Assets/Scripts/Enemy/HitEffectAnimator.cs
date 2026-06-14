@@ -1,7 +1,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class HitEffectAnimator : MonoBehaviour, IAttackAnimator
+public class HitEffectAnimator : MonoBehaviour, IAttackAnimator, IPoolReset
 {
     [SerializeField] float effectDuration = 0.5f;
     [SerializeField] ParticleSystem effect;
@@ -11,10 +11,14 @@ public class HitEffectAnimator : MonoBehaviour, IAttackAnimator
         StartCoroutine(PlayEffect());
     }
 
+    public void OnSpawned() { }
+
+    public void OnReleased() { }
+
     IEnumerator PlayEffect()
     {
         effect.Play();
         yield return new WaitForSeconds(effectDuration);
-        Destroy(gameObject);
+        PrefabPool.Instance?.Release(gameObject);
     }
 }

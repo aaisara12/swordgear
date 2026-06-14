@@ -22,7 +22,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     private IEnumerator Swing(Transform player)
     {
-        GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
 
@@ -31,7 +31,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             effect.transform.up = player.up;
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
@@ -50,10 +50,10 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
     }
 

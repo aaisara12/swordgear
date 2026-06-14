@@ -70,6 +70,8 @@ public class SwordProjectile : MonoBehaviour
 
     public bool IsRecalling => isRecalling;
 
+    static bool _swingTrailWarmed;
+
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -78,6 +80,13 @@ public class SwordProjectile : MonoBehaviour
             Debug.LogError("Rigidbody2D component is missing!");
         }
         Instance = this;
+
+        if (!_swingTrailWarmed && swingTrail != null)
+        {
+            swingTrail.Simulate(1f, true, true);
+            swingTrail.Clear(true);
+            _swingTrailWarmed = true;
+        }
     }
 
     private void Start()

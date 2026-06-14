@@ -2,11 +2,21 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class IceChillField : MonoBehaviour
+public class IceChillField : MonoBehaviour, IPoolReset
 {
     public float lingerDuration = 1f;
     [SerializeField] float effectTickInterval = 0.2f;
     HashSet<EnemyController> enemiesInRange = new();
+
+    public void OnSpawned()
+    {
+        enemiesInRange.Clear();
+    }
+
+    public void OnReleased()
+    {
+        enemiesInRange.Clear();
+    }
 
     public void BeginEffect()
     {
@@ -30,7 +40,7 @@ public class IceChillField : MonoBehaviour
                 }
             }
         }
-        Destroy(gameObject);
+        PrefabPool.Instance?.Release(gameObject);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)
