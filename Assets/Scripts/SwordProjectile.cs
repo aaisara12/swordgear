@@ -69,6 +69,12 @@ public class SwordProjectile : MonoBehaviour
     readonly List<int> _recallIgnoredLayers = new List<int>();
 
     public bool IsRecalling => isRecalling;
+    public bool IsLodged => gameObject.activeSelf && !isFlying && !isRecalling;
+
+    [SerializeField] private SwordLodgedIndicator? lodgedIndicator;
+    public bool IsLodgedIndicatorActive => lodgedIndicator != null && lodgedIndicator.IsActive;
+    public Vector2 LodgedHiltWorldPosition =>
+        lodgedIndicator != null ? lodgedIndicator.HiltWorldPosition : (Vector2)transform.position;
 
     static bool _swingTrailWarmed;
 
@@ -80,6 +86,16 @@ public class SwordProjectile : MonoBehaviour
             Debug.LogError("Rigidbody2D component is missing!");
         }
         Instance = this;
+
+        if (lodgedIndicator == null)
+        {
+            lodgedIndicator = GetComponent<SwordLodgedIndicator>();
+        }
+
+        if (lodgedIndicator == null)
+        {
+            Debug.LogError("SwordProjectile: lodgedIndicator is null");
+        }
 
         if (!_swingTrailWarmed && swingTrail != null)
         {
@@ -97,6 +113,7 @@ public class SwordProjectile : MonoBehaviour
 
     public void StartFlight(Vector3 position, Vector2 velocity)
     {
+        lodgedIndicator?.OnCleared();
         ClearRecallState();
         EnsureTerrainCollisionsEnabled();
         gameObject.SetActive(true);
@@ -114,6 +131,8 @@ public class SwordProjectile : MonoBehaviour
         float maxDuration,
         Action<bool> onArrived)
     {
+        lodgedIndicator?.OnRecallStarted();
+
         if (rb == null || player == null)
         {
             return;
@@ -150,6 +169,7 @@ public class SwordProjectile : MonoBehaviour
 
     public void StopFlight()
     {
+        lodgedIndicator?.OnCleared();
         ClearRecallState();
 
         Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), false);
@@ -321,13 +341,14 @@ public class SwordProjectile : MonoBehaviour
         callback?.Invoke(countAsCatch);
     }
 
-    public void StickToTerrain()
+    public void StickToTerrain(Vector2? contactPoint = null)
     {
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
         swingTrail.Stop();
         isFlying = false;
         Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), true);
+        lodgedIndicator?.OnLodged(contactPoint);
     }
 
     public void ToggleSwingTrail(bool on)
@@ -411,7 +432,8 @@ public class SwordProjectile : MonoBehaviour
 
         if ((terrainLayers.value & (1 << collision.gameObject.layer)) != 0)
         {
-            StickToTerrain();
+            Vector2 contactPoint = collision.ClosestPoint(transform.position);
+            StickToTerrain(contactPoint);
             return;
         }
 
