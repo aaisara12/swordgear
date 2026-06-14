@@ -16,6 +16,7 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float swordCatchRadius = 1f;
     [SerializeField] private GameObject? playerDamageFX;
+    [SerializeField] private GameObject? catchExplosionFX;
 
     [Header("Attack Cooldowns")]
     [SerializeField] private float swordThrowCooldown = 0.5f;
@@ -90,7 +91,7 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Sword Recall")]
     [SerializeField] ParticleSystem? recallParticles;
     [SerializeField] float recallTime = 1f;
-    [SerializeField] float recallSpeed = 8f;
+    [SerializeField] float recallSpeed = 16f;
     [SerializeField] float recallMaxDuration = 3f;
     private Coroutine? recallSwordCoroutine;
 
@@ -201,13 +202,28 @@ public class PlayerController : PlayerGameplayPawn
 
         if (countAsCatch)
         {
-            // Hook for future catch feedback / rewards.
+            PlayCatchExplosion();
         }
     }
 
     void CatchSword()
     {
         FinishRecall(countAsCatch: true);
+    }
+
+    void PlayCatchExplosion()
+    {
+        if (catchExplosionFX == null)
+        {
+            return;
+        }
+
+        GameObject fx = Instantiate(catchExplosionFX, transform.position, Quaternion.identity);
+        CatchExplosionFX? explosion = fx.GetComponent<CatchExplosionFX>();
+        if (explosion != null)
+        {
+            explosion.Play(ElementVisuals.GetGlowColor(ElementVisuals.GetCurrentElement()));
+        }
     }
 
     int recallSoundLoop = -1;

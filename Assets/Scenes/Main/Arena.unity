@@ -17072,6 +17072,7 @@ MonoBehaviour:
   _currentBuff: 0
   buffPower: 0
   swingTrail: {fileID: 72746160}
+  recallTrailPrefab: {fileID: 6410427000160513466, guid: 4c379dd30c484434294f43dbe2c8f04e, type: 3}
   maxSpeed: 10
   decelerationRate: 2
   spriteObject: {fileID: 1230438379}

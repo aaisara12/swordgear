@@ -36,6 +36,8 @@ public class SwordProjectile : MonoBehaviour
     bool isFlying = false;  // For damage checks
     bool isRecalling = false;
     [SerializeField] ParticleSystem swingTrail;
+    [SerializeField] GameObject? recallTrailPrefab;
+    GameObject? recallTrailInstance;
 
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
@@ -133,6 +135,8 @@ public class SwordProjectile : MonoBehaviour
 
         transform.up = direction;
         rb.linearVelocity = direction * recallSpeed;
+
+        PlayRecallTrail();
     }
 
     public void StopFlight()
@@ -149,11 +153,55 @@ public class SwordProjectile : MonoBehaviour
 
     void ClearRecallState()
     {
+        StopRecallTrail();
         isRecalling = false;
         recallTarget = null;
         onRecallArrived = null;
         recallElapsed = 0f;
         RestoreRecallCollisionIgnores();
+    }
+
+    void EnsureRecallTrail()
+    {
+        if (recallTrailInstance != null || recallTrailPrefab == null)
+        {
+            return;
+        }
+
+        recallTrailInstance = Instantiate(recallTrailPrefab, transform);
+        recallTrailInstance.transform.localPosition = Vector3.zero;
+        recallTrailInstance.transform.localRotation = Quaternion.identity;
+    }
+
+    void PlayRecallTrail()
+    {
+        EnsureRecallTrail();
+        if (recallTrailInstance == null)
+        {
+            return;
+        }
+
+        Color tint = ElementVisuals.GetGlowColor(ElementVisuals.GetCurrentElement());
+        foreach (ParticleSystem ps in recallTrailInstance.GetComponentsInChildren<ParticleSystem>())
+        {
+            var main = ps.main;
+            main.startColor = tint;
+            ps.Clear();
+            ps.Play();
+        }
+    }
+
+    void StopRecallTrail()
+    {
+        if (recallTrailInstance == null)
+        {
+            return;
+        }
+
+        foreach (ParticleSystem ps in recallTrailInstance.GetComponentsInChildren<ParticleSystem>())
+        {
+            ps.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
     }
 
     void SetRecallCollisionIgnores(bool ignore)
@@ -341,7 +389,10 @@ public class SwordProjectile : MonoBehaviour
     void Update()
     {
         if (!isFlying) return;
-        ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
+        if (!isRecalling)
+        {
+            ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
+        }
         //DisplaySword();
     }
 
