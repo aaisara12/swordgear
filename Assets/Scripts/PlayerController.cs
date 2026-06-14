@@ -94,6 +94,7 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] float recallSpeed = 16f;
     [SerializeField] float recallMaxDuration = 3f;
     private Coroutine? recallSwordCoroutine;
+    static bool _recallParticlesWarmed;
 
     private void Awake()
     {
@@ -106,6 +107,12 @@ public class PlayerController : PlayerGameplayPawn
         else
         {
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
+        if (!_recallParticlesWarmed && recallParticles != null)
+        {
+            recallParticles.Simulate(1f, true, true);
+            recallParticles.Clear(true);
+            _recallParticlesWarmed = true;
         }
         foreach (Element elem in elementWeaponDict.Keys)
         {
@@ -132,7 +139,7 @@ public class PlayerController : PlayerGameplayPawn
         AudioSystem.Play(AudioSystem.Sound.Player_Hurt);
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         if (playerDamageFX == null) return;
-        IAttackAnimator effect = Instantiate(playerDamageFX, transform.position, Quaternion.identity).GetComponent<IAttackAnimator>();
+        IAttackAnimator effect = PrefabPool.Instance!.Spawn(playerDamageFX, transform.position, Quaternion.identity).GetComponent<IAttackAnimator>();
         if (effect != null) effect.PlayAnimation();
     }
 

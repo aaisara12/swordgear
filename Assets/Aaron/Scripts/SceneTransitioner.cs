@@ -36,6 +36,8 @@ public class SceneTransitioner : MonoBehaviour
         {
             return;
         }
+
+        PrefabPool.Instance?.ReleaseAll();
         
         toggleLoadingScreenChannel.RaiseDataChanged(true);
         await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
@@ -54,6 +56,8 @@ public class SceneTransitioner : MonoBehaviour
         {
             await loadNewSceneTask;
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+            toggleLoadingScreenChannel.RaiseDataChanged(false);
+            await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
             lastSceneLoaded = sceneName;
             onSceneTransitionFinished.Invoke(sceneName);
             return;

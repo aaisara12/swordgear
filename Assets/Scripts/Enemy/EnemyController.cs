@@ -104,7 +104,7 @@ public class EnemyController : MonoBehaviour
         OnAnyEnemyDeath?.Invoke(this);
 
         OnDeath?.Invoke();
-        GameObject? effectObject = Instantiate(deathFX, transform.position, Quaternion.identity);
+        GameObject? effectObject = PrefabPool.Instance!.Spawn(deathFX, transform.position, Quaternion.identity);
         IAttackAnimator? effect = null;
         if (effectObject != null)
             effect = effectObject.GetComponent<IAttackAnimator>();

@@ -57,11 +57,11 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         GameObject weaponHitbox;
         if (chargeTier == chargeAnimNames.Length - 1)
         {
-            weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             SpawnBombCascade(player);
         }
         else
-            weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         weaponHitbox.transform.up = player.up;
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
@@ -71,12 +71,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         {
             if (chargeTier == chargeAnimNames.Length - 1)
             {
-                effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireCharged);
             } 
             else
             {
-                effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireBasic);
             }
             
@@ -100,10 +100,10 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
         applyBurn = false;
     }
@@ -144,11 +144,16 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
                 Vector2 dir = Quaternion.Euler(0f, 0f, angle) * forward;
                 Vector2 spawnPos = (Vector2)player.position + dir.normalized * distance;
 
-                Instantiate(
+                var bomb = PrefabPool.Instance!.Spawn(
                     bombObject,
                     spawnPos,
                     Quaternion.identity
                 );
+                foreach (var ps in bomb.GetComponentsInChildren<ParticleSystem>(true))
+                    ps.Play(true);
+                var pooled = bomb.GetComponent<PooledInstance>();
+                if (pooled != null)
+                    pooled.ReleaseWhenParticlesDone();
             }
             AudioSystem.Play(AudioSystem.Sound.Slash_FireEruption);
             yield return new WaitForSeconds(waveDelay);
