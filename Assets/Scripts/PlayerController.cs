@@ -45,6 +45,9 @@ public class PlayerController : PlayerGameplayPawn
 
     PlayerState playerState = PlayerState.MeleeReady;
     public bool IsMeleeReady => playerState == PlayerState.MeleeReady;
+    public float SwordCatchRadius => swordCatchRadius;
+    public bool IsRecallChannelActive => recallSwordCoroutine != null;
+    public bool IsSwordOut => playerState == PlayerState.SwordThrown;
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;
@@ -125,6 +128,43 @@ public class PlayerController : PlayerGameplayPawn
         {
             Debug.LogError("PlayerController: weaponIndicator is null");
         }
+    }
+
+    void OnEnable()
+    {
+        SwordLodgedIndicator.OnSwordLodged += HandleSwordLodged;
+    }
+
+    void HandleSwordLodged()
+    {
+        if (playerState != PlayerState.SwordThrown)
+        {
+            return;
+        }
+
+        if (swordFlightSound != -1)
+        {
+            AudioSystem.StopLoop(swordFlightSound);
+            swordFlightSound = -1;
+        }
+    }
+
+    void ForceResetThrownSword()
+    {
+        CancelRecallChannel();
+        if (swordFlightSound != -1)
+        {
+            AudioSystem.StopLoop(swordFlightSound);
+            swordFlightSound = -1;
+        }
+
+        if (SwordProjectile.Instance != null)
+        {
+            SwordProjectile.Instance.StopFlight();
+        }
+
+        playerState = PlayerState.MeleeReady;
+        weaponIndicator?.SetEquippedVisible(true);
     }
     
     public void TakeDamage(float damage)
@@ -273,6 +313,14 @@ public class PlayerController : PlayerGameplayPawn
 
     private void OnDisable()
     {
+        SwordLodgedIndicator.OnSwordLodged -= HandleSwordLodged;
+
+        if (playerState == PlayerState.SwordThrown)
+        {
+            ForceResetThrownSword();
+            return;
+        }
+
         bool recallChannelActive = recallSwordCoroutine != null;
         bool recallFlightActive = SwordProjectile.Instance != null && SwordProjectile.Instance.IsRecalling;
 

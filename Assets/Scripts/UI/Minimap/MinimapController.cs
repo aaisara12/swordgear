@@ -26,6 +26,7 @@ public class MinimapController : MonoBehaviour
     [SerializeField] private RectTransform? blipContainer;
     [SerializeField] private Image? playerBlip;
     [SerializeField] private Image? enemyBlipPrefab;
+    [SerializeField] private Image? swordBlip;
 
     [Header("UI Size")]
     [SerializeField]
@@ -65,6 +66,7 @@ public class MinimapController : MonoBehaviour
 
         ApplyPanelSize();
         EnsureEnemyBlips();
+        EnsureSwordBlip();
         ApplyPlayerBlipSprite();
         CacheMapDisplaySize();
         EnsurePanelCanvasGroup();
@@ -213,6 +215,7 @@ public class MinimapController : MonoBehaviour
         {
             playerBlip.enabled = false;
             HideEnemyBlips();
+            HideSwordBlip();
             return;
         }
 
@@ -221,6 +224,7 @@ public class MinimapController : MonoBehaviour
         UpdateViewport(playerPos);
         UpdatePlayerBlip(playerPos, GetPlayerMovementDirection(player));
         UpdateEnemyBlips();
+        UpdateSwordBlip();
     }
 
     public void Refresh(GameObject? roomRoot)
@@ -277,6 +281,7 @@ public class MinimapController : MonoBehaviour
             playerBlip.enabled = false;
         }
 
+        HideSwordBlip();
         SetPanelVisible(false);
     }
 
@@ -299,6 +304,105 @@ public class MinimapController : MonoBehaviour
         ApplyPanelSize();
     }
 #endif
+
+    private void EnsureSwordBlip()
+    {
+        if (swordBlip != null || blipContainer == null)
+        {
+            return;
+        }
+
+        if (enemyBlipPrefab == null)
+        {
+            return;
+        }
+
+        swordBlip = Instantiate(enemyBlipPrefab, blipContainer);
+        swordBlip.gameObject.name = "SwordBlip";
+        swordBlip.sprite = CreateSwordBlipSprite();
+        swordBlip.rectTransform.sizeDelta = new Vector2(14f, 14f);
+        swordBlip.gameObject.SetActive(false);
+    }
+
+    private static Sprite? swordBlipSprite;
+
+    private static Sprite CreateSwordBlipSprite()
+    {
+        if (swordBlipSprite != null)
+        {
+            return swordBlipSprite;
+        }
+
+        const int size = 16;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[size * size];
+        Vector2 tip = new Vector2(size * 0.5f, size * 0.9f);
+        Vector2 left = new Vector2(size * 0.35f, size * 0.15f);
+        Vector2 right = new Vector2(size * 0.65f, size * 0.15f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                pixels[y * size + x] = PointInTriangle(new Vector2(x, y), tip, left, right)
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(0, 0, 0, 0);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply();
+        swordBlipSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        return swordBlipSprite;
+    }
+
+    private void UpdateSwordBlip()
+    {
+        if (swordBlip == null)
+        {
+            return;
+        }
+
+        SwordProjectile? projectile = SwordProjectile.Instance;
+        if (projectile == null || !projectile.IsLodgedIndicatorActive)
+        {
+            HideSwordBlip();
+            return;
+        }
+
+        Vector2 swordPos = projectile.LodgedHiltWorldPosition;
+        Vector2 normalized = MinimapMapGenerator.WorldToNormalized(swordPos, roomBounds);
+        if (normalized.x < -0.05f || normalized.x > 1.05f || normalized.y < -0.05f || normalized.y > 1.05f)
+        {
+            float half = GetViewportRadiusPixels();
+            Vector2 blipPos = WorldToBlipPosition(swordPos);
+            if (blipPos.sqrMagnitude > half * half)
+            {
+                blipPos = blipPos.normalized * half;
+            }
+
+            swordBlip.gameObject.SetActive(true);
+            swordBlip.enabled = true;
+            swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
+            swordBlip.rectTransform.anchoredPosition = blipPos;
+            swordBlip.transform.SetAsLastSibling();
+            return;
+        }
+
+        swordBlip.gameObject.SetActive(true);
+        swordBlip.enabled = true;
+        swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
+        swordBlip.rectTransform.anchoredPosition = WorldToBlipPosition(swordPos);
+        swordBlip.transform.SetAsLastSibling();
+    }
+
+    private void HideSwordBlip()
+    {
+        if (swordBlip != null)
+        {
+            swordBlip.gameObject.SetActive(false);
+        }
+    }
 
     private void EnsureEnemyBlips()
     {
