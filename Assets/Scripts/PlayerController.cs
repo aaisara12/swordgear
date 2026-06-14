@@ -199,7 +199,10 @@ public class PlayerController : PlayerGameplayPawn
             recallSwordCoroutine = null;
         }
 
-        recallParticles?.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        if (recallParticles != null)
+        {
+            recallParticles.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
         AudioSystem.StopLoop(recallSoundLoop);
 
         SwordProjectile.Instance.StopFlight();
@@ -259,7 +262,10 @@ public class PlayerController : PlayerGameplayPawn
 
     void CancelRecallChannel()
     {
-        recallParticles?.Stop();
+        if (recallParticles != null)
+        {
+            recallParticles.Stop();
+        }
 
         if (recallSwordCoroutine != null)
         {
