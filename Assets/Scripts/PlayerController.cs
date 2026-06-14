@@ -49,6 +49,7 @@ public class PlayerController : PlayerGameplayPawn
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;
     private bool _isDashing = false;
+    private Vector2 _lastMoveDirection = Vector2.zero;
 
     private bool IsOnAttackCooldown => _attackCooldownRemaining > 0f;
     private bool IsOnDashCooldown => _dashCooldownRemaining > 0f;
@@ -84,8 +85,8 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
-        rb!.linearVelocity = Vector2.zero;
         _isDashing = false;
+        MoveInDirection(_lastMoveDirection);
     }
 
     [Header("Sword Recall")]
@@ -383,6 +384,7 @@ public class PlayerController : PlayerGameplayPawn
     public override void MoveInDirection(Vector2 direction)
     {
         // RETROFIT: From OnMove
+        _lastMoveDirection = direction;
         if (_isDashing) return;
         rb.ThrowIfNull(nameof(rb));
 
