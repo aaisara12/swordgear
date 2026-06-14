@@ -26,7 +26,10 @@ public class AudioSystem : MonoBehaviour
         Basic_Flight,
         Fire_Flight,
         Ice_Flight,
-        Lightning_Flight
+        Lightning_Flight,
+
+        // Dash
+        Player_Dash
     }
 
     public AudioLibrary library;

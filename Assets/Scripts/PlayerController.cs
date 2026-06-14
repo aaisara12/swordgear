@@ -72,6 +72,8 @@ public class PlayerController : PlayerGameplayPawn
         _isDashing = true;
         _dashCooldownRemaining = dashCooldown;
 
+        AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+
         int playerLayer = gameObject.layer;
         int enemyLayer = LayerMask.NameToLayer(enemyPhysicsLayer);
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
