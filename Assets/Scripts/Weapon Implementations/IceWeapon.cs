@@ -38,9 +38,9 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     {
         GameObject weaponHitbox;
         if (combo == 0)
-            weaponHitbox = Instantiate(weakCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         else
-            weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
@@ -50,7 +50,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             effect.transform.up = player.up;
             if (combo > 0)
             {
@@ -77,10 +77,10 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
     }
 
@@ -154,7 +154,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         flightTime = (flightTime += Time.deltaTime) % fieldSpawnInterval;
         if (flightTime < Time.deltaTime && upgrades.Contains(UpgradeType.Ice_RangedChill))
         {
-            IceChillField field = Instantiate(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
+            IceChillField field = PrefabPool.Instance!.Spawn(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
             field.lingerDuration = fieldDuration;
             field.BeginEffect();
         }

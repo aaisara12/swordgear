@@ -62,7 +62,7 @@ public class RangedAttackStrategy : MonoBehaviour, IAttackStrategy
         // Core logic for the ranged attack
         Vector2 direction = (targetTransform.position - selfTransform.position).normalized;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90f;
-        GameObject projectile = Instantiate(projectilePrefab, selfTransform.position, Quaternion.Euler(0, 0, angle));
+        GameObject projectile = PrefabPool.Instance!.Spawn(projectilePrefab, selfTransform.position, Quaternion.Euler(0, 0, angle));
 
         // Initialize the projectile with the enemy's element and damage
         EnemyProjectile enemyProjectile = projectile.GetComponent<EnemyProjectile>();

@@ -244,6 +244,8 @@ MonoBehaviour:
   sceneTransitioner: {fileID: 736223908}
   startScene:
     sceneName: Arena
+  vfxPrewarmer: {fileID: 9100000000000000006}
+  toggleLoadingScreenChannel: {fileID: 11400000, guid: b30a0b4446b08487b827673eaf8987f7, type: 2}
   gameComponents:
   - {fileID: 1874817347}
   - {fileID: 873413179}
@@ -266,6 +268,17 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9100000000000000006 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 9100000000000000004, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+  m_PrefabInstance: {fileID: 9120229236985474497}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0e491fe4ce4848d2b3a165cd58f2db01, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &1874817347 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 8073755906317011575, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
