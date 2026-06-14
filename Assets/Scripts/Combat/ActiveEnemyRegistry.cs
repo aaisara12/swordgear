@@ -12,6 +12,8 @@ public static class ActiveEnemyRegistry
 
     private static readonly List<EnemyController> ActiveEnemies = new();
 
+    public static IReadOnlyList<EnemyController> All => ActiveEnemies;
+
     public static void Register(EnemyController enemy)
     {
         if (!ActiveEnemies.Contains(enemy))

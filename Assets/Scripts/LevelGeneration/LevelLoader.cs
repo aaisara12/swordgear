@@ -19,6 +19,14 @@ public class LevelLoader : MonoBehaviour
     private GameObject currentRoom;
     private GameObject currentTransition;
 
+    public void RefreshMinimapIfLoaded()
+    {
+        if (currentRoom != null)
+        {
+            MinimapController.Instance?.Refresh(currentRoom);
+        }
+    }
+
     public void LoadLevel(LevelBlueprint blueprint)
     {
         // Reset combo/scoring state for the new level.
@@ -42,6 +50,7 @@ public class LevelLoader : MonoBehaviour
 
         // Instantiate Room Geometry and Transition
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
+        MinimapController.Instance?.Refresh(currentRoom);
 
         // TODO implement transitions later
         // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
