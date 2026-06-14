@@ -4,7 +4,7 @@ using UnityEngine;
 using System.Linq;
 
 [RequireComponent(typeof(LineRenderer))]
-public class ChainLightningProjectile : MonoBehaviour
+public class ChainLightningProjectile : MonoBehaviour, IPoolReset
 {
     [Header("Search Settings")]
     [SerializeField] private float searchRadius = 10f;
@@ -28,6 +28,19 @@ public class ChainLightningProjectile : MonoBehaviour
 
     private HashSet<EnemyController> pastTargets = new HashSet<EnemyController>();
 
+    public void OnSpawned()
+    {
+        pastTargets.Clear();
+        lineRenderer ??= GetComponent<LineRenderer>();
+        if (lineRenderer != null)
+            lineRenderer.positionCount = 0;
+    }
+
+    public void OnReleased()
+    {
+        pastTargets.Clear();
+    }
+
     public void Initialize(Transform origin)
     {
         spawnOrigin = origin;
@@ -46,7 +59,7 @@ public class ChainLightningProjectile : MonoBehaviour
             EnemyController nextTarget = FindNextTarget(currentPos, forwardDir);
             if (nextTarget == null)
             {
-                Destroy(gameObject);
+                PrefabPool.Instance?.Release(gameObject);
                 yield break;
             }
 
@@ -166,7 +179,7 @@ public class ChainLightningProjectile : MonoBehaviour
             yield return null;
         }
 
-        Destroy(gameObject);
+        PrefabPool.Instance?.Release(gameObject);
     }
 
 

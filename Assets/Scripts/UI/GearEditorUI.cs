@@ -56,7 +56,7 @@ public class GearEditorUI : MonoBehaviour
     {
         if (gearManager == null)
         {
-            gearManager = FindObjectOfType<GearManager>();
+            gearManager = FindFirstObjectByType<GearManager>();
             if (gearManager == null)
             {
                 Debug.LogError("GearManager not found in scene!");

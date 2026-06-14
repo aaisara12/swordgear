@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour
     {
         if (!damageUI) return;
 
-        GameObject ui = Instantiate(damageUI, position, Quaternion.identity);
+        GameObject ui = PrefabPool.Instance!.Spawn(damageUI, position, Quaternion.identity);
 
         ui.GetComponent<DamageUI>().ShowNumber(amt, currentElement);
     }

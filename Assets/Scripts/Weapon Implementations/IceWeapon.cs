@@ -21,7 +21,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float fieldSpawnInterval = 0.2f;
     [SerializeField] private float fieldDuration = 3f;
     [Header("Combat")]
-    [SerializeField] private float attackRadius = 3f;
+    [SerializeField] private float attackRadius = ActiveEnemyRegistry.AutoTargetRadius;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float meleeCooldown = 0.3f;
     [SerializeField] private float strongHitBonusDmg = 10f;
@@ -38,9 +38,9 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     {
         GameObject weaponHitbox;
         if (combo == 0)
-            weaponHitbox = Instantiate(weakCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         else
-            weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
@@ -50,7 +50,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = Instantiate(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             effect.transform.up = player.up;
             if (combo > 0)
             {
@@ -77,10 +77,10 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
     }
 
@@ -97,27 +97,13 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         else
             combo = 0;
 
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject? nearestEnemy = null;
-        float shortestDistance = Mathf.Infinity;
-
-        foreach (GameObject enemy in enemies)
-        {
-            float distance = Vector2.Distance(player.position, enemy.transform.position);
-            if (distance < shortestDistance && distance <= attackRadius)
-            {
-                shortestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        }
-
-        if (nearestEnemy == null)
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player);
             return meleeCooldown;
         }
 
-        Vector2 direction = (nearestEnemy.transform.position - player.position).normalized;
+        Vector2 direction = ((Vector2)nearestEnemy.transform.position - (Vector2)player.position).normalized;
         player.up = direction;
 
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
@@ -154,7 +140,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         flightTime = (flightTime += Time.deltaTime) % fieldSpawnInterval;
         if (flightTime < Time.deltaTime && upgrades.Contains(UpgradeType.Ice_RangedChill))
         {
-            IceChillField field = Instantiate(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
+            IceChillField field = PrefabPool.Instance!.Spawn(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
             field.lingerDuration = fieldDuration;
             field.BeginEffect();
         }

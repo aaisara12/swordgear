@@ -1,0 +1,593 @@
+#nullable enable
+
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UI;
+
+/// <summary>
+/// Mobile schematic minimap: runtime-generated map, player/enemy blips.
+/// UI references must be assigned in the CombatHUD scene.
+/// </summary>
+public class MinimapController : MonoBehaviour
+{
+    public static MinimapController? Instance { get; private set; }
+
+    private const int MaxEnemyBlips = 16;
+
+    private static readonly Color PhysicalColor = new(0.816f, 0.816f, 0.816f, 1f);
+    private static readonly Color FireColor = new(1f, 0.333f, 0.2f, 1f);
+    private static readonly Color IceColor = new(0.267f, 0.8f, 1f, 1f);
+    private static readonly Color LightningColor = new(1f, 0.839f, 0.2f, 1f);
+
+    [Header("UI")]
+    [SerializeField] private RectTransform? minimapPanel;
+    [SerializeField] private CanvasGroup? panelCanvasGroup;
+    [SerializeField] private RawImage? mapImage;
+    [SerializeField] private RectTransform? blipContainer;
+    [SerializeField] private Image? playerBlip;
+    [SerializeField] private Image? enemyBlipPrefab;
+    [SerializeField] private Image? swordBlip;
+
+    [Header("UI Size")]
+    [SerializeField]
+    [Range(140f, 320f)]
+    [Tooltip("Diameter of the minimap on screen in canvas pixels.")]
+    private float minimapPanelSize = 220f;
+
+    [Header("Zoom")]
+    [SerializeField]
+    [Range(16f, 96f)]
+    [Tooltip("World units shown in the minimap viewport. Lower = more zoomed in. The view follows the player.")]
+    private float visibleWorldSize = 40f;
+
+    private readonly List<Image> enemyBlips = new(MaxEnemyBlips);
+    private Texture2D? mapTexture;
+    private Bounds roomBounds;
+    private bool hasActiveRoom;
+    private float mapDisplaySize;
+    private Rect currentViewportUv = new Rect(0f, 0f, 1f, 1f);
+    private Vector2 lastPlayerMoveDirection = Vector2.up;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+
+        if (!ValidateReferences())
+        {
+            enabled = false;
+            return;
+        }
+
+        ApplyPanelSize();
+        EnsureEnemyBlips();
+        EnsureSwordBlip();
+        ApplyPlayerBlipSprite();
+        CacheMapDisplaySize();
+        EnsurePanelCanvasGroup();
+        SetPanelVisible(false);
+    }
+
+    private void OnEnable()
+    {
+        LevelLoader.Instance?.RefreshMinimapIfLoaded();
+    }
+
+    private void EnsurePanelCanvasGroup()
+    {
+        if (panelCanvasGroup == null && minimapPanel != null)
+        {
+            panelCanvasGroup = minimapPanel.GetComponent<CanvasGroup>();
+            if (panelCanvasGroup == null)
+            {
+                panelCanvasGroup = minimapPanel.gameObject.AddComponent<CanvasGroup>();
+            }
+        }
+    }
+
+    private bool ValidateReferences()
+    {
+        if (minimapPanel == null)
+        {
+            Debug.LogError("MinimapController: minimapPanel is not assigned.");
+            return false;
+        }
+
+        if (mapImage == null)
+        {
+            Debug.LogError("MinimapController: mapImage is not assigned.");
+            return false;
+        }
+
+        if (blipContainer == null)
+        {
+            Debug.LogError("MinimapController: blipContainer is not assigned.");
+            return false;
+        }
+
+        if (playerBlip == null)
+        {
+            Debug.LogError("MinimapController: playerBlip is not assigned.");
+            return false;
+        }
+
+        if (enemyBlipPrefab == null)
+        {
+            Debug.LogError("MinimapController: enemyBlipPrefab is not assigned.");
+            return false;
+        }
+
+        return true;
+    }
+
+    private void ApplyPanelSize()
+    {
+        if (minimapPanel == null)
+        {
+            return;
+        }
+
+        minimapPanel.sizeDelta = new Vector2(minimapPanelSize, minimapPanelSize);
+        CacheMapDisplaySize();
+    }
+
+    private void ApplyPlayerBlipSprite()
+    {
+        if (playerBlip == null)
+        {
+            return;
+        }
+
+        playerBlip.sprite = CreateArrowSprite();
+        playerBlip.color = Color.white;
+    }
+
+    private static Sprite? arrowSprite;
+
+    private static Sprite CreateArrowSprite()
+    {
+        if (arrowSprite != null)
+        {
+            return arrowSprite;
+        }
+
+        const int size = 32;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[size * size];
+        Vector2 tip = new Vector2(size * 0.5f, size * 0.88f);
+        Vector2 left = new Vector2(size * 0.2f, size * 0.2f);
+        Vector2 right = new Vector2(size * 0.8f, size * 0.2f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                pixels[y * size + x] = PointInTriangle(new Vector2(x, y), tip, left, right)
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(0, 0, 0, 0);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply();
+        arrowSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        return arrowSprite;
+    }
+
+    private static bool PointInTriangle(Vector2 point, Vector2 a, Vector2 b, Vector2 c)
+    {
+        float denominator = (b.y - c.y) * (a.x - c.x) + (c.x - b.x) * (a.y - c.y);
+        if (Mathf.Approximately(denominator, 0f))
+        {
+            return false;
+        }
+
+        float alpha = ((b.y - c.y) * (point.x - c.x) + (c.x - b.x) * (point.y - c.y)) / denominator;
+        float beta = ((c.y - a.y) * (point.x - c.x) + (a.x - c.x) * (point.y - c.y)) / denominator;
+        float gamma = 1f - alpha - beta;
+        return alpha >= 0f && beta >= 0f && gamma >= 0f;
+    }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+
+        DestroyTexture(ref mapTexture);
+    }
+
+    private void LateUpdate()
+    {
+        if (!hasActiveRoom || mapImage == null || playerBlip == null || blipContainer == null)
+        {
+            return;
+        }
+
+        GameObject? player = GameManager.Instance?.player;
+        if (player == null)
+        {
+            playerBlip.enabled = false;
+            HideEnemyBlips();
+            HideSwordBlip();
+            return;
+        }
+
+        Vector2 playerPos = GetMapPosition(player);
+        CacheMapDisplaySize();
+        UpdateViewport(playerPos);
+        UpdatePlayerBlip(playerPos, GetPlayerMovementDirection(player));
+        UpdateEnemyBlips();
+        UpdateSwordBlip();
+    }
+
+    public void Refresh(GameObject? roomRoot)
+    {
+        DestroyTexture(ref mapTexture);
+        hasActiveRoom = false;
+
+        if (roomRoot == null || mapImage == null)
+        {
+            ClearDisplay();
+            return;
+        }
+
+        RegenerateMap(roomRoot);
+    }
+
+    private void RegenerateMap(GameObject roomRoot)
+    {
+        if (mapImage == null)
+        {
+            return;
+        }
+
+        (Texture2D? map, Bounds bounds, bool hasContent) = MinimapMapGenerator.Generate(roomRoot);
+        if (!hasContent || map == null)
+        {
+            ClearDisplay();
+            return;
+        }
+
+        mapTexture = map;
+        roomBounds = bounds;
+        hasActiveRoom = true;
+        currentViewportUv = new Rect(0f, 0f, 1f, 1f);
+        lastPlayerMoveDirection = Vector2.up;
+
+        mapImage.texture = mapTexture;
+        mapImage.enabled = true;
+        SetPanelVisible(true);
+    }
+
+    private void ClearDisplay()
+    {
+        if (mapImage != null)
+        {
+            mapImage.texture = null;
+            mapImage.enabled = false;
+        }
+
+        HideEnemyBlips();
+
+        if (playerBlip != null)
+        {
+            playerBlip.enabled = false;
+        }
+
+        HideSwordBlip();
+        SetPanelVisible(false);
+    }
+
+    private void SetPanelVisible(bool visible)
+    {
+        EnsurePanelCanvasGroup();
+        if (panelCanvasGroup != null)
+        {
+            panelCanvasGroup.alpha = visible ? 1f : 0f;
+            panelCanvasGroup.interactable = visible;
+            panelCanvasGroup.blocksRaycasts = visible;
+        }
+    }
+
+#if UNITY_EDITOR
+    private void OnValidate()
+    {
+        visibleWorldSize = Mathf.Clamp(visibleWorldSize, 16f, 96f);
+        minimapPanelSize = Mathf.Clamp(minimapPanelSize, 140f, 320f);
+        ApplyPanelSize();
+    }
+#endif
+
+    private void EnsureSwordBlip()
+    {
+        if (swordBlip != null || blipContainer == null)
+        {
+            return;
+        }
+
+        if (enemyBlipPrefab == null)
+        {
+            return;
+        }
+
+        swordBlip = Instantiate(enemyBlipPrefab, blipContainer);
+        swordBlip.gameObject.name = "SwordBlip";
+        swordBlip.sprite = CreateSwordBlipSprite();
+        swordBlip.rectTransform.sizeDelta = new Vector2(14f, 14f);
+        swordBlip.gameObject.SetActive(false);
+    }
+
+    private static Sprite? swordBlipSprite;
+
+    private static Sprite CreateSwordBlipSprite()
+    {
+        if (swordBlipSprite != null)
+        {
+            return swordBlipSprite;
+        }
+
+        const int size = 16;
+        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[size * size];
+        Vector2 tip = new Vector2(size * 0.5f, size * 0.9f);
+        Vector2 left = new Vector2(size * 0.35f, size * 0.15f);
+        Vector2 right = new Vector2(size * 0.65f, size * 0.15f);
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                pixels[y * size + x] = PointInTriangle(new Vector2(x, y), tip, left, right)
+                    ? new Color32(255, 255, 255, 255)
+                    : new Color32(0, 0, 0, 0);
+            }
+        }
+
+        texture.SetPixels32(pixels);
+        texture.Apply();
+        swordBlipSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
+        return swordBlipSprite;
+    }
+
+    private void UpdateSwordBlip()
+    {
+        if (swordBlip == null)
+        {
+            return;
+        }
+
+        SwordProjectile? projectile = SwordProjectile.Instance;
+        if (projectile == null || !projectile.IsLodgedIndicatorActive)
+        {
+            HideSwordBlip();
+            return;
+        }
+
+        Vector2 swordPos = projectile.LodgedHiltWorldPosition;
+        Vector2 normalized = MinimapMapGenerator.WorldToNormalized(swordPos, roomBounds);
+        if (normalized.x < -0.05f || normalized.x > 1.05f || normalized.y < -0.05f || normalized.y > 1.05f)
+        {
+            float half = GetViewportRadiusPixels();
+            Vector2 blipPos = WorldToBlipPosition(swordPos);
+            if (blipPos.sqrMagnitude > half * half)
+            {
+                blipPos = blipPos.normalized * half;
+            }
+
+            swordBlip.gameObject.SetActive(true);
+            swordBlip.enabled = true;
+            swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
+            swordBlip.rectTransform.anchoredPosition = blipPos;
+            swordBlip.transform.SetAsLastSibling();
+            return;
+        }
+
+        swordBlip.gameObject.SetActive(true);
+        swordBlip.enabled = true;
+        swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
+        swordBlip.rectTransform.anchoredPosition = WorldToBlipPosition(swordPos);
+        swordBlip.transform.SetAsLastSibling();
+    }
+
+    private void HideSwordBlip()
+    {
+        if (swordBlip != null)
+        {
+            swordBlip.gameObject.SetActive(false);
+        }
+    }
+
+    private void EnsureEnemyBlips()
+    {
+        if (enemyBlipPrefab == null || blipContainer == null)
+        {
+            return;
+        }
+
+        enemyBlipPrefab.gameObject.SetActive(false);
+
+        while (enemyBlips.Count < MaxEnemyBlips)
+        {
+            Image blip = Instantiate(enemyBlipPrefab, blipContainer);
+            blip.gameObject.SetActive(false);
+            enemyBlips.Add(blip);
+        }
+    }
+
+    private void CacheMapDisplaySize()
+    {
+        if (mapImage != null)
+        {
+            mapDisplaySize = mapImage.rectTransform.rect.width;
+            if (mapDisplaySize > 1f)
+            {
+                return;
+            }
+        }
+
+        if (blipContainer != null)
+        {
+            mapDisplaySize = blipContainer.rect.width;
+            return;
+        }
+
+        if (minimapPanel != null)
+        {
+            mapDisplaySize = minimapPanel.rect.width - 16f;
+        }
+    }
+
+    private static Vector2 GetMapPosition(GameObject target)
+    {
+        Rigidbody2D? rb = target.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            return rb.position;
+        }
+
+        return target.transform.position;
+    }
+
+    private void UpdateViewport(Vector2 playerPos)
+    {
+        if (mapImage == null)
+        {
+            return;
+        }
+
+        Vector2 playerNormalized = MinimapMapGenerator.WorldToNormalized(playerPos, roomBounds);
+        float viewportWidth = Mathf.Min(1f, visibleWorldSize / roomBounds.size.x);
+        float viewportHeight = Mathf.Min(1f, visibleWorldSize / roomBounds.size.y);
+
+        float halfWidth = viewportWidth * 0.5f;
+        float halfHeight = viewportHeight * 0.5f;
+
+        float uvX = Mathf.Clamp(playerNormalized.x - halfWidth, 0f, 1f - viewportWidth);
+        float uvY = Mathf.Clamp(playerNormalized.y - halfHeight, 0f, 1f - viewportHeight);
+
+        currentViewportUv = new Rect(uvX, uvY, viewportWidth, viewportHeight);
+        mapImage.uvRect = currentViewportUv;
+    }
+
+    private Vector2 WorldToBlipPosition(Vector2 worldPos)
+    {
+        Vector2 normalized = MinimapMapGenerator.WorldToNormalized(worldPos, roomBounds);
+        float size = mapDisplaySize > 0f ? mapDisplaySize : 160f;
+
+        float viewportX = (normalized.x - currentViewportUv.x) / currentViewportUv.width;
+        float viewportY = (normalized.y - currentViewportUv.y) / currentViewportUv.height;
+
+        return new Vector2(
+            (viewportX - 0.5f) * size,
+            (viewportY - 0.5f) * size);
+    }
+
+    private void UpdatePlayerBlip(Vector2 playerPos, Vector2 facing)
+    {
+        if (playerBlip == null || blipContainer == null)
+        {
+            return;
+        }
+
+        playerBlip.enabled = true;
+        playerBlip.rectTransform.anchoredPosition = WorldToBlipPosition(playerPos);
+        playerBlip.transform.SetAsLastSibling();
+
+        if (facing.sqrMagnitude > 0.001f)
+        {
+            float angle = Mathf.Atan2(facing.y, facing.x) * Mathf.Rad2Deg - 90f;
+            playerBlip.rectTransform.localRotation = Quaternion.Euler(0f, 0f, angle);
+        }
+    }
+
+    private void UpdateEnemyBlips()
+    {
+        IReadOnlyList<EnemyController> enemies = ActiveEnemyRegistry.All;
+        int blipIndex = 0;
+        float halfViewport = GetViewportRadiusPixels();
+
+        for (int i = 0; i < enemies.Count && blipIndex < enemyBlips.Count; i++)
+        {
+            EnemyController enemy = enemies[i];
+            if (enemy == null)
+            {
+                continue;
+            }
+
+            Vector2 blipPos = WorldToBlipPosition(GetMapPosition(enemy.gameObject));
+            if (blipPos.sqrMagnitude > halfViewport * halfViewport)
+            {
+                continue;
+            }
+
+            Image blip = enemyBlips[blipIndex];
+            blip.gameObject.SetActive(true);
+            blip.color = GetElementColor(enemy.element);
+            blip.rectTransform.anchoredPosition = blipPos;
+            blipIndex++;
+        }
+
+        for (int i = blipIndex; i < enemyBlips.Count; i++)
+        {
+            enemyBlips[i].gameObject.SetActive(false);
+        }
+    }
+
+    private void HideEnemyBlips()
+    {
+        for (int i = 0; i < enemyBlips.Count; i++)
+        {
+            enemyBlips[i].gameObject.SetActive(false);
+        }
+    }
+
+    private float GetViewportRadiusPixels()
+    {
+        float size = mapDisplaySize > 0f ? mapDisplaySize : 160f;
+        return size * 0.5f;
+    }
+
+    private Vector2 GetPlayerMovementDirection(GameObject player)
+    {
+        Rigidbody2D? rb = player.GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            Vector2 velocity = rb.linearVelocity;
+            if (velocity.sqrMagnitude > 0.05f)
+            {
+                lastPlayerMoveDirection = velocity.normalized;
+            }
+        }
+
+        return lastPlayerMoveDirection;
+    }
+
+    private static Color GetElementColor(Element element)
+    {
+        return element switch
+        {
+            Element.Fire => FireColor,
+            Element.Ice => IceColor,
+            Element.Lightning => LightningColor,
+            _ => PhysicalColor
+        };
+    }
+
+    private static void DestroyTexture(ref Texture2D? texture)
+    {
+        if (texture == null)
+        {
+            return;
+        }
+
+        Destroy(texture);
+        texture = null;
+    }
+}

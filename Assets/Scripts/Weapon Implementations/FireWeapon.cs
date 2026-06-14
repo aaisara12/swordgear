@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
-public class FireWeapon : MonoBehaviour, IElementalWeapon
+public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 {
     [SerializeField] private GameObject weaponCollider;
     [SerializeField] private GameObject strongCollider;
@@ -20,14 +20,25 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     float chargeDuration = 0f;
     int chargeTier = 0;
 
+    public bool IsCharging => isCharging;
+
+    public float ChargeProgress =>
+        isCharging && maxChargeTime > 0f ? Mathf.Clamp01(chargeDuration / maxChargeTime) : 0f;
+
+    public bool IsMaxCharge =>
+        isCharging && maxChargeTime > 0f && chargeDuration >= maxChargeTime;
+
+    public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
+        player.IsMeleeReady && upgrades.Contains(UpgradeType.Fire_ChargeMelee);
+
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
         if (cancel)
         {
-            isCharging = false;
-            chargeDuration = 0;
+            ResetCharge();
             return;
         }
+
         if (upgrades.Contains(UpgradeType.Fire_ChargeMelee))
         {
             isCharging = true;
@@ -46,11 +57,11 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
         GameObject weaponHitbox;
         if (chargeTier == chargeAnimNames.Length - 1)
         {
-            weaponHitbox = Instantiate(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             SpawnBombCascade(player);
         }
         else
-            weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         weaponHitbox.transform.up = player.up;
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
@@ -60,12 +71,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
         {
             if (chargeTier == chargeAnimNames.Length - 1)
             {
-                effect = Instantiate(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireCharged);
             } 
             else
             {
-                effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireBasic);
             }
             
@@ -89,10 +100,10 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
         applyBurn = false;
     }
@@ -133,11 +144,16 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
                 Vector2 dir = Quaternion.Euler(0f, 0f, angle) * forward;
                 Vector2 spawnPos = (Vector2)player.position + dir.normalized * distance;
 
-                Instantiate(
+                var bomb = PrefabPool.Instance!.Spawn(
                     bombObject,
                     spawnPos,
                     Quaternion.identity
                 );
+                foreach (var ps in bomb.GetComponentsInChildren<ParticleSystem>(true))
+                    ps.Play(true);
+                var pooled = bomb.GetComponent<PooledInstance>();
+                if (pooled != null)
+                    pooled.ReleaseWhenParticlesDone();
             }
             AudioSystem.Play(AudioSystem.Sound.Slash_FireEruption);
             yield return new WaitForSeconds(waveDelay);
@@ -148,11 +164,17 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
     {
         transform.position = player.position + player.up * distanceFromPlayer;
         transform.up = player.up;
-        isCharging = false;
+        ResetCharge();
         StartCoroutine(Swing(player));
-        chargeDuration = 0;
         return meleeCooldown;
     }
+
+    private void ResetCharge()
+    {
+        isCharging = false;
+        chargeDuration = 0;
+    }
+
     private void Update()
     {
         if (isCharging && chargeDuration < maxChargeTime)
@@ -160,13 +182,14 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon
             chargeDuration += Time.deltaTime;
             if (chargeDuration >= maxChargeTime)
             {
-                // Play effect 
+                chargeDuration = maxChargeTime;
             }
         }
     }
 
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
+        ResetCharge();
         sword.sprite.transform.localEulerAngles = Vector3.zero;
         sword.ToggleSwingTrail(false);
     }

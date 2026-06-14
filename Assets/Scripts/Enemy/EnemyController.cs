@@ -27,6 +27,16 @@ public class EnemyController : MonoBehaviour
 
     public GameObject? floatingPoints;
 
+    private void OnEnable()
+    {
+        ActiveEnemyRegistry.Register(this);
+    }
+
+    private void OnDisable()
+    {
+        ActiveEnemyRegistry.Unregister(this);
+    }
+
     private void Start()
     {
         player = GameManager.Instance?.player;
@@ -94,7 +104,7 @@ public class EnemyController : MonoBehaviour
         OnAnyEnemyDeath?.Invoke(this);
 
         OnDeath?.Invoke();
-        GameObject? effectObject = Instantiate(deathFX, transform.position, Quaternion.identity);
+        GameObject? effectObject = PrefabPool.Instance!.Spawn(deathFX, transform.position, Quaternion.identity);
         IAttackAnimator? effect = null;
         if (effectObject != null)
             effect = effectObject.GetComponent<IAttackAnimator>();

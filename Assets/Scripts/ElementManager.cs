@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 using System;
 using UnityEngine;
 using System.Collections;
@@ -51,6 +53,8 @@ public class ElementManager : InitializeableGameComponent
 
     public static ElementManager Instance = null;
 
+    public Element ActiveElement { get; private set; } = Element.Physical;
+
     /// <summary>
     /// Fired when the player switches active element (e.g. bouncing between embues).
     /// </summary>
@@ -90,13 +94,64 @@ public class ElementManager : InitializeableGameComponent
     {
         if (weapons.TryGetValue(element, out var found))
         {
-            OnBuffEnd(GameManager.Instance.player.transform, SwordProjectile.Instance);
+            if (activeWeapon != null)
+            {
+                MeleeCharge(GameManager.Instance.player.transform, cancel: true);
+                OnBuffEnd(GameManager.Instance.player.transform, SwordProjectile.Instance);
+            }
+
             activeWeapon = found;
+            ActiveElement = element;
             OnBuffStart(GameManager.Instance.player.transform, SwordProjectile.Instance);
             OnActiveElementChanged?.Invoke(element);
         }
         else
             Debug.LogError($"No weapon registered for element {element}");
+    }
+
+    /// <summary>
+    /// Returns charge display data when the active weapon supports charging and is currently charging.
+    /// </summary>
+    public bool TryGetMeleeChargeDisplayState(out MeleeChargeDisplayState state)
+    {
+        state = default;
+
+        if (activeWeapon is not IMeleeChargeProvider chargeProvider)
+        {
+            return false;
+        }
+
+        PlayerController? player = ResolvePlayer();
+        if (player == null)
+        {
+            return false;
+        }
+
+        if (!chargeProvider.CanShowChargeIndicator(currentUpgrades, player))
+        {
+            return false;
+        }
+
+        if (!chargeProvider.IsCharging)
+        {
+            return false;
+        }
+
+        state = new MeleeChargeDisplayState(
+            chargeProvider.ChargeProgress,
+            ActiveElement,
+            chargeProvider.IsMaxCharge);
+        return true;
+    }
+
+    private static PlayerController? ResolvePlayer()
+    {
+        if (GameManager.Instance == null || GameManager.Instance.player == null)
+        {
+            return null;
+        }
+
+        return GameManager.Instance.player.GetComponent<PlayerController>();
     }
 
     public void AddUpgrade(UpgradeType upgrade) => currentUpgrades.Add(upgrade);

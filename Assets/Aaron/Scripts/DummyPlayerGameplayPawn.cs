@@ -33,7 +33,10 @@ namespace Testing
 
         public override void AimInDirection(Vector2 direction)
         {
-            shootDirectionVisualizer?.SetShootDirection(direction);
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                shootDirectionVisualizer?.SetShootDirection(direction);
+            }
         }
 
         public override void DoAimedAttackInDirection(Vector2 direction)
@@ -78,4 +81,3 @@ namespace Testing
         }
     }
 }
-

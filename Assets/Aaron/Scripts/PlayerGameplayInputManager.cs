@@ -1,7 +1,6 @@
 #nullable enable
 using System.Collections;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
 
 /// <summary>
@@ -9,6 +8,8 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class PlayerGameplayInputManager : MonoBehaviour
 {
+    private const int AbandonAimFrameThreshold = 3;
+
     private PlayerGameplayPawn? pawn;
     private PlayerControls.GameplayActions gameplayActions;
     private Vector2 lastReadAimDirection;
@@ -16,6 +17,8 @@ public class PlayerGameplayInputManager : MonoBehaviour
 
     private Coroutine? attackDirectionCoroutine;
     private Coroutine? aimedAttackDirectionCoroutine;
+    private bool throwAimSessionActive;
+    private int centeredStickFrames;
     
     public void LinkPawn(PlayerGameplayPawn pawn)
     {
@@ -25,6 +28,7 @@ public class PlayerGameplayInputManager : MonoBehaviour
     
     public void UnlinkCurrentPawn()
     {
+        EndThrowAimSession();
         pawn = null;
         gameplayActions.Disable();
     }
@@ -66,7 +70,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
         Vector3 val = gameplayActions.Attack.ReadValue<Vector3>();
         Vector2 dir = new Vector2(val.x, val.y);
         if (dir.sqrMagnitude > 0.001f)
+        {
             lastReadAttackDirection = dir;
+        }
 
         pawn.Attack(lastReadAttackDirection);
         ToggleAttackDirectionUpdate(false);
@@ -110,14 +116,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
 
     private void HandleAimedAttackCanceled(InputAction.CallbackContext obj)
     {
-        if (pawn == null)
-        {
-            return;
-        }
-        
-        pawn.StopAiming();
-        ToggleAimDirectionUpdate(false);
-        lastReadAimDirection = Vector2.zero;
+        // ZoneRelease fires canceled whenever the stick leaves its active zone (including
+        // passing through deadzone while spinning). Ignore it for aim visuals — the update
+        // coroutine keeps running until performed actually releases the throw.
     }
     
     private void HandleAimedAttackPerformed(InputAction.CallbackContext obj)
@@ -126,35 +127,52 @@ public class PlayerGameplayInputManager : MonoBehaviour
         {
             return;
         }
-        
+
         // aisara => We don't use the current input value here because it will be zero (since performed is registered on release when stick moves back to zero)
         pawn.DoAimedAttackInDirection(lastReadAimDirection);
-        pawn.StopAiming();
-        ToggleAimDirectionUpdate(false);
+        EndThrowAimSession();
     }
 
     private void HandleAimedAttackStarted(InputAction.CallbackContext obj)
     {
-        ToggleAimDirectionUpdate(true);
+        centeredStickFrames = 0;
+        throwAimSessionActive = true;
+
+        if (pawn != null)
+        {
+            pawn.AimInDirection(gameplayActions.AimedAttack.ReadValue<Vector2>());
+        }
+
+        EnsureAimDirectionUpdateRunning();
     }
 
-    private void ToggleAimDirectionUpdate(bool shouldUpdate)
+    private void EndThrowAimSession()
     {
-        if (shouldUpdate)
-        {
-            aimedAttackDirectionCoroutine = StartCoroutine(UpdateAimDirectionCoroutine());
-        }
-        else
-        {
-            if (aimedAttackDirectionCoroutine == null)
-            {
-                return;
-            }
-            
-            StopCoroutine(aimedAttackDirectionCoroutine);
+        throwAimSessionActive = false;
+        centeredStickFrames = 0;
+        StopAimDirectionUpdate();
+        pawn?.StopAiming();
+    }
 
-            aimedAttackDirectionCoroutine = null;
+    private void EnsureAimDirectionUpdateRunning()
+    {
+        if (aimedAttackDirectionCoroutine != null)
+        {
+            return;
         }
+
+        aimedAttackDirectionCoroutine = StartCoroutine(UpdateAimDirectionCoroutine());
+    }
+
+    private void StopAimDirectionUpdate()
+    {
+        if (aimedAttackDirectionCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(aimedAttackDirectionCoroutine);
+        aimedAttackDirectionCoroutine = null;
     }
     
     private void ToggleAttackDirectionUpdate(bool shouldUpdate)
@@ -171,21 +189,53 @@ public class PlayerGameplayInputManager : MonoBehaviour
             }
             
             StopCoroutine(attackDirectionCoroutine);
-
             attackDirectionCoroutine = null;
         }
     }
 
     private IEnumerator UpdateAimDirectionCoroutine()
     {
-        while (true)
+        while (throwAimSessionActive)
         {
             var throwSwordAction = gameplayActions.AimedAttack;
-            lastReadAimDirection = throwSwordAction.ReadValue<Vector2>();
-            pawn?.AimInDirection(lastReadAimDirection);
+            Vector2 stickDirection = throwSwordAction.ReadValue<Vector2>();
+            if (stickDirection.sqrMagnitude > 0.001f)
+            {
+                lastReadAimDirection = stickDirection;
+                centeredStickFrames = 0;
+            }
+            else
+            {
+                centeredStickFrames++;
+            }
+
+            pawn?.AimInDirection(stickDirection);
+
+            if (centeredStickFrames >= AbandonAimFrameThreshold
+                && !throwSwordAction.IsInProgress()
+                && !IsAimedAttackControlActuated())
+            {
+                EndThrowAimSession();
+                yield break;
+            }
             
-            yield return new WaitForEndOfFrame();
+            yield return null;
         }
+
+        aimedAttackDirectionCoroutine = null;
+    }
+
+    private bool IsAimedAttackControlActuated()
+    {
+        foreach (InputControl control in gameplayActions.AimedAttack.controls)
+        {
+            if (control.IsActuated())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private IEnumerator UpdateAttackDirectionCoroutine()
@@ -196,7 +246,6 @@ public class PlayerGameplayInputManager : MonoBehaviour
             
             // aisara => Attack input is actually a composite input of a button press and an "optional" directional input. The button press is on Z and the direcitonal input is on X-Y
             lastReadAttackDirection = attackAction.ReadValue<Vector3>();
-            Debug.Log(lastReadAttackDirection);
             
             yield return new WaitForEndOfFrame();
         }

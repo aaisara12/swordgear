@@ -23,6 +23,7 @@ public class AudioSystem : MonoBehaviour
         // Throwing
         Throw,
         Bounce,
+        Sword_Stick,
         Basic_Flight,
         Fire_Flight,
         Ice_Flight,
@@ -121,12 +122,17 @@ public class AudioSystem : MonoBehaviour
 
     public static void Play(Sound sound, float volume = 1f, float pitch = 1f)
     {
-        if (instance == null) return;
+        TryPlay(sound, volume, pitch);
+    }
+
+    public static bool TryPlay(Sound sound, float volume = 1f, float pitch = 1f)
+    {
+        if (instance == null) return false;
 
         if (!instance.library.TryGet(sound, out var entry))
         {
             Debug.LogWarning($"No clip for {sound}");
-            return;
+            return false;
         }
 
         var pooled = instance.GetAvailable();
@@ -142,6 +148,7 @@ public class AudioSystem : MonoBehaviour
 
         src.Play();
         pooled.lastUsedTime = Time.time;
+        return true;
     }
 
     // ---------------- LOOP PLAY ----------------

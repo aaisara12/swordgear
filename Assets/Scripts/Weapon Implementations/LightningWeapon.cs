@@ -16,7 +16,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] GameObject lightningPrefab;
 
     [Header("Combat")]
-    [SerializeField] private float attackRadius = 2f;
+    [SerializeField] private float attackRadius = ActiveEnemyRegistry.AutoTargetRadius;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float thrustDistance = 1.5f;
     [SerializeField] private float meleeCooldown = 0.3f;
@@ -29,7 +29,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     private IEnumerator Swing(Transform player)
     {
-        GameObject weaponHitbox = Instantiate(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
 
@@ -38,7 +38,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (weakEffectObject != null)
         {
-            effect = Instantiate(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
             effect.transform.up = player.up;
             if (combo > 0)
             {
@@ -62,16 +62,16 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
     }
 
     IEnumerator Thrust(Transform player)
     {
-        GameObject weaponHitbox = Instantiate(strongCollider, player.position, Quaternion.identity);
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
 
@@ -84,7 +84,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (strongEffectObject != null)
         {
-            effect = Instantiate(strongEffectObject, player.position, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position, Quaternion.identity);
             effect.transform.up = player.up;
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
@@ -107,10 +107,10 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
             yield return null;
         }
 
-        Destroy(weaponHitbox);
+        PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
-            Destroy(effect);
+            PrefabPool.Instance!.Release(effect);
         }
         lightningActive = false;
     }
@@ -137,27 +137,13 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
-        GameObject? nearestEnemy = null;
-        float shortestDistance = Mathf.Infinity;
-
-        foreach (GameObject enemy in enemies)
-        {
-            float distance = Vector2.Distance(player.position, enemy.transform.position);
-            if (distance < shortestDistance && distance <= attackRadius)
-            {
-                shortestDistance = distance;
-                nearestEnemy = enemy;
-            }
-        }
-
-        if (nearestEnemy == null)
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player, upgrades);
             return meleeCooldown;
         }
 
-        Vector2 direction = (nearestEnemy.transform.position - player.position).normalized;
+        Vector2 direction = ((Vector2)nearestEnemy.transform.position - (Vector2)player.position).normalized;
         player.up = direction;
 
         Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
@@ -182,7 +168,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage()));
         if (lightningActive && upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
         {
-            ChainLightningProjectile lightning = Instantiate(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+            ChainLightningProjectile lightning = PrefabPool.Instance!.Spawn(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
             lightning.Initialize(transform);
         }
     }
@@ -197,7 +183,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()));
         if (upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
         {
-            ChainLightningProjectile lightning = Instantiate(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+            ChainLightningProjectile lightning = PrefabPool.Instance!.Spawn(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
             lightning.Initialize(transform);
         }
     }
