@@ -17223,7 +17223,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hiltLocalOffset: {x: 0, y: -0.35}
-  maxTetherRange: 4
+  maxTetherRange: 20
   recallEscalationMultiplier: 1.5
   pulseSpeed: 4
   pulseScaleAmplitude: 0.06
