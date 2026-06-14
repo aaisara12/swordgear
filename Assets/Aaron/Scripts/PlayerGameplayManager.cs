@@ -1,8 +1,23 @@
 #nullable enable
 
+using System;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Events;
+
+public readonly struct PlayerHealthSnapshot
+{
+    public float Current { get; }
+    public float Max { get; }
+    public float Delta { get; }
+
+    public PlayerHealthSnapshot(float current, float max, float delta)
+    {
+        Current = current;
+        Max = max;
+        Delta = delta;
+    }
+}
 
 /// <summary>
 /// Maintains and drives the player's gameplay state
@@ -11,6 +26,14 @@ using UnityEngine.Events;
 // dependencies via the inspector
 public class PlayerGameplayManager : MonoBehaviour
 {
+    public static PlayerGameplayManager? Instance { get; private set; }
+
+    public static event Action<PlayerHealthSnapshot>? OnHealthChanged;
+
+    public float CurrentHp => currentHp;
+    public float MaxHp => maxHp;
+    public bool IsPawnActive => spawnedPawn != null && spawnedPawn.gameObject.activeInHierarchy;
+
     [SerializeField] private UnityEvent onDefeated = new UnityEvent();
     [SerializeField] private PlayerGameplayPawn? pawnPrefab;
     [SerializeField] private PlayerGameplayInputManager? inputManager;
@@ -19,9 +42,9 @@ public class PlayerGameplayManager : MonoBehaviour
     [SerializeField] private TransformEventChannelSO? spawnPawnAtLocationEventChannel;
 
     [Header("Health")]
-    [SerializeField] private float baseMaxHp = 10000f;
+    [SerializeField] private float baseMaxHp = 100f;
 
-    private float maxHp = 10000f;
+    private float maxHp = 100f;
     private float currentHp;
     private Coroutine? _regenCoroutine;
     
@@ -42,6 +65,7 @@ public class PlayerGameplayManager : MonoBehaviour
 
         maxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
         currentHp = maxHp;
+        NotifyHealthChanged(0f);
         
         spawnedPawn.OnRegisterDamage += HandlePawnRegisterDamage;
         
@@ -78,7 +102,12 @@ public class PlayerGameplayManager : MonoBehaviour
     public void Heal(float amount)
     {
         if (currentHp <= 0) return;
+        float before = currentHp;
         currentHp = Mathf.Min(currentHp + amount, maxHp);
+        if (!Mathf.Approximately(before, currentHp))
+        {
+            NotifyHealthChanged(currentHp - before);
+        }
     }
 
     private void HandlePlayerDealtDamage(float damage)
@@ -102,6 +131,7 @@ public class PlayerGameplayManager : MonoBehaviour
         float newMaxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
         maxHp = newMaxHp;
         currentHp = Mathf.Clamp(currentHp, 0f, maxHp);
+        NotifyHealthChanged(0f);
         StartRegenIfNeeded();
     }
 
@@ -129,6 +159,14 @@ public class PlayerGameplayManager : MonoBehaviour
 
     private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(this);
+            return;
+        }
+
+        Instance = this;
+
         if (pawnPrefab == null)
         {
             Debug.LogError("PlayerGameplayManager: pawn prefab is null");
@@ -160,11 +198,17 @@ public class PlayerGameplayManager : MonoBehaviour
     private void TakeDamage(float damage)
     {
         if (currentHp <= 0) return;
-        currentHp -= damage;
+        currentHp = Mathf.Max(0f, currentHp - damage);
+        NotifyHealthChanged(-damage);
         if (currentHp <= 0f)
         {
             Defeat();
         }
+    }
+
+    private void NotifyHealthChanged(float delta)
+    {
+        OnHealthChanged?.Invoke(new PlayerHealthSnapshot(currentHp, maxHp, delta));
     }
 
     private void Defeat()
@@ -184,6 +228,11 @@ public class PlayerGameplayManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+
         if (spawnPawnAtLocationEventChannel != null)
         {
             spawnPawnAtLocationEventChannel.OnDataChanged -= HandleSpawnPawnAtLocationEvent;

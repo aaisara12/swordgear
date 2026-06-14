@@ -41,6 +41,7 @@ public class CombatHUD : MonoBehaviour
     private Coroutine? _comboFadeRoutine;
     private Coroutine? _comboPopRoutine;
     private int _lastComboCount;
+    private float _comboCountBaseFontSize = 60f;
 
     private void Start()
     {
@@ -74,6 +75,11 @@ public class CombatHUD : MonoBehaviour
 
         UpdateComboVisibility(false);
         UpdateUltimateReady(false);
+
+        if (comboCountText != null)
+        {
+            _comboCountBaseFontSize = comboCountText.fontSize;
+        }
     }
 
     private void OnDestroy()
@@ -121,6 +127,7 @@ public class CombatHUD : MonoBehaviour
                 if (_comboPopRoutine != null)
                 {
                     StopCoroutine(_comboPopRoutine);
+                    ResetComboCountPopVisual();
                 }
                 _comboPopRoutine = StartCoroutine(ComboPopRoutine());
             }
@@ -158,7 +165,24 @@ public class CombatHUD : MonoBehaviour
     private void HandleComboBroken()
     {
         _isComboActive = false;
+        if (_comboPopRoutine != null)
+        {
+            StopCoroutine(_comboPopRoutine);
+            _comboPopRoutine = null;
+        }
+        ResetComboCountPopVisual();
         UpdateComboVisibility(false);
+    }
+
+    private void ResetComboCountPopVisual()
+    {
+        if (comboCountText == null)
+        {
+            return;
+        }
+
+        comboCountText.rectTransform.localScale = Vector3.one;
+        comboCountText.fontSize = _comboCountBaseFontSize;
     }
 
     private void HandleLevelPointsChanged(int totalPoints)
@@ -260,39 +284,34 @@ public class CombatHUD : MonoBehaviour
             _comboPopRoutine = null;
             yield break;
         }
-        
-        RectTransform? rect = comboCountText.rectTransform;
-        if (rect == null)
-        {
-            _comboPopRoutine = null;
-            yield break;
-        }
-        
-        Vector3 baseScale = Vector3.one;
-        Vector3 popScale = baseScale * comboPopScale;
+
+        RectTransform rect = comboCountText.rectTransform;
+        rect.localScale = Vector3.one;
+
+        float baseFontSize = _comboCountBaseFontSize;
+        comboCountText.fontSize = baseFontSize;
+        float popFontSize = baseFontSize * comboPopScale;
         float halfDuration = comboPopDuration * 0.5f;
         float elapsed = 0f;
-        
-        // Scale up to pop size
+
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / halfDuration);
-            rect.localScale = Vector3.Lerp(baseScale, popScale, t);
+            comboCountText.fontSize = Mathf.Lerp(baseFontSize, popFontSize, t);
             yield return null;
         }
-        
-        // Scale back down to normal
+
         elapsed = 0f;
         while (elapsed < halfDuration)
         {
             elapsed += Time.deltaTime;
             float t = Mathf.Clamp01(elapsed / halfDuration);
-            rect.localScale = Vector3.Lerp(popScale, baseScale, t);
+            comboCountText.fontSize = Mathf.Lerp(popFontSize, baseFontSize, t);
             yield return null;
         }
-        
-        rect.localScale = baseScale;
+
+        comboCountText.fontSize = baseFontSize;
         _comboPopRoutine = null;
     }
 
