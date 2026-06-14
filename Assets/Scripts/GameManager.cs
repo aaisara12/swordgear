@@ -70,6 +70,8 @@ public class GameManager : MonoBehaviour
         StartCoroutine(EffectTickLoop());
         currentElement = Element.Physical;
         currentDamage = GetEffectiveBaseDamage();
+
+        AudioSystem.PlayLoop(AudioSystem.Sound.BGM);  // TODO: put this logic in a place where we can control the background music better (fading in different tracks, etc.)
     }
 
     public void DisplayDamageUI(Vector3 position, float amt)

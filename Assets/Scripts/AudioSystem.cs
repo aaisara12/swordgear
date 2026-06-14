@@ -30,7 +30,9 @@ public class AudioSystem : MonoBehaviour
         Lightning_Flight,
 
         // Dash
-        Player_Dash
+        Player_Dash,
+
+        BGM,
     }
 
     public AudioLibrary library;
