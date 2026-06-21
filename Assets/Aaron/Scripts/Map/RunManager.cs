@@ -42,7 +42,7 @@ public class RunManager : MonoBehaviour
     [SerializeField] private TriggerEventChannelSO? playerDefeatedChannel;
 
     [Header("Run-long State")]
-    [SerializeField] private UltimateMeter? ultimateMeter;
+    [SerializeField] private UltimateChargeTracker? ultimateChargeTracker;
 
     private RunMap? _currentMap;
     private int _lastSeed;
@@ -154,8 +154,10 @@ public class RunManager : MonoBehaviour
         PlayerGameplayManager.Instance?.InitializeHealthForNewRun();
         ComboSystem.Instance?.ResetForNewRun();
 
-        UltimateMeter? meter = ultimateMeter != null ? ultimateMeter : FindFirstObjectByType<UltimateMeter>();
-        meter?.ResetForNewRun();
+        UltimateChargeTracker? tracker = ultimateChargeTracker != null
+            ? ultimateChargeTracker
+            : UltimateChargeTracker.Instance;
+        tracker?.ResetForNewRun();
 
         Time.timeScale = 1f;
     }

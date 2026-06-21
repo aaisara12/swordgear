@@ -1,0 +1,620 @@
+fileFormatVersion: 2
+guid: 40592cf6d94cde3408b983de623f0880
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7277049196117939404
+    second: sg_flameslashv1.2_spritesheet_0
+  - first:
+      213: 8853558332862348414
+    second: sg_flameslashv1.2_spritesheet_1
+  - first:
+      213: -5330998520205080090
+    second: sg_flameslashv1.2_spritesheet_2
+  - first:
+      213: 5096523391350253323
+    second: sg_flameslashv1.2_spritesheet_3
+  - first:
+      213: -1649767860587660711
+    second: sg_flameslashv1.2_spritesheet_4
+  - first:
+      213: -5301812405752588451
+    second: sg_flameslashv1.2_spritesheet_5
+  - first:
+      213: -9072029943120021007
+    second: sg_flameslashv1.2_spritesheet_6
+  - first:
+      213: 5377470311966009920
+    second: sg_flameslashv1.2_spritesheet_7
+  - first:
+      213: -830576799275800563
+    second: sg_flameslashv1.2_spritesheet_8
+  - first:
+      213: 5518808528752242696
+    second: sg_flameslashv1.2_spritesheet_9
+  - first:
+      213: -1443321794901382276
+    second: sg_flameslashv1.2_spritesheet_10
+  - first:
+      213: 2988844416922255749
+    second: sg_flameslashv1.2_spritesheet_11
+  - first:
+      213: -4553723004012063339
+    second: sg_flameslashv1.2_spritesheet_12
+  - first:
+      213: 7183065342203205845
+    second: sg_flameslashv1.2_spritesheet_13
+  - first:
+      213: -4744022455795570248
+    second: sg_flameslashv1.2_spritesheet_14
+  - first:
+      213: 3473888324472961772
+    second: sg_flameslashv1.2_spritesheet_15
+  - first:
+      213: 5685553665115103552
+    second: sg_flameslashv1.2_spritesheet_16
+  - first:
+      213: -2194821172484039127
+    second: sg_flameslashv1.2_spritesheet_17
+  - first:
+      213: 6683037793416760076
+    second: sg_flameslashv1.2_spritesheet_18
+  - first:
+      213: -6185996475006151962
+    second: sg_flameslashv1.2_spritesheet_19
+  - first:
+      213: 3908431122492475959
+    second: sg_flameslashv1.2_spritesheet_20
+  - first:
+      213: -1659391237911608501
+    second: sg_flameslashv1.2_spritesheet_21
+  - first:
+      213: 1768822700479388238
+    second: sg_flameslashv1.2_spritesheet_22
+  - first:
+      213: 3104625169025896214
+    second: sg_flameslashv1.2_spritesheet_23
+  - first:
+      213: 922451082673224353
+    second: sg_flameslashv1.2_spritesheet_24
+  - first:
+      213: -1698852856572302475
+    second: sg_flameslashv1.2_spritesheet_25
+  - first:
+      213: 6895597317120861301
+    second: sg_flameslashv1.2_spritesheet_26
+  - first:
+      213: 2417657309962395407
+    second: sg_flameslashv1.2_spritesheet_27
+  - first:
+      213: 6611049072376200133
+    second: sg_flameslashv1.2_spritesheet_28
+  - first:
+      213: 5248527230218114325
+    second: sg_flameslashv1.2_spritesheet_29
+  - first:
+      213: -1352560234906803807
+    second: sg_flameslashv1.2_spritesheet_30
+  - first:
+      213: 3834555003709448401
+    second: sg_flameslashv1.2_spritesheet_31
+  - first:
+      213: 2758530397093653570
+    second: sg_flameslashv1.2_spritesheet_32
+  - first:
+      213: -4348822996449134646
+    second: sg_flameslashv1.2_spritesheet_33
+  - first:
+      213: -5662997051273055602
+    second: sg_flameslashv1.2_spritesheet_34
+  - first:
+      213: -1308571901418623860
+    second: sg_flameslashv1.2_spritesheet_35
+  - first:
+      213: 5085625454511813110
+    second: sg_flameslashv1.2_spritesheet_36
+  - first:
+      213: 3005820649453922424
+    second: sg_flameslashv1.2_spritesheet_37
+  - first:
+      213: 6155925406106302560
+    second: sg_flameslashv1.2_spritesheet_38
+  - first:
+      213: -8423772862317705391
+    second: sg_flameslashv1.2_spritesheet_39
+  - first:
+      213: -1965478236107422412
+    second: sg_flameslashv1.2_spritesheet_40
+  - first:
+      213: 3302354209187559915
+    second: sg_flameslashv1.2_spritesheet_41
+  - first:
+      213: 5752610417363019411
+    second: sg_flameslashv1.2_spritesheet_42
+  - first:
+      213: -3114824368086272086
+    second: sg_flameslashv1.2_spritesheet_43
+  - first:
+      213: -8539261259860729610
+    second: sg_flameslashv1.2_spritesheet_44
+  - first:
+      213: -5705252064503968833
+    second: sg_flameslashv1.2_spritesheet_45
+  - first:
+      213: 2547939078410564127
+    second: sg_flameslashv1.2_spritesheet_46
+  - first:
+      213: -588334538884080917
+    second: sg_flameslashv1.2_spritesheet_47
+  - first:
+      213: 2939543267821737216
+    second: sg_flameslashv1.2_spritesheet_48
+  - first:
+      213: -8450520961003536560
+    second: sg_flameslashv1.2_spritesheet_49
+  - first:
+      213: 5646468190543069004
+    second: sg_flameslashv1.2_spritesheet_50
+  - first:
+      213: 6107685862558451398
+    second: sg_flameslashv1.2_spritesheet_51
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 150
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 43b2954cf4ab20b90800000000000000
+      internalID: -7277049196117939404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_1
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e7cb57445682eda70800000000000000
+      internalID: 8853558332862348414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_2
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6e90b09371d7406b0800000000000000
+      internalID: -5330998520205080090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_3
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b07a6ea950d7ab640800000000000000
+      internalID: 5096523391350253323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95af0d32fd8da19e0800000000000000
+      internalID: -1649767860587660711
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_5
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d579b5905bd2c66b0800000000000000
+      internalID: -5301812405752588451
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_6
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f9bf9815dca91280800000000000000
+      internalID: -9072029943120021007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_7
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04a61f6f1cc90aa40800000000000000
+      internalID: 5377470311966009920
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d082c783dc23974f0800000000000000
+      internalID: -830576799275800563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_9
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8007ca3fd1fb69c40800000000000000
+      internalID: 5518808528752242696
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_10
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7be25e797a48fbe0800000000000000
+      internalID: -1443321794901382276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_11
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5818f8f59228a7920800000000000000
+      internalID: 2988844416922255749
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5951654fd0dedc0c0800000000000000
+      internalID: -4553723004012063339
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_13
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 0
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d811780fdf5fa360800000000000000
+      internalID: 7183065342203205845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_flameslashv1.2_spritesheet_14
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 0
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8b924db16b8d92eb0800000000000000
+      internalID: -4744022455795570248
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 6ed595ed5692f064ca1092c21ab9a5b1
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":800.0,"y":800.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      sg_flameslashv1.2_spritesheet_0: -7277049196117939404
+      sg_flameslashv1.2_spritesheet_1: 8853558332862348414
+      sg_flameslashv1.2_spritesheet_10: -1443321794901382276
+      sg_flameslashv1.2_spritesheet_11: 2988844416922255749
+      sg_flameslashv1.2_spritesheet_12: -4553723004012063339
+      sg_flameslashv1.2_spritesheet_13: 7183065342203205845
+      sg_flameslashv1.2_spritesheet_14: -4744022455795570248
+      sg_flameslashv1.2_spritesheet_2: -5330998520205080090
+      sg_flameslashv1.2_spritesheet_3: 5096523391350253323
+      sg_flameslashv1.2_spritesheet_4: -1649767860587660711
+      sg_flameslashv1.2_spritesheet_5: -5301812405752588451
+      sg_flameslashv1.2_spritesheet_6: -9072029943120021007
+      sg_flameslashv1.2_spritesheet_7: 5377470311966009920
+      sg_flameslashv1.2_spritesheet_8: -830576799275800563
+      sg_flameslashv1.2_spritesheet_9: 5518808528752242696
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

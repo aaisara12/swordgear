@@ -32,6 +32,8 @@ public abstract class
     /// </summary>
     public abstract void ResetForNode();
 
+    public virtual void UseUltimate() { }
+
     public abstract void DoSpawnAnimation();
 
     public abstract void DoDefeatAnimation();

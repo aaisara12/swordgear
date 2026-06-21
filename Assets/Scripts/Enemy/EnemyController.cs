@@ -10,7 +10,7 @@ public class EnemyController : MonoBehaviour
     public event Action? OnDeath;
 
     // Global events so systems like ComboSystem can listen to all enemy hits/deaths.
-    public static event Action<EnemyController, float, Element>? OnAnyEnemyHit;
+    public static event Action<EnemyController, float, MoveType>? OnAnyEnemyHit;
     public static event Action<EnemyController>? OnAnyEnemyDeath;
 
     [SerializeField] private GameObject? player;
@@ -68,17 +68,12 @@ public class EnemyController : MonoBehaviour
         movementStrategy.Move(rb, player.transform, speed * speedMultiplier);
     }
 
-    public void TakeDamage(float damage)
+    public void TakeDamage(float damage, MoveType moveType = default)
     {
         if (GameManager.Instance)
             GameManager.Instance.DisplayDamageUI(transform.position, damage);
 
-        // Notify global listeners that this enemy was hit.
-        var gm = GameManager.Instance;
-        if (gm != null)
-        {
-            OnAnyEnemyHit?.Invoke(this, damage, gm.currentElement);
-        }
+        OnAnyEnemyHit?.Invoke(this, damage, moveType);
 
         hp -= damage;
 

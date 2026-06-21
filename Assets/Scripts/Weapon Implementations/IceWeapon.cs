@@ -125,7 +125,8 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage() + strongHitBonusDmg * combo));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage() + strongHitBonusDmg * combo),
+            new MoveType(Element.Ice, AttackKind.MeleeStrike));
 
         if (combo == 1)
         {
@@ -148,7 +149,8 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
+            new MoveType(Element.Ice, AttackKind.Ranged));
     }
 
 }

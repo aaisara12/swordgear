@@ -30,10 +30,9 @@ using UnityEngine.Events;
                 ComboSystem.Instance.ResetForNewRun();
             }
             
-            var ultimateMeter = FindFirstObjectByType<UltimateMeter>();
-            if (ultimateMeter != null)
+            if (UltimateChargeTracker.Instance != null)
             {
-                ultimateMeter.ResetForNewRun();
+                UltimateChargeTracker.Instance.ResetForNewRun();
             }
             
             LoadLevel(currentLevelInRound);
