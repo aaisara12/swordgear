@@ -25,6 +25,8 @@ public abstract class
     
     public abstract void MoveInDirection(Vector2 direction);
 
+    public virtual void UseUltimate() { }
+
     public abstract void DoSpawnAnimation();
 
     public abstract void DoDefeatAnimation();

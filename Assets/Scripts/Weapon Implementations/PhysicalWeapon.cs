@@ -93,7 +93,8 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage()));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage()),
+            new MoveType(Element.Physical, AttackKind.MeleeStrike));
     }
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
@@ -103,6 +104,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
+            new MoveType(Element.Physical, AttackKind.Ranged));
     }
 }

@@ -479,8 +479,8 @@ GameObject:
   m_Component:
   - component: {fileID: 6938645566719422643}
   - component: {fileID: 6656048822555038011}
-  - component: {fileID: 3556660828415765117}
   - component: {fileID: 2373295590521712962}
+  - component: {fileID: 3346800436722707166}
   m_Layer: 0
   m_Name: ComboSystem
   m_TagString: Untagged
@@ -516,6 +516,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   comboDuration: 3
+  comboTimerExtension: 3
+  stalenessFalloff: 1
   hitBasePoints: 1
   killBonusPoints: 4
   rapidStreakBonusPoints: 2
@@ -525,19 +527,6 @@ MonoBehaviour:
   mediumPointsThreshold: 800
   highPointsThreshold: 1000
   elitePointsThreshold: 2000
---- !u!114 &3556660828415765117
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5213471353205213649}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 80788d15b9b364b1583b046c058d062a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  pointsRequiredForFullCharge: 1000
 --- !u!114 &2373295590521712962
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -553,6 +542,20 @@ MonoBehaviour:
   sceneTransitioner: {fileID: 4235604047870542123}
   auxiliaryScene:
     sceneName: CombatHUD
+--- !u!114 &3346800436722707166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5213471353205213649}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a800848ed960e446acd71aecb6e8c40, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::UltimateChargeTracker
+  _activeUltimate: {fileID: 11400000, guid: 43162a27e8652d443b623e9d7573a2f2, type: 2}
+  _ultAvailableTimerBonus: 2
 --- !u!1 &5612751369122866687
 GameObject:
   m_ObjectHideFlags: 0

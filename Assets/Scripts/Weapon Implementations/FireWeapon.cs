@@ -202,7 +202,9 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * (1f + 0.2f * chargeTier)));
+        AttackKind kind = chargeTier > 0 ? AttackKind.MeleeCharge : AttackKind.MeleeStrike;
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * (1f + 0.2f * chargeTier)),
+            new MoveType(Element.Fire, kind));
         if (applyBurn)
         {
             GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);
@@ -221,7 +223,8 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()));
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
+            new MoveType(Element.Fire, AttackKind.Ranged));
         if (upgrades.Contains(UpgradeType.Fire_RangedBurn))
         {
             GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);

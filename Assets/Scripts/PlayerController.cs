@@ -10,11 +10,14 @@ public class PlayerController : PlayerGameplayPawn
     [Header("References")]
     [SerializeField] private Transform? playerDirectionReference;  // Need this since we are no longer turning the player object when moving
     [SerializeField] private PlayerWeaponIndicator? weaponIndicator;
+    [SerializeField] private SpriteRenderer? playerRenderer;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
     
     [Header("Combat")]
     [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float swordCatchRadius = 1f;
+    [SerializeField] private float iFrameDuration = 1f;
+    [SerializeField] private float iFrameBlinkInterval = 0.1f;
     [SerializeField] private GameObject? playerDamageFX;
     [SerializeField] private GameObject? catchExplosionFX;
 
@@ -51,11 +54,17 @@ public class PlayerController : PlayerGameplayPawn
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;
+    private float _iFrameRemaining = 0f;
     private bool _isDashing = false;
     private Vector2 _lastMoveDirection = Vector2.zero;
 
+    private bool _isUltimateInvincible = false;
+
     private bool IsOnAttackCooldown => _attackCooldownRemaining > 0f;
     private bool IsOnDashCooldown => _dashCooldownRemaining > 0f;
+    private bool IsInvincible => _isDashing || _iFrameRemaining > 0f || _isUltimateInvincible;
+
+    public void SetUltimateInvincible(bool invincible) => _isUltimateInvincible = invincible;
 
     public void ApplyAttackCooldown(float seconds)
     {
@@ -68,6 +77,22 @@ public class PlayerController : PlayerGameplayPawn
             _attackCooldownRemaining -= Time.deltaTime;
         if (_dashCooldownRemaining > 0f)
             _dashCooldownRemaining -= Time.deltaTime;
+        if (_iFrameRemaining > 0f)
+        {
+            _iFrameRemaining -= Time.deltaTime;
+            if (playerRenderer != null)
+            {
+                Color c = playerRenderer.color;
+                c.a = (int)(_iFrameRemaining / iFrameBlinkInterval) % 2 == 0 ? 1f : 0.5f;
+                playerRenderer.color = c;
+            }
+        }
+        else if (playerRenderer != null && playerRenderer.color.a < 1f)
+        {
+            Color c = playerRenderer.color;
+            c.a = 1f;
+            playerRenderer.color = c;
+        }
     }
 
     private IEnumerator DashCoroutine(Vector2 direction)
@@ -172,7 +197,8 @@ public class PlayerController : PlayerGameplayPawn
     
     public void TakeDamage(float damage)
     {
-        if (_isDashing) return;
+        if (IsInvincible) return;
+        _iFrameRemaining = iFrameDuration;
         PlayDamageEffect();
         RegisterDamage(damage);
     }
@@ -457,6 +483,11 @@ public class PlayerController : PlayerGameplayPawn
         }
         float effectiveSpeed = speed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MoveSpeedMultiplier : 1f);
         rb.linearVelocity = direction * effectiveSpeed;
+    }
+
+    public override void UseUltimate()
+    {
+        UltimateChargeTracker.Instance?.TryActivate();
     }
 
     public override void DoSpawnAnimation()

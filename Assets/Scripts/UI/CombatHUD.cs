@@ -34,9 +34,9 @@ public class CombatHUD : MonoBehaviour
 
     [Header("Input")]
     [SerializeField] private KeyCode ultimateKey = KeyCode.Q;
-    [SerializeField] private UltimateMeter? ultimateMeter;
 
     private ComboSystem? _comboSystem;
+    private UltimateChargeTracker? _ultimateTracker;
     private bool _isComboActive;
     private Coroutine? _comboFadeRoutine;
     private Coroutine? _comboPopRoutine;
@@ -62,15 +62,13 @@ public class CombatHUD : MonoBehaviour
             }
         }
 
-        if (ultimateMeter == null)
-        {
-            ultimateMeter = FindFirstObjectByType<UltimateMeter>();
-        }
+        _ultimateTracker = UltimateChargeTracker.Instance;
 
-        if (ultimateMeter != null)
+        if (_ultimateTracker != null)
         {
-            ultimateMeter.OnUltimateChargeChanged += HandleUltimateChargeChanged;
-            ultimateMeter.OnUltimateReady += HandleUltimateReady;
+            _ultimateTracker.OnProgressChanged += HandleUltimateProgressChanged;
+            _ultimateTracker.OnUltimateAvailable += HandleUltimateAvailable;
+            _ultimateTracker.OnUltimateUnavailable += HandleUltimateUnavailable;
         }
 
         UpdateComboVisibility(false);
@@ -93,20 +91,16 @@ public class CombatHUD : MonoBehaviour
             _comboSystem.OnLevelPointsChanged -= HandleLevelPointsChanged;
         }
 
-        if (ultimateMeter != null)
+        if (_ultimateTracker != null)
         {
-            ultimateMeter.OnUltimateChargeChanged -= HandleUltimateChargeChanged;
-            ultimateMeter.OnUltimateReady -= HandleUltimateReady;
+            _ultimateTracker.OnProgressChanged -= HandleUltimateProgressChanged;
+            _ultimateTracker.OnUltimateAvailable -= HandleUltimateAvailable;
+            _ultimateTracker.OnUltimateUnavailable -= HandleUltimateUnavailable;
         }
     }
 
     private void Update()
     {
-        if (ultimateMeter == null)
-        {
-            return;
-        }
-
         if (Input.GetKeyDown(ultimateKey))
         {
             TryUseUltimate();
@@ -193,22 +187,20 @@ public class CombatHUD : MonoBehaviour
         }
     }
 
-    private void HandleUltimateChargeChanged(float normalizedCharge)
+    private void HandleUltimateProgressChanged(float normalizedProgress)
     {
         if (ultimateSlider != null)
-        {
-            ultimateSlider.value = Mathf.Clamp01(normalizedCharge);
-        }
-
-        if (ultimateReadyIndicator != null && ultimateMeter != null)
-        {
-            UpdateUltimateReady(ultimateMeter.IsReady);
-        }
+            ultimateSlider.value = Mathf.Clamp01(normalizedProgress);
     }
 
-    private void HandleUltimateReady()
+    private void HandleUltimateAvailable()
     {
         UpdateUltimateReady(true);
+    }
+
+    private void HandleUltimateUnavailable()
+    {
+        UpdateUltimateReady(false);
     }
 
     private void UpdateComboVisibility(bool visible)
@@ -321,21 +313,16 @@ public class CombatHUD : MonoBehaviour
         {
             ultimateReadyIndicator.SetActive(isReady);
         }
+        if (isReady)
+        {
+            TryUseUltimate();
+        }
     }
 
     private void TryUseUltimate()
     {
-        if (ultimateMeter == null)
-        {
-            return;
-        }
-
-        bool used = ultimateMeter.TryUseUltimate();
-
-        if (used)
-        {
-            UpdateUltimateReady(false);
-        }
+        Debug.Log("Trying ultimate from CombatHUD");
+        UltimateChargeTracker.Instance?.TryActivate();
     }
 
     /// <summary>
