@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: ElementalSlashAbility
   m_EditorClassIdentifier: Main::UltimateAbilitySO
   _requirements:
-  - element: 0
-    count: 2
+  - element: 1
+    count: 3
   _effect: {fileID: 11400000, guid: 589899daa36435f44b5d5b58e3bb7847, type: 2}
