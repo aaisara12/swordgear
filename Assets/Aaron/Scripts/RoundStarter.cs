@@ -27,13 +27,13 @@ using UnityEngine.Events;
             // Reset combo system and ultimate meter for new round
             if (ComboSystem.Instance != null)
             {
-                ComboSystem.Instance.ResetForNewRound();
+                ComboSystem.Instance.ResetForNewRun();
             }
             
             var ultimateMeter = FindFirstObjectByType<UltimateMeter>();
             if (ultimateMeter != null)
             {
-                ultimateMeter.ResetForNewRound();
+                ultimateMeter.ResetForNewRun();
             }
             
             LoadLevel(currentLevelInRound);

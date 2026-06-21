@@ -55,6 +55,11 @@ namespace Testing
             visual?.RotateTowardsDirection(direction);
         }
 
+        public override void ResetForNode()
+        {
+            // Prototype pawn has no persistent combat state to reset.
+        }
+
         public override void DoSpawnAnimation()
         {
             Debug.Log("Player is doing spawn in animation.");

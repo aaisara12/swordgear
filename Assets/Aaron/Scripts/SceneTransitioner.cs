@@ -56,6 +56,7 @@ public class SceneTransitioner : MonoBehaviour
         {
             await loadNewSceneTask;
             SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+            DisableBootstrapCameras();
             toggleLoadingScreenChannel.RaiseDataChanged(false);
             await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
             lastSceneLoaded = sceneName;
@@ -74,6 +75,7 @@ public class SceneTransitioner : MonoBehaviour
         await Task.WhenAll(new Task[] { loadNewSceneTask, unloadOldSceneTask });
         
         SceneManager.SetActiveScene(SceneManager.GetSceneByName(sceneName));
+        DisableBootstrapCameras();
         
         toggleLoadingScreenChannel.RaiseDataChanged(false);
         await Task.Delay((int)(delayBeforeTogglingLoadingScreen * 1000));
@@ -129,6 +131,27 @@ public class SceneTransitioner : MonoBehaviour
         if (sceneChangeRequestChannel != null)
         {
             sceneChangeRequestChannel.OnDataChanged -= HandleSceneChangeRequested;
+        }
+    }
+
+    /// <summary>
+    /// Disables cameras left in BootUp for the "no cameras rendering" bootstrap window.
+    /// They must not stay enabled once a real scene is active or they draw over Cinemachine (depth 0 > -1).
+    /// </summary>
+    private static void DisableBootstrapCameras()
+    {
+        Scene boot = SceneManager.GetSceneByName("BootUp");
+        if (!boot.isLoaded)
+        {
+            return;
+        }
+
+        foreach (GameObject root in boot.GetRootGameObjects())
+        {
+            foreach (Camera cam in root.GetComponentsInChildren<Camera>(true))
+            {
+                cam.enabled = false;
+            }
         }
     }
 }

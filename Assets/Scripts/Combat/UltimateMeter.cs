@@ -95,9 +95,9 @@ public class UltimateMeter : MonoBehaviour
     }
 
     /// <summary>
-    /// Resets the ultimate meter for a new round.
+    /// Resets the ultimate meter for the start of a new run. (Ultimate charge persists across nodes within a run.)
     /// </summary>
-    public void ResetForNewRound()
+    public void ResetForNewRun()
     {
         _totalPoints = 0;
         _elementPoints.Clear();

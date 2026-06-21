@@ -47,7 +47,11 @@ public class PlayerGameplayManager : MonoBehaviour
     private float maxHp = 100f;
     private float currentHp;
     private Coroutine? _regenCoroutine;
-    
+
+    // aisara => HP now persists across nodes within a run; it's only refilled at run start / Rest nodes.
+    // This guards the first-ever spawn so the pawn isn't created at 0 HP before a run has been initialized.
+    private bool runHealthInitialized;
+
     private PlayerGameplayPawn? spawnedPawn;
     
     // aisara => Intentionally don't give reference to the spawned pawn because the caller shouldn't need to know that information
@@ -64,12 +68,25 @@ public class PlayerGameplayManager : MonoBehaviour
         inputManager.LinkPawn(spawnedPawn);
 
         maxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
-        currentHp = maxHp;
+        if (!runHealthInitialized)
+        {
+            // First spawn of a run (or before RunManager has initialized health): start at full.
+            currentHp = maxHp;
+            runHealthInitialized = true;
+        }
+        else
+        {
+            // Persist HP across nodes; clamp in case max HP changed from augments.
+            currentHp = Mathf.Clamp(currentHp, 0f, maxHp);
+        }
         NotifyHealthChanged(0f);
         
         spawnedPawn.OnRegisterDamage += HandlePawnRegisterDamage;
         
         spawnedPawn.transform.position = location.position;
+
+        // Clean combat/movement state so nothing (e.g. a thrown sword) carries over from the previous node.
+        spawnedPawn.ResetForNode();
 
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = spawnedPawn.gameObject;
@@ -97,6 +114,28 @@ public class PlayerGameplayManager : MonoBehaviour
 
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = null;
+    }
+
+    /// <summary>
+    /// Initializes health to full for the start of a brand-new run. HP then persists across nodes
+    /// until this is called again (new run) or <see cref="FullHeal"/> is used (Rest node).
+    /// </summary>
+    public void InitializeHealthForNewRun()
+    {
+        maxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
+        currentHp = maxHp;
+        runHealthInitialized = true;
+        NotifyHealthChanged(0f);
+    }
+
+    /// <summary>
+    /// Restores the player to full health (used by Rest nodes).
+    /// </summary>
+    public void FullHeal()
+    {
+        float before = currentHp;
+        currentHp = maxHp;
+        NotifyHealthChanged(currentHp - before);
     }
 
     public void Heal(float amount)

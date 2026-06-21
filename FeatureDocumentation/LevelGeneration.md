@@ -1,7 +1,9 @@
 # Level Generation
 
 ## Purpose
-Procedurally assembles rounds of levels by randomly selecting arena layouts, enemy waves, and transition types from designer-curated asset pools.
+Provides the building blocks for a single level — an `ArenaLayoutTemplate`, a list of `EnemyWaveConfig`s, and a `LevelLoader` that instantiates the arena and spawns waves.
+
+> **Progression note:** The old `RoundGenerator` "3 levels per round" system has been **replaced by the [Map / Run System](MapRunSystem.md)** (a Slay-the-Spire branching node map). `RoundGenerator` / `RoundStarter` still exist but are unwired (incremental cutover). Level *content* (`ArenaLayoutTemplate`, `EnemyWaveConfig`, `LevelLoader`) is still used verbatim — a map node now carries one `LevelBlueprint` and `NodeStarter` loads it. New wave-feedback hooks (`LevelLoader.OnWaveIncoming` / `OnWaveCleared`) drive the `WaveAnnouncer`.
 
 ---
 

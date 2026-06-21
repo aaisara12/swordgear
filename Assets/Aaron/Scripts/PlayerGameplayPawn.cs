@@ -25,6 +25,13 @@ public abstract class
     
     public abstract void MoveInDirection(Vector2 direction);
 
+    /// <summary>
+    /// Resets transient combat/movement state so the pawn is clean when (re)spawned into a node:
+    /// stops in-flight weapons, cancels dashes/recalls, clears cooldowns and velocity, and resets facing.
+    /// Does not touch health (owned by <see cref="PlayerGameplayManager"/>).
+    /// </summary>
+    public abstract void ResetForNode();
+
     public abstract void DoSpawnAnimation();
 
     public abstract void DoDefeatAnimation();

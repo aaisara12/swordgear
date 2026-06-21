@@ -45,8 +45,11 @@ public class ComboSystem : MonoBehaviour
     private float _comboTimer;
     private int _currentMultiplier = 1;
 
-    // Per-level scoring
+    // Per-node scoring (reset each node, used for the Stage Complete summary)
     private int _totalPointsThisLevel;
+
+    // Accumulates across combat nodes until an Augment node consumes it; drives augment quality tier.
+    private int _pointsSinceLastAugment;
 
     // Rapid streak tracking
     private float _lastHitTime = -999f;
@@ -216,7 +219,8 @@ public class ComboSystem : MonoBehaviour
     #region Public API
 
     /// <summary>
-    /// Resets combo state for a new level, but keeps total points accumulated this round.
+    /// Resets combo state for a new node/level. Per-node points reset here; the cross-node
+    /// points-since-last-augment accumulator is preserved (see <see cref="ResetPointsSinceLastAugment"/>).
     /// </summary>
     public void ResetForNewLevel()
     {
@@ -225,7 +229,7 @@ public class ComboSystem : MonoBehaviour
         _maxComboThisLevel = 0;
         _comboTimer = 0f;
         _currentMultiplier = 1;
-        // NOTE: _totalPointsThisLevel is NOT reset here - it persists across levels in a round
+        _totalPointsThisLevel = 0;
         _hitsInCurrentWindow = 0;
         _lastHitTime = -999f;
 
@@ -236,22 +240,32 @@ public class ComboSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// Resets everything for a new round, including total points.
+    /// Resets everything for the start of a brand-new run, including the points-since-last-augment accumulator.
     /// </summary>
-    public void ResetForNewRound()
+    public void ResetForNewRun()
     {
         _levelFinished = false;
         _currentComboCount = 0;
         _maxComboThisLevel = 0;
         _comboTimer = 0f;
         _currentMultiplier = 1;
-        _totalPointsThisLevel = 0; // Reset total points for new round
+        _totalPointsThisLevel = 0;
+        _pointsSinceLastAugment = 0;
         _hitsInCurrentWindow = 0;
         _lastHitTime = -999f;
 
         OnComboChanged?.Invoke(_currentComboCount, _currentMultiplier);
         OnComboTimerChanged?.Invoke(_comboTimer, GetEffectiveComboDuration());
         OnLevelPointsChanged?.Invoke(_totalPointsThisLevel);
+    }
+
+    /// <summary>
+    /// Clears the cross-node points accumulator. Called when an Augment node consumes performance
+    /// to determine augment quality, so the next augment reflects only subsequent combat.
+    /// </summary>
+    public void ResetPointsSinceLastAugment()
+    {
+        _pointsSinceLastAugment = 0;
     }
 
     /// <summary>
@@ -274,18 +288,18 @@ public class ComboSystem : MonoBehaviour
 
     public AugmentQualityTier GetAugmentQualityTier()
     {
-        // Simple tiered thresholds based on total points accumulated this level.
-        if (_totalPointsThisLevel >= elitePointsThreshold)
+        // Tiered thresholds based on points earned since the last Augment node.
+        if (_pointsSinceLastAugment >= elitePointsThreshold)
         {
             return AugmentQualityTier.Elite;
         }
 
-        if (_totalPointsThisLevel >= highPointsThreshold)
+        if (_pointsSinceLastAugment >= highPointsThreshold)
         {
             return AugmentQualityTier.High;
         }
 
-        if (_totalPointsThisLevel >= mediumPointsThreshold)
+        if (_pointsSinceLastAugment >= mediumPointsThreshold)
         {
             return AugmentQualityTier.Medium;
         }
@@ -334,6 +348,7 @@ public class ComboSystem : MonoBehaviour
         }
 
         _totalPointsThisLevel += points;
+        _pointsSinceLastAugment += points;
         OnLevelPointsChanged?.Invoke(_totalPointsThisLevel);
         OnPointsAwarded?.Invoke(points, element);
     }
