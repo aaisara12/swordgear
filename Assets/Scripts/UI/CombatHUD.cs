@@ -315,7 +315,7 @@ public class CombatHUD : MonoBehaviour
         }
         if (isReady)
         {
-            TryUseUltimate();
+            //TryUseUltimate();
         }
     }
 

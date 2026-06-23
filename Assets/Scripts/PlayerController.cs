@@ -56,6 +56,7 @@ public class PlayerController : PlayerGameplayPawn
     private float _dashCooldownRemaining = 0f;
     private float _iFrameRemaining = 0f;
     private bool _isDashing = false;
+    private Coroutine? _dashCoroutine;
     private Vector2 _lastMoveDirection = Vector2.zero;
 
     private bool _isUltimateInvincible = false;
@@ -116,7 +117,27 @@ public class PlayerController : PlayerGameplayPawn
 
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
         _isDashing = false;
+        _dashCoroutine = null;
         MoveInDirection(_lastMoveDirection);
+    }
+
+    // aisara => Cancels an in-progress dash and restores the enemy-collision ignore that DashCoroutine toggles,
+    // so resetting mid-dash doesn't leave the player phasing through enemies.
+    private void CancelDash()
+    {
+        if (_dashCoroutine != null)
+        {
+            StopCoroutine(_dashCoroutine);
+            _dashCoroutine = null;
+        }
+
+        if (_isDashing)
+        {
+            int playerLayer = gameObject.layer;
+            int enemyLayer = LayerMask.NameToLayer(enemyPhysicsLayer);
+            Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
+            _isDashing = false;
+        }
     }
 
     [Header("Sword Recall")]
@@ -446,7 +467,7 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
         {
-            StartCoroutine(DashCoroutine(direction.normalized));
+            _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
         }
     }
 
@@ -483,6 +504,48 @@ public class PlayerController : PlayerGameplayPawn
         }
         float effectiveSpeed = speed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MoveSpeedMultiplier : 1f);
         rb.linearVelocity = direction * effectiveSpeed;
+    }
+
+    public override void ResetForNode()
+    {
+        // Stop any thrown/recalling sword, cancel the recall channel + flight audio, and return to MeleeReady.
+        ForceResetThrownSword();
+
+        // Cancel an in-progress dash and restore enemy-collision ignore.
+        CancelDash();
+
+        // Stop the looping walk SFX if it was playing.
+        if (walkSoundLoop != -1)
+        {
+            AudioSystem.StopLoop(walkSoundLoop);
+            walkSoundLoop = -1;
+        }
+
+        // Clear cooldowns and movement state.
+        _attackCooldownRemaining = 0f;
+        _dashCooldownRemaining = 0f;
+        _lastMoveDirection = Vector2.zero;
+        _iFrameRemaining = 0f;
+        _isUltimateInvincible = false;
+
+        if (playerRenderer != null)
+        {
+            Color c = playerRenderer.color;
+            c.a = 1f;
+            playerRenderer.color = c;
+        }
+
+        // Zero out physics velocity so the pawn isn't drifting at the new spawn.
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // Reset facing/aim to a default.
+        weaponIndicator?.EndThrowAim();
+        transform.up = Vector2.up;
+
+        playerState = PlayerState.MeleeReady;
     }
 
     public override void UseUltimate()

@@ -1,5 +1,89 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &423897855780925330
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 681262035794185920}
+  - component: {fileID: 4750191938899198275}
+  m_Layer: 0
+  m_Name: Run Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &681262035794185920
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423897855780925330}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4848120501802802916}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4750191938899198275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 423897855780925330}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 571962ddd177948118973b020c6c1ef1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::RunManager
+  generationSettings:
+    columns: 6
+    minNodesPerColumn: 1
+    maxNodesPerColumn: 3
+    extraEdgeChance: 0.35
+    augmentEveryNCombats: 2
+    shopCount: 1
+    minWavesPerCombat: 2
+    maxWavesPerCombat: 3
+    combatLayouts:
+    - {fileID: 11400000, guid: 93dafc6cab3ac5442b6ce0317a503a74, type: 2}
+    - {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
+    - {fileID: 11400000, guid: b3175b9e2630c8641baabd209337f075, type: 2}
+    combatWaves:
+    - {fileID: 11400000, guid: b00514f919aaf91448c3cd43eb0c0029, type: 2}
+    - {fileID: 11400000, guid: c56f9b6ae7e601e4bbdfa74f91003499, type: 2}
+    - {fileID: 11400000, guid: 52ed31d7cc15ae6438efe093af883957, type: 2}
+    - {fileID: 11400000, guid: a80a670b9b09b7147af540d1e4cd8cfd, type: 2}
+    - {fileID: 11400000, guid: 571d02623d49d894cb4d06b5913fd9ea, type: 2}
+    shopLayout: {fileID: 11400000, guid: 07bce16f5b29f3641be4dc0c2b5800d6, type: 2}
+    bossLayout: {fileID: 11400000, guid: b3175b9e2630c8641baabd209337f075, type: 2}
+    bossWaves:
+    - {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
+    - {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
+  fixedMapOverride: {fileID: 0}
+  useRandomSeed: 1
+  fixedSeed: 12345
+  sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}
+  mapScene:
+    sceneName: Map
+  arenaScene:
+    sceneName: Arena
+  runEndScene:
+    sceneName: TitleScene
+  showAugmentChannel: {fileID: 11400000, guid: 89f0442172b0a498fbcbce3d4943918e, type: 2}
+  augmentVisibilityChannel: {fileID: 11400000, guid: 1cc576197c4c54cadae0a21979e33d5d, type: 2}
+  restVisibilityChannel: {fileID: 11400000, guid: 4f4f0be347f9442c380a7a2a42387ee8, type: 2}
+  stageCompleteContinueChannel: {fileID: 11400000, guid: d615518f5a98648be95b799bc77f67c0, type: 2}
+  playerDefeatedChannel: {fileID: 11400000, guid: 4445eb8f6b5334d1591c68ff272262f9, type: 2}
+  ultimateChargeTracker: {fileID: 3346800436722707166}
 --- !u!1 &2095857230064898771
 GameObject:
   m_ObjectHideFlags: 0
@@ -126,7 +210,7 @@ MonoBehaviour:
   pawnPrefab: {fileID: 8377646472276769222, guid: 74697b7d91d2c43eca0de5c9735a968e, type: 3}
   inputManager: {fileID: 7203599953307044813}
   spawnPawnAtLocationEventChannel: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}
-  baseMaxHp: 200
+  baseMaxHp: 500
 --- !u!1 &3535113181673445424
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,8 +444,8 @@ MonoBehaviour:
   player: {fileID: 3925378626850400808}
   playerController: {fileID: 0}
   damageUI: {fileID: 711078255971275636, guid: f68cac8fbc27d924eb9f1fd291b324fb, type: 3}
-  baseDamage: 10
-  currentDamage: 10
+  baseDamage: 30
+  currentDamage: 30
   rangedMultiplier: 2
 --- !u!1 &4786421348998010262
 GameObject:
@@ -1062,6 +1146,7 @@ Transform:
   - {fileID: 5475771778885528882}
   - {fileID: 4794878085778131070}
   - {fileID: 9100000000000000002}
+  - {fileID: 681262035794185920}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &8501615934743745264
