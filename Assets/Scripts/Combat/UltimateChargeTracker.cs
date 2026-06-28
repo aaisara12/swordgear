@@ -142,7 +142,7 @@ public class UltimateChargeTracker : MonoBehaviour
         OnProgressChanged?.Invoke(0f);
     }
 
-    public void ResetForNewRound()
+    public void ResetForNewRun()
     {
         _comboCharges.Clear();
         if (_isUltimateAvailable)

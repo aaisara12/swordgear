@@ -20,23 +20,25 @@
 ## Runtime Scene Flow
 
 ```
-BootUp → Tutorial → TitleScene → Arena  (loop)
-                ↓ defeat
-           TitleScene
+BootUp → TitleScene → (Play) → Map → Arena (per node) → Map …→ Boss → TitleScene
+                                  ↓ defeat
+                             TitleScene (run cleared)
 ```
+
+The fixed 3-level round loop has been replaced by a branching node **Map** (see [MapRunSystem.md](MapRunSystem.md)). Title **Play** opens `Map.unity`; selecting a node loads `Arena.unity` (Combat/Boss/Shop) or an on-Map overlay (Augment/Rest).
 
 ### Primary scenes (`Assets/Scenes/Main/`)
 
 | Scene | Role |
 |---|---|
 | **BootUp** | Build index 0. Spawns `CoreSystems.prefab`, runs `GameInitializer`, transitions to start scene |
-| **Tutorial** | Onboarding arena; end trigger loads TitleScene |
-| **TitleScene** | Menu; starts Arena |
-| **Arena** | Main combat: `RoundStarter` → `RoundGenerator` → `LevelLoader` |
-| **CombatHUD** | Additive combo/timer UI |
-| **TestRig** | Dev/minimal test scene |
+| **TitleScene** | Menu; **Play** generates a run and opens `Map` |
+| **Map** | Branching node map (`MapSceneController`); player picks the next node. Hosts Rest overlay |
+| **Arena** | Single-node combat: `NodeStarter` → `LevelLoader` (old `RoundStarter`/`Basic Game Loop` disabled) |
+| **CombatHUD** | Additive HUD; also hosts `WaveAnnouncer` banner + Stage Complete overlay |
+| **Tutorial** | Onboarding arena; dropped from the main loop (assets kept) |
 
-**BootUp config:** `startScene` is currently **Tutorial** (Inspector on BootUp scene). `DefeatedOutroPlayer` returns to **TitleScene** on player defeat.
+**BootUp config:** `startScene` should be **TitleScene**. `DefeatedOutroPlayer` returns to **TitleScene** on defeat; `RunManager` clears the run so the next Play regenerates a fresh map.
 
 ### Additive auxiliary scenes (loaded by `CoreSystems.prefab` via `AuxiliarySceneAdder`)
 
@@ -70,9 +72,11 @@ Hosts the live game systems:
 | PlayerStatModifiers | Augment stat stacking |
 | GameManager ⚠️ | Legacy player ref, damage, elements |
 | ElementManager | Active element + weapon routing |
-| ComboSystem | Combo streak scoring |
-| RoundGenerator | Procedural 3-level rounds |
-| InGameAugmentsManager | Between-level augment offerings |
+| ComboSystem | Combo streak scoring (+ points-since-last-augment) |
+| RunManager | **Owns the run/node map; routes node selection & run-long state** |
+| UltimateMeter | Ultimate charge (persists run-long) |
+| RoundGenerator ⚠️ | Legacy 3-level rounds (unwired; superseded by RunManager) |
+| InGameAugmentsManager | Augment-node offerings |
 | AudioSystem | Pooled audio |
 | GearManager | Gear slot ring |
 | EventSystem | UI input |
@@ -126,8 +130,10 @@ Init interfaces:
 | PlayerStatModifiers | `Aaron/Scripts/PlayerStatModifiers.cs` | Augment stacking |
 | ElementManager | `Scripts/ElementManager.cs` | Element + weapon switching |
 | GameManager | `Scripts/GameManager.cs` | ⚠️ Legacy — being replaced |
-| RoundStarter | `Aaron/Scripts/RoundStarter.cs` | Arena round kickoff |
-| LevelLoader | `Scripts/LevelGeneration/LevelLoader.cs` | Instantiates arenas, spawns waves |
+| RunManager | `Aaron/Scripts/Map/RunManager.cs` | **Run/node-map owner; node routing + run-long state** |
+| NodeStarter | `Aaron/Scripts/Map/NodeStarter.cs` | Arena single-node loader (replaces RoundStarter) |
+| RoundStarter | `Aaron/Scripts/RoundStarter.cs` | ⚠️ Legacy round kickoff (unwired) |
+| LevelLoader | `Scripts/LevelGeneration/LevelLoader.cs` | Instantiates arenas, spawns waves (+ wave-feedback events) |
 
 ---
 
@@ -177,12 +183,13 @@ Key instances: `SceneTransitionEventChannel`, `EnableLoadingScreen`, `SpawnPlaye
 |---|---|
 | Shop (`ItemStorefront`, `PurchaseUtility`) | ✅ 16 EditMode tests |
 | `UpgradeTypeSerializer` | ✅ 5 EditMode tests |
+| `MapGenerator` (reachability, distribution, determinism, fixed override) | ✅ 8 EditMode tests |
 | Combat, enemies, weapons, combo | ❌ Not tested |
 | Level generation, scene flow | ❌ Not tested |
 | Player pawn, input, ViewModels | ❌ Not tested |
 | PlayMode | ❌ No PlayMode test scripts in `Assets/Tests/` |
 
-**Quick validation:** Run EditMode tests via Unity MCP `run_tests` (~1s, 21 tests).
+**Quick validation:** Run EditMode tests via Unity MCP `run_tests` (~1s, 29 tests).
 
 Test doubles live in `Assets/Aaron/Scripts/TestDataStructures/`.
 
@@ -221,6 +228,7 @@ Full TODO grep targets: `Assets/Aaron/Scripts/`, `Assets/Scripts/`.
 | Scene changes | `Assets/Aaron/Scripts/SceneTransitioner.cs` |
 | Player combat pawn | `Assets/Aaron/Scripts/PlayerGameplayPawn.cs`, `PlayerBehaviours/` |
 | Shop logic | `Assets/Aaron/Scripts/ShopSystem/` |
-| Round/level pipeline | `Assets/Scripts/LevelGeneration/` |
+| Run / node map | `Assets/Aaron/Scripts/Map/`, `FeatureDocumentation/MapRunSystem.md` |
+| Level content pipeline | `Assets/Scripts/LevelGeneration/` |
 | Feature deep-dives | `FeatureDocumentation/*.md` |
 | Agent conventions | `AGENTS.md` |

@@ -313,10 +313,10 @@ public class CombatHUD : MonoBehaviour
         {
             ultimateReadyIndicator.SetActive(isReady);
         }
-        // if (isReady)
-        // {
-        //     TryUseUltimate();
-        // }
+        if (isReady)
+        {
+            //TryUseUltimate();
+        }
     }
 
     private void TryUseUltimate()

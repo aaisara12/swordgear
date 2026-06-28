@@ -27,12 +27,12 @@ using UnityEngine.Events;
             // Reset combo system and ultimate meter for new round
             if (ComboSystem.Instance != null)
             {
-                ComboSystem.Instance.ResetForNewRound();
+                ComboSystem.Instance.ResetForNewRun();
             }
             
             if (UltimateChargeTracker.Instance != null)
             {
-                UltimateChargeTracker.Instance.ResetForNewRound();
+                UltimateChargeTracker.Instance.ResetForNewRun();
             }
             
             LoadLevel(currentLevelInRound);

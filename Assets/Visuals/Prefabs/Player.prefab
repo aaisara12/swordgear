@@ -5391,18 +5391,18 @@ MonoBehaviour:
   playerDirectionReference: {fileID: 3864638014259052123}
   weaponIndicator: {fileID: 9158325853920699210}
   playerRenderer: {fileID: 8489099556410545801}
-  projectileSpeed: 10
-  swordCatchRadius: 1
+  projectileSpeed: 15
+  swordCatchRadius: 2
   iFrameDuration: 1
   iFrameBlinkInterval: 0.1
   playerDamageFX: {fileID: 1423386123474127677, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
   catchExplosionFX: {fileID: 5307315877580334196, guid: b5e505e63635c4d13bbf941e618ba1be, type: 3}
   swordThrowCooldown: 0.5
-  dashSpeed: 20
+  dashSpeed: 50
   dashDuration: 0.1
   dashCooldown: 1
   enemyPhysicsLayer: Enemies
-  speed: 7
+  speed: 10
   sword: {fileID: 0}
   gear: {fileID: 0}
   elementWeaponDict:

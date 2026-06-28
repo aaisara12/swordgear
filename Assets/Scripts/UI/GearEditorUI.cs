@@ -208,9 +208,18 @@ public class GearEditorUI : MonoBehaviour
         return isOpen;
     }
 
-    // TODO: Move this util function elsewhere when we finalize the shop round
+    // Exits the shop node and returns to the run map. Restores time scale in case the editor pause leaked.
     public void EndShopRound()
     {
+        Time.timeScale = 1f;
+
+        if (RunManager.Instance != null)
+        {
+            RunManager.Instance.ReturnToMapAfterNode();
+            return;
+        }
+
+        // Fallback for legacy round flow (until rounds are fully retired).
         LevelLoader.Instance.AdvanceManually();
     }
 }

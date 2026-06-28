@@ -12,6 +12,12 @@ public class LevelLoader : MonoBehaviour
     private List<EnemyController> activeEnemies = new List<EnemyController>();
 
     public event Action OnLevelClear;
+
+    // aisara => Static so the persistent CombatHUD announcer can subscribe once and survive Arena scene reloads
+    // (LevelLoader is re-created per Arena load).
+    public static event Action<int> OnWaveIncoming; // 1-based wave number
+    public static event Action OnWaveCleared;
+
     void Awake() { Instance = this; }
 
     private bool isWaveAdvancing = false;
@@ -81,6 +87,9 @@ public class LevelLoader : MonoBehaviour
         EnemyWaveConfig wave = currentBlueprint.Waves[currentWaveIndex];
         Debug.Log(wave.name);
 
+        // Announce the incoming wave (1-based) so the HUD can show a banner + cue during the DelayAfterClear breather.
+        OnWaveIncoming?.Invoke(currentWaveIndex + 1);
+
         // Use Invoke to handle the delay defined in the previous wave's data (DelayAfterClear)
         Invoke(nameof(SpawnEnemiesForWave), wave.DelayAfterClear);
     }
@@ -141,6 +150,7 @@ public class LevelLoader : MonoBehaviour
         {
             isWaveAdvancing = true;
             Debug.Log("WAVE CLEARED! Advancing index.");
+            OnWaveCleared?.Invoke();
             currentWaveIndex++;
             StartNextWave();
         }

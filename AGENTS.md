@@ -48,6 +48,7 @@ New game code belongs in **`Assets/Aaron/Scripts/`** or **`Assets/Scripts/`** de
 | Element System | [FeatureDocumentation/ElementSystem.md](FeatureDocumentation/ElementSystem.md) |
 | Combo System & Scoring | [FeatureDocumentation/ComboSystem.md](FeatureDocumentation/ComboSystem.md) |
 | Enemy System | [FeatureDocumentation/EnemySystem.md](FeatureDocumentation/EnemySystem.md) |
+| **Map / Run System** (branching node map; replaces rounds) | [FeatureDocumentation/MapRunSystem.md](FeatureDocumentation/MapRunSystem.md) |
 | Shop System | [FeatureDocumentation/ShopSystem.md](FeatureDocumentation/ShopSystem.md) |
 | Event Channels (ScriptableObject messaging) | [FeatureDocumentation/EventChannels.md](FeatureDocumentation/EventChannels.md) |
 | Observables (reactive state) | [FeatureDocumentation/Observables.md](FeatureDocumentation/Observables.md) |
