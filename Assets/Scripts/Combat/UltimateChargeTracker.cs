@@ -17,6 +17,7 @@ public class UltimateChargeTracker : MonoBehaviour
 
     private readonly Dictionary<Element, int> _comboCharges = new();
     private bool _isUltimateAvailable;
+    private bool _isExecuting;
     private bool _subscribed;
 
     public bool IsUltimateAvailable => _isUltimateAvailable;
@@ -71,6 +72,8 @@ public class UltimateChargeTracker : MonoBehaviour
 
     private void HandleComboHit(MoveType moveType)
     {
+        if (_isExecuting) return;
+
         Element element = moveType.Element;
         _comboCharges[element] = (_comboCharges.TryGetValue(element, out int c) ? c : 0) + 1;
 
@@ -112,6 +115,8 @@ public class UltimateChargeTracker : MonoBehaviour
         if (!_isUltimateAvailable || _activeUltimate == null)
             return false;
 
+        _isExecuting = true;
+
         Transform? player = GameManager.Instance?.player?.transform;
         if (player != null)
             _activeUltimate.Effect?.Execute(player);
@@ -122,6 +127,8 @@ public class UltimateChargeTracker : MonoBehaviour
         OnProgressChanged?.Invoke(0f);
         return true;
     }
+
+    public void EndExecution() => _isExecuting = false;
 
     public void SetActiveUltimate(UltimateAbilitySO? ultimate)
     {
@@ -144,6 +151,23 @@ public class UltimateChargeTracker : MonoBehaviour
             OnUltimateUnavailable?.Invoke();
         }
         OnProgressChanged?.Invoke(0f);
+    }
+
+    /// <summary>
+    /// Fills <paramref name="results"/> with one entry per element requirement,
+    /// each carrying the element and its fill progress (0–1).
+    /// </summary>
+    public void GetChargeFills(List<(Element element, float fill)> results)
+    {
+        results.Clear();
+        if (_activeUltimate == null) return;
+
+        foreach (var req in _activeUltimate.Requirements)
+        {
+            int held = _comboCharges.TryGetValue(req.element, out int c) ? c : 0;
+            float fill = req.count > 0 ? Mathf.Clamp01((float)held / req.count) : 0f;
+            results.Add((req.element, fill));
+        }
     }
 
     /// <summary>

@@ -50,6 +50,7 @@ public class ElementalSlashUltimateController : MonoBehaviour
             yield return new WaitUntil(() => remaining <= 0);
         }
 
+        UltimateChargeTracker.Instance?.EndExecution();
         playerController?.SetUltimateInvincible(false);
         Destroy(gameObject);
     }

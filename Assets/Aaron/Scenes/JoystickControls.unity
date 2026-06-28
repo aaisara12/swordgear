@@ -359,6 +359,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1c74577ce564503a46e58c5614b8601, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  forceMobileControls: 1
   pcAssets:
   - {fileID: 122799134}
   mobileAssets:
@@ -414,7 +415,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1326079308537979913, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 824.7346
+      value: 649.6354
       objectReference: {fileID: 0}
     - target: {fileID: 1326079308537979913, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_SizeDelta.y
