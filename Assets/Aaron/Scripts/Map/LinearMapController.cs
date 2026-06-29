@@ -306,6 +306,20 @@ public class LinearMapController : MonoBehaviour
     {
         StopPresentationAnimations();
 
+        int transitionSegment = RunManager.Instance?.GetTrailTransitionSegmentIndex() ?? -1;
+        if (transitionSegment < 0)
+        {
+            foreach (Image pulse in _spawnedTrailPulses)
+            {
+                if (pulse != null)
+                {
+                    pulse.gameObject.SetActive(false);
+                }
+            }
+
+            return;
+        }
+
         float halfWidth = ResolveNodeHalfWidth();
 
         for (int i = 0; i < _spawnedTrailPulses.Count; i++)
@@ -316,7 +330,7 @@ public class LinearMapController : MonoBehaviour
                 continue;
             }
 
-            if (i != currentIndex)
+            if (i != transitionSegment)
             {
                 pulse.gameObject.SetActive(false);
                 continue;
@@ -359,7 +373,7 @@ public class LinearMapController : MonoBehaviour
                 1f,
                 trailPulseDuration)
             .SetEase(Ease.Linear)
-            .SetLoops(-1, LoopType.Restart)
+            .SetLoops(1)
             .SetId(this);
     }
 
@@ -424,11 +438,6 @@ public class LinearMapController : MonoBehaviour
             return new Color(0.25f, 0.75f, 0.45f, 0.45f);
         }
 
-        if (segmentIndex == currentIndex)
-        {
-            return new Color(0.95f, 0.8f, 0.2f, 0.55f);
-        }
-
         return new Color(0.18f, 0.22f, 0.32f, 0.35f);
     }
 
@@ -437,11 +446,6 @@ public class LinearMapController : MonoBehaviour
         if (segmentIndex < currentIndex)
         {
             return new Color(0.45f, 0.95f, 0.58f, 0.95f);
-        }
-
-        if (segmentIndex == currentIndex)
-        {
-            return new Color(1f, 0.92f, 0.35f, 1f);
         }
 
         return new Color(0.42f, 0.48f, 0.62f, 0.85f);

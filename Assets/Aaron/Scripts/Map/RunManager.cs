@@ -49,6 +49,7 @@ public class RunManager : MonoBehaviour
     private RunMap? _currentMap;
     private LinearRunState? _linearRun;
     private int _lastSeed;
+    private int _lastMapStepIndex = -1;
     private bool _augmentNodeActive;
 
     public RunMap? CurrentMap => _currentMap;
@@ -143,6 +144,7 @@ public class RunManager : MonoBehaviour
         Debug.Log($"RunManager: generating linear run with seed {_lastSeed}.");
         _linearRun = LinearRunGenerator.GenerateInitialBlock(generationSettings.combatLayouts, _lastSeed);
         _currentMap = null;
+        _lastMapStepIndex = -1;
         ResetRunLongState();
         OnRunChanged?.Invoke();
         OnMapChanged?.Invoke();
@@ -166,6 +168,7 @@ public class RunManager : MonoBehaviour
     {
         _linearRun = null;
         _currentMap = null;
+        _lastMapStepIndex = -1;
         OnRunChanged?.Invoke();
         OnMapChanged?.Invoke();
     }
@@ -215,6 +218,27 @@ public class RunManager : MonoBehaviour
         return waves;
     }
 
+    /// <summary>
+    /// Trail segment to animate when re-entering the map after advancing a step.
+    /// Returns -1 on first map visit or when the step index has not increased.
+    /// </summary>
+    public int GetTrailTransitionSegmentIndex()
+    {
+        if (_linearRun == null || _lastMapStepIndex < 0)
+        {
+            return -1;
+        }
+
+        int current = _linearRun.CurrentStepIndex;
+        return current > _lastMapStepIndex ? _lastMapStepIndex : -1;
+    }
+
+    /// <summary>Records the step shown on the map before leaving for arena/hub.</summary>
+    public void MarkMapStepDisplayed()
+    {
+        _lastMapStepIndex = _linearRun?.CurrentStepIndex ?? -1;
+    }
+
     /// <summary>Called when the map interstitial finishes — loads the scene for the current step.</summary>
     public void OnMapInterstitialComplete()
     {
@@ -223,6 +247,7 @@ public class RunManager : MonoBehaviour
             return;
         }
 
+        MarkMapStepDisplayed();
         BeginCurrentStep();
     }
 
