@@ -164,8 +164,8 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     {
         transform.position = player.position + player.up * distanceFromPlayer;
         transform.up = player.up;
-        ResetCharge();
         StartCoroutine(Swing(player));
+        ResetCharge();
         return meleeCooldown;
     }
 
