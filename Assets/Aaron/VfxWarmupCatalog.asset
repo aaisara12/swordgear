@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ad8b37f22732452eb347551a88872bcb, type: 3}
   m_Name: VfxWarmupCatalog
   m_EditorClassIdentifier: 
-  shaderVariants: {fileID: 0}
+  shaderVariants: {fileID: 20000000, guid: b7c4e8a91d2f4a6e9c3b1d0f5e8a7c2d, type: 2}
   entries:
   - prefab: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
     tier: 0

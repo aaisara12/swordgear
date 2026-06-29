@@ -1,6 +1,15 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!20000000 &20000000
+--- !u!200 &20000000
 ShaderVariantCollection:
   m_ObjectHideFlags: 0
-  m_Shaders: []
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: CombatVfxShaderVariants
+  m_Shaders:
+  - first: {fileID: 4800000, guid: 2e7afe93f8b574cf9954306c4417c868, type: 3}
+    second:
+      variants:
+      - keywords: 
+        passType: 13
