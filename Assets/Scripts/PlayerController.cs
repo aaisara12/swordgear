@@ -111,6 +111,13 @@ public class PlayerController : PlayerGameplayPawn
         while (elapsed < dashDuration)
         {
             rb!.linearVelocity = direction * dashSpeed;
+
+            if (playerState == PlayerState.SwordThrown &&
+                Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < swordCatchRadius)
+            {
+                CatchSword();
+            }
+
             elapsed += Time.deltaTime;
             yield return null;
         }
