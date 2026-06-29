@@ -68,6 +68,7 @@ MonoBehaviour:
     bossWaves:
     - {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
     - {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
+  fallbackCombatLayout: {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
   fixedMapOverride: {fileID: 0}
   useRandomSeed: 1
   fixedSeed: 12345

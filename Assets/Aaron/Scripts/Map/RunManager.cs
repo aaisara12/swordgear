@@ -18,6 +18,8 @@ public class RunManager : MonoBehaviour
     [SerializeField] private MapGenerationSettings generationSettings = new MapGenerationSettings();
     [Tooltip("Dev/testing override. When assigned, this fixed map is used instead of procedural generation.")]
     [SerializeField] private FixedMapDefinition? fixedMapOverride;
+    [Tooltip("Arena layout used for every combat step until procedural encounter gen is wired.")]
+    [SerializeField] private ArenaLayoutTemplate? fallbackCombatLayout;
     [SerializeField] private bool useRandomSeed = true;
     [SerializeField] private int fixedSeed = 12345;
 
@@ -176,6 +178,42 @@ public class RunManager : MonoBehaviour
     #endregion
 
     #region Linear step flow
+
+    /// <summary>Layout for combat Arena loads. Falls back to the first entry in <see cref="MapGenerationSettings.combatLayouts"/>.</summary>
+    public ArenaLayoutTemplate? ResolveCombatLayout()
+    {
+        if (fallbackCombatLayout != null)
+        {
+            return fallbackCombatLayout;
+        }
+
+        IReadOnlyList<ArenaLayoutTemplate> layouts = generationSettings.combatLayouts;
+        return layouts.Count > 0 ? layouts[0] : null;
+    }
+
+    /// <summary>Wave list for combat steps using the run seed and designer wave pool (no EncounterBuilder).</summary>
+    public List<EnemyWaveConfig> BuildCombatWaves()
+    {
+        List<EnemyWaveConfig> pool = generationSettings.combatWaves;
+        if (pool == null || pool.Count == 0)
+        {
+            return new List<EnemyWaveConfig>();
+        }
+
+        int seed = _linearRun?.Seed ?? _lastSeed;
+        var rng = new System.Random(seed);
+        int minWaves = generationSettings.minWavesPerCombat;
+        int maxWaves = generationSettings.maxWavesPerCombat;
+        int waveCount = rng.Next(minWaves, maxWaves + 1);
+
+        var waves = new List<EnemyWaveConfig>(waveCount);
+        for (int i = 0; i < waveCount; i++)
+        {
+            waves.Add(pool[rng.Next(pool.Count)]);
+        }
+
+        return waves;
+    }
 
     /// <summary>Called when the map interstitial finishes — loads the scene for the current step.</summary>
     public void OnMapInterstitialComplete()

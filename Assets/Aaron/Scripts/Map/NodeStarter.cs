@@ -1,11 +1,10 @@
 #nullable enable
 
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Drives a single Arena node from <see cref="RunManager.CurrentNode"/> (replaces RoundStarter's 3-level loop).
-/// Builds a one-off level blueprint and loads it; on clear it shows Stage Complete (Combat) or completes
-/// the run (Boss). Shop nodes load with no waves and are exited via the shop UI.
+/// Loads the Arena for the current linear run combat step via <see cref="RunManager.CurrentStep"/>.
 /// </summary>
 public class NodeStarter : MonoBehaviour
 {
@@ -17,20 +16,26 @@ public class NodeStarter : MonoBehaviour
     [SerializeField] private ComboPerformanceEventChannelSO? stageCompletePerformanceChannel;
 
     private LevelLoader? _levelLoader;
-    private MapNode? _node;
 
     private void Start()
     {
-        if (RunManager.Instance == null)
+        RunManager? runManager = RunManager.Instance;
+        if (runManager == null)
         {
             Debug.LogError("NodeStarter: RunManager.Instance is null.");
             return;
         }
 
-        _node = RunManager.Instance.CurrentNode;
-        if (_node == null)
+        RunStep? step = runManager.CurrentStep;
+        if (step == null)
         {
-            Debug.LogError("NodeStarter: no current node to load.");
+            Debug.LogError("NodeStarter: no current run step to load.");
+            return;
+        }
+
+        if (step.Type != RunStepType.Combat)
+        {
+            Debug.LogError($"NodeStarter: expected combat step but got {step.Type}.");
             return;
         }
 
@@ -41,32 +46,30 @@ public class NodeStarter : MonoBehaviour
             return;
         }
 
-        if (_node.Layout == null)
+        ArenaLayoutTemplate? layout = runManager.ResolveCombatLayout();
+        if (layout == null || layout.LevelPrefab == null)
         {
-            Debug.LogError($"NodeStarter: node {_node.Id} ({_node.Type}) has no arena layout assigned.");
+            Debug.LogError("NodeStarter: no combat arena layout assigned.");
             return;
         }
 
-        // Returning to a combat context: make sure the HUD is visible.
+        List<EnemyWaveConfig> waves = runManager.BuildCombatWaves();
+        if (waves.Count == 0)
+        {
+            Debug.LogError("NodeStarter: combat wave pool is empty.");
+            return;
+        }
+
         combatHudVisibilityChannel?.RaiseDataChanged(true);
 
         var blueprint = new LevelBlueprint
         {
-            Layout = _node.Layout,
-            Waves = _node.Waves,
-            IsShopLevel = _node.Type == NodeType.Shop
+            Layout = layout,
+            Waves = waves,
+            IsShopLevel = false
         };
 
-        if (_node.Type == NodeType.Boss)
-        {
-            _levelLoader.OnLevelClear += HandleBossCleared;
-        }
-        else if (_node.Type == NodeType.Combat)
-        {
-            _levelLoader.OnLevelClear += HandleCombatCleared;
-        }
-        // Shop: no clear handler; exit is driven by the shop UI -> RunManager.ReturnToMapAfterNode().
-
+        _levelLoader.OnLevelClear += HandleCombatCleared;
         _levelLoader.LoadLevel(blueprint);
     }
 
@@ -74,12 +77,6 @@ public class NodeStarter : MonoBehaviour
     {
         Unsubscribe();
         ShowStageComplete();
-    }
-
-    private void HandleBossCleared()
-    {
-        Unsubscribe();
-        RunManager.Instance?.CompleteRun();
     }
 
     private void ShowStageComplete()
@@ -100,7 +97,6 @@ public class NodeStarter : MonoBehaviour
         }
 
         _levelLoader.OnLevelClear -= HandleCombatCleared;
-        _levelLoader.OnLevelClear -= HandleBossCleared;
     }
 
     private void OnDestroy()
