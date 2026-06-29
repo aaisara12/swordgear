@@ -1,0 +1,429 @@
+fileFormatVersion: 2
+guid: dcd4d8820ba5b9340a1a624141d99237
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6324278848273172495
+    second: sg_ult1_reticle_2_0
+  - first:
+      213: -4119081376483847688
+    second: sg_ult1_reticle_2_1
+  - first:
+      213: -3054234267853591410
+    second: sg_ult1_reticle_2_2
+  - first:
+      213: -1572555515357362778
+    second: sg_ult1_reticle_2_3
+  - first:
+      213: 2287447189719788280
+    second: sg_ult1_reticle_2_4
+  - first:
+      213: 8460315247306019523
+    second: sg_ult1_reticle_2_5
+  - first:
+      213: -7365067628284221605
+    second: sg_ult1_reticle_2_6
+  - first:
+      213: -3975025311803426090
+    second: sg_ult1_reticle_2_7
+  - first:
+      213: 2022471371271826904
+    second: sg_ult1_reticle_2_8
+  - first:
+      213: 5819864566837612958
+    second: sg_ult1_reticle_2_9
+  - first:
+      213: 5713926854008743959
+    second: sg_ult1_reticle_2_10
+  - first:
+      213: -6214557498403809874
+    second: sg_ult1_reticle_2_11
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_0
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 1047
+        width: 419
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f08c6d3ea1a54c750800000000000000
+      internalID: 6324278848273172495
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_1
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 939
+        width: 21
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f1d0c9df4516d6c0800000000000000
+      internalID: -4119081376483847688
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_2
+      rect:
+        serializedVersion: 2
+        x: 1048
+        y: 1047
+        width: 418
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e8ce2cb8d1e2d95d0800000000000000
+      internalID: -3054234267853591410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_3
+      rect:
+        serializedVersion: 2
+        x: 604
+        y: 852
+        width: 139
+        height: 142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a50b8d27192d2ae0800000000000000
+      internalID: -1572555515357362778
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_4
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 852
+        width: 139
+        height: 143
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8faa6b18915aebf10800000000000000
+      internalID: 2287447189719788280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_5
+      rect:
+        serializedVersion: 2
+        x: 540
+        y: 789
+        width: 121
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3c21f7b84e3196570800000000000000
+      internalID: 8460315247306019523
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_6
+      rect:
+        serializedVersion: 2
+        x: 940
+        y: 789
+        width: 121
+        height: 21
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b57e36d83060ac990800000000000000
+      internalID: -7365067628284221605
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_7
+      rect:
+        serializedVersion: 2
+        x: 622
+        y: 606
+        width: 120
+        height: 98
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6da35cc1a8fd5d8c0800000000000000
+      internalID: -3975025311803426090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_8
+      rect:
+        serializedVersion: 2
+        x: 790
+        y: 539
+        width: 21
+        height: 121
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dded052ff2411c10800000000000000
+      internalID: 2022471371271826904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_9
+      rect:
+        serializedVersion: 2
+        x: 858
+        y: 605
+        width: 120
+        height: 99
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e911d331dff44c050800000000000000
+      internalID: 5819864566837612958
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_10
+      rect:
+        serializedVersion: 2
+        x: 134
+        y: 134
+        width: 419
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 718a1c53332fb4f40800000000000000
+      internalID: 5713926854008743959
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ult1_reticle_2_11
+      rect:
+        serializedVersion: 2
+        x: 1048
+        y: 134
+        width: 419
+        height: 419
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea5966f91e471c9a0800000000000000
+      internalID: -6214557498403809874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      sg_ult1_reticle_2_0: 6324278848273172495
+      sg_ult1_reticle_2_1: -4119081376483847688
+      sg_ult1_reticle_2_10: 5713926854008743959
+      sg_ult1_reticle_2_11: -6214557498403809874
+      sg_ult1_reticle_2_2: -3054234267853591410
+      sg_ult1_reticle_2_3: -1572555515357362778
+      sg_ult1_reticle_2_4: 2287447189719788280
+      sg_ult1_reticle_2_5: 8460315247306019523
+      sg_ult1_reticle_2_6: -7365067628284221605
+      sg_ult1_reticle_2_7: -3975025311803426090
+      sg_ult1_reticle_2_8: 2022471371271826904
+      sg_ult1_reticle_2_9: 5819864566837612958
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
