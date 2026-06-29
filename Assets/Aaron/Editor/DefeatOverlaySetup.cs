@@ -1,3 +1,4 @@
+#if UNITY_EDITOR
 #nullable enable
 
 using TMPro;
@@ -228,3 +229,4 @@ public static class DefeatOverlaySetup
         tmp.raycastTarget = false;
     }
 }
+#endif
