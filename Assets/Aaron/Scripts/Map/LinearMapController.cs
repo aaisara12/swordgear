@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
@@ -17,6 +18,7 @@ public class LinearMapController : MonoBehaviour
     [SerializeField] private Image? upgradeNodePrefab;
     [SerializeField] private float nodeSpacing = 180f;
     [SerializeField] private float tokenYOffset = -58f;
+    [SerializeField] private float interstitialHoldSeconds = 1.5f;
 
     [Header("Other Scenes")]
     [SerializeField] private BoolEventChannelSO? combatHudVisibilityChannel;
@@ -28,6 +30,7 @@ public class LinearMapController : MonoBehaviour
     private int _lastAppliedStepIndex = -1;
     private int _lastBuiltStepCount = -1;
     private bool _railBuilt;
+    private Coroutine? _interstitialCoroutine;
 
     private void OnEnable()
     {
@@ -44,10 +47,28 @@ public class LinearMapController : MonoBehaviour
         _lastAppliedStepIndex = -1;
         RebuildRailFromRun();
         ApplyStepPresentation();
+        _interstitialCoroutine = StartCoroutine(CompleteInterstitialAfterHold());
+    }
+
+    private IEnumerator CompleteInterstitialAfterHold()
+    {
+        if (interstitialHoldSeconds > 0f)
+        {
+            yield return new WaitForSeconds(interstitialHoldSeconds);
+        }
+
+        RunManager.Instance?.OnMapInterstitialComplete();
+        _interstitialCoroutine = null;
     }
 
     private void OnDisable()
     {
+        if (_interstitialCoroutine != null)
+        {
+            StopCoroutine(_interstitialCoroutine);
+            _interstitialCoroutine = null;
+        }
+
         if (RunManager.Instance != null)
         {
             RunManager.Instance.OnRunChanged -= HandleRunChanged;

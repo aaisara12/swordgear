@@ -51,6 +51,7 @@ public class RunManager : MonoBehaviour
 
     public RunMap? CurrentMap => _currentMap;
     public LinearRunState? Run => _linearRun;
+    public RunStep? CurrentStep => _linearRun?.CurrentStep;
     public MapNode? CurrentNode => _currentMap?.CurrentNode;
     public bool HasActiveRun => _linearRun != null;
 
@@ -170,6 +171,40 @@ public class RunManager : MonoBehaviour
     private void HandlePlayerDefeated()
     {
         ClearRun();
+    }
+
+    #endregion
+
+    #region Linear step flow
+
+    /// <summary>Called when the map interstitial finishes — loads the scene for the current step.</summary>
+    public void OnMapInterstitialComplete()
+    {
+        if (_linearRun == null)
+        {
+            return;
+        }
+
+        BeginCurrentStep();
+    }
+
+    /// <summary>Loads Arena for combat steps. Upgrade hub wiring comes in a later commit.</summary>
+    public void BeginCurrentStep()
+    {
+        RunStep? step = _linearRun?.CurrentStep;
+        if (step == null)
+        {
+            Debug.LogError("RunManager: BeginCurrentStep called with no current step.");
+            return;
+        }
+
+        if (step.Type == RunStepType.Combat)
+        {
+            RequestScene(arenaScene);
+            return;
+        }
+
+        Debug.LogWarning("RunManager: Upgrade step scene load is not implemented yet.");
     }
 
     #endregion
