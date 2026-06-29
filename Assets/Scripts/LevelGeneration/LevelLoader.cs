@@ -7,11 +7,15 @@ using System.Collections;
 public class LevelLoader : MonoBehaviour
 {
     public static LevelLoader Instance; // Singleton
+
+    [SerializeField] private GameObject exitPortalPrefab;
+
     private LevelBlueprint currentBlueprint;
     private int currentWaveIndex = 0;
     private List<EnemyController> activeEnemies = new List<EnemyController>();
 
     public event Action OnLevelClear;
+    public event Action OnExitPortalEntered;
 
     // aisara => Static so the persistent CombatHUD announcer can subscribe once and survive Arena scene reloads
     // (LevelLoader is re-created per Arena load).
@@ -24,6 +28,7 @@ public class LevelLoader : MonoBehaviour
 
     private GameObject currentRoom;
     private GameObject currentTransition;
+    private GameObject spawnedExitPortal;
 
     public void RefreshMinimapIfLoaded()
     {
@@ -46,6 +51,7 @@ public class LevelLoader : MonoBehaviour
         currentWaveIndex = 0;
         if(currentRoom != null)
         {
+            ClearExitPortal();
             Destroy(currentRoom);
 
         }
@@ -96,8 +102,8 @@ public class LevelLoader : MonoBehaviour
     {
         if (currentWaveIndex >= currentBlueprint.Waves.Count)
         {
-            Debug.Log("Level Complete! Activating transition.");
-            // TODO: Activate the transition object/mechanic here
+            Debug.Log("Level Complete! Spawning exit portal.");
+            SpawnExitPortal();
             if (ComboSystem.Instance != null)
             {
                 ComboSystem.Instance.OnLevelFinished();
@@ -200,5 +206,67 @@ public class LevelLoader : MonoBehaviour
             }
         }
         activeEnemies.Clear();
+    }
+
+    private void SpawnExitPortal()
+    {
+        if (exitPortalPrefab == null || currentRoom == null)
+        {
+            Debug.LogWarning("LevelLoader: cannot spawn exit portal; prefab or room is missing.");
+            return;
+        }
+
+        ClearExitPortal();
+
+        ExitSpawnPoint exitMarker = currentRoom.GetComponentInChildren<ExitSpawnPoint>();
+        Vector3 spawnPosition;
+        Quaternion spawnRotation;
+
+        if (exitMarker != null)
+        {
+            spawnPosition = exitMarker.transform.position;
+            spawnRotation = exitMarker.transform.rotation;
+        }
+        else
+        {
+            spawnPosition = currentRoom.transform.position + new Vector3(0f, 5f, 0f);
+            spawnRotation = Quaternion.identity;
+            Debug.LogWarning("LevelLoader: no ExitSpawnPoint in room; using fallback position.");
+        }
+
+        spawnedExitPortal = Instantiate(exitPortalPrefab, spawnPosition, spawnRotation, currentRoom.transform);
+
+        LevelExitPortal portal = spawnedExitPortal.GetComponent<LevelExitPortal>();
+        if (portal != null)
+        {
+            portal.OnPlayerEntered += HandleExitPortalEntered;
+        }
+    }
+
+    private void HandleExitPortalEntered()
+    {
+        Debug.Log("LevelLoader: player entered exit portal.");
+        OnExitPortalEntered?.Invoke();
+    }
+
+    private void ClearExitPortal()
+    {
+        if (spawnedExitPortal == null)
+        {
+            return;
+        }
+
+        LevelExitPortal portal = spawnedExitPortal.GetComponent<LevelExitPortal>();
+        if (portal != null)
+        {
+            portal.OnPlayerEntered -= HandleExitPortalEntered;
+        }
+
+        spawnedExitPortal = null;
+    }
+
+    private void OnDestroy()
+    {
+        ClearExitPortal();
     }
 }
