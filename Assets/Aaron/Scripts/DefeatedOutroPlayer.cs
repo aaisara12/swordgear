@@ -10,13 +10,13 @@ public class DefeatedOutroPlayer : MonoBehaviour
     [SerializeField] private SceneTransitioner? sceneTransitioner;
     [SerializeField] private SceneReference sceneToReturnTo = new SceneReference();
     
-    [Header("Input")] [SerializeField] private TriggerEventChannelSO? onDefeatedEventChannel;
+    [Header("Input")] [SerializeField] private TriggerEventChannelSO? defeatContinueChannel;
 
     private void Awake()
     {
-        if (onDefeatedEventChannel == null)
+        if (defeatContinueChannel == null)
         {
-            Debug.LogError($"{nameof(onDefeatedEventChannel)} is null");
+            Debug.LogError($"{nameof(defeatContinueChannel)} is null");
             return;
         }
 
@@ -26,10 +26,10 @@ public class DefeatedOutroPlayer : MonoBehaviour
             return;
         }
 
-        onDefeatedEventChannel.OnEventTriggered += HandleOnDefeated;
+        defeatContinueChannel.OnEventTriggered += HandleDefeatContinue;
     }
 
-    private void HandleOnDefeated()
+    private void HandleDefeatContinue()
     {
         if (sceneTransitioner == null)
         {
@@ -41,7 +41,7 @@ public class DefeatedOutroPlayer : MonoBehaviour
     
     private void TriggerDefeatedOutro(SceneTransitioner sceneTransitionerNonNull)
     {
-        // TODO: aisara => Perhaps show some defeated outro animation or screen here before transitioning
+        // Defeat outro timing is handled by DefeatStateController before this fires.
         if (sceneTransitionerNonNull.TryChangeScene(sceneToReturnTo.sceneName) == false)
         {
             Debug.LogError("Failed to transition to scene on player defeated.");
@@ -50,9 +50,9 @@ public class DefeatedOutroPlayer : MonoBehaviour
 
     private void OnDestroy()
     {
-        if (onDefeatedEventChannel != null)
+        if (defeatContinueChannel != null)
         {
-            onDefeatedEventChannel.OnEventTriggered -= HandleOnDefeated;
+            defeatContinueChannel.OnEventTriggered -= HandleDefeatContinue;
         }
     }
 }

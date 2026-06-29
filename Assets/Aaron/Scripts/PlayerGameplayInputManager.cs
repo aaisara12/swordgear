@@ -33,6 +33,14 @@ public class PlayerGameplayInputManager : MonoBehaviour
         gameplayActions.Disable();
     }
 
+    public void DisableGameplayInput()
+    {
+        EndThrowAimSession();
+        ToggleAttackDirectionUpdate(false);
+        pawn?.MoveInDirection(Vector2.zero);
+        gameplayActions.Disable();
+    }
+
     private void Awake()
     {
         var playerControls = new PlayerControls();
@@ -253,7 +261,7 @@ public class PlayerGameplayInputManager : MonoBehaviour
 
     private void HandleMove(InputAction.CallbackContext obj)
     {
-        if (pawn == null)
+        if (pawn == null || PlayerGameplayManager.Instance?.IsDefeated == true)
         {
             return;
         }

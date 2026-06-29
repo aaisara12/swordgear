@@ -46,6 +46,11 @@ public class EnemyController : MonoBehaviour
 
     private void FixedUpdate()
     {
+        if (PlayerGameplayManager.Instance?.IsDefeated == true)
+        {
+            return;
+        }
+
         if (player == null || rb == null || movementStrategy == null)
         {
             return;

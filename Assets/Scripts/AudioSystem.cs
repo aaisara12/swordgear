@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -31,6 +32,7 @@ public class AudioSystem : MonoBehaviour
 
         // Dash
         Player_Dash,
+        Player_Defeat,
 
         BGM,
     }
@@ -49,6 +51,9 @@ public class AudioSystem : MonoBehaviour
 
     List<PooledSource> pool = new();
     Dictionary<int, PooledSource> activeLoops = new();
+    Dictionary<Sound, int> loopIdsBySound = new();
+    Dictionary<Sound, float> defaultLoopVolumes = new();
+    readonly Dictionary<Sound, Coroutine> activeLoopFadeRoutines = new();
 
     void Awake()
     {
@@ -182,6 +187,8 @@ public class AudioSystem : MonoBehaviour
 
         pooled.lastUsedTime = Time.time;
         instance.activeLoops.Add(id, pooled);
+        instance.loopIdsBySound[sound] = id;
+        instance.defaultLoopVolumes[sound] = volume;
         return id;
     }
 
@@ -199,5 +206,89 @@ public class AudioSystem : MonoBehaviour
         pooled.lastUsedTime = Time.time;
 
         instance.activeLoops.Remove(id);
+
+        foreach (var pair in instance.loopIdsBySound)
+        {
+            if (pair.Value == id)
+            {
+                instance.loopIdsBySound.Remove(pair.Key);
+                instance.defaultLoopVolumes.Remove(pair.Key);
+                if (instance.activeLoopFadeRoutines.TryGetValue(pair.Key, out Coroutine? fadeRoutine))
+                {
+                    instance.StopCoroutine(fadeRoutine);
+                    instance.activeLoopFadeRoutines.Remove(pair.Key);
+                }
+                break;
+            }
+        }
+    }
+
+    public static void FadeLoopVolume(Sound sound, float targetVolume, float duration)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        if (!instance.TryGetActiveLoop(sound, out PooledSource? pooled) || pooled == null)
+        {
+            return;
+        }
+
+        if (instance.activeLoopFadeRoutines.TryGetValue(sound, out Coroutine? existing))
+        {
+            instance.StopCoroutine(existing);
+        }
+
+        instance.activeLoopFadeRoutines[sound] =
+            instance.StartCoroutine(instance.FadeLoopVolumeRoutine(sound, pooled, targetVolume, duration));
+    }
+
+    public static void RestoreLoopVolume(Sound sound, float duration)
+    {
+        if (instance == null)
+        {
+            return;
+        }
+
+        float targetVolume = instance.defaultLoopVolumes.TryGetValue(sound, out float defaultVolume)
+            ? defaultVolume
+            : 1f;
+        FadeLoopVolume(sound, targetVolume, duration);
+    }
+
+    bool TryGetActiveLoop(Sound sound, out PooledSource? pooled)
+    {
+        pooled = null;
+        if (!loopIdsBySound.TryGetValue(sound, out int id))
+        {
+            return false;
+        }
+
+        return activeLoops.TryGetValue(id, out pooled);
+    }
+
+    IEnumerator FadeLoopVolumeRoutine(Sound sound, PooledSource pooled, float targetVolume, float duration)
+    {
+        AudioSource src = pooled.source;
+        float startVolume = src.volume;
+
+        if (duration <= 0f)
+        {
+            src.volume = targetVolume;
+            activeLoopFadeRoutines.Remove(sound);
+            yield break;
+        }
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            src.volume = Mathf.Lerp(startVolume, targetVolume, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+
+        src.volume = targetVolume;
+        activeLoopFadeRoutines.Remove(sound);
     }
 }

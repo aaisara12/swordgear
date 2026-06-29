@@ -5293,6 +5293,7 @@ GameObject:
   m_Component:
   - component: {fileID: 459046275}
   - component: {fileID: 459046274}
+  - component: {fileID: 459046276}
   m_Layer: 0
   m_Name: Simulated Joysticks Displayer
   m_TagString: Untagged
@@ -5363,6 +5364,21 @@ Transform:
   m_Children: []
   m_Father: {fileID: 387586038}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &459046276
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 459046273}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 019866a25ed424c8aa7b7300758a1cf4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::ChannelDrivenVisibility
+  visibilityChannel: {fileID: 11400000, guid: 2ace426d79c4741a3bc741a39cb27a3d, type: 2}
+  target: {fileID: 459046273}
+  initiallyVisible: 1
 --- !u!1 &891382973
 GameObject:
   m_ObjectHideFlags: 0
