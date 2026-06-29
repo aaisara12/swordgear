@@ -72,6 +72,8 @@ public class PlayerController : PlayerGameplayPawn
         _attackCooldownRemaining = seconds;
     }
 
+    private bool IsGameplayBlocked => PlayerGameplayManager.Instance?.IsDefeated == true;
+
     private void Update()
     {
         if (_attackCooldownRemaining > 0f)
@@ -218,6 +220,7 @@ public class PlayerController : PlayerGameplayPawn
     
     public void TakeDamage(float damage)
     {
+        if (PlayerGameplayManager.Instance?.IsDefeated == true) return;
         if (IsInvincible) return;
         _iFrameRemaining = iFrameDuration;
         PlayDamageEffect();
@@ -394,6 +397,11 @@ public class PlayerController : PlayerGameplayPawn
     
     public override void Attack(Vector2 direction)
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         // RETROFIT: From OnReleaseInIdle
 
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
@@ -411,6 +419,11 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void BeginChargeAttack()
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         // RETROFIT: From OnTapInIdle
         
         recallParticles.ThrowIfNull(nameof(recallParticles));
@@ -428,6 +441,11 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void ReleaseChargeAttack()
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         bool hadRecallChannel = recallSwordCoroutine != null;
         CancelRecallChannel();
 
@@ -443,17 +461,32 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void CancelChargeAttack()
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         CancelRecallChannel();
         ElementManager.Instance.MeleeCharge(transform, true);
     }
 
     public override void AimInDirection(Vector2 direction)
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         weaponIndicator?.UpdateThrowAim(direction);
     }
 
     public override void DoAimedAttackInDirection(Vector2 direction)
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         // RETROFIT: From OnReleaseInMove
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
@@ -480,6 +513,11 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void MoveInDirection(Vector2 direction)
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         // RETROFIT: From OnMove
         _lastMoveDirection = direction;
         if (_isDashing) return;
@@ -541,6 +579,11 @@ public class PlayerController : PlayerGameplayPawn
             rb.linearVelocity = Vector2.zero;
         }
 
+        foreach (Collider2D collider in GetComponentsInChildren<Collider2D>())
+        {
+            collider.enabled = true;
+        }
+
         // Reset facing/aim to a default.
         weaponIndicator?.EndThrowAim();
         transform.up = Vector2.up;
@@ -550,6 +593,11 @@ public class PlayerController : PlayerGameplayPawn
 
     public override void UseUltimate()
     {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
         UltimateChargeTracker.Instance?.TryActivate();
     }
 
@@ -558,8 +606,67 @@ public class PlayerController : PlayerGameplayPawn
         // TODO: Implement spawn animation
     }
 
+    private Coroutine? _defeatAnimationCoroutine;
+
     public override void DoDefeatAnimation()
     {
-        // TODO: Implement defeat animation
+        _lastMoveDirection = Vector2.zero;
+        ForceResetThrownSword();
+        CancelDash();
+
+        if (walkSoundLoop != -1)
+        {
+            AudioSystem.StopLoop(walkSoundLoop);
+            walkSoundLoop = -1;
+        }
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        foreach (Collider2D collider in GetComponentsInChildren<Collider2D>())
+        {
+            collider.enabled = false;
+        }
+
+        weaponIndicator?.EndThrowAim();
+        weaponIndicator?.SetEquippedVisible(false);
+
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake(2.5f);
+        AudioSystem.Play(AudioSystem.Sound.Player_Defeat);
+
+        if (_defeatAnimationCoroutine != null)
+        {
+            StopCoroutine(_defeatAnimationCoroutine);
+        }
+
+        _defeatAnimationCoroutine = StartCoroutine(DefeatFadeRoutine());
+    }
+
+    private IEnumerator DefeatFadeRoutine()
+    {
+        if (playerRenderer == null)
+        {
+            yield break;
+        }
+
+        Color color = playerRenderer.color;
+        float startAlpha = color.a;
+        const float targetAlpha = 0.5f;
+        const float duration = 0.4f;
+        float elapsed = 0f;
+
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            color.a = Mathf.Lerp(startAlpha, targetAlpha, Mathf.Clamp01(elapsed / duration));
+            playerRenderer.color = color;
+            yield return null;
+        }
+
+        color.a = targetAlpha;
+        playerRenderer.color = color;
+        _defeatAnimationCoroutine = null;
     }
 }

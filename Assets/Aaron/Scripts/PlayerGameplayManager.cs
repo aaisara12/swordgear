@@ -33,8 +33,11 @@ public class PlayerGameplayManager : MonoBehaviour
     public float CurrentHp => currentHp;
     public float MaxHp => maxHp;
     public bool IsPawnActive => spawnedPawn != null && spawnedPawn.gameObject.activeInHierarchy;
+    public bool IsDefeated { get; private set; }
 
     [SerializeField] private UnityEvent onDefeated = new UnityEvent();
+    [SerializeField] private BoolEventChannelSO? defeatVisibilityChannel;
+    [SerializeField] private BoolEventChannelSO? simulatedJoysticksVisibilityChannel;
     [SerializeField] private PlayerGameplayPawn? pawnPrefab;
     [SerializeField] private PlayerGameplayInputManager? inputManager;
 
@@ -125,6 +128,8 @@ public class PlayerGameplayManager : MonoBehaviour
         maxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
         currentHp = maxHp;
         runHealthInitialized = true;
+        IsDefeated = false;
+        defeatVisibilityChannel?.RaiseDataChanged(false);
         NotifyHealthChanged(0f);
     }
 
@@ -252,12 +257,18 @@ public class PlayerGameplayManager : MonoBehaviour
 
     private void Defeat()
     {
-        if (spawnedPawn != null)
+        if (IsDefeated)
         {
-            spawnedPawn.DoDefeatAnimation();
+            return;
         }
-        
+
+        IsDefeated = true;
+        StopRegen();
+        simulatedJoysticksVisibilityChannel?.RaiseDataChanged(false);
+        inputManager?.DisableGameplayInput();
+        spawnedPawn?.DoDefeatAnimation();
         onDefeated.Invoke();
+        defeatVisibilityChannel?.RaiseDataChanged(true);
     }
     
     private void HandlePawnRegisterDamage(float damage)

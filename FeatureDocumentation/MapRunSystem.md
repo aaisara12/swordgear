@@ -73,7 +73,7 @@ Map → select node:
    Augment / Rest        → overlay on Map
 Combat cleared → Stage Complete overlay → Continue → back to Map (node marked done)
 Boss cleared   → Run Complete → TitleScene
-Defeat         → TitleScene (run cleared; next Play regenerates a fresh map)
+Defeat         → input lock + defeat overlay (~3s, skippable) → TitleScene (run cleared; next Play regenerates a fresh map)
 ```
 
 - The Title **Play** button raises the scene-change channel with `"Map"`. `MapSceneController.OnEnable` calls `RunManager.EnsureRunStarted()`, which lazily generates a fresh run if none exists (so post-defeat re-entry gets a brand-new map).
@@ -102,6 +102,8 @@ Defeat         → TitleScene (run cleared; next Play regenerates a fresh map)
 | `StageCompleteVisibilityChannel` | Bool | Show/hide the Stage Complete overlay |
 | `StageCompletePerformanceChannel` | ComboPerformance | Carries the per-node performance summary |
 | `StageCompleteContinueChannel` | Trigger | Continue pressed → return to Map |
+| `DefeatOverlayVisibilityChannel` | Bool | Show/hide the defeat overlay |
+| `DefeatContinueChannel` | Trigger | Defeat overlay finished / skipped → return to Title |
 | `RestNodeVisibilityChannel` | Bool | Show/hide the Rest overlay |
 
 Augment nodes reuse the existing `ShowNextAugmentSetChannel` (trigger) and `EnableAugmentShopEventChannel` (bool). `RunManager` completes an Augment node when the augment UI closes (visibility → false).

@@ -40,8 +40,15 @@ namespace Testing
 
         public static void Shake()
         {
+            Shake(1f);
+        }
+
+        public static void Shake(float force)
+        {
             if (impulseSource != null)
-                impulseSource.GenerateImpulse();
+            {
+                impulseSource.GenerateImpulse(Vector3.down * force);
+            }
         }
     }
 }

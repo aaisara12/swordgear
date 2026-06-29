@@ -207,6 +207,8 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+  defeatVisibilityChannel: {fileID: 11400000, guid: f8e7d6c5b4a39281706f5e4d3c2b1a01, type: 2}
+  simulatedJoysticksVisibilityChannel: {fileID: 11400000, guid: a9df96891db70474bbc8217e37ed0770, type: 2}
   pawnPrefab: {fileID: 8377646472276769222, guid: 74697b7d91d2c43eca0de5c9735a968e, type: 3}
   inputManager: {fileID: 7203599953307044813}
   spawnPawnAtLocationEventChannel: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}

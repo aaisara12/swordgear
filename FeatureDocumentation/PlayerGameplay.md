@@ -39,7 +39,10 @@ Health lives entirely in `PlayerGameplayManager` (not on the pawn):
 - Damage is received via `HandlePawnRegisterDamage` → `TakeDamage`.
 - `Heal(float)` is called by the lifesteal handler and the regen coroutine.
 - Regen runs via `RegenTick()` coroutine, ticking every second. It starts/stops in response to stat changes.
-- When HP reaches 0, `Defeat()` plays a defeat animation and invokes the `onDefeated` UnityEvent.
+- When HP reaches 0, `Defeat()` sets `IsDefeated`, stops regen, hides simulated joysticks via `EnableSimulatedJoysticksEventChannel`, disables input (zeroing movement), plays `DoDefeatAnimation()` (disables colliders), raises `PlayerDefeatedEventChannel` (clears run), and shows the defeat overlay via `DefeatOverlayVisibilityChannel`.
+- Enemies stop chasing while `IsDefeated` is true.
+- `IsDefeated` resets in `InitializeHealthForNewRun()` when a new run starts.
+- `DefeatStateController` (CombatHUD) hides gameplay HUD, ducks BGM, shows **DEFEATED** + subtitle, then auto-returns to Title via `DefeatContinueChannel` (~3s, tap to skip).
 
 ---
 
