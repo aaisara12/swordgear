@@ -58,6 +58,8 @@ public class LevelLoader : MonoBehaviour
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
         MinimapController.Instance?.Refresh(currentRoom);
 
+        SpawnPlayerFromRoomMarker();
+
         // TODO implement transitions later
         // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
 
@@ -65,6 +67,29 @@ public class LevelLoader : MonoBehaviour
             return;
 
         StartNextWave();
+    }
+
+    private void SpawnPlayerFromRoomMarker()
+    {
+        if (currentRoom == null)
+        {
+            return;
+        }
+
+        PlayerSpawnMarker marker = currentRoom.GetComponentInChildren<PlayerSpawnMarker>();
+        if (marker == null)
+        {
+            Debug.LogWarning("LevelLoader: no PlayerSpawnMarker found in loaded room; player will not be spawned.");
+            return;
+        }
+
+        if (PlayerGameplayManager.Instance == null)
+        {
+            Debug.LogError("LevelLoader: PlayerGameplayManager.Instance is null; cannot spawn player.");
+            return;
+        }
+
+        PlayerGameplayManager.Instance.SpawnPawnAtLocation(marker.transform);
     }
 
     private void StartNextWave()

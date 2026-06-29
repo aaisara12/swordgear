@@ -1900,7 +1900,7 @@ GameObject:
   - component: {fileID: 8257321652947400529}
   - component: {fileID: 4498555416937360195}
   m_Layer: 0
-  m_Name: Player Spawner
+  m_Name: PlayerSpawnMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1930,33 +1930,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3570214558546301374}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27e6cfbd3c2942579a655cc69b70fe70, type: 3}
+  m_Script: {fileID: 11500000, guid: c4e8f1a23b5d647e9a0c2d8e7f6b3a41, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  onStart:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}
-        m_TargetAssemblyTypeName: DataEventChannelSO`1[[UnityEngine.Transform, UnityEngine
-        m_MethodName: RaiseDataChanged
-        m_Mode: 2
-        m_Arguments:
-          m_ObjectArgument: {fileID: 8257321652947400529}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Transform, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
-  onEnable:
-    m_PersistentCalls:
-      m_Calls: []
-  onDisable:
-    m_PersistentCalls:
-      m_Calls: []
-  onDestroy:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!1 &3697445073240250343
 GameObject:
   m_ObjectHideFlags: 0
