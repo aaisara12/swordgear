@@ -28,9 +28,15 @@ public class UltimateChargeCircleUI : MaskableGraphic
     [SerializeField] private float _partialAlpha = 0.5f;
     [SerializeField] private List<ElementColorEntry> _elementColors = new();
     [SerializeField] private GameObject? _ultimateReadyIndicator;
+    [SerializeField] private Transform? _halo;
+    [SerializeField] private float _haloSpinSpeed = 90f;
+    [SerializeField] private float _haloPulseDelta = 0.08f;
+    [SerializeField] private float _haloPulseSpeed = 3f;
 
     private readonly List<(Element element, float fill)> _currentFills = new();
     private bool _subscribed;
+    private bool _isUltimateReady;
+    private Vector3 _haloBaseScale = Vector3.one;
 
     protected override void OnEnable()
     {
@@ -51,6 +57,8 @@ public class UltimateChargeCircleUI : MaskableGraphic
     protected override void Start()
     {
         base.Start();
+        if (_halo != null)
+            _haloBaseScale = _halo.localScale;
         TrySubscribe();
     }
 
@@ -78,8 +86,19 @@ public class UltimateChargeCircleUI : MaskableGraphic
 
     private void SetUltimateIndicator(bool active)
     {
+        _isUltimateReady = active;
         if (_ultimateReadyIndicator != null)
             _ultimateReadyIndicator.SetActive(active);
+        if (!active && _halo != null)
+            _halo.localScale = _haloBaseScale;
+    }
+
+    private void Update()
+    {
+        if (!_isUltimateReady || _halo == null) return;
+        _halo.Rotate(0f, 0f, _haloSpinSpeed * Time.deltaTime, Space.Self);
+        float pulse = 1f + _haloPulseDelta * Mathf.Sin(Time.time * _haloPulseSpeed);
+        _halo.localScale = _haloBaseScale * pulse;
     }
 
     private void RefreshFills()

@@ -149,48 +149,48 @@ MonoBehaviour:
   - effect: {fileID: 4906833343127130985}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.1
   - effect: {fileID: 7727377817641641335}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.1
   - effect: {fileID: 1710525688073959820}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.1
   - effect: {fileID: 7805602080881140313}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.1
   - effect: {fileID: 8744773850870560839}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.1
   - effect: {fileID: 2600984460626792995}
     element: 1
     damageMultiplier: 1
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.15
   _finishingSlashes:
   - effect: {fileID: 2566488260345770248}
     element: 1
     damageMultiplier: 3
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.25
   - effect: {fileID: 7528885207363898455}
     element: 1
     damageMultiplier: 3
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.25
   - effect: {fileID: 91501626180843562}
     element: 1
     damageMultiplier: 3
-    damageRadius: 12
+    damageRadius: 8
     duration: 0.25
 --- !u!1001 &346230521824956941
 PrefabInstance:
