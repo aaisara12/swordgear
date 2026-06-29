@@ -1,13 +1,11 @@
 #nullable enable
 
+using System.Collections;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 /// <summary>
-/// Shows the "Stage Complete" overlay with a performance summary and a Continue button.
-/// Visibility and data are driven by event channels (mirrors the shop UI state controller pattern);
-/// Continue raises a trigger channel that the run/node flow listens to in order to return to the map.
+/// Shows a compact stage-complete performance summary, then auto-fades after a short hold.
 /// </summary>
 public class StageCompleteStateController : MonoBehaviour
 {
@@ -15,14 +13,17 @@ public class StageCompleteStateController : MonoBehaviour
     [SerializeField] private BoolEventChannelSO? visibilityChannel;
     [SerializeField] private ComboPerformanceEventChannelSO? performanceChannel;
 
-    [Header("Output")]
-    [SerializeField] private TriggerEventChannelSO? continueChannel;
+    [Header("Timing")]
+    [SerializeField] private float displayHoldSeconds = 2f;
+    [SerializeField] private float fadeDurationSeconds = 1f;
 
     [Header("Scene References")]
     [SerializeField] private GameObject? view;
+    [SerializeField] private CanvasGroup? canvasGroup;
     [SerializeField] private TMP_Text? pointsText;
     [SerializeField] private TMP_Text? maxComboText;
-    [SerializeField] private Button? continueButton;
+
+    private Coroutine? _autoHideRoutine;
 
     private void Awake()
     {
@@ -38,18 +39,24 @@ public class StageCompleteStateController : MonoBehaviour
             return;
         }
 
+        if (canvasGroup == null)
+        {
+            canvasGroup = view.GetComponent<CanvasGroup>();
+            if (canvasGroup == null)
+            {
+                Debug.LogError("StageCompleteStateController: canvasGroup is null");
+                return;
+            }
+        }
+
         view.SetActive(false);
+        canvasGroup.alpha = 1f;
 
         visibilityChannel.OnDataChanged += HandleVisibilityChanged;
 
         if (performanceChannel != null)
         {
             performanceChannel.OnDataChanged += HandlePerformanceChanged;
-        }
-
-        if (continueButton != null)
-        {
-            continueButton.onClick.AddListener(OnContinuePressed);
         }
     }
 
@@ -64,19 +71,65 @@ public class StageCompleteStateController : MonoBehaviour
         {
             performanceChannel.OnDataChanged -= HandlePerformanceChanged;
         }
-
-        if (continueButton != null)
-        {
-            continueButton.onClick.RemoveListener(OnContinuePressed);
-        }
     }
 
     private void HandleVisibilityChanged(bool isVisible)
     {
+        if (_autoHideRoutine != null)
+        {
+            StopCoroutine(_autoHideRoutine);
+            _autoHideRoutine = null;
+        }
+
+        if (view == null || canvasGroup == null)
+        {
+            return;
+        }
+
+        if (!isVisible)
+        {
+            view.SetActive(false);
+            canvasGroup.alpha = 1f;
+            return;
+        }
+
+        view.SetActive(true);
+        canvasGroup.alpha = 1f;
+        _autoHideRoutine = StartCoroutine(AutoHideAfterDelay());
+    }
+
+    private IEnumerator AutoHideAfterDelay()
+    {
+        if (displayHoldSeconds > 0f)
+        {
+            yield return new WaitForSeconds(displayHoldSeconds);
+        }
+
+        if (canvasGroup != null && fadeDurationSeconds > 0f)
+        {
+            float elapsed = 0f;
+            while (elapsed < fadeDurationSeconds)
+            {
+                elapsed += Time.deltaTime;
+                canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDurationSeconds);
+                yield return null;
+            }
+
+            canvasGroup.alpha = 0f;
+        }
+
         if (view != null)
         {
-            view.SetActive(isVisible);
+            view.SetActive(false);
         }
+
+        if (canvasGroup != null)
+        {
+            canvasGroup.alpha = 1f;
+        }
+
+        visibilityChannel?.RaiseDataChanged(false);
+        _autoHideRoutine = null;
     }
 
     private void HandlePerformanceChanged(ComboPerformance performance)
@@ -90,18 +143,5 @@ public class StageCompleteStateController : MonoBehaviour
         {
             maxComboText.text = $"{performance.MaxComboThisLevel}x";
         }
-    }
-
-    /// <summary>
-    /// Hooked to the Continue button. Hides the overlay and signals the run flow to return to the map.
-    /// </summary>
-    public void OnContinuePressed()
-    {
-        if (view != null)
-        {
-            view.SetActive(false);
-        }
-
-        continueChannel?.RaiseEventTriggered();
     }
 }
