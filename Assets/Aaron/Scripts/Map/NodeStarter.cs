@@ -61,6 +61,7 @@ public class NodeStarter : MonoBehaviour
         }
 
         combatHudVisibilityChannel?.RaiseDataChanged(true);
+        _levelLoader.OnExitPortalEntered += HandleExitPortalEntered;
 
         var blueprint = new LevelBlueprint
         {
@@ -75,8 +76,12 @@ public class NodeStarter : MonoBehaviour
 
     private void HandleCombatCleared()
     {
-        Unsubscribe();
         ShowStageComplete();
+    }
+
+    private void HandleExitPortalEntered()
+    {
+        RunManager.Instance?.HandleCombatPortalExited();
     }
 
     private void ShowStageComplete()
@@ -97,6 +102,7 @@ public class NodeStarter : MonoBehaviour
         }
 
         _levelLoader.OnLevelClear -= HandleCombatCleared;
+        _levelLoader.OnExitPortalEntered -= HandleExitPortalEntered;
     }
 
     private void OnDestroy()

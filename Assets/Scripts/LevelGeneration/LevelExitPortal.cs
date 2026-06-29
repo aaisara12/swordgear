@@ -12,12 +12,19 @@ public class LevelExitPortal : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (_triggered || !other.CompareTag("Player"))
+        if (_triggered)
+        {
+            return;
+        }
+
+        bool isPlayer = other.CompareTag("Player") || other.GetComponentInParent<PlayerGameplayPawn>() != null;
+        if (!isPlayer)
         {
             return;
         }
 
         _triggered = true;
+        Debug.Log("LevelExitPortal: player entered.");
         OnPlayerEntered?.Invoke();
     }
 }

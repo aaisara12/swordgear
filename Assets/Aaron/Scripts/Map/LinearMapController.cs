@@ -245,14 +245,15 @@ public class LinearMapController : MonoBehaviour
             return;
         }
 
+        int transitionSegment = RunManager.Instance?.GetTrailTransitionSegmentIndex() ?? -1;
         _lastAppliedStepIndex = currentIndex;
-        ApplyStaticPresentation(currentIndex);
-        RestartPresentationAnimations(currentIndex);
+        ApplyStaticPresentation(currentIndex, transitionSegment < 0);
+        RestartPresentationAnimations(currentIndex, transitionSegment);
     }
 
-    private void ApplyStaticPresentation(int currentIndex)
+    private void ApplyStaticPresentation(int currentIndex, bool snapPositions)
     {
-        if (railContainer != null)
+        if (snapPositions && railContainer != null)
         {
             float scroll = currentIndex * nodeSpacing;
             railContainer.anchoredPosition = new Vector2(railOffsetX - scroll, railContainer.anchoredPosition.y);
@@ -296,17 +297,18 @@ public class LinearMapController : MonoBehaviour
         if (playerToken != null)
         {
             playerToken.SetAsLastSibling();
-            float x = currentIndex * nodeSpacing;
-            playerToken.anchoredPosition = new Vector2(x, tokenYOffset);
-            playerToken.localScale = Vector3.one;
+            if (snapPositions)
+            {
+                float x = currentIndex * nodeSpacing;
+                playerToken.anchoredPosition = new Vector2(x, tokenYOffset);
+                playerToken.localScale = Vector3.one;
+            }
         }
     }
 
-    private void RestartPresentationAnimations(int currentIndex)
+    private void RestartPresentationAnimations(int currentIndex, int transitionSegment)
     {
         StopPresentationAnimations();
-
-        int transitionSegment = RunManager.Instance?.GetTrailTransitionSegmentIndex() ?? -1;
         if (transitionSegment < 0)
         {
             foreach (Image pulse in _spawnedTrailPulses)
@@ -321,6 +323,7 @@ public class LinearMapController : MonoBehaviour
         }
 
         float halfWidth = ResolveNodeHalfWidth();
+        AnimateTokenTransition(transitionSegment, currentIndex);
 
         for (int i = 0; i < _spawnedTrailPulses.Count; i++)
         {
@@ -342,6 +345,46 @@ public class LinearMapController : MonoBehaviour
             float endX = fromX + length - (trailPulseWidth * 0.5f);
 
             StartOneWayTrailPulse(pulse, startX, endX);
+        }
+    }
+
+    private void AnimateTokenTransition(int previousIndex, int currentIndex)
+    {
+        if (railContainer != null)
+        {
+            float startScroll = previousIndex * nodeSpacing;
+            float endScroll = currentIndex * nodeSpacing;
+            railContainer.anchoredPosition = new Vector2(railOffsetX - startScroll, railContainer.anchoredPosition.y);
+
+            DOTween.To(
+                    () => railContainer.anchoredPosition.x,
+                    value => railContainer.anchoredPosition = new Vector2(value, railContainer.anchoredPosition.y),
+                    railOffsetX - endScroll,
+                    trailPulseDuration)
+                .SetEase(Ease.InOutSine)
+                .SetId(this);
+        }
+
+        if (playerToken != null)
+        {
+            float startX = previousIndex * nodeSpacing;
+            float endX = currentIndex * nodeSpacing;
+            playerToken.SetAsLastSibling();
+            playerToken.anchoredPosition = new Vector2(startX, tokenYOffset);
+            playerToken.localScale = Vector3.one * 0.96f;
+
+            DOTween.To(
+                    () => playerToken.anchoredPosition.x,
+                    value => playerToken.anchoredPosition = new Vector2(value, tokenYOffset),
+                    endX,
+                    trailPulseDuration)
+                .SetEase(Ease.InOutSine)
+                .SetId(this);
+
+            playerToken.DOScale(1.05f, trailPulseDuration * 0.5f)
+                .SetEase(Ease.OutQuad)
+                .SetLoops(2, LoopType.Yoyo)
+                .SetId(this);
         }
     }
 
@@ -373,7 +416,7 @@ public class LinearMapController : MonoBehaviour
                 1f,
                 trailPulseDuration)
             .SetEase(Ease.Linear)
-            .SetLoops(1)
+            .SetLoops(-1, LoopType.Restart)
             .SetId(this);
     }
 

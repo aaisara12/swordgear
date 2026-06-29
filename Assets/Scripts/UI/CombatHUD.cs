@@ -210,6 +210,15 @@ public class CombatHUD : MonoBehaviour
         if (_comboFadeRoutine != null)
         {
             StopCoroutine(_comboFadeRoutine);
+            _comboFadeRoutine = null;
+        }
+
+        if (!isActiveAndEnabled)
+        {
+            comboGroup.alpha = visible ? 1f : 0f;
+            comboGroup.interactable = visible;
+            comboGroup.blocksRaycasts = visible;
+            return;
         }
         
         float duration = visible ? comboFadeInDuration : comboFadeOutDuration;

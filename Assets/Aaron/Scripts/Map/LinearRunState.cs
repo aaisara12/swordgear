@@ -22,4 +22,21 @@ public class LinearRunState
         _steps = steps;
         CurrentStepIndex = currentStepIndex;
     }
+
+    public bool TryAdvanceToNextStep()
+    {
+        RunStep? current = CurrentStep;
+        if (current != null)
+        {
+            current.Completed = true;
+        }
+
+        if (CurrentStepIndex + 1 >= _steps.Count)
+        {
+            return false;
+        }
+
+        CurrentStepIndex += 1;
+        return true;
+    }
 }

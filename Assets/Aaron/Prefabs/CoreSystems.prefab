@@ -1350,7 +1350,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cebbdea9a88d93428085021cbf3db5d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  exitPortalPrefab: {fileID: 8473629105847362510, guid: a7b8c9d0e1f24365897abcdef012345, type: 3}
+  exitPortalPrefab: {fileID: 8473629105847362510, guid: a7b8c9d0e1f24365897abcdef012345a, type: 3}
 --- !u!1 &9100000000000000001
 GameObject:
   m_ObjectHideFlags: 0

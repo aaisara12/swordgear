@@ -102,16 +102,7 @@ public class LevelLoader : MonoBehaviour
     {
         if (currentWaveIndex >= currentBlueprint.Waves.Count)
         {
-            Debug.Log("Level Complete! Spawning exit portal.");
-            SpawnExitPortal();
-            if (ComboSystem.Instance != null)
-            {
-                ComboSystem.Instance.OnLevelFinished();
-            }
-            OnLevelClear?.Invoke();
-
-            // You should also perform cleanup here to prevent memory leaks!
-            CleanupWaveSubscriptions(); // See note below
+            CompleteLevel();
             return;
         }
 
@@ -132,7 +123,12 @@ public class LevelLoader : MonoBehaviour
         EnemyWaveConfig wave = currentBlueprint.Waves[currentWaveIndex];
         EnemySpawnPoint[] spawnPoints = FindObjectsByType<EnemySpawnPoint>(FindObjectsSortMode.None);
 
-        if (spawnPoints.Length == 0) return;
+        if (spawnPoints.Length == 0)
+        {
+            Debug.LogWarning("LevelLoader: no EnemySpawnPoint found; skipping enemy spawn for this wave.");
+            TryAdvanceIfWaveEmpty();
+            return;
+        }
 
         foreach (var enemyCount in wave.Enemies)
         {
@@ -157,6 +153,29 @@ public class LevelLoader : MonoBehaviour
                 }
             }
         }
+
+        TryAdvanceIfWaveEmpty();
+    }
+
+    private void TryAdvanceIfWaveEmpty()
+    {
+        if (activeEnemies.Count == 0 && !isWaveAdvancing)
+        {
+            StartCoroutine(CheckWaveCompletionNextFrame());
+        }
+    }
+
+    private void CompleteLevel()
+    {
+        Debug.Log("Level Complete! Spawning exit portal.");
+        SpawnExitPortal();
+        if (ComboSystem.Instance != null)
+        {
+            ComboSystem.Instance.OnLevelFinished();
+        }
+
+        OnLevelClear?.Invoke();
+        CleanupWaveSubscriptions();
     }
 
     // --- Event Handler ---
@@ -189,11 +208,41 @@ public class LevelLoader : MonoBehaviour
 
     public void AdvanceManually()
     {
-        ComboSystem.Instance?.OnLevelFinished();
-
-        OnLevelClear?.Invoke();
+        CancelInvoke(nameof(SpawnEnemiesForWave));
         CleanupWaveSubscriptions();
+        isWaveAdvancing = true;
+        currentWaveIndex = currentBlueprint.Waves.Count;
+        CompleteLevel();
     }
+
+    /// <summary>Editor/dev helper: kills every live enemy in the current wave.</summary>
+    public void DebugClearCurrentWave()
+    {
+        CancelInvoke(nameof(SpawnEnemiesForWave));
+
+        var enemies = new List<EnemyController>(ActiveEnemyRegistry.All);
+        foreach (EnemyController enemy in enemies)
+        {
+            if (enemy != null)
+            {
+                enemy.TakeDamage(99999f);
+            }
+        }
+    }
+
+    /// <summary>Editor/dev helper: skip straight to the exit portal without fighting remaining waves.</summary>
+    public void DebugCompleteLevel()
+    {
+        CancelInvoke(nameof(SpawnEnemiesForWave));
+        CleanupWaveSubscriptions();
+        isWaveAdvancing = true;
+        currentWaveIndex = currentBlueprint.Waves.Count;
+        CompleteLevel();
+    }
+
+    public int CurrentWaveIndex => currentWaveIndex;
+    public int TotalWaveCount => currentBlueprint != null ? currentBlueprint.Waves.Count : 0;
+    public bool IsLevelComplete => currentBlueprint != null && currentWaveIndex >= currentBlueprint.Waves.Count;
 
     private void CleanupWaveSubscriptions()
     {
@@ -210,9 +259,15 @@ public class LevelLoader : MonoBehaviour
 
     private void SpawnExitPortal()
     {
-        if (exitPortalPrefab == null || currentRoom == null)
+        if (exitPortalPrefab == null)
         {
-            Debug.LogWarning("LevelLoader: cannot spawn exit portal; prefab or room is missing.");
+            Debug.LogError("LevelLoader: exitPortalPrefab is not assigned on Level Loader (CoreSystems).");
+            return;
+        }
+
+        if (currentRoom == null)
+        {
+            Debug.LogError("LevelLoader: currentRoom is null; cannot spawn exit portal.");
             return;
         }
 
@@ -227,20 +282,34 @@ public class LevelLoader : MonoBehaviour
             spawnPosition = exitMarker.transform.position;
             spawnRotation = exitMarker.transform.rotation;
         }
+        else if (GameManager.Instance != null && GameManager.Instance.player != null)
+        {
+            Vector3 playerPosition = GameManager.Instance.player.transform.position;
+            spawnPosition = playerPosition + new Vector3(0f, 2.5f, 0f);
+            spawnRotation = Quaternion.identity;
+            Debug.LogWarning("LevelLoader: no ExitSpawnPoint in room; spawning portal near player.");
+        }
         else
         {
-            spawnPosition = currentRoom.transform.position + new Vector3(0f, 5f, 0f);
+            spawnPosition = currentRoom.transform.position + new Vector3(0f, 2.5f, 0f);
             spawnRotation = Quaternion.identity;
             Debug.LogWarning("LevelLoader: no ExitSpawnPoint in room; using fallback position.");
         }
 
-        spawnedExitPortal = Instantiate(exitPortalPrefab, spawnPosition, spawnRotation, currentRoom.transform);
+        spawnedExitPortal = Instantiate(exitPortalPrefab, spawnPosition, spawnRotation);
+        spawnedExitPortal.name = "ExitPortal (Runtime)";
 
         LevelExitPortal portal = spawnedExitPortal.GetComponent<LevelExitPortal>();
         if (portal != null)
         {
             portal.OnPlayerEntered += HandleExitPortalEntered;
         }
+        else
+        {
+            Debug.LogError("LevelLoader: exit portal prefab is missing LevelExitPortal.");
+        }
+
+        Debug.Log($"LevelLoader: exit portal spawned at {spawnPosition}.");
     }
 
     private void HandleExitPortalEntered()
@@ -262,6 +331,7 @@ public class LevelLoader : MonoBehaviour
             portal.OnPlayerEntered -= HandleExitPortalEntered;
         }
 
+        Destroy(spawnedExitPortal);
         spawnedExitPortal = null;
     }
 

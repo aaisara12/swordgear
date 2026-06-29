@@ -20,7 +20,7 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
     private readonly List<IStoreItem> _augments = new List<IStoreItem>();
     private bool _isVisible;
     private Vector2 _scrollPosition;
-    private Rect _windowRect = new Rect(16f, 16f, 360f, 420f);
+    private Rect _windowRect = new Rect(16f, 16f, 360f, 480f);
 
     public override void InitializeOnGameStart_Dangerous(PlayerBlob playerBlob)
     {
@@ -98,7 +98,7 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         }
 
         GUI.depth = 1000;
-        _windowRect = GUI.Window(GetInstanceID(), _windowRect, DrawWindow, $"Augment Debug (`)");
+        _windowRect = GUI.Window(GetInstanceID(), _windowRect, DrawWindow, "Debug Menu (`)");
     }
 
     private void DrawWindow(int windowId)
@@ -116,6 +116,8 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         }
 
         GUILayout.EndHorizontal();
+
+        DrawCombatDebugSection();
 
         GUILayout.Space(6f);
 
@@ -151,6 +153,37 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         }
 
         GUILayout.EndHorizontal();
+    }
+
+    private void DrawCombatDebugSection()
+    {
+        LevelLoader? loader = LevelLoader.Instance;
+        if (loader == null)
+        {
+            return;
+        }
+
+        GUILayout.Space(6f);
+        GUILayout.Label("Combat");
+        GUILayout.Label($"Wave {Mathf.Clamp(loader.CurrentWaveIndex + 1, 1, Mathf.Max(1, loader.TotalWaveCount))} / {loader.TotalWaveCount}");
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Clear Wave"))
+        {
+            loader.DebugClearCurrentWave();
+        }
+
+        if (GUILayout.Button("Complete Level"))
+        {
+            loader.DebugCompleteLevel();
+        }
+
+        GUILayout.EndHorizontal();
+
+        if (loader.IsLevelComplete)
+        {
+            GUILayout.Label("Level complete — walk into the exit portal.");
+        }
     }
 #endif
 }

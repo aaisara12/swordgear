@@ -270,6 +270,33 @@ public class RunManager : MonoBehaviour
         Debug.LogWarning("RunManager: Upgrade step scene load is not implemented yet.");
     }
 
+    /// <summary>
+    /// Called when the combat exit portal is entered. Advances the linear step and returns to the map
+    /// interstitial so the token can animate onto the next node before loading the next scene.
+    /// </summary>
+    public void HandleCombatPortalExited()
+    {
+        if (_linearRun == null)
+        {
+            Debug.LogError("RunManager: HandleCombatPortalExited called with no active linear run.");
+            return;
+        }
+
+        bool advanced = _linearRun.TryAdvanceToNextStep();
+        Time.timeScale = 1f;
+
+        if (!advanced)
+        {
+            Debug.Log("RunManager: combat portal exited on final step; run complete.");
+            RequestScene(runEndScene);
+            ClearRun();
+            return;
+        }
+
+        OnRunChanged?.Invoke();
+        RequestScene(mapScene);
+    }
+
     #endregion
 
     #region Node selection / flow
