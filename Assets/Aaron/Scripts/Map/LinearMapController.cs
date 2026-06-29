@@ -2,6 +2,7 @@
 
 using System.Collections;
 using System.Collections.Generic;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -16,9 +17,19 @@ public class LinearMapController : MonoBehaviour
     [SerializeField] private RectTransform? playerToken;
     [SerializeField] private Image? combatNodePrefab;
     [SerializeField] private Image? upgradeNodePrefab;
-    [SerializeField] private float nodeSpacing = 180f;
-    [SerializeField] private float tokenYOffset = -58f;
+    [SerializeField] private Image? trailSegmentPrefab;
+    [SerializeField] private float nodeSpacing = 270f;
+    [SerializeField] private float nodeHalfWidth = 60f;
+    [SerializeField] private float trailThickness = 8f;
+    [SerializeField] private float trailGlowExtraThickness = 6f;
+    [SerializeField] private float tokenYOffset = -88f;
+    [SerializeField] private float railOffsetX = -110f;
     [SerializeField] private float interstitialHoldSeconds = 1.5f;
+
+    [Header("Trail animation")]
+    [SerializeField] private float trailPulseWidth = 28f;
+    [SerializeField] private float trailPulseDuration = 1.15f;
+    [SerializeField] private float trailPulseFadeStart = 0.7f;
 
     [Header("Other Scenes")]
     [SerializeField] private BoolEventChannelSO? combatHudVisibilityChannel;
@@ -26,6 +37,9 @@ public class LinearMapController : MonoBehaviour
     private readonly List<Image> _spawnedNodes = new List<Image>();
     private readonly List<Color> _nodeBaseColors = new List<Color>();
     private readonly List<RawImage?> _spawnedMinimapPreviews = new List<RawImage?>();
+    private readonly List<Image> _spawnedTrailGlows = new List<Image>();
+    private readonly List<Image> _spawnedTrailCores = new List<Image>();
+    private readonly List<Image> _spawnedTrailPulses = new List<Image>();
     private readonly Dictionary<int, Texture2D> _layoutMinimapCache = new Dictionary<int, Texture2D>();
     private int _lastAppliedStepIndex = -1;
     private int _lastBuiltStepCount = -1;
@@ -74,6 +88,7 @@ public class LinearMapController : MonoBehaviour
             RunManager.Instance.OnRunChanged -= HandleRunChanged;
         }
 
+        StopPresentationAnimations();
         ClearRail();
     }
 
@@ -99,6 +114,9 @@ public class LinearMapController : MonoBehaviour
         {
             return;
         }
+
+        float halfWidth = ResolveNodeHalfWidth();
+        BuildTrailSegments(run.Steps.Count, halfWidth);
 
         for (int i = 0; i < run.Steps.Count; i++)
         {
@@ -139,6 +157,78 @@ public class LinearMapController : MonoBehaviour
 
         _railBuilt = true;
         _lastBuiltStepCount = stepCount;
+        ApplyStepPresentation();
+    }
+
+    private float ResolveNodeHalfWidth()
+    {
+        if (nodeHalfWidth > 0f)
+        {
+            return nodeHalfWidth;
+        }
+
+        if (combatNodePrefab != null)
+        {
+            return combatNodePrefab.rectTransform.rect.width * 0.5f;
+        }
+
+        return 60f;
+    }
+
+    private void BuildTrailSegments(int stepCount, float halfWidth)
+    {
+        if (trailSegmentPrefab == null || railContainer == null || stepCount < 2)
+        {
+            return;
+        }
+
+        for (int i = 0; i < stepCount - 1; i++)
+        {
+            float fromX = i * nodeSpacing + halfWidth;
+            float length = nodeSpacing - (halfWidth * 2f);
+            if (length <= 0f)
+            {
+                continue;
+            }
+
+            Image glow = Instantiate(trailSegmentPrefab, railContainer);
+            ConfigureTrailSegment(glow.rectTransform, fromX, length, trailThickness + trailGlowExtraThickness);
+            glow.raycastTarget = false;
+            _spawnedTrailGlows.Add(glow);
+
+            Image core = Instantiate(trailSegmentPrefab, railContainer);
+            ConfigureTrailSegment(core.rectTransform, fromX, length, trailThickness);
+            core.raycastTarget = false;
+            _spawnedTrailCores.Add(core);
+
+            Image pulse = Instantiate(trailSegmentPrefab, railContainer);
+            ConfigureTrailPulse(pulse.rectTransform, fromX, length);
+            pulse.raycastTarget = false;
+            pulse.gameObject.SetActive(false);
+            _spawnedTrailPulses.Add(pulse);
+        }
+    }
+
+    private void ConfigureTrailSegment(RectTransform rt, float fromX, float length, float thickness)
+    {
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0f, 0.5f);
+        rt.anchoredPosition = new Vector2(fromX, 0f);
+        rt.sizeDelta = new Vector2(length, thickness);
+        rt.localRotation = Quaternion.identity;
+        rt.localScale = Vector3.one;
+    }
+
+    private void ConfigureTrailPulse(RectTransform rt, float fromX, float length)
+    {
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.sizeDelta = new Vector2(trailPulseWidth, trailThickness + 10f);
+        rt.anchoredPosition = new Vector2(fromX + (trailPulseWidth * 0.5f), 0f);
+        rt.localRotation = Quaternion.identity;
+        rt.localScale = Vector3.one;
     }
 
     private void ApplyStepPresentation()
@@ -156,11 +246,33 @@ public class LinearMapController : MonoBehaviour
         }
 
         _lastAppliedStepIndex = currentIndex;
+        ApplyStaticPresentation(currentIndex);
+        RestartPresentationAnimations(currentIndex);
+    }
 
+    private void ApplyStaticPresentation(int currentIndex)
+    {
         if (railContainer != null)
         {
             float scroll = currentIndex * nodeSpacing;
-            railContainer.anchoredPosition = new Vector2(-scroll, railContainer.anchoredPosition.y);
+            railContainer.anchoredPosition = new Vector2(railOffsetX - scroll, railContainer.anchoredPosition.y);
+        }
+
+        float halfWidth = ResolveNodeHalfWidth();
+
+        for (int i = 0; i < _spawnedTrailGlows.Count; i++)
+        {
+            Image? glow = _spawnedTrailGlows[i];
+            Image? core = _spawnedTrailCores[i];
+            if (glow != null)
+            {
+                glow.color = ApplyTrailGlowColor(i, currentIndex);
+            }
+
+            if (core != null)
+            {
+                core.color = ApplyTrailCoreColor(i, currentIndex);
+            }
         }
 
         for (int i = 0; i < _spawnedNodes.Count; i++)
@@ -171,6 +283,7 @@ public class LinearMapController : MonoBehaviour
                 continue;
             }
 
+            node.rectTransform.localScale = Vector3.one;
             node.color = ApplyNodeStateColor(_nodeBaseColors[i], i, currentIndex);
 
             RawImage? preview = _spawnedMinimapPreviews[i];
@@ -185,7 +298,74 @@ public class LinearMapController : MonoBehaviour
             playerToken.SetAsLastSibling();
             float x = currentIndex * nodeSpacing;
             playerToken.anchoredPosition = new Vector2(x, tokenYOffset);
+            playerToken.localScale = Vector3.one;
         }
+    }
+
+    private void RestartPresentationAnimations(int currentIndex)
+    {
+        StopPresentationAnimations();
+
+        float halfWidth = ResolveNodeHalfWidth();
+
+        for (int i = 0; i < _spawnedTrailPulses.Count; i++)
+        {
+            Image pulse = _spawnedTrailPulses[i];
+            if (pulse == null)
+            {
+                continue;
+            }
+
+            if (i != currentIndex)
+            {
+                pulse.gameObject.SetActive(false);
+                continue;
+            }
+
+            float fromX = i * nodeSpacing + halfWidth;
+            float length = nodeSpacing - (halfWidth * 2f);
+            float startX = fromX + (trailPulseWidth * 0.5f);
+            float endX = fromX + length - (trailPulseWidth * 0.5f);
+
+            StartOneWayTrailPulse(pulse, startX, endX);
+        }
+    }
+
+    private void StartOneWayTrailPulse(Image pulse, float startX, float endX)
+    {
+        RectTransform pulseRt = pulse.rectTransform;
+        const float peakAlpha = 0.95f;
+        Color pulseRgb = new Color(1f, 0.95f, 0.45f, peakAlpha);
+
+        pulse.gameObject.SetActive(true);
+        pulseRt.localScale = Vector3.one;
+        pulseRt.anchoredPosition = new Vector2(startX, 0f);
+        pulse.color = pulseRgb;
+
+        DOTween.To(
+                () => 0f,
+                t =>
+                {
+                    pulseRt.anchoredPosition = new Vector2(Mathf.Lerp(startX, endX, t), 0f);
+
+                    float alpha = t <= trailPulseFadeStart
+                        ? peakAlpha
+                        : Mathf.Lerp(peakAlpha, 0f, (t - trailPulseFadeStart) / (1f - trailPulseFadeStart));
+
+                    Color color = pulseRgb;
+                    color.a = alpha;
+                    pulse.color = color;
+                },
+                1f,
+                trailPulseDuration)
+            .SetEase(Ease.Linear)
+            .SetLoops(-1, LoopType.Restart)
+            .SetId(this);
+    }
+
+    private void StopPresentationAnimations()
+    {
+        DOTween.Kill(this);
     }
 
     private Texture2D? GetOrCreateLayoutMinimap(ArenaLayoutTemplate? layout)
@@ -237,6 +417,36 @@ public class LinearMapController : MonoBehaviour
         return $"{cycle}-{combatNumber}";
     }
 
+    private static Color ApplyTrailGlowColor(int segmentIndex, int currentIndex)
+    {
+        if (segmentIndex < currentIndex)
+        {
+            return new Color(0.25f, 0.75f, 0.45f, 0.45f);
+        }
+
+        if (segmentIndex == currentIndex)
+        {
+            return new Color(0.95f, 0.8f, 0.2f, 0.55f);
+        }
+
+        return new Color(0.18f, 0.22f, 0.32f, 0.35f);
+    }
+
+    private static Color ApplyTrailCoreColor(int segmentIndex, int currentIndex)
+    {
+        if (segmentIndex < currentIndex)
+        {
+            return new Color(0.45f, 0.95f, 0.58f, 0.95f);
+        }
+
+        if (segmentIndex == currentIndex)
+        {
+            return new Color(1f, 0.92f, 0.35f, 1f);
+        }
+
+        return new Color(0.42f, 0.48f, 0.62f, 0.85f);
+    }
+
     private static Color ApplyMinimapStateColor(int stepIndex, int currentIndex)
     {
         if (stepIndex < currentIndex)
@@ -277,17 +487,19 @@ public class LinearMapController : MonoBehaviour
 
     private void ClearRail()
     {
-        foreach (Image img in _spawnedNodes)
-        {
-            if (img != null)
-            {
-                Destroy(img.gameObject);
-            }
-        }
+        StopPresentationAnimations();
+
+        DestroySpawnedImages(_spawnedTrailPulses);
+        DestroySpawnedImages(_spawnedTrailGlows);
+        DestroySpawnedImages(_spawnedTrailCores);
+        DestroySpawnedImages(_spawnedNodes);
 
         _spawnedNodes.Clear();
         _nodeBaseColors.Clear();
         _spawnedMinimapPreviews.Clear();
+        _spawnedTrailGlows.Clear();
+        _spawnedTrailCores.Clear();
+        _spawnedTrailPulses.Clear();
         _railBuilt = false;
         _lastBuiltStepCount = -1;
         _lastAppliedStepIndex = -1;
@@ -298,5 +510,16 @@ public class LinearMapController : MonoBehaviour
         }
 
         _layoutMinimapCache.Clear();
+    }
+
+    private static void DestroySpawnedImages(List<Image> images)
+    {
+        foreach (Image img in images)
+        {
+            if (img != null)
+            {
+                Destroy(img.gameObject);
+            }
+        }
     }
 }
