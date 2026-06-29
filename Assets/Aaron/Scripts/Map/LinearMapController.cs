@@ -6,29 +6,10 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Linear map interstitial UI: scrolling rail + player token.
-/// Commit 01: uses a hardcoded mock run (C×3 → U) — no RunManager yet.
+/// Linear map interstitial UI: scrolling rail + player token driven by <see cref="RunManager.Run"/>.
 /// </summary>
 public class LinearMapController : MonoBehaviour
 {
-    private enum MockStepType
-    {
-        Combat,
-        Upgrade
-    }
-
-    private readonly struct MockStep
-    {
-        public readonly MockStepType Type;
-        public readonly int StepIndex;
-
-        public MockStep(MockStepType type, int stepIndex)
-        {
-            Type = type;
-            StepIndex = stepIndex;
-        }
-    }
-
     [Header("Rail")]
     [SerializeField] private RectTransform? railContainer;
     [SerializeField] private RectTransform? playerToken;
@@ -37,27 +18,16 @@ public class LinearMapController : MonoBehaviour
     [SerializeField] private float nodeSpacing = 180f;
     [SerializeField] private float tokenYOffset = -58f;
 
-    [Header("Mock preview (commit 01)")]
-    [SerializeField] private ArenaLayoutTemplate? mockCombatLayout;
-    [SerializeField, Range(0, 3)] private int mockCurrentStepIndex;
-
     [Header("Other Scenes")]
     [SerializeField] private BoolEventChannelSO? combatHudVisibilityChannel;
-
-    private static readonly MockStep[] MockRun =
-    {
-        new MockStep(MockStepType.Combat, 0),
-        new MockStep(MockStepType.Combat, 1),
-        new MockStep(MockStepType.Combat, 2),
-        new MockStep(MockStepType.Upgrade, 3),
-    };
 
     private readonly List<Image> _spawnedNodes = new List<Image>();
     private readonly List<Color> _nodeBaseColors = new List<Color>();
     private readonly List<RawImage?> _spawnedMinimapPreviews = new List<RawImage?>();
-    private int _lastAppliedMockStepIndex = -1;
+    private readonly Dictionary<int, Texture2D> _layoutMinimapCache = new Dictionary<int, Texture2D>();
+    private int _lastAppliedStepIndex = -1;
+    private int _lastBuiltStepCount = -1;
     private bool _railBuilt;
-    private Texture2D? _mockCombatMinimap;
 
     private void OnEnable()
     {
@@ -65,42 +35,61 @@ public class LinearMapController : MonoBehaviour
         PlayerGameplayManager.Instance?.DespawnPawn();
         Time.timeScale = 1f;
 
-        _lastAppliedMockStepIndex = -1;
-        EnsureRailBuilt();
-        ApplyMockStepPresentation();
-    }
-
-    private void Update()
-    {
-        ApplyMockStepPresentation();
-    }
-
-#if UNITY_EDITOR
-    private void OnValidate()
-    {
-        mockCurrentStepIndex = Mathf.Clamp(mockCurrentStepIndex, 0, MockRun.Length - 1);
-        if (Application.isPlaying && isActiveAndEnabled)
+        if (RunManager.Instance != null)
         {
-            EnsureRailBuilt();
-            _lastAppliedMockStepIndex = -1;
-            ApplyMockStepPresentation();
+            RunManager.Instance.OnRunChanged += HandleRunChanged;
+            RunManager.Instance.EnsureRunStarted();
         }
+
+        _lastAppliedStepIndex = -1;
+        RebuildRailFromRun();
+        ApplyStepPresentation();
     }
-#endif
 
-    private void EnsureRailBuilt()
+    private void OnDisable()
     {
-        if (_railBuilt || railContainer == null) return;
-
-        for (int i = 0; i < MockRun.Length; i++)
+        if (RunManager.Instance != null)
         {
-            MockStep step = MockRun[i];
-            Image? prefab = step.Type == MockStepType.Upgrade ? upgradeNodePrefab : combatNodePrefab;
-            if (prefab == null) continue;
+            RunManager.Instance.OnRunChanged -= HandleRunChanged;
+        }
+
+        ClearRail();
+    }
+
+    private void HandleRunChanged()
+    {
+        _lastAppliedStepIndex = -1;
+        RebuildRailFromRun();
+        ApplyStepPresentation();
+    }
+
+    private void RebuildRailFromRun()
+    {
+        LinearRunState? run = RunManager.Instance?.Run;
+        int stepCount = run?.Steps.Count ?? 0;
+        if (_railBuilt && stepCount == _lastBuiltStepCount)
+        {
+            return;
+        }
+
+        ClearRail();
+
+        if (railContainer == null || run == null || stepCount == 0)
+        {
+            return;
+        }
+
+        for (int i = 0; i < run.Steps.Count; i++)
+        {
+            RunStep step = run.Steps[i];
+            Image? prefab = step.Type == RunStepType.Upgrade ? upgradeNodePrefab : combatNodePrefab;
+            if (prefab == null)
+            {
+                continue;
+            }
 
             Image node = Instantiate(prefab, railContainer);
-            var rt = node.rectTransform;
-            rt.anchoredPosition = new Vector2(step.StepIndex * nodeSpacing, 0f);
+            node.rectTransform.anchoredPosition = new Vector2(step.StepIndex * nodeSpacing, 0f);
             _nodeBaseColors.Add(prefab.color);
             _spawnedNodes.Add(node);
 
@@ -114,10 +103,10 @@ public class LinearMapController : MonoBehaviour
             }
 
             RawImage? preview = null;
-            if (step.Type == MockStepType.Combat)
+            if (step.Type == RunStepType.Combat)
             {
                 preview = node.GetComponentInChildren<RawImage>();
-                Texture2D? minimap = GetOrCreateMockCombatMinimap();
+                Texture2D? minimap = GetOrCreateLayoutMinimap(step.Layout);
                 if (preview != null && minimap != null)
                 {
                     preview.texture = minimap;
@@ -128,92 +117,102 @@ public class LinearMapController : MonoBehaviour
         }
 
         _railBuilt = true;
+        _lastBuiltStepCount = stepCount;
     }
 
-    private void ApplyMockStepPresentation()
+    private void ApplyStepPresentation()
     {
-        mockCurrentStepIndex = Mathf.Clamp(mockCurrentStepIndex, 0, MockRun.Length - 1);
-        if (mockCurrentStepIndex == _lastAppliedMockStepIndex) return;
+        LinearRunState? run = RunManager.Instance?.Run;
+        if (run == null)
+        {
+            return;
+        }
 
-        _lastAppliedMockStepIndex = mockCurrentStepIndex;
+        int currentIndex = run.CurrentStepIndex;
+        if (currentIndex == _lastAppliedStepIndex)
+        {
+            return;
+        }
+
+        _lastAppliedStepIndex = currentIndex;
 
         if (railContainer != null)
         {
-            float scroll = mockCurrentStepIndex * nodeSpacing;
+            float scroll = currentIndex * nodeSpacing;
             railContainer.anchoredPosition = new Vector2(-scroll, railContainer.anchoredPosition.y);
         }
 
         for (int i = 0; i < _spawnedNodes.Count; i++)
         {
             Image node = _spawnedNodes[i];
-            if (node == null) continue;
-            node.color = ApplyNodeStateColor(_nodeBaseColors[i], i, mockCurrentStepIndex);
+            if (node == null)
+            {
+                continue;
+            }
+
+            node.color = ApplyNodeStateColor(_nodeBaseColors[i], i, currentIndex);
 
             RawImage? preview = _spawnedMinimapPreviews[i];
             if (preview != null)
             {
-                preview.color = ApplyMinimapStateColor(i, mockCurrentStepIndex);
+                preview.color = ApplyMinimapStateColor(i, currentIndex);
             }
         }
 
         if (playerToken != null)
         {
             playerToken.SetAsLastSibling();
-            float x = mockCurrentStepIndex * nodeSpacing;
+            float x = currentIndex * nodeSpacing;
             playerToken.anchoredPosition = new Vector2(x, tokenYOffset);
         }
     }
 
-    private Texture2D? GetOrCreateMockCombatMinimap()
+    private Texture2D? GetOrCreateLayoutMinimap(ArenaLayoutTemplate? layout)
     {
-        if (_mockCombatMinimap != null)
-        {
-            return _mockCombatMinimap;
-        }
-
-        if (mockCombatLayout?.LevelPrefab == null)
+        if (layout == null || layout.LevelPrefab == null)
         {
             return null;
         }
 
-        // Keep the temp room active — MinimapMapGenerator skips inactive tilemaps.
-        GameObject tempRoom = Instantiate(mockCombatLayout.LevelPrefab);
+        int cacheKey = layout.GetInstanceID();
+        if (_layoutMinimapCache.TryGetValue(cacheKey, out Texture2D cached))
+        {
+            return cached;
+        }
+
+        GameObject tempRoom = Instantiate(layout.LevelPrefab);
         tempRoom.hideFlags = HideFlags.HideAndDontSave;
         try
         {
             (Texture2D? map, _, bool hasContent) = MinimapMapGenerator.Generate(tempRoom);
             if (hasContent && map != null)
             {
-                _mockCombatMinimap = map;
+                _layoutMinimapCache[cacheKey] = map;
+                return map;
             }
-            else
-            {
-                Debug.LogWarning(
-                    $"LinearMapController: Failed to generate mock combat minimap from '{mockCombatLayout.name}'.");
-            }
+
+            Debug.LogWarning(
+                $"LinearMapController: Failed to generate minimap for layout '{layout.name}'.");
         }
         finally
         {
             Destroy(tempRoom);
         }
 
-        return _mockCombatMinimap;
+        return null;
     }
 
     /// <summary>Cycle-combat label: combats are {cycle}-1..3, upgrades are {cycle+1}-0.</summary>
-    private static string FormatStepLabel(int stepIndex, MockStepType type)
+    private static string FormatStepLabel(int stepIndex, RunStepType type)
     {
-        const int combatsPerBlock = 3;
-        const int stepsPerBlock = combatsPerBlock + 1;
-
-        if (type == MockStepType.Upgrade)
+        if (type == RunStepType.Upgrade)
         {
-            int blockIndex = stepIndex / stepsPerBlock;
+            int blockIndex = stepIndex / LinearRunGenerator.StepsPerBlock;
             return $"{blockIndex + 2}-0";
         }
 
-        int cycle = (stepIndex / stepsPerBlock) + 1;
-        int combatNumber = (stepIndex % stepsPerBlock) + 1;
+        int cycle = (stepIndex / LinearRunGenerator.StepsPerBlock) + 1;
+        int combatNumber = (stepIndex % LinearRunGenerator.StepsPerBlock) + 1;
         return $"{cycle}-{combatNumber}";
     }
 
@@ -255,22 +254,28 @@ public class LinearMapController : MonoBehaviour
             baseColor.a * 0.9f);
     }
 
-    private void OnDisable()
+    private void ClearRail()
     {
         foreach (Image img in _spawnedNodes)
         {
-            if (img != null) Destroy(img.gameObject);
+            if (img != null)
+            {
+                Destroy(img.gameObject);
+            }
         }
+
         _spawnedNodes.Clear();
         _nodeBaseColors.Clear();
         _spawnedMinimapPreviews.Clear();
         _railBuilt = false;
-        _lastAppliedMockStepIndex = -1;
+        _lastBuiltStepCount = -1;
+        _lastAppliedStepIndex = -1;
 
-        if (_mockCombatMinimap != null)
+        foreach (Texture2D texture in _layoutMinimapCache.Values)
         {
-            Destroy(_mockCombatMinimap);
-            _mockCombatMinimap = null;
+            Destroy(texture);
         }
+
+        _layoutMinimapCache.Clear();
     }
 }

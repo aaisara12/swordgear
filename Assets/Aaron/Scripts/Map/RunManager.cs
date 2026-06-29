@@ -45,12 +45,17 @@ public class RunManager : MonoBehaviour
     [SerializeField] private UltimateChargeTracker? ultimateChargeTracker;
 
     private RunMap? _currentMap;
+    private LinearRunState? _linearRun;
     private int _lastSeed;
     private bool _augmentNodeActive;
 
     public RunMap? CurrentMap => _currentMap;
+    public LinearRunState? Run => _linearRun;
     public MapNode? CurrentNode => _currentMap?.CurrentNode;
-    public bool HasActiveRun => _currentMap != null;
+    public bool HasActiveRun => _linearRun != null;
+
+    /// <summary>Raised whenever the linear run queue or position changes.</summary>
+    public event Action? OnRunChanged;
 
     /// <summary>Raised whenever the map or current position changes so the Map UI can refresh.</summary>
     public event Action? OnMapChanged;
@@ -122,7 +127,7 @@ public class RunManager : MonoBehaviour
     /// </summary>
     public void EnsureRunStarted()
     {
-        if (_currentMap != null)
+        if (_linearRun != null)
         {
             return;
         }
@@ -131,22 +136,13 @@ public class RunManager : MonoBehaviour
 
     private void GenerateFreshRun()
     {
-        _currentMap = BuildMap();
-        ResetRunLongState();
-        OnMapChanged?.Invoke();
-    }
-
-    private RunMap BuildMap()
-    {
-        if (fixedMapOverride != null)
-        {
-            Debug.Log("RunManager: using FixedMapDefinition override.");
-            return fixedMapOverride.BuildRunMap();
-        }
-
         _lastSeed = useRandomSeed ? Environment.TickCount : fixedSeed;
-        Debug.Log($"RunManager: generating map with seed {_lastSeed}.");
-        return MapGenerator.Generate(generationSettings, _lastSeed);
+        Debug.Log($"RunManager: generating linear run with seed {_lastSeed}.");
+        _linearRun = LinearRunGenerator.GenerateInitialBlock(generationSettings.combatLayouts, _lastSeed);
+        _currentMap = null;
+        ResetRunLongState();
+        OnRunChanged?.Invoke();
+        OnMapChanged?.Invoke();
     }
 
     private void ResetRunLongState()
@@ -165,7 +161,9 @@ public class RunManager : MonoBehaviour
     /// <summary>Clears run state (on defeat or after completion). The next run regenerates a fresh map.</summary>
     public void ClearRun()
     {
+        _linearRun = null;
         _currentMap = null;
+        OnRunChanged?.Invoke();
         OnMapChanged?.Invoke();
     }
 

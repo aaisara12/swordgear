@@ -702,10 +702,8 @@ MonoBehaviour:
   playerToken: {fileID: 1245647499}
   combatNodePrefab: {fileID: 8000000000000000004, guid: c4e8f1a2b3d4567890abcdef12345671, type: 3}
   upgradeNodePrefab: {fileID: 8000000000000000004, guid: d5f9a2b3c4e5678901abcdef23456782, type: 3}
-  nodeSpacing: 120
-  tokenYOffset: -42
-  mockCombatLayout: {fileID: 0}
-  mockCurrentStepIndex: 0
+  nodeSpacing: 180
+  tokenYOffset: -58
   combatHudVisibilityChannel: {fileID: 11400000, guid: 2ace426d79c4741a3bc741a39cb27a3d, type: 2}
 --- !u!1 &1290828193
 GameObject:
