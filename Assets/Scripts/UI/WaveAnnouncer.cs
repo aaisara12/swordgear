@@ -110,10 +110,7 @@ public class WaveAnnouncer : MonoBehaviour
             bannerRect
                 .DOScale(punchScale, fadeInDuration)
                 .SetEase(Ease.OutBack));
-        intro.Join(
-            bannerRect
-                .DOAnchorPos(_bannerRestAnchoredPosition, fadeInDuration)
-                .SetEase(Ease.OutCubic));
+        intro.Join(TweenAnchoredPosition(bannerRect, _bannerRestAnchoredPosition, fadeInDuration).SetEase(Ease.OutCubic));
         yield return intro.WaitForCompletion();
 
         bannerRect.localScale = Vector3.one;
@@ -130,8 +127,10 @@ public class WaveAnnouncer : MonoBehaviour
                 .DOScale(1.08f, fadeOutDuration)
                 .SetEase(Ease.InQuad));
         outro.Join(
-            bannerRect
-                .DOAnchorPos(_bannerRestAnchoredPosition + new Vector2(0f, -36f), fadeOutDuration)
+            TweenAnchoredPosition(
+                    bannerRect,
+                    _bannerRestAnchoredPosition + new Vector2(0f, -36f),
+                    fadeOutDuration)
                 .SetEase(Ease.InQuad));
         yield return outro.WaitForCompletion();
 
@@ -139,5 +138,14 @@ public class WaveAnnouncer : MonoBehaviour
         bannerRect.anchoredPosition = _bannerRestAnchoredPosition;
         bannerGroup.alpha = 0f;
         _bannerRoutine = null;
+    }
+
+    private static Tween TweenAnchoredPosition(RectTransform rect, Vector2 endPosition, float duration)
+    {
+        return DOTween.To(
+            () => rect.anchoredPosition,
+            value => rect.anchoredPosition = value,
+            endPosition,
+            duration);
     }
 }

@@ -66,10 +66,10 @@ This project uses [CoplayDev Unity MCP](https://github.com/CoplayDev/unity-mcp) 
 
 **Agent loop (follow every time you change C# or scenes):**
 1. Check `FeatureDocumentation/` before broad code searches.
-2. After script edits → `read_console` for compile errors; wait until compilation finishes before using new types.
-3. After shop/serializer changes → run EditMode tests via `run_tests` (21 tests in `Assets/Tests/`, ~1s).
-4. Scene work → use `manage_scene`, `manage_gameobject`, and `manage_components`; main flow scenes live in `Assets/Scenes/Main/` (BootUp → Title → Arena).
-5. Multi-step editor setup → prefer `batch_execute` (max 25 commands per batch).
+2. After script edits → `refresh_unity` / wait for compile → **`read_console` with `types: ["error"]`**. **Do not continue until zero compile errors.** This project does not reference all DOTween UI shortcuts (e.g. `DOFade`, `DOAnchorPos`) — use `DOTween.To` or core `Transform` tweens instead.
+3. After shop/serializer/level-gen changes → run EditMode tests via `run_tests`.
+4. Scene work → use `manage_scene`, `manage_gameobject`, and `manage_components`; main flow scenes live in `Assets/Scenes/Main/` (BootUp → Title → Map → Arena).
+5. Multi-step editor setup → run **`SwordGear → Setup → Run All Level Gen Scene Setup`** (or individual menu items in `SwordGearLevelGenSetup.cs`).
 
 **PlayMode tests:** One PlayMode test exists; use a long `init_timeout` (~120000 ms) if running it.
 
@@ -127,10 +127,17 @@ ScriptableObjects serve two roles:
 1. **Data containers** — e.g., `LoadableStoreItemCatalog`, `ArenaLayoutTemplate`
 2. **Event channels** — e.g., `DataEventChannelSO<T>` and its concrete subtypes
 
+### Scene & UI authoring (required)
+- **Do not build UI or scene hierarchy in code** (`new GameObject`, runtime `AddComponent` for layout, editor-only scaffolding). Author GameObjects in **scenes and prefabs**; scripts wire existing references via `[SerializeField]`.
+- Runtime `Instantiate` is fine for **gameplay prefabs** (enemies, arena rooms, projectiles) — not for HUD panels, map rail nodes, or other designer-owned layout.
+- Prefer marker components (`PlayerSpawnMarker`, `EnemySpawnPoint`) placed in prefabs over `Start()` event chains that spawn actors.
+
 ---
 
 ## What to Avoid
 
+- **Shipping with compile errors** — always verify Unity console is clean after C# edits before moving on.
+- **Runtime-created UI/scene objects** — use prefabs and scene authoring instead of constructing GameObjects in scripts.
 - **`Prototype2/`, `Prototype3/`, `HenryTestScripts/`** — legacy exploration code. Do not add new logic here and do not assume patterns there reflect current conventions.
 - **`PlayerControllerOld.cs`** — superseded by the new player system in `Aaron/Scripts/PlayerBehaviours/`. Do not modify.
 - **`GameManager`** — being incrementally replaced. Prefer `PlayerGameplayManager` / `PlayerStatModifiers` / `ElementManager` for new features. See TODOs in the file.
