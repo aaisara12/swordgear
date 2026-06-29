@@ -268,12 +268,12 @@ GameObject:
   - component: {fileID: 307008974}
   - component: {fileID: 307008973}
   m_Layer: 0
-  m_Name: RestOverlay
+  m_Name: 
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &307008972
 RectTransform:
   m_ObjectHideFlags: 0
@@ -343,7 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 715232864}
   m_Layer: 0
-  m_Name: NodeContainer
+  m_Name: RailContainer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -360,7 +360,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1245647499}
   m_Father: {fileID: 1287021994}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -505,6 +506,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 888794725}
   m_CullTransparentMesh: 1
+--- !u!1 &1245647498
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1245647499}
+  - component: {fileID: 1245647501}
+  - component: {fileID: 1245647500}
+  m_Layer: 0
+  m_Name: PlayerToken
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1245647499
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245647498}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 715232864}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 24, y: 24}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1245647500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245647498}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.95, g: 0.85, b: 0.2, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 0}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1245647501
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1245647498}
+  m_CullTransparentMesh: 1
 --- !u!1 &1287021989
 GameObject:
   m_ObjectHideFlags: 0
@@ -517,8 +593,7 @@ GameObject:
   - component: {fileID: 1287021993}
   - component: {fileID: 1287021992}
   - component: {fileID: 1287021991}
-  - component: {fileID: 1287021990}
-  - component: {fileID: 1287021995}
+  - component: {fileID: 1287021996}
   m_Layer: 0
   m_Name: Map Canvas
   m_TagString: Untagged
@@ -526,26 +601,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1287021990
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1287021989}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96fec435121ea4749b15e81a2c5207e0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Main::MapSceneController
-  nodeContainer: {fileID: 715232864}
-  edgeContainer: {fileID: 1970715525}
-  nodeButtonPrefab: {fileID: 3888027086744093543, guid: 2b9b992e14698481d88f475a96991914, type: 3}
-  edgePrefab: {fileID: 2550365673850158437, guid: 44f80cf5c210241038d97e369362fb9f, type: 3}
-  columnSpacing: 220
-  rowSpacing: 140
-  edgeThickness: 6
-  combatHudVisibilityChannel: {fileID: 11400000, guid: 2ace426d79c4741a3bc741a39cb27a3d, type: 2}
 --- !u!114 &1287021991
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -618,7 +673,7 @@ RectTransform:
   m_GameObject: {fileID: 1287021989}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 1970715525}
@@ -631,7 +686,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 0}
---- !u!114 &1287021995
+--- !u!114 &1287021996
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -640,12 +695,18 @@ MonoBehaviour:
   m_GameObject: {fileID: 1287021989}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7f69ee93601874147b143ef1e0564d71, type: 3}
+  m_Script: {fileID: 11500000, guid: e9fab7b1539108f4eaafde1f0517cef5, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Main::RestNodeController
-  visibilityChannel: {fileID: 11400000, guid: 4f4f0be347f9442c380a7a2a42387ee8, type: 2}
-  view: {fileID: 307008971}
-  confirmButton: {fileID: 1955840490}
+  m_EditorClassIdentifier: Main::LinearMapController
+  railContainer: {fileID: 715232864}
+  playerToken: {fileID: 1245647499}
+  combatNodePrefab: {fileID: 8000000000000000004, guid: c4e8f1a2b3d4567890abcdef12345671, type: 3}
+  upgradeNodePrefab: {fileID: 8000000000000000004, guid: d5f9a2b3c4e5678901abcdef23456782, type: 3}
+  nodeSpacing: 120
+  visibleNodeCount: 12
+  tokenYOffset: -42
+  mockCurrentStepIndex: 0
+  combatHudVisibilityChannel: {fileID: 11400000, guid: 2ace426d79c4741a3bc741a39cb27a3d, type: 2}
 --- !u!1 &1290828193
 GameObject:
   m_ObjectHideFlags: 0
@@ -914,12 +975,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1970715525}
   m_Layer: 0
-  m_Name: EdgeContainer
+  m_Name: 
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1970715525
 RectTransform:
   m_ObjectHideFlags: 0
