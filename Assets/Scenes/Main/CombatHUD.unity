@@ -198,7 +198,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -335,7 +335,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -402,6 +402,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 81479979}
+  - component: {fileID: 81479983}
   - component: {fileID: 81479980}
   - component: {fileID: 81479981}
   m_Layer: 5
@@ -429,7 +430,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 216, y: -307}
-  m_SizeDelta: {x: 115.57562, y: 115.57562}
+  m_SizeDelta: {x: 150, y: 150}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &81479980
 MonoBehaviour:
@@ -451,12 +452,12 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  _outerRadius: 50
-  _innerRadius: 35
-  _gapAngle: 4
+  _outerRadius: 60
+  _innerRadius: 40
+  _gapAngle: 0
   _segmentsPerSlice: 20
   _trackAlpha: 0.15
-  _partialAlpha: 0.5
+  _partialAlpha: 0.8
   _elementColors:
   - element: 0
     color: {r: 0.9716981, g: 0.91211283, b: 0.91211283, a: 1}
@@ -466,6 +467,7 @@ MonoBehaviour:
     color: {r: 0.3726415, g: 0.8595656, b: 1, a: 1}
   - element: 3
     color: {r: 0.76662654, g: 0.4009434, b: 1, a: 1}
+  _ultimateReadyIndicator: {fileID: 671078493}
 --- !u!114 &81479981
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -481,6 +483,14 @@ MonoBehaviour:
   visibilityChannel: {fileID: 11400000, guid: 2ace426d79c4741a3bc741a39cb27a3d, type: 2}
   target: {fileID: 81479978}
   initiallyVisible: 1
+--- !u!222 &81479983
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 81479978}
+  m_CullTransparentMesh: 1
 --- !u!224 &140759128 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 8119448549039122565, guid: 5879344615038fc4c8e4576ef8fdacec, type: 3}
@@ -3678,7 +3688,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -3812,7 +3822,7 @@ MonoBehaviour:
   comboPopDuration: 0.15
   totalPointsText: {fileID: 631648339}
   ultimateSlider: {fileID: 915173293}
-  ultimateReadyIndicator: {fileID: 1710495563}
+  ultimateReadyIndicator: {fileID: 0}
   ultimateKey: 113
 --- !u!114 &1910520639
 MonoBehaviour:

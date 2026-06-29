@@ -27,6 +27,7 @@ public class UltimateChargeCircleUI : MaskableGraphic
     [SerializeField] private float _trackAlpha = 0.15f;
     [SerializeField] private float _partialAlpha = 0.5f;
     [SerializeField] private List<ElementColorEntry> _elementColors = new();
+    [SerializeField] private GameObject? _ultimateReadyIndicator;
 
     private readonly List<(Element element, float fill)> _currentFills = new();
     private bool _subscribed;
@@ -42,6 +43,8 @@ public class UltimateChargeCircleUI : MaskableGraphic
         base.OnDisable();
         if (!_subscribed || UltimateChargeTracker.Instance == null) return;
         UltimateChargeTracker.Instance.OnProgressChanged -= HandleProgressChanged;
+        UltimateChargeTracker.Instance.OnUltimateAvailable -= HandleUltimateAvailable;
+        UltimateChargeTracker.Instance.OnUltimateUnavailable -= HandleUltimateUnavailable;
         _subscribed = false;
     }
 
@@ -53,18 +56,37 @@ public class UltimateChargeCircleUI : MaskableGraphic
 
     private void TrySubscribe()
     {
-        if (_subscribed || UltimateChargeTracker.Instance == null) return;
+        if (_subscribed || UltimateChargeTracker.Instance == null) 
+        {
+            Debug.Log($"[UltimateChargeCircleUI] TrySubscribe: " +
+                      $"subscribed={_subscribed}, tracker={(UltimateChargeTracker.Instance != null ? "found" : "NULL")}");
+            return;
+        }
         UltimateChargeTracker.Instance.OnProgressChanged += HandleProgressChanged;
+        UltimateChargeTracker.Instance.OnUltimateAvailable += HandleUltimateAvailable;
+        UltimateChargeTracker.Instance.OnUltimateUnavailable += HandleUltimateUnavailable;
         _subscribed = true;
+        SetUltimateIndicator(UltimateChargeTracker.Instance.IsUltimateAvailable);
         RefreshFills();
     }
 
     private void HandleProgressChanged(float _) => RefreshFills();
 
+    private void HandleUltimateAvailable() => SetUltimateIndicator(true);
+
+    private void HandleUltimateUnavailable() => SetUltimateIndicator(false);
+
+    private void SetUltimateIndicator(bool active)
+    {
+        if (_ultimateReadyIndicator != null)
+            _ultimateReadyIndicator.SetActive(active);
+    }
+
     private void RefreshFills()
     {
         _currentFills.Clear();
         UltimateChargeTracker.Instance?.GetChargeFills(_currentFills);
+        Debug.Log($"Current fills: {string.Join(", ", _currentFills)}");
         SetVerticesDirty();
     }
 
