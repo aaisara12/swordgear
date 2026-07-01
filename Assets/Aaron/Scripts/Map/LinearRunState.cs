@@ -39,4 +39,18 @@ public class LinearRunState
         CurrentStepIndex += 1;
         return true;
     }
+
+    /// <summary>Appends another Combat×3 + Upgrade block to the tail of the queue.</summary>
+    public void AppendSteps(IReadOnlyList<RunStep> steps)
+    {
+        if (steps == null || steps.Count == 0)
+        {
+            return;
+        }
+
+        _steps.AddRange(steps);
+    }
+
+    /// <summary>How many full blocks are represented in the queue (each block is 3 combats + 1 upgrade).</summary>
+    public int QueuedBlockCount => _steps.Count / LinearRunGenerator.StepsPerBlock;
 }

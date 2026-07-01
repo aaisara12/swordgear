@@ -20,16 +20,40 @@ public static class LinearRunGenerator
             return new LinearRunState(seed, new List<RunStep>());
         }
 
-        var rng = new System.Random(seed);
+        List<RunStep> steps = GenerateNextBlock(combatLayouts, seed, blockIndex: 0, startStepIndex: 0);
+        return new LinearRunState(seed, steps);
+    }
+
+    /// <summary>Builds one Combat×3 + Upgrade block with deterministic layout picks per block index.</summary>
+    public static List<RunStep> GenerateNextBlock(
+        IReadOnlyList<ArenaLayoutTemplate> combatLayouts,
+        int seed,
+        int blockIndex,
+        int startStepIndex)
+    {
         var steps = new List<RunStep>(StepsPerBlock);
+        if (combatLayouts == null || combatLayouts.Count == 0)
+        {
+            return steps;
+        }
+
+        var rng = new System.Random(CombineSeed(seed, blockIndex));
 
         for (int i = 0; i < CombatsPerBlock; i++)
         {
             ArenaLayoutTemplate layout = combatLayouts[rng.Next(combatLayouts.Count)];
-            steps.Add(new RunStep(RunStepType.Combat, i, layout));
+            steps.Add(new RunStep(RunStepType.Combat, startStepIndex + i, layout));
         }
 
-        steps.Add(new RunStep(RunStepType.Upgrade, CombatsPerBlock));
-        return new LinearRunState(seed, steps);
+        steps.Add(new RunStep(RunStepType.Upgrade, startStepIndex + CombatsPerBlock));
+        return steps;
+    }
+
+    private static int CombineSeed(int seed, int blockIndex)
+    {
+        unchecked
+        {
+            return (seed * 397) ^ blockIndex;
+        }
     }
 }

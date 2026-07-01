@@ -293,8 +293,60 @@ public class RunManager : MonoBehaviour
             return;
         }
 
+        EnsureMoreStepsQueued();
         OnRunChanged?.Invoke();
         RequestScene(mapScene);
+    }
+
+    /// <summary>
+    /// When the player reaches the trailing Upgrade step, appends the next Combat×3 + Upgrade block
+    /// so the rail can show upcoming combats before the hub is implemented (commit 11+).
+    /// </summary>
+    public bool EnsureMoreStepsQueued()
+    {
+        if (_linearRun == null)
+        {
+            return false;
+        }
+
+        RunStep? current = _linearRun.CurrentStep;
+        if (current == null || current.Type != RunStepType.Upgrade)
+        {
+            return false;
+        }
+
+        int currentIndex = _linearRun.CurrentStepIndex;
+        int tailIndex = _linearRun.Steps.Count - 1;
+        if (currentIndex != tailIndex)
+        {
+            return false;
+        }
+
+        IReadOnlyList<ArenaLayoutTemplate> layouts = generationSettings.combatLayouts;
+        if (layouts == null || layouts.Count == 0)
+        {
+            Debug.LogError("RunManager: cannot queue next block — combatLayouts is empty.");
+            return false;
+        }
+
+        int nextBlockIndex = _linearRun.QueuedBlockCount;
+        int startStepIndex = _linearRun.Steps.Count;
+        List<RunStep> nextBlock = LinearRunGenerator.GenerateNextBlock(
+            layouts,
+            _linearRun.Seed,
+            nextBlockIndex,
+            startStepIndex);
+
+        if (nextBlock.Count == 0)
+        {
+            return false;
+        }
+
+        _linearRun.AppendSteps(nextBlock);
+        Debug.Log(
+            $"RunManager: queued linear block {nextBlockIndex + 1} " +
+            $"({LinearRunGenerator.CombatsPerBlock} combats + upgrade).");
+        return true;
     }
 
     #endregion
