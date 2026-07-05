@@ -15,6 +15,7 @@ public class NodeStarter : MonoBehaviour
     [SerializeField] private ComboPerformanceEventChannelSO? stageCompletePerformanceChannel;
 
     private LevelLoader? _levelLoader;
+    private bool _portalExitHandled;
 
     private void Start()
     {
@@ -72,6 +73,15 @@ public class NodeStarter : MonoBehaviour
 
     private void HandleCombatExitPortalEntered()
     {
+        if (_portalExitHandled)
+        {
+            return;
+        }
+
+        _portalExitHandled = true;
+
+        // Begin fade; map transition is not blocked. Map scene hides combat HUD + snaps stage complete off.
+        stageCompleteVisibilityChannel?.RaiseDataChanged(false);
         RunManager.Instance?.HandleCombatPortalExited();
     }
 

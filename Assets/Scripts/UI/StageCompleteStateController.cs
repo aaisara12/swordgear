@@ -5,16 +5,19 @@ using TMPro;
 using UnityEngine;
 
 /// <summary>
-/// Shows a compact stage-complete performance summary, then auto-fades after a short hold.
+/// Shows a compact stage-complete performance summary, holds at full opacity, then auto-fades.
+/// Portal dismiss starts a fade without blocking scene flow; the map scene snaps it off via combat-HUD hide.
 /// </summary>
 public class StageCompleteStateController : MonoBehaviour
 {
     [Header("Input")]
     [SerializeField] private BoolEventChannelSO? visibilityChannel;
     [SerializeField] private ComboPerformanceEventChannelSO? performanceChannel;
+    [Tooltip("When the combat HUD is hidden (e.g. on the Map scene), stage complete is snapped off.")]
+    [SerializeField] private BoolEventChannelSO? combatHudVisibilityChannel;
 
     [Header("Timing")]
-    [SerializeField] private float displayHoldSeconds = 2f;
+    [SerializeField] private float displayHoldSeconds = 4f;
     [SerializeField] private float fadeDurationSeconds = 1f;
 
     [Header("Scene References")]
@@ -24,6 +27,7 @@ public class StageCompleteStateController : MonoBehaviour
     [SerializeField] private TMP_Text? maxComboText;
 
     private Coroutine? _autoHideRoutine;
+    private bool _isShowing;
 
     private void Awake()
     {
@@ -49,14 +53,17 @@ public class StageCompleteStateController : MonoBehaviour
             }
         }
 
-        view.SetActive(false);
-        canvasGroup.alpha = 1f;
-
+        HideImmediately();
         visibilityChannel.OnDataChanged += HandleVisibilityChanged;
 
         if (performanceChannel != null)
         {
             performanceChannel.OnDataChanged += HandlePerformanceChanged;
+        }
+
+        if (combatHudVisibilityChannel != null)
+        {
+            combatHudVisibilityChannel.OnDataChanged += HandleCombatHudVisibilityChanged;
         }
     }
 
@@ -71,31 +78,89 @@ public class StageCompleteStateController : MonoBehaviour
         {
             performanceChannel.OnDataChanged -= HandlePerformanceChanged;
         }
+
+        if (combatHudVisibilityChannel != null)
+        {
+            combatHudVisibilityChannel.OnDataChanged -= HandleCombatHudVisibilityChanged;
+        }
+    }
+
+    private void HandleCombatHudVisibilityChanged(bool isVisible)
+    {
+        if (!isVisible)
+        {
+            HideImmediately();
+        }
     }
 
     private void HandleVisibilityChanged(bool isVisible)
     {
-        if (_autoHideRoutine != null)
+        if (!isVisible)
         {
-            StopCoroutine(_autoHideRoutine);
-            _autoHideRoutine = null;
+            DismissWithFade();
+            return;
         }
+
+        Show();
+    }
+
+    private void DismissWithFade()
+    {
+        StopAutoHideRoutine();
+
+        if (!_isShowing)
+        {
+            return;
+        }
+
+        _autoHideRoutine = StartCoroutine(PortalDismissFade());
+    }
+
+    private IEnumerator PortalDismissFade()
+    {
+        yield return FadeOut();
+        _autoHideRoutine = null;
+    }
+
+    private void Show()
+    {
+        StopAutoHideRoutine();
 
         if (view == null || canvasGroup == null)
         {
             return;
         }
 
-        if (!isVisible)
+        view.SetActive(true);
+        canvasGroup.alpha = 1f;
+        canvasGroup.blocksRaycasts = true;
+        canvasGroup.interactable = true;
+        _isShowing = true;
+        _autoHideRoutine = StartCoroutine(AutoHideAfterDelay());
+    }
+
+    private void HideImmediately()
+    {
+        StopAutoHideRoutine();
+
+        if (view == null || canvasGroup == null)
         {
-            view.SetActive(false);
-            canvasGroup.alpha = 1f;
             return;
         }
 
-        view.SetActive(true);
-        canvasGroup.alpha = 1f;
-        _autoHideRoutine = StartCoroutine(AutoHideAfterDelay());
+        _isShowing = false;
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
+        canvasGroup.interactable = false;
+    }
+
+    private void StopAutoHideRoutine()
+    {
+        if (_autoHideRoutine != null)
+        {
+            StopCoroutine(_autoHideRoutine);
+            _autoHideRoutine = null;
+        }
     }
 
     private IEnumerator AutoHideAfterDelay()
@@ -105,31 +170,35 @@ public class StageCompleteStateController : MonoBehaviour
             yield return new WaitForSeconds(displayHoldSeconds);
         }
 
-        if (canvasGroup != null && fadeDurationSeconds > 0f)
+        if (!_isShowing)
+        {
+            yield break;
+        }
+
+        yield return FadeOut();
+        _autoHideRoutine = null;
+    }
+
+    private IEnumerator FadeOut()
+    {
+        if (canvasGroup == null)
+        {
+            yield break;
+        }
+
+        if (fadeDurationSeconds > 0f)
         {
             float elapsed = 0f;
+            float startAlpha = canvasGroup.alpha;
             while (elapsed < fadeDurationSeconds)
             {
                 elapsed += Time.deltaTime;
-                canvasGroup.alpha = Mathf.Lerp(1f, 0f, elapsed / fadeDurationSeconds);
+                canvasGroup.alpha = Mathf.Lerp(startAlpha, 0f, elapsed / fadeDurationSeconds);
                 yield return null;
             }
-
-            canvasGroup.alpha = 0f;
         }
 
-        if (view != null)
-        {
-            view.SetActive(false);
-        }
-
-        if (canvasGroup != null)
-        {
-            canvasGroup.alpha = 1f;
-        }
-
-        visibilityChannel?.RaiseDataChanged(false);
-        _autoHideRoutine = null;
+        HideImmediately();
     }
 
     private void HandlePerformanceChanged(ComboPerformance performance)
