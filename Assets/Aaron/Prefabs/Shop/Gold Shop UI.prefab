@@ -3031,7 +3031,6 @@ GameObject:
   - component: {fileID: 6963066058324875554}
   - component: {fileID: 6703803201647825159}
   - component: {fileID: 3506757351841845125}
-  - component: {fileID: 1055556113272858150}
   m_Layer: 5
   m_Name: Button
   m_TagString: Untagged
@@ -3140,32 +3139,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6703803201647825159}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1055556113272858150}
-        m_TargetAssemblyTypeName: Testing.StartNextRound, Main
-        m_MethodName: CallStartNextRound
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
---- !u!114 &1055556113272858150
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8471948997557881143}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b7ff26045c5514e62b776881b18eb229, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  view: {fileID: 7052612752619784337}
+      m_Calls: []
 --- !u!1 &8635493325362241456
 GameObject:
   m_ObjectHideFlags: 0

@@ -27,7 +27,6 @@ public class LevelLoader : MonoBehaviour
     private bool isWaveAdvancing = false;
 
     private GameObject currentRoom;
-    private GameObject currentTransition;
     private GameObject spawnedExitPortal;
 
     public void RefreshMinimapIfLoaded()
@@ -55,19 +54,12 @@ public class LevelLoader : MonoBehaviour
             Destroy(currentRoom);
 
         }
-        if(currentTransition != null)
-        {
-            Destroy(currentTransition);
-        }
 
-        // Instantiate Room Geometry and Transition
+        // Instantiate room geometry
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
         MinimapController.Instance?.Refresh(currentRoom);
 
         SpawnPlayerFromRoomMarker();
-
-        // TODO implement transitions later
-        // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
 
         if (blueprint.IsShopLevel)
         {

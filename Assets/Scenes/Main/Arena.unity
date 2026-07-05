@@ -16764,7 +16764,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1069674226}
   - component: {fileID: 1069674227}
-  - component: {fileID: 1069674225}
   m_Layer: 0
   m_Name: Basic Game Loop
   m_TagString: Untagged
@@ -16772,33 +16771,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 0
---- !u!114 &1069674225
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1069674224}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d0d71604be8f4f758e3b80bcdfc102d1, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  onRoundFinished:
-    m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 11400000, guid: 89f0442172b0a498fbcbce3d4943918e, type: 2}
-        m_TargetAssemblyTypeName: TriggerEventChannelSO, Main
-        m_MethodName: RaiseEventTriggered
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
 --- !u!4 &1069674226
 Transform:
   m_ObjectHideFlags: 0
@@ -16828,19 +16800,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   onStart:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1069674225}
-        m_TargetAssemblyTypeName: Testing.RoundStarter, Main
-        m_MethodName: StartRound
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
   onEnable:
     m_PersistentCalls:
       m_Calls: []
