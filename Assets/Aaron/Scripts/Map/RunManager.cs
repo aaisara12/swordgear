@@ -194,6 +194,67 @@ public class RunManager : MonoBehaviour
         return layouts.Count > 0 ? layouts[0] : null;
     }
 
+    /// <summary>Layout for upgrade hub loads from <see cref="MapGenerationSettings.shopLayout"/>.</summary>
+    public ArenaLayoutTemplate? ResolveShopLayout()
+    {
+        return generationSettings.shopLayout;
+    }
+
+    /// <summary>Builds the arena blueprint for the current linear step (combat or upgrade hub).</summary>
+    public LevelBlueprint? BuildBlueprintForCurrentStep()
+    {
+        RunStep? step = _linearRun?.CurrentStep;
+        if (step == null)
+        {
+            Debug.LogError("RunManager: BuildBlueprintForCurrentStep called with no current step.");
+            return null;
+        }
+
+        if (step.Type == RunStepType.Combat)
+        {
+            ArenaLayoutTemplate? layout = ResolveCombatLayout();
+            if (layout == null || layout.LevelPrefab == null)
+            {
+                Debug.LogError("RunManager: no combat arena layout assigned.");
+                return null;
+            }
+
+            List<EnemyWaveConfig> waves = BuildCombatWaves();
+            if (waves.Count == 0)
+            {
+                Debug.LogError("RunManager: combat wave pool is empty.");
+                return null;
+            }
+
+            return new LevelBlueprint
+            {
+                Layout = layout,
+                Waves = waves,
+                IsShopLevel = false
+            };
+        }
+
+        if (step.Type == RunStepType.Upgrade)
+        {
+            ArenaLayoutTemplate? layout = ResolveShopLayout();
+            if (layout == null || layout.LevelPrefab == null)
+            {
+                Debug.LogError("RunManager: no shop arena layout assigned.");
+                return null;
+            }
+
+            return new LevelBlueprint
+            {
+                Layout = layout,
+                Waves = new List<EnemyWaveConfig>(),
+                IsShopLevel = true
+            };
+        }
+
+        Debug.LogError($"RunManager: unsupported step type {step.Type}.");
+        return null;
+    }
+
     /// <summary>Wave list for combat steps using the run seed and designer wave pool (no EncounterBuilder).</summary>
     public List<EnemyWaveConfig> BuildCombatWaves()
     {
@@ -251,7 +312,7 @@ public class RunManager : MonoBehaviour
         BeginCurrentStep();
     }
 
-    /// <summary>Loads Arena for combat steps. Upgrade hub wiring comes in a later commit.</summary>
+    /// <summary>Loads Arena for combat or upgrade hub steps.</summary>
     public void BeginCurrentStep()
     {
         RunStep? step = _linearRun?.CurrentStep;
@@ -261,13 +322,13 @@ public class RunManager : MonoBehaviour
             return;
         }
 
-        if (step.Type == RunStepType.Combat)
+        if (step.Type == RunStepType.Combat || step.Type == RunStepType.Upgrade)
         {
             RequestScene(arenaScene);
             return;
         }
 
-        Debug.LogWarning("RunManager: Upgrade step scene load is not implemented yet.");
+        Debug.LogError($"RunManager: unsupported step type {step.Type}.");
     }
 
     /// <summary>
@@ -288,6 +349,41 @@ public class RunManager : MonoBehaviour
         if (!advanced)
         {
             Debug.Log("RunManager: combat portal exited on final step; run complete.");
+            RequestScene(runEndScene);
+            ClearRun();
+            return;
+        }
+
+        EnsureMoreStepsQueued();
+        OnRunChanged?.Invoke();
+        RequestScene(mapScene);
+    }
+
+    /// <summary>
+    /// Called when the player leaves the upgrade hub. Advances past the upgrade step and returns to the map
+    /// interstitial so the token can animate onto the next combat before loading the arena.
+    /// </summary>
+    public void HandleUpgradeComplete()
+    {
+        if (_linearRun == null)
+        {
+            Debug.LogError("RunManager: HandleUpgradeComplete called with no active linear run.");
+            return;
+        }
+
+        RunStep? current = _linearRun.CurrentStep;
+        if (current == null || current.Type != RunStepType.Upgrade)
+        {
+            Debug.LogWarning("RunManager: HandleUpgradeComplete called outside an upgrade step.");
+            return;
+        }
+
+        bool advanced = _linearRun.TryAdvanceToNextStep();
+        Time.timeScale = 1f;
+
+        if (!advanced)
+        {
+            Debug.Log("RunManager: upgrade completed on final step; run complete.");
             RequestScene(runEndScene);
             ClearRun();
             return;

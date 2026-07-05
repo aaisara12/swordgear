@@ -99,4 +99,27 @@ public class LinearRunPreviewTest
         Assert.AreEqual(RunStepType.Upgrade, run.CurrentStep!.Type);
         Assert.IsFalse(run.TryAdvanceToNextStep());
     }
+
+    [Test]
+    public void TryAdvancePastUpgrade_ReachesNextCombatBlock()
+    {
+        var layouts = new List<ArenaLayoutTemplate>
+        {
+            ScriptableObject.CreateInstance<ArenaLayoutTemplate>(),
+        };
+
+        LinearRunState run = LinearRunGenerator.GenerateInitialBlock(layouts, seed: 1);
+        List<RunStep> nextBlock = LinearRunGenerator.GenerateNextBlock(layouts, seed: 1, blockIndex: 1, startStepIndex: 4);
+        run.AppendSteps(nextBlock);
+
+        for (int i = 0; i < 3; i++)
+        {
+            Assert.IsTrue(run.TryAdvanceToNextStep());
+        }
+
+        Assert.AreEqual(RunStepType.Upgrade, run.CurrentStep!.Type);
+        Assert.IsTrue(run.TryAdvanceToNextStep());
+        Assert.AreEqual(4, run.CurrentStepIndex);
+        Assert.AreEqual(RunStepType.Combat, run.CurrentStep!.Type);
+    }
 }

@@ -70,7 +70,10 @@ public class LevelLoader : MonoBehaviour
         // currentTransition = Instantiate(blueprint.Transition.TransitionPrefab, currentRoom.transform);
 
         if (blueprint.IsShopLevel)
+        {
+            SpawnExitPortal();
             return;
+        }
 
         StartNextWave();
     }

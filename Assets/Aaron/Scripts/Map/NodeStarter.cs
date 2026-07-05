@@ -1,10 +1,9 @@
 #nullable enable
 
-using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Loads the Arena for the current linear run combat step via <see cref="RunManager.CurrentStep"/>.
+/// Loads the Arena for the current linear run step via <see cref="RunManager.CurrentStep"/>.
 /// </summary>
 public class NodeStarter : MonoBehaviour
 {
@@ -33,12 +32,6 @@ public class NodeStarter : MonoBehaviour
             return;
         }
 
-        if (step.Type != RunStepType.Combat)
-        {
-            Debug.LogError($"NodeStarter: expected combat step but got {step.Type}.");
-            return;
-        }
-
         _levelLoader = LevelLoader.Instance;
         if (_levelLoader == null)
         {
@@ -46,31 +39,29 @@ public class NodeStarter : MonoBehaviour
             return;
         }
 
-        ArenaLayoutTemplate? layout = runManager.ResolveCombatLayout();
-        if (layout == null || layout.LevelPrefab == null)
+        LevelBlueprint? blueprint = runManager.BuildBlueprintForCurrentStep();
+        if (blueprint == null)
         {
-            Debug.LogError("NodeStarter: no combat arena layout assigned.");
             return;
         }
 
-        List<EnemyWaveConfig> waves = runManager.BuildCombatWaves();
-        if (waves.Count == 0)
+        if (step.Type == RunStepType.Combat)
         {
-            Debug.LogError("NodeStarter: combat wave pool is empty.");
+            combatHudVisibilityChannel?.RaiseDataChanged(true);
+            _levelLoader.OnExitPortalEntered += HandleCombatExitPortalEntered;
+            _levelLoader.OnLevelClear += HandleCombatCleared;
+        }
+        else if (step.Type == RunStepType.Upgrade)
+        {
+            combatHudVisibilityChannel?.RaiseDataChanged(false);
+            _levelLoader.OnExitPortalEntered += HandleUpgradeExitPortalEntered;
+        }
+        else
+        {
+            Debug.LogError($"NodeStarter: unsupported step type {step.Type}.");
             return;
         }
 
-        combatHudVisibilityChannel?.RaiseDataChanged(true);
-        _levelLoader.OnExitPortalEntered += HandleExitPortalEntered;
-
-        var blueprint = new LevelBlueprint
-        {
-            Layout = layout,
-            Waves = waves,
-            IsShopLevel = false
-        };
-
-        _levelLoader.OnLevelClear += HandleCombatCleared;
         _levelLoader.LoadLevel(blueprint);
     }
 
@@ -79,9 +70,14 @@ public class NodeStarter : MonoBehaviour
         ShowStageComplete();
     }
 
-    private void HandleExitPortalEntered()
+    private void HandleCombatExitPortalEntered()
     {
         RunManager.Instance?.HandleCombatPortalExited();
+    }
+
+    private void HandleUpgradeExitPortalEntered()
+    {
+        RunManager.Instance?.HandleUpgradeComplete();
     }
 
     private void ShowStageComplete()
@@ -102,7 +98,8 @@ public class NodeStarter : MonoBehaviour
         }
 
         _levelLoader.OnLevelClear -= HandleCombatCleared;
-        _levelLoader.OnExitPortalEntered -= HandleExitPortalEntered;
+        _levelLoader.OnExitPortalEntered -= HandleCombatExitPortalEntered;
+        _levelLoader.OnExitPortalEntered -= HandleUpgradeExitPortalEntered;
     }
 
     private void OnDestroy()
