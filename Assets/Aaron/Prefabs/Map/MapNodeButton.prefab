@@ -151,7 +151,7 @@ GameObject:
   - component: {fileID: 2766840873417771279}
   - component: {fileID: 3888027086744093543}
   m_Layer: 0
-  m_Name: MapNodeButton
+  m_Name: MapNodeButton_DEPRECATED
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

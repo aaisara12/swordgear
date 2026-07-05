@@ -1,11 +1,13 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 
 /// <summary>
-/// Runtime data for a single node on the run map. Plain C# (like LevelBlueprint) - assembled from
-/// ScriptableObject content and held by <see cref="RunManager"/> across Map/Arena scene swaps.
+/// DEPRECATED — branching map node replaced by <see cref="RunStep"/>.
+/// Runtime data for a single node on the run map.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map node replaced by RunStep. Retained for reference.")]
 public class MapNode
 {
     public int Id { get; }

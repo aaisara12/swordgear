@@ -1,8 +1,11 @@
 #nullable enable
 
+using System;
+
 /// <summary>
-/// The kinds of nodes that can appear on a run's branching map.
+/// DEPRECATED — branching map node kinds replaced by <see cref="RunStepType"/>.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map node types replaced by RunStepType. Retained for reference.")]
 public enum NodeType
 {
     Combat,

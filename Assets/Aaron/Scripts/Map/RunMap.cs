@@ -1,11 +1,14 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
+/// DEPRECATED — branching map state replaced by <see cref="LinearRunState"/>.
 /// The branching graph of nodes for a single run, plus the player's current position within it.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map replaced by LinearRunState. Retained for reference.")]
 public class RunMap
 {
     public IReadOnlyList<MapNode> Nodes { get; }

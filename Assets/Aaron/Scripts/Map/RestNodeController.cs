@@ -1,12 +1,13 @@
 #nullable enable
 
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Rest node overlay (shown on the Map scene). Visibility is driven by a Bool channel; confirming
-/// fully heals the player and completes the node via <see cref="RunManager.ConfirmRest"/>.
+/// DEPRECATED — Rest overlay for the branching map; not used by the linear rail flow.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map Rest overlay. Retained for reference.")]
 public class RestNodeController : MonoBehaviour
 {
     [Header("Input")]

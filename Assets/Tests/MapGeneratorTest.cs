@@ -1,5 +1,8 @@
 #nullable enable
 
+#pragma warning disable CS0618 // Intentionally exercises deprecated branching map types.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -8,6 +11,7 @@ using UnityEngine;
 
 [TestFixture]
 [TestOf(typeof(MapGenerator))]
+[Obsolete("DEPRECATED: Tests for the retired branching map generator.")]
 public class MapGeneratorTest
 {
     private static MapGenerationSettings MakeSettings()
@@ -171,6 +175,6 @@ public class MapGeneratorTest
         CollectionAssert.AreEqual(new[] { 1 }, map.GetNode(0)!.Next);
         CollectionAssert.AreEqual(new[] { 2 }, map.GetNode(1)!.Next);
 
-        Object.DestroyImmediate(definition);
+        UnityEngine.Object.DestroyImmediate(definition);
     }
 }

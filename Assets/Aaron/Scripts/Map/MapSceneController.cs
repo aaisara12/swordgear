@@ -1,15 +1,16 @@
 #nullable enable
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Renders the run map (node buttons + connecting edges) from <see cref="RunManager.CurrentMap"/> and
-/// forwards node selection to the RunManager. Only currently-reachable nodes are interactable.
-/// Hides the combat HUD and deactivates the player pawn while the map is shown.
+/// DEPRECATED — branching map UI replaced by <see cref="LinearMapController"/>.
+/// Renders node buttons + edges from <see cref="RunManager.CurrentMap"/>.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map UI replaced by LinearMapController. Retained for reference.")]
 public class MapSceneController : MonoBehaviour
 {
     [Header("Containers")]

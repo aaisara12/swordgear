@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Persistent owner of run-long state and the node-map flow. Lives on CoreSystems.prefab so it
-/// survives Map &lt;-&gt; Arena scene swaps. Generates the map at run start, tracks the current node,
-/// resets run-long state (HP / ultimate / combo) on a new run, and routes node selection to either
-/// the Arena scene (Combat/Boss/Shop) or a Map overlay (Augment/Rest).
+/// Persistent owner of run-long state and the linear rail flow. Lives on CoreSystems.prefab so it
+/// survives Map &lt;-&gt; Arena scene swaps. Generates the linear step queue at run start, tracks the
+/// current step, resets run-long state (HP / ultimate / combo) on a new run, and routes step
+/// completion to the Map interstitial or Arena scene.
 /// </summary>
 public class RunManager : MonoBehaviour
 {
@@ -16,6 +16,7 @@ public class RunManager : MonoBehaviour
 
     [Header("Map Generation")]
     [SerializeField] private MapGenerationSettings generationSettings = new MapGenerationSettings();
+    [Obsolete("DEPRECATED: Branching map override; linear runs ignore this field.")]
     [Tooltip("Dev/testing override. When assigned, this fixed map is used instead of procedural generation.")]
     [SerializeField] private FixedMapDefinition? fixedMapOverride;
     [Tooltip("Arena layout used for every combat step until procedural encounter gen is wired.")]
@@ -52,9 +53,11 @@ public class RunManager : MonoBehaviour
     private int _lastMapStepIndex = -1;
     private bool _augmentNodeActive;
 
+    [Obsolete("DEPRECATED: Branching map state; use Run instead.")]
     public RunMap? CurrentMap => _currentMap;
     public LinearRunState? Run => _linearRun;
     public RunStep? CurrentStep => _linearRun?.CurrentStep;
+    [Obsolete("DEPRECATED: Branching map node; use CurrentStep instead.")]
     public MapNode? CurrentNode => _currentMap?.CurrentNode;
     public bool HasActiveRun => _linearRun != null;
 
@@ -447,12 +450,12 @@ public class RunManager : MonoBehaviour
 
     #endregion
 
-    #region Node selection / flow
+    #region DEPRECATED — branching map node selection / flow
 
     /// <summary>
-    /// Called by the Map UI when the player picks a node. Validates reachability, then routes to the
-    /// Arena scene (Combat/Boss/Shop) or opens the appropriate Map overlay (Augment/Rest).
+    /// DEPRECATED — branching map node picker. Linear runs advance via portal / hub exit instead.
     /// </summary>
+    [Obsolete("DEPRECATED: Branching map node selection; linear runs use HandleCombatPortalExited / HandleUpgradeComplete.")]
     public void SelectNode(int id)
     {
         if (_currentMap == null)
@@ -528,12 +531,12 @@ public class RunManager : MonoBehaviour
 
     #endregion
 
-    #region Node completion
+    #region DEPRECATED — branching map node completion
 
     /// <summary>
-    /// Completes the current Arena node (Combat/Shop) and returns to the Map scene.
-    /// Combat reaches this via the Stage Complete "Continue" button; Shop via its exit.
+    /// DEPRECATED — completes a branching map Arena node and returns to the map picker.
     /// </summary>
+    [Obsolete("DEPRECATED: Branching map completion; linear runs use HandleCombatPortalExited / HandleUpgradeComplete.")]
     public void ReturnToMapAfterNode()
     {
         if (_currentMap == null)
@@ -547,7 +550,8 @@ public class RunManager : MonoBehaviour
         OnMapChanged?.Invoke();
     }
 
-    /// <summary>Called when an Augment overlay choice is made: bank performance into tier, mark done, refresh map.</summary>
+    /// <summary>DEPRECATED — branching map Augment overlay completion.</summary>
+    [Obsolete("DEPRECATED: Branching map Augment overlay.")]
     public void HandleAugmentChosen()
     {
         augmentVisibilityChannel?.RaiseDataChanged(false);
@@ -555,7 +559,8 @@ public class RunManager : MonoBehaviour
         CompleteOverlayNode();
     }
 
-    /// <summary>Called when the Rest overlay is confirmed: full heal, close overlay, mark done, refresh map.</summary>
+    /// <summary>DEPRECATED — branching map Rest overlay confirmation.</summary>
+    [Obsolete("DEPRECATED: Branching map Rest overlay.")]
     public void ConfirmRest()
     {
         PlayerGameplayManager.Instance?.FullHeal();
@@ -569,7 +574,8 @@ public class RunManager : MonoBehaviour
         OnMapChanged?.Invoke();
     }
 
-    /// <summary>Boss defeated: mark complete and end the run.</summary>
+    /// <summary>DEPRECATED — branching map boss defeated.</summary>
+    [Obsolete("DEPRECATED: Branching map boss completion.")]
     public void CompleteRun()
     {
         _currentMap?.MarkCurrentNodeCompleted();

@@ -6,9 +6,9 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// A single clickable node on the run map. Displays the node type and reflects its state
-/// (selectable / completed / locked), and reports clicks back to the map controller.
+/// DEPRECATED — branching map node button replaced by <see cref="LinearMapController"/> prefab nodes.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map UI replaced by LinearMapController. Retained for reference.")]
 public class MapNodeButton : MonoBehaviour
 {
     [SerializeField] private Button? button;

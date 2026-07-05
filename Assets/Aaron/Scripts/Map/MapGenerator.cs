@@ -5,13 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 
 /// <summary>
+/// DEPRECATED — branching map generator replaced by <see cref="LinearRunGenerator"/>.
 /// Pure (non-MonoBehaviour) procedural generator for a Slay-the-Spire style branching run map.
-/// Seedable for deterministic results and unit testing.
-///
-/// Structure: column 0 is the start (all Combat), interior columns mix Combat/Augment/Shop,
-/// the second-to-last column is a single Rest, and the final column is a single Boss.
-/// Edges fully connect consecutive columns so the Boss is always reachable.
+/// Retained for reference and unit tests; safe to delete once no longer needed.
 /// </summary>
+[Obsolete("DEPRECATED: Branching map replaced by LinearRunGenerator. Retained for reference.")]
 public static class MapGenerator
 {
     public static RunMap Generate(MapGenerationSettings settings, int seed)

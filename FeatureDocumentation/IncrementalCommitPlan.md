@@ -159,11 +159,12 @@ git checkout main
 | **Playtest** | Upgrade step → touch Continue → **Map** → token past upgrade → **combat 4** queues on rail. |
 | **Milestone M4 done** | Full **Combat×3 → Upgrade → repeat** on authored arenas. |
 
-### Commit 13 — Delete branching map (playtest unchanged)
+### Commit 13 — Deprecate branching map (playtest unchanged)
 
 | | |
 |---|---|
-| **Deletes** | `MapGenerator`, `RunMap`, `MapNode`, `MapSceneController`, `MapNodeButton`, `FixedMapDefinition`, `MapGenerationSettings`, `RestNodeController`, `NodeType`, `MapGeneratorTest`, `MapNodeButton.prefab` |
+| **Deprecates** | `MapGenerator`, `RunMap`, `MapNode`, `MapSceneController`, `MapNodeButton`, `FixedMapDefinition`, branching fields on `MapGenerationSettings`, `RestNodeController`, `NodeType`, `MapGeneratorTest`, `MapNodeButton.prefab` — marked `[Obsolete]` / `DEPRECATED` comments; **not deleted** |
+| **Keeps active** | `MapGenerationSettings` combat/shop content fields (`combatLayouts`, `combatWaves`, `shopLayout`, wave counts) used by `RunManager` / `LinearRunGenerator` |
 | **Playtest** | Same as M4 — linear loop still works. |
 
 ### Commit 14 — Delete legacy round system

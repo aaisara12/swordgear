@@ -5,10 +5,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Dev/testing override: a hand-authored run map. When assigned on <see cref="RunManager"/>,
-/// it is used verbatim instead of procedural generation, giving a deterministic level progression.
+/// DEPRECATED — hand-authored branching map override; linear runs use <see cref="LinearRunGenerator"/> instead.
 /// </summary>
-[CreateAssetMenu(fileName = "FixedMapDefinition", menuName = "Scriptable Objects/Map/FixedMapDefinition")]
+[CreateAssetMenu(fileName = "FixedMapDefinition", menuName = "Scriptable Objects/Map/FixedMapDefinition (DEPRECATED)")]
+[Obsolete("DEPRECATED: Branching map override replaced by LinearRunGenerator. Retained for reference.")]
 public class FixedMapDefinition : ScriptableObject
 {
     [Serializable]
