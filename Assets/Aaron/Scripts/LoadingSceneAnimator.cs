@@ -20,10 +20,10 @@ public class LoadingScreenAnimator : MonoBehaviour
             return;
         }
         
-        // aisara => Starting state is fully transparent and non-interactable (don't want to have to send an initialization signal to get it in this state)
-        canvasGroup.alpha = 0f;
-        canvasGroup.interactable = false;
-        canvasGroup.blocksRaycasts = false;
+        // aisara => Start opaque so boot shows black immediately, even before the first channel event arrives.
+        canvasGroup.alpha = 1f;
+        canvasGroup.interactable = true;
+        canvasGroup.blocksRaycasts = true;
     }
 
     public void FadeInLoadingScreen()

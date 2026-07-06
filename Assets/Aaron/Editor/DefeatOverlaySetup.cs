@@ -174,7 +174,7 @@ public static class DefeatOverlaySetup
         var serialized = new SerializedObject(visibility);
         serialized.FindProperty("visibilityChannel").objectReferenceValue = channel;
         serialized.FindProperty("target").objectReferenceValue = target;
-        serialized.FindProperty("initiallyVisible").boolValue = true;
+        serialized.FindProperty("initiallyVisible").boolValue = false;
         serialized.ApplyModifiedPropertiesWithoutUndo();
     }
 

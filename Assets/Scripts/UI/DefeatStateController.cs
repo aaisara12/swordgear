@@ -34,10 +34,11 @@ public class DefeatStateController : MonoBehaviour
     [Header("Timing")]
     [SerializeField] private float fadeInDuration = DefaultFadeInSeconds;
     [SerializeField] private float holdDuration = DefaultHoldSeconds;
-    [SerializeField] private float skipHintDelay = 1f;
+    [SerializeField] private float skipDelayBeforeAllowed = 1f;
 
     private Coroutine? _sequenceRoutine;
     private bool _sequenceActive;
+    private float _skipEligibleAt;
 
     private void Awake()
     {
@@ -131,6 +132,12 @@ public class DefeatStateController : MonoBehaviour
         combatHudVisibilityChannel?.RaiseDataChanged(false);
         AudioSystem.FadeLoopVolume(AudioSystem.Sound.BGM, BgmDuckVolume, BgmDuckDuration);
 
+        _skipEligibleAt = Time.unscaledTime + skipDelayBeforeAllowed;
+        if (skipButton != null)
+        {
+            skipButton.interactable = false;
+        }
+
         _sequenceActive = true;
         _sequenceRoutine = StartCoroutine(SequenceRoutine());
     }
@@ -146,9 +153,19 @@ public class DefeatStateController : MonoBehaviour
             overlayGroup.alpha = 1f;
         }
 
-        if (skipHintText != null && skipHintDelay > 0f)
+        float waitUntilSkipAllowed = _skipEligibleAt - Time.unscaledTime;
+        if (waitUntilSkipAllowed > 0f)
         {
-            yield return new WaitForSecondsRealtime(skipHintDelay);
+            yield return new WaitForSecondsRealtime(waitUntilSkipAllowed);
+        }
+
+        if (skipButton != null)
+        {
+            skipButton.interactable = true;
+        }
+
+        if (skipHintText != null)
+        {
             skipHintText.gameObject.SetActive(true);
         }
 
@@ -162,7 +179,7 @@ public class DefeatStateController : MonoBehaviour
 
     private void OnSkipPressed()
     {
-        if (!_sequenceActive)
+        if (!_sequenceActive || Time.unscaledTime < _skipEligibleAt)
         {
             return;
         }
@@ -218,6 +235,11 @@ public class DefeatStateController : MonoBehaviour
         if (skipHintText != null)
         {
             skipHintText.gameObject.SetActive(false);
+        }
+
+        if (skipButton != null)
+        {
+            skipButton.interactable = false;
         }
     }
 

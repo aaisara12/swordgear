@@ -16,6 +16,7 @@ public class GameInitializer : MonoBehaviour
 
     [Header("Loading")]
     [SerializeField] private BoolEventChannelSO? toggleLoadingScreenChannel;
+    [SerializeField] private BoolEventChannelSO? combatHudVisibilityChannel;
 
     [SerializeField] private List<InitializeableGameComponent> gameComponents = new List<InitializeableGameComponent>();
     [SerializeField] private List<InitializeableUnrestrictedGameComponent> unrestrictedGameComponents = new List<InitializeableUnrestrictedGameComponent>();
@@ -40,6 +41,9 @@ public class GameInitializer : MonoBehaviour
             yield break;
         }
 
+        toggleLoadingScreenChannel?.RaiseDataChanged(true);
+        combatHudVisibilityChannel?.RaiseDataChanged(false);
+
         if (playerBlobLoader.TryLoad(out var playerBlob) == false)
         {
             Debug.LogWarning("Player blob could not be loaded at this time. Using empty player blob.");
@@ -56,8 +60,6 @@ public class GameInitializer : MonoBehaviour
 
         foreach (var standaloneManager in standaloneManagers)
             standaloneManager.InitializeOnGameStart_Dangerous(playerBlob);
-
-        toggleLoadingScreenChannel?.RaiseDataChanged(true);
 
         yield return null;
 

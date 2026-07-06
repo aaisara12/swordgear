@@ -1,0 +1,758 @@
+fileFormatVersion: 2
+guid: 48e7dde7ed3036a439bd0bf374fbc80e
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1168273224346555697
+    second: sg_lightning_slash_v1.2_spritesheet_0
+  - first:
+      213: 8885183785159052323
+    second: sg_lightning_slash_v1.2_spritesheet_1
+  - first:
+      213: -8449846113266057366
+    second: sg_lightning_slash_v1.2_spritesheet_2
+  - first:
+      213: 5346843249664827904
+    second: sg_lightning_slash_v1.2_spritesheet_3
+  - first:
+      213: 6545267190591151205
+    second: sg_lightning_slash_v1.2_spritesheet_4
+  - first:
+      213: -6112713529739867787
+    second: sg_lightning_slash_v1.2_spritesheet_5
+  - first:
+      213: -8279342151200886246
+    second: sg_lightning_slash_v1.2_spritesheet_6
+  - first:
+      213: -743191748546418087
+    second: sg_lightning_slash_v1.2_spritesheet_7
+  - first:
+      213: -4658143338021944552
+    second: sg_lightning_slash_v1.2_spritesheet_8
+  - first:
+      213: -8460929560023470629
+    second: sg_lightning_slash_v1.2_spritesheet_9
+  - first:
+      213: 6620131948899935280
+    second: sg_lightning_slash_v1.2_spritesheet_10
+  - first:
+      213: 989047275817068861
+    second: sg_lightning_slash_v1.2_spritesheet_11
+  - first:
+      213: -2174757174442637290
+    second: sg_lightning_slash_v1.2_spritesheet_12
+  - first:
+      213: 4942648585140026044
+    second: sg_lightning_slash_v1.2_spritesheet_13
+  - first:
+      213: -1156556971698637254
+    second: sg_lightning_slash_v1.2_spritesheet_14
+  - first:
+      213: 5884972380733920739
+    second: sg_lightning_slash_v1.2_spritesheet_15
+  - first:
+      213: 7976322607398152648
+    second: sg_lightning_slash_v1.2_spritesheet_16
+  - first:
+      213: 8409126649435249256
+    second: sg_lightning_slash_v1.2_spritesheet_17
+  - first:
+      213: 1179837287185172963
+    second: sg_lightning_slash_v1.2_spritesheet_18
+  - first:
+      213: 1667249858870439936
+    second: sg_lightning_slash_v1.2_spritesheet_19
+  - first:
+      213: -457837574082164940
+    second: sg_lightning_slash_v1.2_spritesheet_20
+  - first:
+      213: 8692807257004012505
+    second: sg_lightning_slash_v1.2_spritesheet_21
+  - first:
+      213: -8475905810155799311
+    second: sg_lightning_slash_v1.2_spritesheet_22
+  - first:
+      213: -1826601220526731173
+    second: sg_lightning_slash_v1.2_spritesheet_23
+  - first:
+      213: 369339040370760085
+    second: sg_lightning_slash_v1.2_spritesheet_24
+  - first:
+      213: -2234501046177066448
+    second: sg_lightning_slash_v1.2_spritesheet_25
+  - first:
+      213: 4405651505104099200
+    second: sg_lightning_slash_v1.2_spritesheet_26
+  - first:
+      213: -788147659523198321
+    second: sg_lightning_slash_v1.2_spritesheet_27
+  - first:
+      213: -8418280353935873658
+    second: sg_lightning_slash_v1.2_spritesheet_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 135d6c9ce4a863010800000000000000
+      internalID: 1168273224346555697
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_1
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 2500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32c477ea3938e4b70800000000000000
+      internalID: 8885183785159052323
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_2
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 2500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a6fbf0caabd1cba80800000000000000
+      internalID: -8449846113266057366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_3
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 2500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 002a7f55b9dc33a40800000000000000
+      internalID: 5346843249664827904
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56c543fd4d575da50800000000000000
+      internalID: 6545267190591151205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_5
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 2000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 57981266e674b2ba0800000000000000
+      internalID: -6112713529739867787
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_6
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 2000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a12b0c7ed2ed91d80800000000000000
+      internalID: -8279342151200886246
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_7
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 2000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95aa3e3da07afa5f0800000000000000
+      internalID: -743191748546418087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81389506053fa5fb0800000000000000
+      internalID: -4658143338021944552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_9
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 1500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bdde231a46db49a80800000000000000
+      internalID: -8460929560023470629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_10
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 1500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 034256cbeee6fdb50800000000000000
+      internalID: 6620131948899935280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_11
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 1500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d39e425d14dc9bd00800000000000000
+      internalID: 989047275817068861
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6184d984fd5b1d1e0800000000000000
+      internalID: -2174757174442637290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_13
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 1000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cbabbde63b0d79440800000000000000
+      internalID: 4942648585140026044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_14
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 1000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a36b66bdf8513ffe0800000000000000
+      internalID: -1156556971698637254
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_15
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 1000
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e551aa433f9ba150800000000000000
+      internalID: 5884972380733920739
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8c962eba62791be60800000000000000
+      internalID: 7976322607398152648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_17
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 86adbda522833b470800000000000000
+      internalID: 8409126649435249256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_18
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3e9ce6bf2cf9f5010800000000000000
+      internalID: 1179837287185172963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_19
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 500
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 000fac5c9e2432710800000000000000
+      internalID: 1667249858870439936
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59eec4c3750e6a346a461b3fdcab4213
+      internalID: -457837574082164940
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_21
+      rect:
+        serializedVersion: 2
+        x: 500
+        y: 0
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4ea12f9d7c5479347b171088cf385973
+      internalID: 8692807257004012505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_22
+      rect:
+        serializedVersion: 2
+        x: 1000
+        y: 0
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc661ddcfd72f6b46be8c37ad9f7dc34
+      internalID: -8475905810155799311
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_lightning_slash_v1.2_spritesheet_23
+      rect:
+        serializedVersion: 2
+        x: 1500
+        y: 0
+        width: 500
+        height: 500
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 535e016c159a70046ad63c2c020b6fe4
+      internalID: -1826601220526731173
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: f7ae94294ad6eae44ac3cbdeac2e59ef
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":6.0},"gridSpriteSize":{"x":500.0,"y":500.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":true,"isAlternate":false}'
+    nameFileIdTable:
+      sg_lightning_slash_v1.2_spritesheet_0: 1168273224346555697
+      sg_lightning_slash_v1.2_spritesheet_1: 8885183785159052323
+      sg_lightning_slash_v1.2_spritesheet_10: 6620131948899935280
+      sg_lightning_slash_v1.2_spritesheet_11: 989047275817068861
+      sg_lightning_slash_v1.2_spritesheet_12: -2174757174442637290
+      sg_lightning_slash_v1.2_spritesheet_13: 4942648585140026044
+      sg_lightning_slash_v1.2_spritesheet_14: -1156556971698637254
+      sg_lightning_slash_v1.2_spritesheet_15: 5884972380733920739
+      sg_lightning_slash_v1.2_spritesheet_16: 7976322607398152648
+      sg_lightning_slash_v1.2_spritesheet_17: 8409126649435249256
+      sg_lightning_slash_v1.2_spritesheet_18: 1179837287185172963
+      sg_lightning_slash_v1.2_spritesheet_19: 1667249858870439936
+      sg_lightning_slash_v1.2_spritesheet_2: -8449846113266057366
+      sg_lightning_slash_v1.2_spritesheet_20: -457837574082164940
+      sg_lightning_slash_v1.2_spritesheet_21: 8692807257004012505
+      sg_lightning_slash_v1.2_spritesheet_22: -8475905810155799311
+      sg_lightning_slash_v1.2_spritesheet_23: -1826601220526731173
+      sg_lightning_slash_v1.2_spritesheet_3: 5346843249664827904
+      sg_lightning_slash_v1.2_spritesheet_4: 6545267190591151205
+      sg_lightning_slash_v1.2_spritesheet_5: -6112713529739867787
+      sg_lightning_slash_v1.2_spritesheet_6: -8279342151200886246
+      sg_lightning_slash_v1.2_spritesheet_7: -743191748546418087
+      sg_lightning_slash_v1.2_spritesheet_8: -4658143338021944552
+      sg_lightning_slash_v1.2_spritesheet_9: -8460929560023470629
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
