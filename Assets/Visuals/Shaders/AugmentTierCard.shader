@@ -137,7 +137,7 @@ Shader "Swordgear/UI/AugmentTierCard"
             {
                 half4 tex = (tex2D(_MainTex, input.texcoord) + _TextureSampleAdd) * input.color;
                 float2 uv = input.texcoord;
-                float t = _Time.y + _TimeOffset;
+                float t = _TimeOffset;
                 float pulse = lerp(1.0, sin(t * _PulseSpeed) * 0.5 + 0.5, _PulseStrength);
 
                 float depth = smoothstep(0.02, 0.98, uv.y);

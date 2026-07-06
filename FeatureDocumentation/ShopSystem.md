@@ -24,6 +24,8 @@ Presents the player with a selection of purchasable items (augments or stat boos
 | `ItemShopViewModel` | `Assets/Aaron/Scripts/ShopSystem/ItemShopViewModel.cs` |
 | `AugmentShopViewModel` | `Assets/Aaron/Scripts/ShopSystem/AugmentShopViewModel.cs` |
 | `ItemShopStateController` | `Assets/Aaron/Scripts/ShopSystem/ItemShopStateController.cs` |
+| `AugmentTierRollSettings` | `Assets/Aaron/ScriptableObjects/AugmentTierRollSettings.asset` |
+| `AugmentTierRollWeights` | `Assets/Aaron/Scripts/ShopSystem/AugmentTierRollWeights.cs` |
 | `AugmentTierVisuals` | `Assets/Aaron/Scripts/ShopSystem/AugmentTierVisuals.cs` |
 | `AugmentShopElementViewModel` | `Assets/Aaron/Scripts/ShopSystem/AugmentShopElementViewModel.cs` |
 | `UpgradeFlowController` | `Assets/Aaron/Scripts/Map/UpgradeFlowController.cs` |
@@ -96,7 +98,27 @@ Each `LoadableStoreItem` has a **`qualityTier`** field (`AugmentQualityTier`: Lo
 | `High` | Gold | Rare |
 | `Elite` | Diamond | Very rare |
 
-`InGameAugmentsManager` picks a minimum tier from `ComboSystem.GetAugmentQualityTier()` (or debug overrides in test scenes), then `LoadableStoreItemCatalog.GetRandomItemsForTier(3, tier)` fills the shop offer.
+`InGameAugmentsManager` reads **`AugmentTierRollSettings`** (default 50 / 20 / 20 / 10), rolls an offer tier, applies the combo floor from `ComboSystem.GetAugmentQualityTier()`, then offers three exact-tier augments.
+
+Tune weights in **Henry → Augment Tuner** (top section). Click **Wire CoreSystems Prefab** once so production references the asset.
+
+Card shader effects use **`Time.unscaledTime`** so rim glow, flare, and sweep keep animating while `timeScale = 0` during the augment pick.
+
+---
+
+## Augment Tuner (editor)
+
+| Section | Purpose |
+|---|---|
+| **Offer Tier Roll Weights** | Edit Bronze/Silver/Gold/Diamond weights on `AugmentTierRollSettings` |
+| **Augment list** | Per-item name, cost, quality tier, stat boosts |
+| **Wire CoreSystems Prefab** | Assign roll settings to production `InGameAugmentsManager` |
+
+---
+
+## Test scene debug panel
+
+`AugmentPickerTest.unity` uses the shared roll settings asset. The in-scene panel only sets a **combo floor override** and refreshes offers — adjust tier percentages in **Augment Tuner**.
 
 ---
 
@@ -142,4 +164,4 @@ Related fix: `ShopAnimation` uses `Time.unscaledDeltaTime` so the shop intro ani
 
 ## Test scene debug tier
 
-`AugmentPickerTest.unity` uses `InGameAugmentsManager.ConfigureDebugMinimumTier` with **`useDebugExactTier`** so tier buttons roll exact Bronze/Silver/Gold/Diamond offers (not minimum-and-above). Production runs use combo-based minimum tier only.
+See **Test scene debug panel** above for tier weight sliders and combo floor buttons.

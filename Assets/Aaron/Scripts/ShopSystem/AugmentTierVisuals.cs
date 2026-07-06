@@ -100,6 +100,8 @@ namespace Shop
         private static readonly int SparkleDensityId = Shader.PropertyToID("_SparkleDensity");
         private static readonly int MetallicNoiseId = Shader.PropertyToID("_MetallicNoise");
         private static readonly int TimeOffsetId = Shader.PropertyToID("_TimeOffset");
+
+        public static readonly int EffectTimeId = TimeOffsetId;
         private static readonly int IntensityId = Shader.PropertyToID("_Intensity");
         private static readonly int HotspotYId = Shader.PropertyToID("_HotspotY");
         private static readonly int RimInnerId = Shader.PropertyToID("_RimInner");

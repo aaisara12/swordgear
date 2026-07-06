@@ -12,27 +12,27 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 {
     [Header("Input")]
     [SerializeField] private TriggerEventChannelSO? triggerAugmentGenerationEventChannel;
-    
+
     [Header("Output")]
     [SerializeField] private BoolEventChannelSO? uiVisibilityEventChannel;
     [SerializeField] private ItemShopModelEventChannelSO? uiDataEventChannel;
-    
+
     [Header("Other Dependencies")]
     [SerializeField] private LoadableStoreItemCatalog? augmentsCatalog;
+    [SerializeField] private AugmentTierRollSettings? tierRollSettings;
 
     [Header("Debug (test scenes)")]
-    [SerializeField] private bool useDebugMinimumTier;
-    [SerializeField] private bool useDebugExactTier = true;
-    [SerializeField] private AugmentQualityTier debugMinimumTier = AugmentQualityTier.Low;
-    
+    [SerializeField] private bool useDebugComboFloor;
+    [SerializeField] private AugmentQualityTier debugComboFloor = AugmentQualityTier.Low;
+
     private ItemStorefront? itemStorefront;
-    private IItemPurchaser itemPurchaser = new TestPurchaser(1000); // Default if not initialized properly.
-    
+    private IItemPurchaser itemPurchaser = new TestPurchaser(1000);
+
     public override void InitializeOnGameStart_Dangerous(PlayerBlob playerBlob)
     {
         itemPurchaser = playerBlob;
     }
-    
+
     private void Awake()
     {
         if (augmentsCatalog == null)
@@ -46,8 +46,8 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             Debug.LogError("TriggerAugmentGenerationEventChannel is null");
             return;
         }
-        
-        if(uiVisibilityEventChannel == null)
+
+        if (uiVisibilityEventChannel == null)
         {
             Debug.LogError("UIVisibilityEventChannel is null");
             return;
@@ -58,10 +58,10 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             Debug.LogError("UIDataEventChannel is null");
             return;
         }
-        
+
         itemStorefront = new ItemStorefront(augmentsCatalog);
         itemStorefront.GetPurchasableItems();
-        
+
         triggerAugmentGenerationEventChannel.OnEventTriggered += HandleTriggerAugmentGeneration;
     }
 
@@ -75,38 +75,17 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 
     private void HandleTriggerAugmentGeneration()
     {
-        if (itemStorefront == null)
-        {
-            Debug.LogError("ItemStorefront is null. This shouldn't happen because it is initialized in Awake at the same time as this subscription.");
-            return;
-        }
-
-        if (uiVisibilityEventChannel == null)
-        {
-            // We already have an error log elsewhere, so no need to log again.
-            return;
-        }
-
-        if (uiDataEventChannel == null)
-        {
-            // We already have an error log elsewhere, so no need to log again.
-            return;
-        }
-
-        if (augmentsCatalog == null)
+        if (itemStorefront == null || uiVisibilityEventChannel == null || uiDataEventChannel == null || augmentsCatalog == null)
         {
             return;
         }
 
-        AugmentQualityTier tier = ResolveMinimumOfferTier();
+        AugmentQualityTier tier = ResolveOfferTier();
+        var mysteryItems = augmentsCatalog.GetRandomItemsForExactTier(3, tier);
+        Debug.Log($"[InGameAugmentsManager] Offering {mysteryItems.Count} augment(s) at tier {tier}.");
 
-        var mysteryItems = useDebugMinimumTier && useDebugExactTier
-            ? augmentsCatalog.GetRandomItemsForExactTier(3, tier)
-            : augmentsCatalog.GetRandomItemsForTier(3, tier);
-        Debug.Log($"[InGameAugmentsManager] Offering {mysteryItems.Count} augment(s) at tier {tier}" +
-                  $"{(useDebugMinimumTier && useDebugExactTier ? " (exact)" : "")}.");
         var storeStock = new Dictionary<string, int>();
-        foreach(IStoreItem mysteryItem in mysteryItems)
+        foreach (IStoreItem mysteryItem in mysteryItems)
         {
             storeStock[mysteryItem.Id] = 1;
         }
@@ -114,32 +93,32 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
         itemStorefront.ClearItems();
         itemStorefront.TryStockItems(storeStock);
         var availableAugments = itemStorefront.GetPurchasableItems();
-        
+
         var model = new ItemShopModel(availableAugments, itemPurchaser);
-        
+
         uiVisibilityEventChannel.RaiseDataChanged(true);
         uiDataEventChannel.RaiseDataChanged(model);
     }
 
-    public void ConfigureDebugMinimumTier(bool enabled, AugmentQualityTier tier, bool exactTierOnly = true)
+    public void ConfigureDebugComboFloor(AugmentQualityTier comboFloor)
     {
-        useDebugMinimumTier = enabled;
-        useDebugExactTier = exactTierOnly;
-        debugMinimumTier = tier;
+        useDebugComboFloor = true;
+        debugComboFloor = comboFloor;
     }
 
-    private AugmentQualityTier ResolveMinimumOfferTier()
+    private AugmentQualityTier ResolveOfferTier()
     {
-        if (useDebugMinimumTier)
-        {
-            return debugMinimumTier;
-        }
+        AugmentTierRollWeights weights = tierRollSettings != null
+            ? tierRollSettings.Weights
+            : AugmentTierRollWeights.Default;
 
-        if (ComboSystem.Instance != null)
-        {
-            return ComboSystem.Instance.GetAugmentQualityTier();
-        }
+        AugmentQualityTier comboFloor = useDebugComboFloor
+            ? debugComboFloor
+            : ComboSystem.Instance != null
+                ? ComboSystem.Instance.GetAugmentQualityTier()
+                : AugmentQualityTier.Low;
 
-        return AugmentQualityTier.Medium;
+        AugmentQualityTier rolled = weights.RollTier();
+        return AugmentTierRollWeights.ApplyComboFloor(rolled, comboFloor);
     }
 }

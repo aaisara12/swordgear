@@ -21,10 +21,30 @@ namespace Shop
         private Material? tierCardMaterialInstance;
         private Material? tierFlareMaterialInstance;
         private float animationTimeOffset;
+        private bool materialsActive;
 
         private void Awake()
         {
             animationTimeOffset = Random.Range(0f, 12f);
+        }
+
+        private void Update()
+        {
+            if (!materialsActive)
+            {
+                return;
+            }
+
+            float effectTime = animationTimeOffset + Time.unscaledTime;
+            if (tierCardMaterialInstance != null)
+            {
+                tierCardMaterialInstance.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
+            }
+
+            if (tierFlareMaterialInstance != null)
+            {
+                tierFlareMaterialInstance.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
+            }
         }
 
         private void OnDestroy()
@@ -87,9 +107,11 @@ namespace Shop
                     tierCardMaterialInstance,
                     tierFlareMaterialInstance,
                     animationTimeOffset);
+                materialsActive = true;
                 return;
             }
 
+            materialsActive = false;
             cardBackground.color = AugmentTierVisuals.GetCardBackgroundColor(tier);
             if (cardBorder != null)
             {

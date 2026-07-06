@@ -1176,6 +1176,9 @@ MonoBehaviour:
   uiVisibilityEventChannel: {fileID: 11400000, guid: 1cc576197c4c54cadae0a21979e33d5d, type: 2}
   uiDataEventChannel: {fileID: 11400000, guid: 0bc537561946240a1811bc6e4d24a13a, type: 2}
   augmentsCatalog: {fileID: 11400000, guid: 6e63c7f213b4b4eb88e23fd3410c3c04, type: 2}
+  tierRollSettings: {fileID: 11400000, guid: 0b8f0cb793bdbc94697c9d03aa0263c1, type: 2}
+  useDebugComboFloor: 0
+  debugComboFloor: 0
 --- !u!114 &7827224522339442675
 MonoBehaviour:
   m_ObjectHideFlags: 0

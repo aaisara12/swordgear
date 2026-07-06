@@ -13,9 +13,13 @@ using UnityEngine;
 public class AugmentTunerWindow : EditorWindow
 {
     private const string DefaultCatalogPath = "Assets/Aaron/ScriptableObjects/TestCatalog.asset";
+    private const string RollSettingsPath = "Assets/Aaron/ScriptableObjects/AugmentTierRollSettings.asset";
+    private const string CoreSystemsPrefabPath = "Assets/Aaron/Prefabs/CoreSystems.prefab";
     private const string TestScenePath = "Assets/Aaron/Scenes/AugmentPickerTest.unity";
 
     private LoadableStoreItemCatalog? _catalog;
+    private AugmentTierRollSettings? _rollSettings;
+    private SerializedObject? _rollSettingsSerialized;
     private readonly List<LoadableStoreItem> _items = new();
     private Vector2 _listScroll;
     private Vector2 _detailScroll;
@@ -35,8 +39,15 @@ public class AugmentTunerWindow : EditorWindow
     public static void Open()
     {
         var window = GetWindow<AugmentTunerWindow>("Augment Tuner");
-        window.minSize = new Vector2(720f, 420f);
+        window.minSize = new Vector2(720f, 520f);
         window.Show();
+    }
+
+    [MenuItem("Henry/Wire Augment Tier Roll Settings")]
+    public static void WireRollSettingsFromMenu()
+    {
+        AugmentTierRollSettings settings = EnsureRollSettingsAsset();
+        WireRollSettingsToCoreSystems(settings);
     }
 
     private void OnEnable()
@@ -46,12 +57,16 @@ public class AugmentTunerWindow : EditorWindow
             _catalog = AssetDatabase.LoadAssetAtPath<LoadableStoreItemCatalog>(DefaultCatalogPath);
         }
 
+        _rollSettings = EnsureRollSettingsAsset();
+        _rollSettingsSerialized = _rollSettings != null ? new SerializedObject(_rollSettings) : null;
+
         ReloadItems();
     }
 
     private void OnGUI()
     {
         DrawToolbar();
+        DrawTierRollSettings();
 
         EditorGUILayout.Space(4f);
 
@@ -109,6 +124,129 @@ public class AugmentTunerWindow : EditorWindow
             "Elite (Diamond)",
         });
         EditorGUILayout.EndHorizontal();
+    }
+
+    private void DrawTierRollSettings()
+    {
+        EditorGUILayout.LabelField("Offer Tier Roll Weights", EditorStyles.boldLabel);
+        EditorGUILayout.HelpBox(
+            "Relative chance for each tier when rolling an augment offer. Combo performance still sets a minimum floor at runtime.",
+            MessageType.None);
+
+        var newSettings = (AugmentTierRollSettings?)EditorGUILayout.ObjectField(
+            "Roll Settings Asset",
+            _rollSettings,
+            typeof(AugmentTierRollSettings),
+            false);
+
+        if (newSettings != _rollSettings)
+        {
+            _rollSettings = newSettings;
+            _rollSettingsSerialized = _rollSettings != null ? new SerializedObject(_rollSettings) : null;
+        }
+
+        if (_rollSettingsSerialized == null)
+        {
+            if (GUILayout.Button("Create Roll Settings Asset"))
+            {
+                _rollSettings = EnsureRollSettingsAsset();
+                _rollSettingsSerialized = _rollSettings != null ? new SerializedObject(_rollSettings) : null;
+            }
+
+            return;
+        }
+
+        _rollSettingsSerialized.Update();
+
+        SerializedProperty weightsProp = _rollSettingsSerialized.FindProperty("weights");
+        if (weightsProp != null)
+        {
+            EditorGUILayout.PropertyField(weightsProp.FindPropertyRelative("Bronze"), new GUIContent("Bronze %"));
+            EditorGUILayout.PropertyField(weightsProp.FindPropertyRelative("Silver"), new GUIContent("Silver %"));
+            EditorGUILayout.PropertyField(weightsProp.FindPropertyRelative("Gold"), new GUIContent("Gold %"));
+            EditorGUILayout.PropertyField(weightsProp.FindPropertyRelative("Diamond"), new GUIContent("Diamond %"));
+
+            float bronze = weightsProp.FindPropertyRelative("Bronze")?.floatValue ?? 0f;
+            float silver = weightsProp.FindPropertyRelative("Silver")?.floatValue ?? 0f;
+            float gold = weightsProp.FindPropertyRelative("Gold")?.floatValue ?? 0f;
+            float diamond = weightsProp.FindPropertyRelative("Diamond")?.floatValue ?? 0f;
+            float total = bronze + silver + gold + diamond;
+            EditorGUILayout.LabelField("Weight total", total.ToString("0.##"));
+        }
+
+        EditorGUILayout.BeginHorizontal();
+        if (GUILayout.Button("Save Roll Settings"))
+        {
+            _rollSettingsSerialized.ApplyModifiedProperties();
+            EditorUtility.SetDirty(_rollSettings);
+            AssetDatabase.SaveAssets();
+        }
+
+        if (GUILayout.Button("Wire CoreSystems Prefab"))
+        {
+            WireRollSettingsToCoreSystems(_rollSettings);
+        }
+
+        EditorGUILayout.EndHorizontal();
+
+        _rollSettingsSerialized.ApplyModifiedProperties();
+    }
+
+    private static AugmentTierRollSettings EnsureRollSettingsAsset()
+    {
+        var existing = AssetDatabase.LoadAssetAtPath<AugmentTierRollSettings>(RollSettingsPath);
+        if (existing != null)
+        {
+            return existing;
+        }
+
+        string? directory = System.IO.Path.GetDirectoryName(RollSettingsPath);
+        if (!string.IsNullOrEmpty(directory) && !AssetDatabase.IsValidFolder(directory))
+        {
+            System.IO.Directory.CreateDirectory(directory);
+            AssetDatabase.Refresh();
+        }
+
+        var asset = ScriptableObject.CreateInstance<AugmentTierRollSettings>();
+        AssetDatabase.CreateAsset(asset, RollSettingsPath);
+        AssetDatabase.SaveAssets();
+        Debug.Log($"Created {RollSettingsPath}");
+        return asset;
+    }
+
+    private static void WireRollSettingsToCoreSystems(AugmentTierRollSettings? settings)
+    {
+        if (settings == null)
+        {
+            settings = EnsureRollSettingsAsset();
+        }
+
+        GameObject? prefabRoot = PrefabUtility.LoadPrefabContents(CoreSystemsPrefabPath);
+        if (prefabRoot == null)
+        {
+            Debug.LogError($"AugmentTunerWindow: missing prefab at {CoreSystemsPrefabPath}");
+            return;
+        }
+
+        try
+        {
+            var manager = prefabRoot.GetComponentInChildren<InGameAugmentsManager>(true);
+            if (manager == null)
+            {
+                Debug.LogError("AugmentTunerWindow: InGameAugmentsManager not found on CoreSystems prefab.");
+                return;
+            }
+
+            var serialized = new SerializedObject(manager);
+            serialized.FindProperty("tierRollSettings").objectReferenceValue = settings;
+            serialized.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(prefabRoot, CoreSystemsPrefabPath);
+            Debug.Log("AugmentTunerWindow: wired tier roll settings on CoreSystems prefab.");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(prefabRoot);
+        }
     }
 
     private void DrawItemList()

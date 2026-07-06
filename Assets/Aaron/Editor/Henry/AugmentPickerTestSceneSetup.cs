@@ -1,6 +1,7 @@
 #if UNITY_EDITOR
 #nullable enable
 
+using Shop;
 using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -86,17 +87,21 @@ public static class AugmentPickerTestSceneSetup
         managerSo.FindProperty("uiVisibilityEventChannel").objectReferenceValue = visibilityChannel;
         managerSo.FindProperty("uiDataEventChannel").objectReferenceValue = modelChannel;
         managerSo.FindProperty("augmentsCatalog").objectReferenceValue = catalog;
-        managerSo.FindProperty("useDebugMinimumTier").boolValue = true;
-        managerSo.FindProperty("useDebugExactTier").boolValue = true;
-        managerSo.FindProperty("debugMinimumTier").enumValueIndex = 0;
+        var rollSettings = AssetDatabase.LoadAssetAtPath<AugmentTierRollSettings>(
+            "Assets/Aaron/ScriptableObjects/AugmentTierRollSettings.asset");
+        if (rollSettings != null)
+        {
+            managerSo.FindProperty("tierRollSettings").objectReferenceValue = rollSettings;
+        }
+
+        managerSo.FindProperty("debugComboFloor").enumValueIndex = 0;
         managerSo.ApplyModifiedPropertiesWithoutUndo();
 
         var harnessSo = new SerializedObject(harness);
         harnessSo.FindProperty("refreshAugmentsChannel").objectReferenceValue = showChannel;
         harnessSo.FindProperty("augmentsManager").objectReferenceValue = augmentManager;
         harnessSo.FindProperty("refreshOnStart").boolValue = true;
-        harnessSo.FindProperty("useDebugMinimumTier").boolValue = true;
-        harnessSo.FindProperty("debugMinimumTier").enumValueIndex = 0;
+        harnessSo.FindProperty("debugComboFloor").enumValueIndex = 0;
         harnessSo.ApplyModifiedPropertiesWithoutUndo();
 
         CreateDebugUi(harness);
@@ -135,7 +140,7 @@ public static class AugmentPickerTestSceneSetup
         panelRect.anchorMax = new Vector2(0f, 1f);
         panelRect.pivot = new Vector2(0f, 1f);
         panelRect.anchoredPosition = new Vector2(16f, -16f);
-        panelRect.sizeDelta = new Vector2(400f, 120f);
+        panelRect.sizeDelta = new Vector2(400f, 160f);
 
         var panelImage = panelGo.AddComponent<Image>();
         panelImage.color = new Color(0f, 0f, 0f, 0.55f);
@@ -149,15 +154,30 @@ public static class AugmentPickerTestSceneSetup
         labelRect.anchoredPosition = new Vector2(0f, -8f);
         labelRect.sizeDelta = new Vector2(-24f, 30f);
         var label = labelGo.AddComponent<TextMeshProUGUI>();
-        label.text = "Pick tier, then refresh augments.";
+        label.text = "Tune roll weights in Henry → Augment Tuner. Set combo floor, then Refresh.";
         label.fontSize = 14f;
         label.color = Color.white;
         label.alignment = TextAlignmentOptions.TopLeft;
 
-        CreateTierButton(panelGo.transform, controls, "Bronze", new Vector2(12f, -44f), controls.SetMinimumTierBronze);
-        CreateTierButton(panelGo.transform, controls, "Silver", new Vector2(102f, -44f), controls.SetMinimumTierSilver);
-        CreateTierButton(panelGo.transform, controls, "Gold", new Vector2(192f, -44f), controls.SetMinimumTierGold);
-        CreateTierButton(panelGo.transform, controls, "Diamond", new Vector2(272f, -44f), controls.SetMinimumTierDiamond);
+        var floorLabelGo = new GameObject("FloorLabel");
+        floorLabelGo.transform.SetParent(panelGo.transform, false);
+        var floorLabelRect = floorLabelGo.AddComponent<RectTransform>();
+        floorLabelRect.anchorMin = new Vector2(0f, 1f);
+        floorLabelRect.anchorMax = new Vector2(1f, 1f);
+        floorLabelRect.pivot = new Vector2(0.5f, 1f);
+        floorLabelRect.anchoredPosition = new Vector2(0f, -44f);
+        floorLabelRect.sizeDelta = new Vector2(-24f, 22f);
+        var floorLabel = floorLabelGo.AddComponent<TextMeshProUGUI>();
+        floorLabel.text = "Combo floor (test only)";
+        floorLabel.fontSize = 13f;
+        floorLabel.fontStyle = FontStyles.Bold;
+        floorLabel.color = new Color(0.85f, 0.9f, 1f);
+        floorLabel.alignment = TextAlignmentOptions.TopLeft;
+
+        CreateTierButton(panelGo.transform, controls, "Bronze", new Vector2(12f, -72f), controls.SetComboFloorBronze);
+        CreateTierButton(panelGo.transform, controls, "Silver", new Vector2(102f, -72f), controls.SetComboFloorSilver);
+        CreateTierButton(panelGo.transform, controls, "Gold", new Vector2(192f, -72f), controls.SetComboFloorGold);
+        CreateTierButton(panelGo.transform, controls, "Diamond", new Vector2(272f, -72f), controls.SetComboFloorDiamond);
 
         var buttonGo = new GameObject("RefreshButton");
         buttonGo.transform.SetParent(panelGo.transform, false);

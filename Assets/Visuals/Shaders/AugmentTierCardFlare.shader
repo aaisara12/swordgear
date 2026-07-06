@@ -102,7 +102,7 @@ Shader "Swordgear/UI/AugmentTierCardFlare"
             {
                 half4 tex = (tex2D(_MainTex, input.texcoord) + _TextureSampleAdd) * input.color;
                 float2 uv = input.texcoord;
-                float t = _Time.y + _TimeOffset;
+                float t = _TimeOffset;
                 float pulse = sin(t * _PulseSpeed) * 0.5 + 0.5;
                 pulse = lerp(0.78, 1.05, pulse);
 
