@@ -18,4 +18,5 @@ MonoBehaviour:
     chain lightning on repeated procs
   cost: 100
   icon: {fileID: -7605884262271363320, guid: 84f8acf01f7eb2d40a838bf7cb4d0b6f, type: 3}
+  qualityTier: 1
   elementUpgrade: 6

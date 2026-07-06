@@ -63,7 +63,13 @@ namespace Shop
                 
                 var storeItemData = item.StoreItemData;
                 
-                var augmentItemModel = new AugmentShopItemModel(i, storeItemData.DisplayName, storeItemData.Description, storeItemData.Icon, this);
+                var augmentItemModel = new AugmentShopItemModel(
+                    i,
+                    storeItemData.DisplayName,
+                    storeItemData.Description,
+                    storeItemData.Icon,
+                    AugmentTierVisuals.ResolveTier(storeItemData),
+                    this);
                 augmentsCollectionController.AddElement(augmentItemModel);
             }
         }

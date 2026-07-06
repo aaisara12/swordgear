@@ -48,7 +48,8 @@ public class ShopAnimation : MonoBehaviour
 
         while (elapsedTime < duration)
         {
-            elapsedTime += Time.deltaTime;
+            // Unscaled so the intro still plays when gameplay is paused for augment pick.
+            elapsedTime += Time.unscaledDeltaTime;
             // Use SmoothStep for a more professional "Slow down at the end" feel
             float t = Mathf.SmoothStep(0, 1, elapsedTime / duration);
 
@@ -65,5 +66,7 @@ public class ShopAnimation : MonoBehaviour
         panelRectTransform.localScale = targetScale;
         panelRectTransform.anchoredPosition = originalPosition;
         if (backgroundCanvasGroup != null) backgroundCanvasGroup.alpha = targetAlpha;
+
+        Debug.Log("[ShopAnimation] Intro animation complete.");
     }
 }

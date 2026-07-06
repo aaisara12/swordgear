@@ -25,6 +25,8 @@ namespace Shop
                 viewModel.CleanUp();
                 view.gameObject.SetActive(false);
             }
+
+            uiVisibilityEventChannel?.RaiseDataChanged(false);
         }
         
         private void Awake()
@@ -58,21 +60,32 @@ namespace Shop
             
             uiVisibilityEventChannel.OnDataChanged += HandleUIVisibilityChanged;
             uiDataEventChannel.OnDataChanged += HandleItemShopModelChanged;
+
+            Debug.Log($"[ItemShopStateController] Subscribed on '{gameObject.name}' (view={view.name}).");
         }
 
         private void HandleItemShopModelChanged(ItemShopModel newModel)
         {
             if (viewModel == null)
             {
+                Debug.LogWarning("[ItemShopStateController] Model update ignored — viewModel is null.");
                 return;
             }
-            
+
+            Debug.Log($"[ItemShopStateController] Initializing shop view with {newModel.Items.Count} item(s).");
             viewModel.Initialize(newModel);
         }
 
         private void HandleUIVisibilityChanged(bool isShopUiVisible)
         {
-            view?.gameObject.SetActive(isShopUiVisible);
+            if (view == null)
+            {
+                Debug.LogWarning("[ItemShopStateController] Visibility change ignored — view is null.");
+                return;
+            }
+
+            Debug.Log($"[ItemShopStateController] Setting '{view.name}' active={isShopUiVisible}.");
+            view.gameObject.SetActive(isShopUiVisible);
         }
         
         private void OnDestroy()

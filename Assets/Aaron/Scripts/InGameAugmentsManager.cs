@@ -19,6 +19,11 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
     
     [Header("Other Dependencies")]
     [SerializeField] private LoadableStoreItemCatalog? augmentsCatalog;
+
+    [Header("Debug (test scenes)")]
+    [SerializeField] private bool useDebugMinimumTier;
+    [SerializeField] private bool useDebugExactTier = true;
+    [SerializeField] private AugmentQualityTier debugMinimumTier = AugmentQualityTier.Low;
     
     private ItemStorefront? itemStorefront;
     private IItemPurchaser itemPurchaser = new TestPurchaser(1000); // Default if not initialized properly.
@@ -93,16 +98,13 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
             return;
         }
 
-        // Determine augment quality tier based on the player's combo performance
-        AugmentQualityTier tier = AugmentQualityTier.Medium;
-        if (ComboSystem.Instance != null)
-        {
-            tier = ComboSystem.Instance.GetAugmentQualityTier();
-        }
+        AugmentQualityTier tier = ResolveMinimumOfferTier();
 
-        // Use the catalog helper to get items appropriate for the requested tier.
-        var mysteryItems = augmentsCatalog.GetRandomItemsForTier(3, tier);
-        Debug.Log(mysteryItems.Count);
+        var mysteryItems = useDebugMinimumTier && useDebugExactTier
+            ? augmentsCatalog.GetRandomItemsForExactTier(3, tier)
+            : augmentsCatalog.GetRandomItemsForTier(3, tier);
+        Debug.Log($"[InGameAugmentsManager] Offering {mysteryItems.Count} augment(s) at tier {tier}" +
+                  $"{(useDebugMinimumTier && useDebugExactTier ? " (exact)" : "")}.");
         var storeStock = new Dictionary<string, int>();
         foreach(IStoreItem mysteryItem in mysteryItems)
         {
@@ -117,5 +119,27 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
         
         uiVisibilityEventChannel.RaiseDataChanged(true);
         uiDataEventChannel.RaiseDataChanged(model);
+    }
+
+    public void ConfigureDebugMinimumTier(bool enabled, AugmentQualityTier tier, bool exactTierOnly = true)
+    {
+        useDebugMinimumTier = enabled;
+        useDebugExactTier = exactTierOnly;
+        debugMinimumTier = tier;
+    }
+
+    private AugmentQualityTier ResolveMinimumOfferTier()
+    {
+        if (useDebugMinimumTier)
+        {
+            return debugMinimumTier;
+        }
+
+        if (ComboSystem.Instance != null)
+        {
+            return ComboSystem.Instance.GetAugmentQualityTier();
+        }
+
+        return AugmentQualityTier.Medium;
     }
 }
