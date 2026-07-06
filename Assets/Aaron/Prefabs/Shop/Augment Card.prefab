@@ -430,10 +430,8 @@ MonoBehaviour:
   itemIcon: {fileID: 2104424573951240064}
   cardBackground: {fileID: 7429950735798544316}
   cardBorder: {fileID: 700807164752368150}
-  cardAura: {fileID: 0}
   cardInnerFlare: {fileID: 2937711246608519523}
   tierCardMaterialTemplate: {fileID: 2100000, guid: 8641288d3b0531f46ab6fcb957ad0e8b, type: 2}
-  tierAuraMaterialTemplate: {fileID: 0}
   tierFlareMaterialTemplate: {fileID: 2100000, guid: d0dce3e819533cd41a2dcece8494f471, type: 2}
 --- !u!1 &1802288268194600037
 GameObject:

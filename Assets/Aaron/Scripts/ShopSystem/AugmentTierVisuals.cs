@@ -128,14 +128,20 @@ namespace Shop
                     RimGlowStrength, 0f, 0.34f, 0f, 0f, 0.28f, 0f, FlareIntensity),
             };
 
+        public static string GetTierDisplayName(AugmentQualityTier tier) => tier switch
+        {
+            AugmentQualityTier.Medium => "Silver",
+            AugmentQualityTier.High => "Gold",
+            AugmentQualityTier.Elite => "Diamond",
+            _ => "Bronze",
+        };
+
         public static void ApplyCardStyle(
             Image cardBackground,
             Image? cardBorder,
-            Image? cardAura,
             Image? cardInnerFlare,
             AugmentQualityTier tier,
             Material cardMaterialInstance,
-            Material? auraMaterialInstance,
             Material? flareMaterialInstance,
             float timeOffset)
         {
@@ -170,11 +176,6 @@ namespace Shop
             if (cardBorder != null)
             {
                 cardBorder.color = style.BorderColor;
-            }
-
-            if (cardAura != null)
-            {
-                cardAura.enabled = false;
             }
 
             if (cardInnerFlare != null && flareMaterialInstance != null)

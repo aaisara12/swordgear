@@ -12,16 +12,13 @@ namespace Shop
         [SerializeField] private Image? itemIcon;
         [SerializeField] private Image? cardBackground;
         [SerializeField] private Image? cardBorder;
-        [SerializeField] private Image? cardAura;
         [SerializeField] private Image? cardInnerFlare;
         [SerializeField] private Material? tierCardMaterialTemplate;
-        [SerializeField] private Material? tierAuraMaterialTemplate;
         [SerializeField] private Material? tierFlareMaterialTemplate;
 
         private AugmentShopItemModel? model;
         private AugmentQualityTier appliedTier = AugmentQualityTier.Low;
         private Material? tierCardMaterialInstance;
-        private Material? tierAuraMaterialInstance;
         private Material? tierFlareMaterialInstance;
         private float animationTimeOffset;
 
@@ -33,7 +30,6 @@ namespace Shop
         private void OnDestroy()
         {
             DestroyMaterial(ref tierCardMaterialInstance);
-            DestroyMaterial(ref tierAuraMaterialInstance);
             DestroyMaterial(ref tierFlareMaterialInstance);
         }
 
@@ -77,10 +73,6 @@ namespace Shop
             if (tierCardMaterialTemplate != null)
             {
                 tierCardMaterialInstance ??= Instantiate(tierCardMaterialTemplate);
-                if (tierAuraMaterialTemplate != null)
-                {
-                    tierAuraMaterialInstance ??= Instantiate(tierAuraMaterialTemplate);
-                }
 
                 if (tierFlareMaterialTemplate != null)
                 {
@@ -90,11 +82,9 @@ namespace Shop
                 AugmentTierVisuals.ApplyCardStyle(
                     cardBackground,
                     cardBorder,
-                    cardAura,
                     cardInnerFlare,
                     tier,
                     tierCardMaterialInstance,
-                    tierAuraMaterialInstance,
                     tierFlareMaterialInstance,
                     animationTimeOffset);
                 return;
@@ -104,11 +94,6 @@ namespace Shop
             if (cardBorder != null)
             {
                 cardBorder.color = AugmentTierVisuals.GetCardStyle(tier).BorderColor;
-            }
-
-            if (cardAura != null)
-            {
-                cardAura.enabled = false;
             }
 
             if (cardInnerFlare != null)

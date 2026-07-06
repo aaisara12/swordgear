@@ -65,11 +65,9 @@ public static class AugmentCardVisualSetup
 
             var serialized = new SerializedObject(viewModel);
             serialized.FindProperty("tierCardMaterialTemplate").objectReferenceValue = cardMaterial;
-            serialized.FindProperty("tierAuraMaterialTemplate").objectReferenceValue = null;
             serialized.FindProperty("tierFlareMaterialTemplate").objectReferenceValue = flareMaterial;
             serialized.FindProperty("cardBackground").objectReferenceValue = mainImage;
             serialized.FindProperty("cardBorder").objectReferenceValue = borderImage;
-            serialized.FindProperty("cardAura").objectReferenceValue = null;
             serialized.FindProperty("cardInnerFlare").objectReferenceValue = flareImage;
             serialized.ApplyModifiedPropertiesWithoutUndo();
 

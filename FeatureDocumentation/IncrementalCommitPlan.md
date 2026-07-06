@@ -24,7 +24,7 @@ M1  Linear map screen exists and is reachable from Title
 M2  Map → authored combat → back to Map (one combat)
 M3  Exit portal + step advance on rail
 M4  Full Combat×3 → Upgrade → Map loop (authored arenas only)
-M5  Upgrade hub walkable (spawn, zones, exit pad)
+M5  Upgrade hub — augment on enter (walkable zones deferred)
 M6  Composed waves (replace static layout waves) — still authored arena
 M7  Procedural wall layout (one commit: graph, one: tilemap, one: wire combat)
 M8  Procedural crates/props in arena
@@ -177,30 +177,21 @@ git checkout main
 
 ---
 
-## M5 — Upgrade hub (walkable)
+## M5 — Upgrade hub (augment on enter)
 
-### Commit 15 — `UpgradeFlowController` + augment on enter
+> **Scope note:** Walkable shop zones (old commit 16) and map token polish (old commit 17) are **deferred**.
+
+### Commit 15 — `UpgradeFlowController` + augment on enter ✅
 
 | | |
 |---|---|
 | **Adds** | `UpgradeFlowController.cs` |
-| **Changes** | `ShopLevel` / arena — show augment picker when upgrade arena loads |
+| **Changes** | `Arena.unity` — `UpgradeFlowController` on `Node Loop`; `LoadingSceneAnimator` unscaled fade during pause |
 | **Playtest** | Enter upgrade → **augment choice appears** before roaming. |
 
-### Commit 16 — Walk zones open shop panels
+### ~~Commit 16~~ — Walk zones open shop panels *(deferred)*
 
-| | |
-|---|---|
-| **Adds** | `UpgradeZoneTrigger.cs`, `UpgradeHubBootstrap.cs` (or editor-placed triggers only) |
-| **Changes** | `ShopLevel.prefab` — trigger volumes + panel refs |
-| **Playtest** | After augment → walk to zone → **gold shop or stats UI** opens. |
-
-### Commit 17 — Map token polish
-
-| | |
-|---|---|
-| **Changes** | `LinearMapController.cs` — token `SetAsLastSibling`, smooth scroll, `tokenYOffset` |
-| **Playtest** | Map → token **on top of nodes**, **smooth** move between steps (not jumpy). |
+### ~~Commit 17~~ — Map token polish *(deferred — largely done in earlier map commits)*
 
 ---
 

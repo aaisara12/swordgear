@@ -82,6 +82,11 @@ public class AugmentTunerWindow : EditorWindow
             ReloadItems();
         }
 
+        if (GUILayout.Button("Setup Card Visuals", EditorStyles.toolbarButton, GUILayout.Width(120f)))
+        {
+            AugmentCardVisualSetup.SetupFromMenu();
+        }
+
         if (GUILayout.Button("Open Picker Test", EditorStyles.toolbarButton, GUILayout.Width(120f)))
         {
             if (EditorSceneManagerHelper.OpenScene(TestScenePath))
@@ -120,7 +125,7 @@ public class AugmentTunerWindow : EditorWindow
                 continue;
             }
 
-            string label = $"{TierBadge(item.QualityTier)} {item.DisplayName}";
+            string label = $"{TierBadge(item.QualityTier)} {AugmentTierVisuals.GetTierDisplayName(item.QualityTier)} — {item.DisplayName}";
             bool selected = i == _selectedIndex;
             if (GUILayout.Toggle(selected, label, EditorStyles.toolbarButton))
             {
@@ -148,16 +153,34 @@ public class AugmentTunerWindow : EditorWindow
         }
 
         LoadableStoreItem item = _items[_selectedIndex];
+        AugmentQualityTier editTier = _qualityTierProp != null
+            ? (AugmentQualityTier)_qualityTierProp.enumValueIndex
+            : item.QualityTier;
         _detailScroll = EditorGUILayout.BeginScrollView(_detailScroll);
 
         _selectedSerialized.Update();
 
-        DrawTierPreview(item.QualityTier);
+        DrawTierPreview(editTier);
 
+        EditorGUILayout.LabelField("Quality Tier", EditorStyles.boldLabel);
+        if (_qualityTierProp != null)
+        {
+            AugmentQualityTier currentTier = (AugmentQualityTier)_qualityTierProp.enumValueIndex;
+            AugmentQualityTier newTier = DrawTierPopup(currentTier);
+            if (newTier != currentTier)
+            {
+                _qualityTierProp.enumValueIndex = (int)newTier;
+                editTier = newTier;
+            }
+        }
+
+        DrawTierStyleSummary(editTier);
+
+        EditorGUILayout.Space(6f);
+        EditorGUILayout.LabelField("Item Data", EditorStyles.boldLabel);
         EditorGUILayout.PropertyField(_displayNameProp);
         EditorGUILayout.PropertyField(_descriptionProp);
         EditorGUILayout.PropertyField(_costProp);
-        EditorGUILayout.PropertyField(_qualityTierProp);
         EditorGUILayout.PropertyField(_iconProp);
 
         if (_statBoostsProp != null)
@@ -213,8 +236,32 @@ public class AugmentTunerWindow : EditorWindow
             alignment = TextAnchor.MiddleCenter,
             normal = { textColor = Color.white },
         };
-        GUI.Label(rect, tier.ToString(), labelStyle);
+        GUI.Label(rect, AugmentTierVisuals.GetTierDisplayName(tier), labelStyle);
         EditorGUILayout.Space(4f);
+    }
+
+    private static AugmentQualityTier DrawTierPopup(AugmentQualityTier current)
+    {
+        string[] labels =
+        {
+            "Bronze (Low)",
+            "Silver (Medium)",
+            "Gold (High)",
+            "Diamond (Elite)",
+        };
+
+        int index = EditorGUILayout.Popup("Card Tier", (int)current, labels);
+        return (AugmentQualityTier)Mathf.Clamp(index, 0, labels.Length - 1);
+    }
+
+    private static void DrawTierStyleSummary(AugmentQualityTier tier)
+    {
+        AugmentTierCardStyle style = AugmentTierVisuals.GetCardStyle(tier);
+        EditorGUILayout.HelpBox(
+            $"Shop card: rim glow {style.GlowStrength:0.0}, inner flare {style.FlareIntensity:0.0}" +
+            $"{(style.SweepStrength > 0.01f ? ", light sweep" : string.Empty)}" +
+            $"{(style.SparkleStrength > 0.01f ? ", sparkles" : string.Empty)}.",
+            MessageType.None);
     }
 
     private void ReloadItems()
