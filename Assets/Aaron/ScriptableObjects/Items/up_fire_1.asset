@@ -17,5 +17,5 @@ MonoBehaviour:
   description: Melee attacks can be charged for increased damage
   cost: 100
   icon: {fileID: 4559546834057775049, guid: 93442a30944f0874a871bbcf7d273f30, type: 3}
-  qualityTier: 0
+  qualityTier: 3
   elementUpgrade: 3

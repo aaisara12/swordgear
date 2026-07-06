@@ -42,8 +42,8 @@ LoadableStoreItemCatalog (ScriptableObject)
   └─ list of LoadableStoreItem (ScriptableObject per item)
 
 InGameAugmentsManager.HandleTriggerAugmentGeneration()
-  ├─ Gets AugmentQualityTier from ComboSystem
-  ├─ Calls catalog.GetRandomItemsForTier(3, tier)
+  ├─ Rolls one offer tier (AugmentTierRollSettings + combo floor)
+  ├─ Calls catalog.GetRandomItemsForExactTier(3, tier) — all three picks same tier
   ├─ Stocks ItemStorefront with selected items
   ├─ Calls itemStorefront.GetPurchasableItems()
   ├─ Wraps in ItemShopModel(items, playerBlob)
@@ -100,7 +100,9 @@ Each `LoadableStoreItem` has a **`qualityTier`** field (`AugmentQualityTier`: Lo
 
 `InGameAugmentsManager` reads **`AugmentTierRollSettings`** (default 50 / 20 / 20 / 10), rolls an offer tier, applies the combo floor from `ComboSystem.GetAugmentQualityTier()`, then offers three exact-tier augments.
 
-Tune weights in **Henry → Augment Tuner** (top section). Click **Wire CoreSystems Prefab** once so production references the asset.
+Tune weights on **`AugmentTierRollSettings`** (`Assets/Aaron/ScriptableObjects/AugmentTierRollSettings.asset`).
+
+**Stat boost content:** run **Henry → Generate Stat Boost Augments** to regenerate the default tiered set (Bronze ~10%, Silver ~30%, Gold ~50%, Diamond multi-stat). Element gear upgrades are Diamond tier.
 
 Card shader effects use **`Time.unscaledTime`** so rim glow, flare, and sweep keep animating while `timeScale = 0` during the augment pick.
 

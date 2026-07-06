@@ -161,7 +161,7 @@ Key instances: `SceneTransitionEventChannel`, `EnableLoadingScreen`, `SpawnPlaye
 
 ### Shop data (`Assets/Aaron/ScriptableObjects/`)
 
-- `LoadableStoreItemCatalog` → `TestCatalog.asset`
+- `LoadableStoreItemCatalog` → `AugmentCatalog.asset`
 - Stat/element upgrade items → `Items/up_*.asset`
 - `DummyPlayerBlobLoaderSO` → `AaronTestPlayerLoader.asset`
 

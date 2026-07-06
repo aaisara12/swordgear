@@ -55,7 +55,7 @@ public static class StatBoostSerializer
                 continue;
             string kindStr = seg.Substring(0, dashIdx);
             string valueStr = seg.Substring(dashIdx + 1);
-            if (!Enum.TryParse(kindStr, ignoreCase: true, result: out StatBoostKind kind))
+            if (!TryParseKind(kindStr, out StatBoostKind kind))
                 continue;
             if (!float.TryParse(valueStr, NumberStyles.Float, CultureInfo.InvariantCulture, out float value))
                 continue;
@@ -63,6 +63,23 @@ public static class StatBoostSerializer
         }
 
         return entries.Count > 0;
+    }
+
+    private static bool TryParseKind(string kindStr, out StatBoostKind kind)
+    {
+        if (string.Equals(kindStr, "BaseDamage", StringComparison.OrdinalIgnoreCase))
+        {
+            kind = StatBoostKind.DamageMultiplier;
+            return true;
+        }
+
+        if (string.Equals(kindStr, "ComboDuration", StringComparison.OrdinalIgnoreCase))
+        {
+            kind = default;
+            return false;
+        }
+
+        return Enum.TryParse(kindStr, ignoreCase: true, result: out kind);
     }
 
     /// <summary>Legacy: parse single stat from id. Uses first entry if multiple.</summary>

@@ -15,8 +15,7 @@ public class ComboSystem : MonoBehaviour
 
     private float GetEffectiveComboDuration()
     {
-        float bonus = PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ComboDurationBonus : 0f;
-        return comboDuration + bonus;
+        return comboDuration;
     }
 
     [Header("Scoring")]

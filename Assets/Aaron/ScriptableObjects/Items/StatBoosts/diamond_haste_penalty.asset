@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
+  m_Name: diamond_haste_penalty
+  m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
+  id: stat-MoveSpeed-50,DamageMultiplier--15
+  displayName: Haste Penalty
+  description: Very fast, less damage.
+  cost: 0
+  icon: {fileID: 0}
+  qualityTier: 3
+  statBoosts:
+  - kind: 0
+    value: 50
+  - kind: 1
+    value: -15

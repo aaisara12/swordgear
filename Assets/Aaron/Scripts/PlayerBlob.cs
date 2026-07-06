@@ -31,6 +31,16 @@ public class PlayerBlob : IItemPurchaser, IReadOnlyPlayerBlob
         return inventoryItems.TryGetValue(itemId, out int count) ? count : 0;
     }
 
+    public bool TryRemoveItem(string itemId)
+    {
+        if (string.IsNullOrEmpty(itemId))
+        {
+            return false;
+        }
+
+        return inventoryItems.Remove(itemId);
+    }
+
     public void ClearInventory()
     {
         inventoryItems.Clear();

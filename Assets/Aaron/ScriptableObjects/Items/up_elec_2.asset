@@ -17,5 +17,5 @@ MonoBehaviour:
   description: Every 3rd melee hit is empowered.
   cost: 100
   icon: {fileID: 5690170795954601879, guid: a67f55e2587d67146943ac3aa81ff5a1, type: 3}
-  qualityTier: 2
+  qualityTier: 3
   elementUpgrade: 5

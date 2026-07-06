@@ -16,17 +16,18 @@ public class PlayerStatModifiers : InitializeableGameComponent
     /// <summary> Fired after modifiers are re-applied (e.g. after a purchase). Use to refresh MaxHp, start Regen, etc. </summary>
     public static event Action? OnStatsChanged;
 
-    // Additive multipliers (1 = no change). Stacks from multiple same augment.
+    // DamageMultiplier stacks multiplicatively; other multiplier stats add percent to base 1.0.
     public float MoveSpeedMultiplier { get; private set; } = 1f;
-    public float DamageFlatBonus { get; private set; }
+    public float DamageMultiplier { get; private set; } = 1f;
     public float MaxHpMultiplier { get; private set; } = 1f;
     public float RangedDamageMultiplierBonus { get; private set; }
     public float ProjectileSpeedMultiplier { get; private set; } = 1f;
-    public float ComboDurationBonus { get; private set; }
     public float UltimateChargeMultiplier { get; private set; } = 1f;
     public float LifestealPercent { get; private set; }
     public float RegenPercentPerSecond { get; private set; }
 
+    private float _damageInverseProduct = 1f;
+    private PlayerBlob? _mutablePlayerBlob;
     private IReadOnlyPlayerBlob? _playerBlob;
 
     private void Awake()
@@ -54,6 +55,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
             oldObs.DictionaryChanged -= HandleInventoryChanged;
 
         _playerBlob = playerBlob;
+        _mutablePlayerBlob = playerBlob as PlayerBlob;
         if (playerBlob.InventoryItems is IReadOnlyObservableDictionary<string, int> obs)
             obs.DictionaryChanged += HandleInventoryChanged;
 
@@ -62,7 +64,52 @@ public class PlayerStatModifiers : InitializeableGameComponent
 
     private void HandleInventoryChanged(ObservableDictionaryChangedEventArgs<string, int> _)
     {
+        ConsumeInstantHealItems();
         ReapplyFromBlob();
+    }
+
+    private void ConsumeInstantHealItems()
+    {
+        if (_mutablePlayerBlob == null || _playerBlob == null)
+        {
+            return;
+        }
+
+        var healIdsToRemove = new List<string>();
+        foreach (var kvp in _playerBlob.InventoryItems)
+        {
+            if (!InstantHealSerializer.TryDeserialize(kvp.Key, out float percentOfMaxHp))
+            {
+                continue;
+            }
+
+            int stacks = kvp.Value;
+            for (int i = 0; i < stacks; i++)
+            {
+                ApplyInstantHeal(percentOfMaxHp);
+            }
+
+            healIdsToRemove.Add(kvp.Key);
+        }
+
+        foreach (string healId in healIdsToRemove)
+        {
+            _mutablePlayerBlob.TryRemoveItem(healId);
+        }
+    }
+
+    private static void ApplyInstantHeal(float percentOfMaxHp)
+    {
+        PlayerGameplayManager? manager = PlayerGameplayManager.Instance;
+        if (manager == null)
+        {
+            Debug.LogWarning("[PlayerStatModifiers] Instant heal skipped — PlayerGameplayManager is not available.");
+            return;
+        }
+
+        float amount = manager.MaxHp * (percentOfMaxHp / 100f);
+        manager.Heal(amount);
+        Debug.Log($"[PlayerStatModifiers] Instant heal restored {amount:0.#} HP ({percentOfMaxHp}% of max).");
     }
 
     private void ReapplyFromBlob()
@@ -78,20 +125,32 @@ public class PlayerStatModifiers : InitializeableGameComponent
             foreach (var entry in entries)
                 ApplyStatBoost(entry.kind, entry.value, count);
         }
+
+        DamageMultiplier = CombineMultiplicativePercentBonuses(_damageInverseProduct);
         OnStatsChanged?.Invoke();
     }
+
+    /// <summary>
+    /// Independent +X% bonuses combine multiplicatively: 50% + 50% => 1.75x (+75% total).
+    /// </summary>
+    public static float CombineMultiplicativePercentBonuses(float inverseProduct) =>
+        1f + (1f - inverseProduct);
+
+    /// <summary>Apply one +X% (or -X%) bonus; call once per stack.</summary>
+    public static float ApplyMultiplicativePercentBonus(float inverseProduct, float percentBonus) =>
+        inverseProduct * (1f - percentBonus / 100f);
 
     private void Reset()
     {
         MoveSpeedMultiplier = 1f;
-        DamageFlatBonus = 0f;
+        DamageMultiplier = 1f;
         MaxHpMultiplier = 1f;
         RangedDamageMultiplierBonus = 0f;
         ProjectileSpeedMultiplier = 1f;
-        ComboDurationBonus = 0f;
         UltimateChargeMultiplier = 1f;
         LifestealPercent = 0f;
         RegenPercentPerSecond = 0f;
+        _damageInverseProduct = 1f;
     }
 
     private void ApplyStatBoost(StatBoostKind kind, float value, int stacks)
@@ -102,8 +161,11 @@ public class PlayerStatModifiers : InitializeableGameComponent
             case StatBoostKind.MoveSpeed:
                 MoveSpeedMultiplier += (total / 100f);
                 break;
-            case StatBoostKind.BaseDamage:
-                DamageFlatBonus += total;
+            case StatBoostKind.DamageMultiplier:
+                for (int i = 0; i < stacks; i++)
+                {
+                    _damageInverseProduct = ApplyMultiplicativePercentBonus(_damageInverseProduct, value);
+                }
                 break;
             case StatBoostKind.MaxHp:
                 MaxHpMultiplier += (total / 100f);
@@ -112,10 +174,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
                 RangedDamageMultiplierBonus += (total / 100f);
                 break;
             case StatBoostKind.ProjectileSpeed:
-                ProjectileSpeedMultiplier += (total / 100f);
-                break;
-            case StatBoostKind.ComboDuration:
-                ComboDurationBonus += total;
+                ProjectileSpeedMultiplier += total / 100f;
                 break;
             case StatBoostKind.UltimateCharge:
                 UltimateChargeMultiplier += (total / 100f);

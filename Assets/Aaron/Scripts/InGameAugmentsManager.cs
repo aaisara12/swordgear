@@ -81,13 +81,13 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
         }
 
         AugmentQualityTier tier = ResolveOfferTier();
-        var mysteryItems = augmentsCatalog.GetRandomItemsForExactTier(3, tier);
-        Debug.Log($"[InGameAugmentsManager] Offering {mysteryItems.Count} augment(s) at tier {tier}.");
+        var offerItems = augmentsCatalog.GetRandomItemsForExactTier(3, tier);
+        Debug.Log($"[InGameAugmentsManager] Offering {offerItems.Count} augment(s), all at tier {tier}.");
 
         var storeStock = new Dictionary<string, int>();
-        foreach (IStoreItem mysteryItem in mysteryItems)
+        foreach (IStoreItem offerItem in offerItems)
         {
-            storeStock[mysteryItem.Id] = 1;
+            storeStock[offerItem.Id] = 1;
         }
 
         itemStorefront.ClearItems();

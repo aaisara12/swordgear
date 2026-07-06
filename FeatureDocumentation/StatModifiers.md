@@ -32,11 +32,10 @@
 | Property | Default | Notes |
 |---|---|---|
 | `MoveSpeedMultiplier` | `1.0` | Multiplier; boost expressed as % added |
-| `DamageFlatBonus` | `0` | Flat damage added to `GameManager.baseDamage` |
+| `DamageMultiplier` | `1.0` | Multiplier on `GameManager.baseDamage`. Multiple +X% sources stack **multiplicatively** (50% + 50% => 1.75x, not 2.0x). |
 | `MaxHpMultiplier` | `1.0` | Multiplier; boost expressed as % added |
 | `RangedDamageMultiplierBonus` | `0` | Additive bonus to `GameManager.rangedMultiplier` |
 | `ProjectileSpeedMultiplier` | `1.0` | Multiplier |
-| `ComboDurationBonus` | `0` | Added seconds to `ComboSystem.comboDuration` |
 | `UltimateChargeMultiplier` | `1.0` | Multiplier |
 | `LifestealPercent` | `0` | % of damage dealt converted to healing |
 | `RegenPercentPerSecond` | `0` | % of max HP regenerated per second |

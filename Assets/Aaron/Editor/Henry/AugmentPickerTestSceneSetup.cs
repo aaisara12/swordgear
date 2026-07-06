@@ -24,7 +24,7 @@ public static class AugmentPickerTestSceneSetup
         "Assets/Aaron/ScriptableObjects/EventChannels/Augments Shop/EnableAugmentShopEventChannel.asset";
     private const string AugmentModelChannelPath =
         "Assets/Aaron/ScriptableObjects/EventChannels/Augments Shop/AugmentShopUiModelEventChannel.asset";
-    private const string TestCatalogPath = "Assets/Aaron/ScriptableObjects/TestCatalog.asset";
+    private const string AugmentCatalogPath = "Assets/Aaron/ScriptableObjects/AugmentCatalog.asset";
 
     [MenuItem("Henry/Setup Augment Picker Test Scene")]
     public static void SetupFromMenu()
@@ -70,7 +70,7 @@ public static class AugmentPickerTestSceneSetup
         var showChannel = AssetDatabase.LoadAssetAtPath<TriggerEventChannelSO>(ShowNextAugmentChannelPath);
         var visibilityChannel = AssetDatabase.LoadAssetAtPath<BoolEventChannelSO>(AugmentVisibilityChannelPath);
         var modelChannel = AssetDatabase.LoadAssetAtPath<ItemShopModelEventChannelSO>(AugmentModelChannelPath);
-        var catalog = AssetDatabase.LoadAssetAtPath<LoadableStoreItemCatalog>(TestCatalogPath);
+        var catalog = AssetDatabase.LoadAssetAtPath<LoadableStoreItemCatalog>(AugmentCatalogPath);
 
         if (showChannel == null || visibilityChannel == null || modelChannel == null || catalog == null)
         {

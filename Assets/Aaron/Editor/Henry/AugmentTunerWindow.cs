@@ -12,7 +12,7 @@ using UnityEngine;
 /// </summary>
 public class AugmentTunerWindow : EditorWindow
 {
-    private const string DefaultCatalogPath = "Assets/Aaron/ScriptableObjects/TestCatalog.asset";
+    private const string DefaultCatalogPath = "Assets/Aaron/ScriptableObjects/AugmentCatalog.asset";
     private const string RollSettingsPath = "Assets/Aaron/ScriptableObjects/AugmentTierRollSettings.asset";
     private const string CoreSystemsPrefabPath = "Assets/Aaron/Prefabs/CoreSystems.prefab";
     private const string TestScenePath = "Assets/Aaron/Scenes/AugmentPickerTest.unity";

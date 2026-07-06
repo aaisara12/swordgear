@@ -27,8 +27,8 @@ public class GameManager : MonoBehaviour
 
     public float GetEffectiveBaseDamage()
     {
-        float flat = PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.DamageFlatBonus : 0f;
-        return baseDamage + flat;
+        float multiplier = PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.DamageMultiplier : 1f;
+        return baseDamage * multiplier;
     }
 
     public float GetEffectiveRangedMultiplier()

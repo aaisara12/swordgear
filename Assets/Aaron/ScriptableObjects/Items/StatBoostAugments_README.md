@@ -1,19 +1,31 @@
-# Stat Boost Augments (Low Tier)
+# Stat Boost Augments
 
-Create augments in Unity: **Right-click in this folder → Create → Scriptable Objects → Stat Boost.**
+Create augments in Unity: **Right-click → Create → Scriptable Objects → Stat Boost**, or run **Henry → Generate Stat Boost Augments** to regenerate the default tiered set.
 
-Set **Quality Tier** to **Low**. Add one or more entries to **Stat Boosts** (each entry: Kind + Value); the editor keeps **Id** in sync. Values can be **negative** for trade-offs (e.g. +10% damage, -5% move speed). Fill **Display Name**, **Description**, **Cost**, **Icon** as you like.
+## Tier value targets (starting point — tune in Inspector)
+
+| Tier | Typical % stats | Damage multiplier | Notes |
+|------|-----------------|-------------------|-------|
+| **Bronze (Low)** | ~10 | +10% damage | |
+| **Silver (Medium)** | ~30 | +30% damage | |
+| **Gold (High)** | ~50 | +50% damage | |
+| **Diamond (Elite)** | Multi-stat / trade-offs | — | Element gear upgrades live here too |
+
+Element gear upgrades (`up_fire_*`, etc.) are **Diamond** — special upgrade effects, not plain stat boosts.
+
+Regenerate defaults: **Henry → Generate Stat Boost Augments** (also sets element upgrades to Diamond and reloads **AugmentCatalog**).
+
+**Instant heal augments** use `InstantHealLoadableStoreItem` (one-shot % max HP on pick; not stored in inventory).
 
 ## Value meaning by kind
 
 | Stat Boost Kind | Value means | Example (positive / negative) |
 |-----------------|-------------|--------------------------------|
-| MoveSpeed | Percent added | 5 = +5%, -3 = -3% |
-| BaseDamage | Flat damage added | 2 = +2, -1 = -1 |
+| MoveSpeed | Percent added | 10 = +10%, -3 = -3% |
+| DamageMultiplier | Percent added to all base damage | 10 = +10%, -5 = -5% |
 | MaxHp | Percent added | 10 = +10%, -5 = -5% |
 | RangedDamage | Percent added to ranged multiplier | 5 = +5%, -10 = -10% |
 | ProjectileSpeed | Percent added | 10 = +10% |
-| ComboDuration | Seconds added to combo countdown | 0.5, -0.2 |
 | UltimateCharge | Percent faster | 10 = 10% more points |
 | Lifesteal | Percent of damage dealt as heal | 2 = 2% |
 | Regen | Percent of max HP per second | 0.5 = 0.5% |
@@ -32,10 +44,10 @@ You can use **multiple stat entries per augment** (e.g. one item that gives +10%
 **2. Create Stat Boost assets**
 - In Project, go to **Assets/Aaron/ScriptableObjects/Items** (or your items folder).
 - Right‑click → **Create → Scriptable Objects → Stat Boost**.
-- Name the asset (e.g. Executioner). Set **Stat Boosts** (e.g. one entry: Kind = BaseDamage, Value = 6), **Display Name**, **Description**, **Cost**, **Icon**, **Quality Tier**. The **Id** field updates automatically.
+- Name the asset (e.g. Executioner). Set **Stat Boosts** (e.g. one entry: Kind = DamageMultiplier, Value = 50), **Display Name**, **Description**, **Cost**, **Icon**, **Quality Tier**. The **Id** field updates automatically.
 
 **3. Add stat boosts to the augments catalog**
-- Select your augments catalog asset (e.g. **TestCatalog**).
+- Select your augments catalog asset (**AugmentCatalog**).
 - Set **Folder To Load From** to the folder that contains your Stat Boost assets (e.g. the same Items folder).
 - Click **Load** so the catalog includes the new Stat Boost assets.
 
@@ -43,9 +55,13 @@ If you skip step 1, damage (and other stats) from purchased augments will not ap
 
 ---
 
-## Suggested augments (copy into new Stat Boost assets)
+## Default augment set
 
-Add each row as **Stat Boosts** entries in Unity (one list element per "Kind: Value" pair). Negative values are trade-offs.
+Run **Henry → Generate Stat Boost Augments** for the full tiered roster (8 Bronze / 8 Silver / 8 Gold / 10 Diamond stat boosts). Damage boosts use **DamageMultiplier** (+10% / +30% / +50% by tier). Combo duration augments are not used.
+
+### Legacy reference (superseded by generator)
+
+The tables below are outdated examples; prefer regenerating from `StatBoostAugmentGenerator.cs`.
 
 ### Single-stat (one entry each)
 
