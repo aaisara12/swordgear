@@ -66,6 +66,7 @@ public class LoadingScreenAnimator : MonoBehaviour
         // Use DOTween.To to tween the CanvasGroup alpha (works even if DOFade extension isn't available)
         fadeTween = DOTween.To(() => cg.alpha, x => cg.alpha = x, targetAlpha, duration)
             .SetEase(Ease.Linear)
+            .SetUpdate(true)
             .OnComplete(() =>
             {
                 cg.alpha = targetAlpha;
