@@ -48,6 +48,18 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2903508189735524137, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
+      propertyPath: m_Color.b
+      value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 2903508189735524137, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
+      propertyPath: m_Color.g
+      value: 0.9
+      objectReference: {fileID: 0}
+    - target: {fileID: 2903508189735524137, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
+      propertyPath: m_Color.r
+      value: 0.95
+      objectReference: {fileID: 0}
     - target: {fileID: 3457207750712895610, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
       propertyPath: hp
       value: 24
@@ -107,6 +119,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Main::EnemyAttackDamage
   damageMultiplier: 1
+  attackRateMultiplier: 1
+  chargeTimeMultiplier: 1
+  projectileSpeedMultiplier: 1
 --- !u!114 &7414360350425234020
 MonoBehaviour:
   m_ObjectHideFlags: 0

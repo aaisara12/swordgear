@@ -9,6 +9,8 @@ public class LevelLoader : MonoBehaviour
     public static LevelLoader Instance; // Singleton
 
     [SerializeField] private GameObject exitPortalPrefab;
+    [Tooltip("Elite scale/stat multipliers + aura reference (Commit 20).")]
+    [SerializeField] private ElitePresentation elitePresentation;
 
     private LevelBlueprint currentBlueprint;
     private int currentWaveIndex = 0;
@@ -125,6 +127,9 @@ public class LevelLoader : MonoBehaviour
             return;
         }
 
+        bool isLastWave = currentWaveIndex >= currentBlueprint.Waves.Count - 1;
+        bool eliteAssignedThisWave = false;
+
         foreach (var enemyCount in wave.Enemies)
         {
             for (int i = 0; i < enemyCount.Count; i++)
@@ -146,7 +151,15 @@ public class LevelLoader : MonoBehaviour
                     // Add the controller to the list
                     activeEnemies.Add(enemyController);
 
-                    ApplySpawnModifiers(enemyController, enemyCount.EnemyPrefab);
+                    // Interim elite rule (until WaveComposer owns placement): first enemy of the last wave.
+                    bool isElite = isLastWave && !eliteAssignedThisWave;
+                    if (isElite)
+                    {
+                        eliteAssignedThisWave = true;
+                    }
+
+                    ApplySpawnModifiers(enemyController, enemyCount.EnemyPrefab, isElite);
+                    BeginSpawnPresentation(enemyGO, isElite);
                 }
             }
         }
@@ -154,27 +167,46 @@ public class LevelLoader : MonoBehaviour
         TryAdvanceIfWaveEmpty();
     }
 
-    private void ApplySpawnModifiers(EnemyController enemyController, GameObject enemyPrefab)
+    private void ApplySpawnModifiers(EnemyController enemyController, GameObject enemyPrefab, bool isElite)
     {
-        if (!EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
+        SpawnModifiers modifiers = SpawnModifiers.Identity;
+
+        if (EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
+        {
+            EnemyCatalog? enemyCatalog = RunManager.Instance?.EnemyCatalog;
+            modifiers = enemyCatalog != null
+                ? enemyCatalog.ResolveSpawnModifiers(context, enemyPrefab)
+                : DifficultyCurve.Evaluate(context);
+        }
+        else
         {
             // Outside a linear combat step (e.g. editor playtest) — still apply elemental knobs if catalog is present.
             EnemyCatalog? catalog = RunManager.Instance?.EnemyCatalog;
             if (catalog != null && catalog.TryGetByPrefab(enemyPrefab, out EnemyArchetype? archetype)
                 && archetype != null && archetype.applyElementKnobsAtSpawn)
             {
-                enemyController.ApplySpawnModifiers(SpawnModifiers.FromElement(catalog.GetElementKnobs(archetype.element)));
+                modifiers = SpawnModifiers.FromElement(catalog.GetElementKnobs(archetype.element));
             }
+        }
 
+        if (isElite && elitePresentation != null)
+        {
+            modifiers = SpawnModifiers.Combine(modifiers, elitePresentation.ToSpawnModifiers());
+        }
+
+        enemyController.ApplySpawnModifiers(modifiers);
+    }
+
+    private static void BeginSpawnPresentation(GameObject enemyGO, bool isElite)
+    {
+        EnemySpawnPresentation presentation = enemyGO.GetComponent<EnemySpawnPresentation>();
+        if (presentation == null)
+        {
+            // Prefabs should be wired via Henry → Wire Enemy Spawn Presentation; fail soft for legacy.
             return;
         }
 
-        EnemyCatalog? enemyCatalog = RunManager.Instance?.EnemyCatalog;
-        SpawnModifiers modifiers = enemyCatalog != null
-            ? enemyCatalog.ResolveSpawnModifiers(context, enemyPrefab)
-            : DifficultyCurve.Evaluate(context);
-
-        enemyController.ApplySpawnModifiers(modifiers);
+        presentation.Begin(isElite);
     }
 
     private void TryAdvanceIfWaveEmpty()

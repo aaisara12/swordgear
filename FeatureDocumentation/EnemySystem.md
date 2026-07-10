@@ -74,6 +74,17 @@ Generate prefabs: **Henry → Generate New Enemy Archetype Prefabs**. Play Mode 
 
 Generate / refresh catalog: **Henry → Generate Enemy Catalog** (also wires `RunManager.enemyCatalog` on CoreSystems).
 
+### Spawn presentation & elites (Commit 20+)
+
+| Script / Asset | Path |
+|---|---|
+| `EnemySpawnPresentation` | `Assets/Scripts/Enemy/EnemySpawnPresentation.cs` |
+| `ElitePresentation` | `Assets/Aaron/ScriptableObjects/ElitePresentation.asset` |
+| `EliteAura` | `Assets/Visuals/Prefabs/Enemies/EliteAura.prefab` |
+| Shared spawn anim | `Assets/Visuals/Animations/EnemySpawn/` |
+
+On spawn, combat is disabled until the shared **Spawn** clip finishes (~0.65s pop-in on `VisualRoot`). Interim elite rule: **first enemy of the last wave** gets elite HP/damage/scale + `EliteAura` child enabled. Wire/refresh: **Henry → Wire Enemy Spawn Presentation**.
+
 ---
 
 ## Global Events

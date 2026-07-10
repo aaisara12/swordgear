@@ -1285,6 +1285,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   exitPortalPrefab: {fileID: 8473629105847362510, guid: a7b8c9d0e1f24365897abcdef012345a, type: 3}
+  elitePresentation: {fileID: 11400000, guid: 3e84910ba16b9a042b5aa9c2e831900f, type: 2}
 --- !u!1 &9100000000000000001
 GameObject:
   m_ObjectHideFlags: 0

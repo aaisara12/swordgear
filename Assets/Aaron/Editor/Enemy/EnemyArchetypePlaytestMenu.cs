@@ -59,6 +59,8 @@ public static class EnemyArchetypePlaytestMenu
             Vector3 position = origin + new Vector3(x, 3f, 0f);
             GameObject instance = Object.Instantiate(prefab, position, Quaternion.identity);
             ApplyPlaytestModifiers(instance, prefab);
+            EnemySpawnPresentation? presentation = instance.GetComponent<EnemySpawnPresentation>();
+            presentation?.Begin(isElite: false);
         }
 
         Debug.Log("EnemyArchetypePlaytestMenu: spawned turret, shotgun, and beam sniper showcase (physical + fire).");
