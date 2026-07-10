@@ -16,6 +16,13 @@ Drives enemy movement, attacking, status effects, and death — using the Strate
 | `StrafeMovementStrategy` | `Assets/Scripts/Enemy/StrafeMovementStrategy.cs` |
 | `MeleeAttackStrategy` | `Assets/Scripts/Enemy/MeleeAttackStrategy.cs` |
 | `RangedAttackStrategy` | `Assets/Scripts/Enemy/RangedAttackStrategy.cs` |
+| `ShotgunAttackStrategy` | `Assets/Scripts/Enemy/ShotgunAttackStrategy.cs` |
+| `BeamSniperAttackStrategy` | `Assets/Scripts/Enemy/BeamSniperAttackStrategy.cs` |
+| `TurretAttackStrategy` | `Assets/Scripts/Enemy/TurretAttackStrategy.cs` |
+| `StationaryMovementStrategy` | `Assets/Scripts/Enemy/StationaryMovementStrategy.cs` |
+| `IChargingAttackStrategy` | `Assets/Scripts/Enemy/IChargingAttackStrategy.cs` |
+| `EnemyAttackDamage` | `Assets/Scripts/Enemy/EnemyAttackDamage.cs` |
+| `EnemyBeamLaser` | `Assets/Scripts/Enemy/EnemyBeamLaser.cs` |
 | `EnemySpawner` | `Assets/Scripts/Enemy/EnemySpawner.cs` |
 | `EnemyProjectile` | `Assets/Scripts/Enemy/EnemyProjectile.cs` |
 | `HitEffectAnimator` | `Assets/Scripts/Enemy/HitEffectAnimator.cs` |
@@ -30,6 +37,22 @@ Drives enemy movement, attacking, status effects, and death — using the Strate
 Each enemy prefab attaches concrete strategy components. `EnemyController` discovers them at runtime via `GetComponent<IMovementStrategy>()` / `GetComponent<IAttackStrategy>()` in `Start()`.
 
 To add a new movement or attack behaviour, implement the appropriate interface and attach it to the prefab — no changes to `EnemyController` are required.
+
+### Archetype roles (Commit 18+)
+
+| Role | Movement | Attack | Prefab prefix |
+|------|----------|--------|----------------|
+| Legacy melee | `FollowPlayerStrategy` | `MeleeAttackStrategy` | `MeleeEnemy_*` |
+| Legacy ranged | `StrafeMovementStrategy` | `RangedAttackStrategy` | `RangedEnemy_*` |
+| Turret | `StationaryMovementStrategy` | `TurretAttackStrategy` | `Turret_*` |
+| Shotgun | `StrafeMovementStrategy` | `ShotgunAttackStrategy` | `Shotgun_*` |
+| Beam sniper | `StrafeMovementStrategy` (slow) | `BeamSniperAttackStrategy` | `BeamSniper_*` |
+
+Beam sniper fires a **telegraphed laser**: a translucent rectangle shows the hit zone during charge-up, then a bright beam appears along the same path and damages the player if they overlap the `BoxCollider2D`. Prefab: `EnemyBeamLaser.prefab` (generate via **Henry → Generate Enemy Beam Laser Prefab**).
+
+Generate prefabs: **Henry → Generate New Enemy Archetype Prefabs**. Play Mode showcase: **Henry → Playtest → Spawn New Enemy Archetypes**.
+
+`IChargingAttackStrategy` enemies pause strafe movement while winding up a shot (shotgun, beam sniper, legacy ranged).
 
 ---
 

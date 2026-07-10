@@ -25,10 +25,10 @@ M2  Map → authored combat → back to Map (one combat)
 M3  Exit portal + step advance on rail
 M4  Full Combat×3 → Upgrade → Map loop (authored arenas only)
 M5  Upgrade hub — augment on enter (walkable zones deferred)
-M6  Composed waves (replace static layout waves) — still authored arena
-M7  Procedural wall layout (one commit: graph, one: tilemap, one: wire combat)
+M6  Complete encounter system (catalog, composer, difficulty, elites, spawn FX) — orthogonal to arena geometry
+M7  Procedural wall layout only (geometry + markers; reuses M6 encounters unchanged)
 M8  Procedural crates/props in arena
-M9  Level preview panel after upgrade
+M9  Level preview UI in upgrade hub (encounter data already from M6)
 M10 Legacy cleanup + editor setup menus
 ```
 
@@ -195,111 +195,213 @@ git checkout main
 
 ---
 
-## M6 — Composed waves (authored arena, dynamic enemies)
+## M6 — Complete encounter system (waves, difficulty, elites)
 
-> **Why now:** You already have the full loop; this only changes **what spawns** in combat.
+> **Why now:** The full loop works; combat content is the main source of repetition.  
+> **Milestone goal:** After M6, **all enemy-related behaviour is done** — no later milestone may change how waves are composed, scaled, or spawned. Arena work (M7+) only swaps **room geometry**; it plugs into the same `CombatEncounter` + `LevelLoader` spawn contract.
 
-### Commit 18 — `EnemyCatalog` + wired on RunManager
+### Scope boundary
 
-| | |
+| In M6 (enemy / encounter) | Out of scope (arena / geometry) |
 |---|---|
-| **Adds** | `EnemyCatalog.cs`, `EnemyCatalog.asset`, `EnemyCatalogCreator.cs` (menu) |
-| **Changes** | `CoreSystems` — `RunManager.enemyCatalog` |
-| **Playtest** | Enter combat → enemies still spawn (catalog used by next commit). Verify catalog asset in inspector. |
+| `EnemyCatalog`, threat budget, elemental themes | Procedural walls, tilemaps, room graphs |
+| `WaveComposer`, `EncounterBuilder`, difficulty curve | Crates, pillars, prop placement |
+| Runtime `CombatEncounter` / `ComposedWave` (not per-fight SOs) | Lane topology, edge-entry choreography |
+| HP/damage scaling, elite variants + aura (any of 20 archetypes) | `ArenaLayoutGenerator` |
+| **12 new enemy prefabs** (beam sniper, shotgun, turret × 4 elements) + attack/movement strategies | Lane topology, edge-entry choreography |
+| Spawn presentation (spawn animation; all enemies spawn together) | Level preview **UI** (data layer ships in M6; panel in M9) |
+| Per-combat deterministic seed (`hash(runSeed, globalStepIndex)`) | |
+| Pre-roll next block’s encounters for upgrade preview / queue promotion | |
+| `LevelLoader` spawns from composed data via `EnemySpawnPoint` markers in **whatever room is loaded** | |
 
-### Commit 19 — `WaveComposer` + encounter types
+### Design principles
 
-| | |
-|---|---|
-| **Adds** | `WaveSpec`, `WaveComposerSettings`, `WaveComposer`, `EnemyArchetype`, `EnemySpawnSpec`, `CombatEncounter`, `EncounterContext`, `EncounterTheme*`, `PlayerLoadoutSnapshot`, `ElementExtensions` |
-| **Changes** | `EnemySpawnPoint` lane field if needed |
-| **Playtest** | **No visible change yet** — skip unless bundled with 20. |
+1. **Arena-agnostic spawning** — `LevelLoader` discovers `EnemySpawnPoint` components in the instantiated room and picks positions at random (current behaviour). Any prefab or procedural room that places those markers works without spawn-code changes.
+2. **Runtime encounters only** — `EncounterBuilder` produces a `CombatEncounter` (list of `ComposedWave` → `ComposedSpawnSpec`). Do not create `EnemyWaveConfig` assets per fight.
+3. **Difficulty curve is data** — `WaveComposerSettings` holds a tunable table: `(blockIndex, combatIndexInBlock)` → threat budget, wave count range, elemental theme weights, elite rules, HP/damage multipliers.
+4. **Threat budget, not raw counts** — Composer spends budget using each archetype’s `baseThreatCost` from `EnemyCatalog`.
+5. **Enemy roster (20 archetypes)** — 8 existing (melee + strafe-ranged × 4 elements) + **12 new** (beam sniper, shotgun, turret × 4 elements). Catalog lists **20 entries**; composer mixes **roles** and **elements**, not just palette swaps.
+6. **Elites are runtime, not duplicate prefabs** — Any archetype can spawn as elite via `isElite` on `ComposedSpawnSpec` (scale, HP/damage mult, aura). **Do not** author 20 elite prefabs — elites are “elite beam sniper”, “elite turret”, etc. from the same 20 base archetypes.
+7. **Spawn animation** — Prefab `Animator` + spawn clip (or short authored presentation component). Enemy movement/attacks disabled until spawn clip completes; whole wave spawns in one frame then plays in together.
+8. **Determinism** — Same `runSeed` + `globalStepIndex` → identical `CombatEncounter`. Pre-rolled block encounters promoted into the run queue must match preview data.
+9. **Legacy wave pool retired** — `MapGenerationSettings.combatWaves` deprecated after M6; keep old `EnemyWaveConfig` assets for reference only.
 
-**Note:** Commits 18–19 can merge into **Commit 20** if 19 alone fails the playtest rule.
+### Enemy roles (catalog)
 
-### Commit 20 — Combat uses `EncounterBuilder` + composed waves (still authored room)
+| Role | Behaviour | Notes |
+|------|-----------|--------|
+| `Melee` | `FollowPlayerStrategy` + melee attack | Existing × 4 elements |
+| `Ranged` | `StrafeMovementStrategy` + `RangedAttackStrategy` | Existing × 4 elements |
+| `BeamSniper` | Slow strafe/follow + telegraphed high-speed beam shot | New × 4 elements |
+| `Shotgun` | Strafe + `ShotgunAttackStrategy` (pellet spread) | New × 4 elements |
+| `Turret` | `StationaryMovementStrategy` + rapid `RangedAttackStrategy` (no/little charge) | New × 4 elements |
 
-| | |
-|---|---|
-| **Adds** | `EncounterBuilder.cs` |
-| **Changes** | `RunManager.BuildBlueprintForCurrentStep` → `EncounterBuilder.Build` with **`GeneratedRoom = null`** (layout prefab only) |
-| **Changes** | `LevelBlueprint` extensions as needed |
-| **Playtest** | Combats feel **different by cycle/theme** — enemy mix changes, arena is still **Square_Arena**. Check console for wave compose logs. |
-| **EditMode** | `WaveComposerTest`, `EncounterThemeTest` |
+**Total: 20 catalog archetypes.** Elite variants = same archetype + `isElite` at spawn (×2 threat feel, not ×2 prefabs).
+
+### Acceptance criteria (M6 done)
+
+Play through two full blocks (6 combats) on `Square_Arena` and verify:
+
+- Combat **1 vs 3** in the same block: visibly different **role** mix (e.g. melee + turret → shotgun + beam sniper).
+- Fights include **new archetypes** (turret, shotgun, beam sniper), not only legacy melee/strafe-ranged.
+- **Block 2** combats are harder than block 1 (more HP, higher budget, or more waves).
+- **Combat 3** in each block includes at least one **elite** (any role — larger, aura, tankier).
+- **Elemental themes** are obvious in at least some combats (e.g. mostly fire enemies across mixed roles).
+- **Same seed + step** → identical encounter (EditMode golden test).
+- After upgrade, **next 3 combats** match the pre-rolled encounters (log or debug HUD; UI optional until M9).
+- Entering combat: enemies **play spawn animation** before chasing the player.
 
 ---
 
-## M7 — Procedural walls (three commits, three playtests)
+### Commit 18 — New enemy archetypes (12 prefabs + attack/movement strategies)
 
-### Commit 21 — Procedural room replaces prefab (walls only, no props)
+| | |
+|---|---|
+| **Adds** | `ShotgunAttackStrategy` — pellet count, spread angle, shared charge cadence |
+| **Adds** | `BeamSniperAttackStrategy` (or tuned `RangedAttackStrategy`) — long charge, fast beam projectile |
+| **Adds** | `StationaryMovementStrategy` — zero velocity; turret does not reposition |
+| **Adds** | **12 prefabs** — `BeamSniper_*`, `Shotgun_*`, `Turret_*` for Physical / Fire / Ice / Lightning (duplicate existing enemy prefab structure; element-colored projectiles) |
+| **Adds** | Projectile prefabs as needed — beam (elongated/trail), shotgun reuses `EnemyProjectile` pellets |
+| **Changes** | `EnemySystem.md` — document roles and strategy pairing |
+| **Playtest** | Arena test scene or wave override: spawn **turret**, **shotgun**, and **beam sniper** — distinct movement/attack readable in play. |
+| **Not in commit** | Catalog SO, composer, difficulty curve |
+
+---
+
+### Commit 19 — `EnemyCatalog` + spawn modifiers + difficulty hook
+
+| | |
+|---|---|
+| **Adds** | `EnemyCatalog.cs`, `EnemyArchetype` (prefab, element, **role**, `baseThreatCost`), `EnemyCatalog.asset`, `EnemyCatalogCreator.cs` (menu) |
+| **Adds** | `EncounterContext.cs` — `runSeed`, `globalStepIndex`, `blockIndex`, `combatIndexInBlock` derived from `LinearRunState` |
+| **Adds** | `DifficultyModifiers` / `SpawnModifiers` (HP mult, damage mult, scale mult) |
+| **Changes** | `EnemyController` — `ApplySpawnModifiers(...)`; attack strategies respect damage multiplier |
+| **Changes** | `LevelLoader` — after instantiate, apply modifiers from a **temporary** step-based curve (hardcoded or minimal SO) so scaling is playable before composer lands |
+| **Changes** | `RunManager` — fix `BuildCombatWaves` to use `hash(seed, globalStepIndex)` *(interim until Commit 21 removes this path)* |
+| **Changes** | `CoreSystems` — `RunManager.enemyCatalog` |
+| **Playtest** | Combat 2 in a block → enemies **survive longer** than combat 1 (HP scaling visible). Catalog lists **all 20 archetypes** with role + threat cost. |
+| **EditMode** | `EncounterContextTest` (block/combat index math) |
+
+---
+
+### Commit 20 — Elite enemies + spawn presentation
+
+| | |
+|---|---|
+| **Adds** | `ComposedSpawnSpec` (`archetypeId`, `isElite`), `ElitePresentation` (aura prefab ref, scale mult, stat mults) |
+| **Adds** | `EnemySpawnPresentation.cs` — wires Animator spawn trigger; disables `EnemyController` / strategies until clip done |
+| **Changes** | Enemy prefabs (all 20) — `Animator` + `Spawn` clip (editor-authored); optional `EliteAura` child prefab (particles) |
+| **Changes** | `LevelLoader` — run spawn presentation on all wave spawns; apply elite scale/aura when `isElite` |
+| **Changes** | Interim elite rule: e.g. last wave spawns one **elite** (any archetype — turret elite, shotgun elite, etc.) until composer owns placement |
+| **Playtest** | Enter combat → enemies **pop in with spawn animation** before moving. At least one fight shows a **large aura elite** (preferably a new-role enemy). |
+| **Not in commit** | Threat budget / theme composition |
+
+---
+
+### Commit 21 — `WaveComposer` + `EncounterBuilder` + runtime encounters
+
+| | |
+|---|---|
+| **Adds** | `WaveComposerSettings` (difficulty curve table, theme weights, **role mix weights**, wave count range, elite rules) |
+| **Adds** | `WaveComposer`, `ComposedWave`, `CombatEncounter`, `EncounterTheme`, `EncounterBuilder` |
+| **Adds** | `PlayerLoadoutSnapshot` *(optional light bias: active element — defer heavy logic if not readable in play)* |
+| **Changes** | `LevelBlueprint` — `CombatEncounter` replaces `List<EnemyWaveConfig>` as primary wave source |
+| **Changes** | `LevelLoader` — spawn from `ComposedWave` / `ComposedSpawnSpec` via catalog prefab lookup |
+| **Changes** | `RunManager.BuildBlueprintForCurrentStep` → `EncounterBuilder.Build(context, catalog, settings)` only |
+| **Deprecates** | `RunManager.BuildCombatWaves`, `MapGenerationSettings.combatWaves` pool |
+| **Changes** | `WaveAnnouncer` — optional theme subtitle (e.g. “Fire Assault”) from encounter metadata |
+| **Playtest** | Full **acceptance criteria** above on `Square_Arena`. Console shows composed budget/theme/roles per combat. |
+| **EditMode** | `WaveComposerTest`, `EncounterBuilderTest` (golden fixtures: block0-combat0, block0-combat2, block1-combat0) |
+
+**Note:** Commits 18–20 can be merged for a single large M6 landing; keep the acceptance criteria as the gate.
+
+---
+
+### Commit 22 — Pre-roll encounters + queue promotion (preview data layer)
+
+| | |
+|---|---|
+| **Adds** | `RunManager.GenerateUpcomingBlockEncounters`, storage on `RunStep` or parallel `CombatEncounter` list per step |
+| **Changes** | `EnsureMoreStepsQueued` — appends steps **with encounters already composed** (no re-roll on enter) |
+| **Changes** | `UpgradeFlowController` or upgrade enter — trigger pre-roll for next block |
+| **Changes** | `LinearRunGenerator` — stop assigning per-step layout for combat if unused; layout resolves via `RunManager.ResolveCombatLayout` only |
+| **Playtest** | Finish upgrade → enter combats 4–6 → **same** enemy themes/budgets/roles as logged at upgrade enter. Re-entering same seed reproduces entire block. |
+| **EditMode** | `RunQueuePromotionTest` |
+
+**Milestone M6 done** after Commit 22. Enemy system requires **no** M7 changes.
+
+---
+
+## M7 — Procedural arena geometry only
+
+> **Boundary:** M7 **only** replaces or generates **room prefabs** (`ArenaLayoutTemplate.LevelPrefab` or generated room root). It does **not** modify `WaveComposer`, `EncounterBuilder`, `CombatEncounter`, difficulty curve, elite rules, or `LevelLoader` spawn logic beyond loading a different room instance.
+
+### Commit 23 — Procedural room replaces prefab (walls only, no props)
 
 | | |
 |---|---|
 | **Adds** | `ArenaGraphSettings`, `ArenaGraphGenerator`, `ArenaTilemapBuilder`, `ArenaLayoutGenerator`, `ArenaLayoutResult` |
-| **Changes** | `EncounterBuilder` — `ArenaLayoutGenerator.Generate` → `GeneratedRoom`; tilemap uses **authored wall scale**, **no grey floor** |
-| **Playtest** | Enter combat → **procedural room** with correct-sized walls (match Level2 scale), player/enemies **inside** arena. **No crates yet.** |
+| **Changes** | `RunManager.ResolveCombatLayout` or layout resolver — optional generated room **instead of** `Square_Arena` prefab |
+| **Changes** | Generated room **must include** `PlayerSpawnMarker`, `ExitSpawnPoint`, `EnemySpawnPoint` markers (same contract as authored arenas) |
+| **Playtest** | Enter combat → **procedural room** with correct wall scale; **same composed enemies** as before M7; spawn animation + elites still work. |
 | **EditMode** | `ArenaGraphGeneratorTest`, `ArenaLayoutGeneratorTest` |
 
-### Commit 22 — `ExitSpawnPoint` + spawn lanes on generated room
+### Commit 24 — Generated room markers + exit portal placement
 
 | | |
 |---|---|
-| **Changes** | Generated room places `PlayerSpawnMarker`, `ExitSpawnPoint`, `EnemySpawnPoint` lanes; portal uses generated exit |
-| **Playtest** | Procedural combat → clear waves → portal at **sensible spot in room** → exit to Map. |
+| **Changes** | Generated room reliably places spawn/exit markers; portal spawns at `ExitSpawnPoint` |
+| **Playtest** | Procedural combat → clear waves → portal at sensible spot → exit to Map. **No change** to wave composition or enemy behaviour. |
 
-### Commit 23 — Lane-based enemy spawn on procedural arenas
+### ~~Commit 23 (old)~~ — Lane-based enemy spawn
 
-| | |
-|---|---|
-| **Changes** | `LevelLoader` spawns wave enemies on lane spawn points |
-| **Playtest** | Enemies enter from **edges** of procedural room, not random off-map coordinates. |
+*Removed — enemy spawning is complete in M6. Procedural rooms place standard `EnemySpawnPoint` markers; no special lane spawn code.*
 
 ---
 
-## M8 — Crates & props (only when spawn works)
+## M8 — Crates & props (arena decoration only)
 
-### Commit 24 — Crate/pillar prefabs + `ObstacleCatalog`
+### Commit 25 — Crate/pillar prefabs + `ObstacleCatalog`
 
 | | |
 |---|---|
 | **Adds** | `ObstacleCatalog`, `DestructibleCrate`, `ArenaCrate.prefab`, `ArenaPillar.prefab` |
-| **Changes** | `Square_Arena.asset` / template — catalog reference |
-| **Playtest** | Manually place crate in **ShopLevel or Arena test scene** → visible, collidable, destructible. |
+| **Changes** | `Square_Arena` / template — catalog reference for manual placement tests |
+| **Playtest** | Manually place crate in **ShopLevel or Arena test scene** → visible, collidable, destructible. **Encounters unchanged.** |
 
-### Commit 25 — Spawn crates in procedural arenas
+### Commit 26 — Spawn crates in procedural arenas
 
 | | |
 |---|---|
 | **Adds** | `ArenaChunkPopulator`, `ArenaComposer`, `PropSpawnZone` (optional on authored arenas) |
-| **Changes** | `EncounterBuilder` / `ApplyProps` after layout gen |
-| **Playtest** | Procedural combat → **crates/pillars visible inside room**, collide with player. |
+| **Changes** | Layout resolver / room generator — `ApplyProps` after geometry only; **does not touch** `CombatEncounter` |
+| **Playtest** | Procedural combat → **crates/pillars visible inside room**, collide with player. Same waves/elites as without props. |
 
 ---
 
-## M9 — Level preview
+## M9 — Level preview UI (encounter data from M6)
 
-### Commit 26 — Preview block generation on upgrade enter
-
-| | |
-|---|---|
-| **Changes** | `RunManager.GeneratePreviewBlockIfNeeded`, `LinearRunGenerator.GeneratePreviewBlock` |
-| **Playtest** | Console/logs show preview encounters generated when entering upgrade (UI next commit). |
+> **Note:** Encounter pre-roll and queue promotion ship in **M6 Commit 22**. M9 is UI only.
 
 ### Commit 27 — `LevelPreviewPanel` in upgrade hub
 
 | | |
 |---|---|
 | **Adds** | `LevelPreviewPanel.cs` |
-| **Changes** | `ShopLevel` — panel UI wired to `RunManager.PreviewBlock` |
-| **Playtest** | Upgrade hub → panel shows **next 3 combat** previews (icons/elements). |
+| **Changes** | `ShopLevel` — panel wired to pre-rolled `CombatEncounter` data on `RunManager` / upcoming steps |
+| **Playtest** | Upgrade hub → panel shows **next 3 combat** previews (theme icons, elite indicator, difficulty hint). |
 
-### Commit 28 — Promote preview into real queue
+### ~~Commit 26–28 (old)~~ — Preview generation + promotion
+
+*Merged into M6 Commit 22. M9 no longer owns encounter composition.*
+
+### Commit 28 — Preview polish + docs
 
 | | |
 |---|---|
-| **Changes** | `EnsureMoreStepsQueued` → `BlockFromEncounters` |
-| **Playtest** | After upgrade, next 3 combats **match** what preview showed (element/theme). |
-| **EditMode** | `RunQueuePromotionTest` |
+| **Changes** | Preview copy/styling; `MapRunSystem.md`, `EnemySystem.md`, `LevelGeneration.md` updated for M6 encounter model |
+| **Playtest** | Full loop: preview → fight → composition matches panel. |
+| **EditMode** | `RunQueuePromotionTest` already in M6; re-run after UI wiring |
 
 ---
 
@@ -309,14 +411,14 @@ git checkout main
 
 | | |
 |---|---|
-| **Adds** | `SwordGearLevelGenSetup.cs` |
-| **Playtest** | Run **SwordGear → Setup →** items; re-run M4 playtest to confirm nothing broke. |
+| **Adds** | `SwordGearLevelGenSetup.cs` — includes **Enemy Catalog** + **Wave Composer Settings** setup items |
+| **Playtest** | Run **SwordGear → Setup →** items; re-run M6 acceptance playtest to confirm nothing broke. |
 
 ### Commit 30 — Documentation for shipped milestones only
 
 | | |
 |---|---|
-| **Changes** | `MapRunSystem.md`, `LevelGeneration.md`, `ProjectIndex.md`, `AGENTS.md` |
+| **Changes** | `MapRunSystem.md`, `LevelGeneration.md`, `EnemySystem.md`, `ProjectIndex.md`, `AGENTS.md` |
 | **Playtest** | N/A — review docs match commits 01–29. |
 
 ---
@@ -343,10 +445,11 @@ git checkout main
 | **09** | One combat → portal → Map → token moved |
 | **12** | Full C×3 → Upgrade → Map → next cycle |
 | **17** | Upgrade hub roam + smooth map |
-| **20** | Combats differ by composition |
-| **21** | Procedural walls, correct scale |
-| **25** | Procedural + crates |
-| **28** | Preview matches next combats |
+| **18** | New enemies: turret, shotgun, beam sniper (per element) |
+| **22** | **M6 done** — 20 archetypes, difficulty curve, elites, spawn anim, composed waves, pre-roll |
+| **23–24** | Procedural **room only**; encounters identical to M6 |
+| **26** | Procedural + crates |
+| **27** | Preview **UI** matches pre-rolled encounters |
 
 ---
 
@@ -358,4 +461,4 @@ When ready: say **“start commit 01”** and we apply only that slice + give yo
 
 ---
 
-*Last updated: 2026-06-28 — playtest-first reorder; linear map is commits 01–03, not Phase F.*
+*Last updated: 2026-07-05 — M6: 20 archetypes (12 new roles + elites at spawn), complete encounter system; arena gen orthogonal in M7+.*

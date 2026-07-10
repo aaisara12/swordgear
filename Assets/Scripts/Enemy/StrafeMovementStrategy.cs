@@ -12,7 +12,7 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
     [SerializeField] private Vector2 directionChangeTimeRange = new Vector2(1f, 3f);
     private float nextDirectionChangeTime;
     private int strafeDirectionMultiplier = 1; // 1 for right, -1 for left
-    private RangedAttackStrategy rangedAttackStrategy;
+    private IChargingAttackStrategy? chargingAttack;
 
     private void Start()
     {
@@ -21,13 +21,13 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
         // Set the first direction change time randomly within the defined range
         nextDirectionChangeTime = Time.time + Random.Range(directionChangeTimeRange.x, directionChangeTimeRange.y);
 
-        rangedAttackStrategy = GetComponent<RangedAttackStrategy>();
+        chargingAttack = GetComponent<IChargingAttackStrategy>();
     }
 
     public void Move(Rigidbody2D rb, Transform targetTransform, float speed)
     {
         // If the enemy is in the middle of a charge-up, stand still
-        if (rangedAttackStrategy != null && rangedAttackStrategy.IsAttacking())
+        if (chargingAttack != null && chargingAttack.IsCharging)
         {
             rb.linearVelocity = Vector2.zero;
             return;

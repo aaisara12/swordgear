@@ -1,0 +1,113 @@
+using UnityEngine;
+using UnityEngine.Serialization;
+
+/// <summary>Matches <see cref="RangedAttackStrategy"/> charge cadence; locks aim while telegraphing/firing.</summary>
+public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
+{
+    [FormerlySerializedAs("projectilePrefab")]
+    [SerializeField] private GameObject beamLaserPrefab;
+    [SerializeField] private float attackFrequency = 0.3f;
+    [SerializeField] private float attackRange = 12f;
+    [SerializeField] private float damage = 14f;
+    [SerializeField] private float chargeUpTime = 1.35f;
+
+    private float nextAttackTime;
+    private bool isCharging;
+    private Transform playerTransform;
+    private EnemyController enemyController;
+    private EnemyAttackDamage? attackDamage;
+
+    public bool IsCharging => isCharging;
+
+    private void Start()
+    {
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+
+        playerTransform = GameManager.Instance.player.transform;
+        enemyController = GetComponent<EnemyController>();
+        attackDamage = GetComponent<EnemyAttackDamage>();
+        if (enemyController == null)
+        {
+            Debug.LogError($"BeamSniperAttackStrategy on {gameObject.name} requires EnemyController.");
+        }
+
+        if (beamLaserPrefab == null)
+        {
+            Debug.LogError($"BeamSniperAttackStrategy on {gameObject.name} requires beamLaserPrefab.");
+        }
+    }
+
+    private void Update()
+    {
+        if (playerTransform == null || enemyController == null || beamLaserPrefab == null)
+        {
+            return;
+        }
+
+        if (isCharging)
+        {
+            if (Time.time >= nextAttackTime)
+            {
+                isCharging = false;
+                nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, attackFrequency));
+            }
+
+            return;
+        }
+
+        if (Time.time < nextAttackTime)
+        {
+            return;
+        }
+
+        float distance = Vector2.Distance(transform.position, playerTransform.position);
+        if (distance <= attackRange)
+        {
+            BeginChargedBeam();
+        }
+    }
+
+    private void BeginChargedBeam()
+    {
+        Vector2 direction = (playerTransform.position - transform.position).normalized;
+        if (direction.sqrMagnitude < 0.0001f)
+        {
+            direction = Vector2.up;
+        }
+
+        float beamDuration = 0.55f;
+        EnemyBeamLaser? laserTemplate = beamLaserPrefab.GetComponent<EnemyBeamLaser>();
+        if (laserTemplate != null)
+        {
+            beamDuration = laserTemplate.BeamActiveDuration;
+        }
+
+        // Same pattern as RangedAttackStrategy: enter charging before the wind-up completes.
+        isCharging = true;
+        nextAttackTime = Time.time + chargeUpTime + beamDuration;
+
+        float finalDamage = damage * (attackDamage != null ? attackDamage.DamageMultiplier : 1f);
+        GameObject laserInstance = PrefabPool.Instance!.Spawn(
+            beamLaserPrefab,
+            transform.position,
+            Quaternion.identity);
+
+        EnemyBeamLaser? beamLaser = laserInstance.GetComponent<EnemyBeamLaser>();
+        if (beamLaser != null)
+        {
+            beamLaser.Begin(
+                transform,
+                direction,
+                enemyController.element,
+                finalDamage,
+                chargeUpTime);
+        }
+    }
+
+    public void Attack(Transform selfTransform, Transform targetTransform)
+    {
+    }
+}

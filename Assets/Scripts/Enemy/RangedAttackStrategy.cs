@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class RangedAttackStrategy : MonoBehaviour, IAttackStrategy
+public class RangedAttackStrategy : MonoBehaviour, IChargingAttackStrategy
 {
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float attackFrequency = 1f;
@@ -14,12 +14,16 @@ public class RangedAttackStrategy : MonoBehaviour, IAttackStrategy
     private bool isAttacking = false;
     private Transform playerTransform;
     private EnemyController enemyController;
+    private EnemyAttackDamage? attackDamage;
+
+    public bool IsCharging => isAttacking;
 
     private void Start()
     {
         playerTransform = GameManager.Instance.player.transform;
         // Get reference to EnemyController on the same GameObject
         enemyController = GetComponent<EnemyController>();
+        attackDamage = GetComponent<EnemyAttackDamage>();
         if (enemyController == null)
         {
             Debug.LogError($"RangedAttackStrategy on {gameObject.name} requires an EnemyController component!");
@@ -68,7 +72,8 @@ public class RangedAttackStrategy : MonoBehaviour, IAttackStrategy
         EnemyProjectile enemyProjectile = projectile.GetComponent<EnemyProjectile>();
         if (enemyProjectile != null)
         {
-            enemyProjectile.Initialize(enemyController.element, damage);
+            float finalDamage = damage * (attackDamage != null ? attackDamage.DamageMultiplier : 1f);
+            enemyProjectile.Initialize(enemyController.element, finalDamage);
         }
 
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();

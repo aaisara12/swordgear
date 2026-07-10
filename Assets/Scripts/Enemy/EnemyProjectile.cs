@@ -24,6 +24,8 @@ public class EnemyProjectile : MonoBehaviour
         spriteRenderer ??= GetComponent<SpriteRenderer>();
         ApplyVisuals(attackerElement);
 
+        GetComponent<EnemyProjectileVisual>()?.Apply(attackerElement);
+
         var pooled = GetComponent<PooledInstance>();
         if (pooled != null)
             pooled.ReleaseAfter(lifetime);
