@@ -54,7 +54,8 @@ public class RangedAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             {
                 // Set the state to "isAttacking" and set the attack time for the charge-up
                 isAttacking = true;
-                nextAttackTime = Time.time + chargeUpTime;
+                float charge = chargeUpTime * (attackDamage != null ? attackDamage.ChargeTimeMultiplier : 1f);
+                nextAttackTime = Time.time + charge;
             }
         }
     }
@@ -79,10 +80,12 @@ public class RangedAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.linearVelocity = direction * projectileSpeed;
+            float speed = projectileSpeed * (attackDamage != null ? attackDamage.ProjectileSpeedMultiplier : 1f);
+            rb.linearVelocity = direction * speed;
         }
         // Set the cooldown for the next full attack cycle (movement and attack)
-        nextAttackTime = Time.time + (1f / attackFrequency);
+        float rate = attackFrequency * (attackDamage != null ? attackDamage.AttackRateMultiplier : 1f);
+        nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, rate));
     }
 
     public bool IsAttacking()

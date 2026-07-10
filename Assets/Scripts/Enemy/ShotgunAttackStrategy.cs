@@ -62,7 +62,8 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         if (distance <= attackRange)
         {
             isCharging = true;
-            nextAttackTime = Time.time + chargeUpTime;
+            float charge = chargeUpTime * (attackDamage != null ? attackDamage.ChargeTimeMultiplier : 1f);
+            nextAttackTime = Time.time + charge;
         }
     }
 
@@ -86,7 +87,7 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             SpawnProjectile(selfTransform.position, direction, pelletDamage);
         }
 
-        nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, attackFrequency));
+        nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, attackFrequency * (attackDamage != null ? attackDamage.AttackRateMultiplier : 1f)));
     }
 
     private void SpawnProjectile(Vector3 position, Vector2 direction, float pelletDamage)
@@ -106,7 +107,8 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.linearVelocity = direction * projectileSpeed;
+            float speed = projectileSpeed * (attackDamage != null ? attackDamage.ProjectileSpeedMultiplier : 1f);
+            rb.linearVelocity = direction * speed;
         }
     }
 

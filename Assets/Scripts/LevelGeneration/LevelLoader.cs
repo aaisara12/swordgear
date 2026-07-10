@@ -145,11 +145,36 @@ public class LevelLoader : MonoBehaviour
 
                     // Add the controller to the list
                     activeEnemies.Add(enemyController);
+
+                    ApplySpawnModifiers(enemyController, enemyCount.EnemyPrefab);
                 }
             }
         }
 
         TryAdvanceIfWaveEmpty();
+    }
+
+    private void ApplySpawnModifiers(EnemyController enemyController, GameObject enemyPrefab)
+    {
+        if (!EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
+        {
+            // Outside a linear combat step (e.g. editor playtest) — still apply elemental knobs if catalog is present.
+            EnemyCatalog? catalog = RunManager.Instance?.EnemyCatalog;
+            if (catalog != null && catalog.TryGetByPrefab(enemyPrefab, out EnemyArchetype? archetype)
+                && archetype != null && archetype.applyElementKnobsAtSpawn)
+            {
+                enemyController.ApplySpawnModifiers(SpawnModifiers.FromElement(catalog.GetElementKnobs(archetype.element)));
+            }
+
+            return;
+        }
+
+        EnemyCatalog? enemyCatalog = RunManager.Instance?.EnemyCatalog;
+        SpawnModifiers modifiers = enemyCatalog != null
+            ? enemyCatalog.ResolveSpawnModifiers(context, enemyPrefab)
+            : DifficultyCurve.Evaluate(context);
+
+        enemyController.ApplySpawnModifiers(modifiers);
     }
 
     private void TryAdvanceIfWaveEmpty()

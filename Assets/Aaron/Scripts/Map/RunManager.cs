@@ -47,6 +47,10 @@ public class RunManager : MonoBehaviour
     [Header("Run-long State")]
     [SerializeField] private UltimateChargeTracker? ultimateChargeTracker;
 
+    [Header("Encounter (M6)")]
+    [Tooltip("Roster of all 20 enemy archetypes + elemental stat knobs. Required for spawn scaling.")]
+    [SerializeField] private EnemyCatalog? enemyCatalog;
+
     private RunMap? _currentMap;
     private LinearRunState? _linearRun;
     private int _lastSeed;
@@ -57,6 +61,7 @@ public class RunManager : MonoBehaviour
     public RunMap? CurrentMap => _currentMap;
     public LinearRunState? Run => _linearRun;
     public RunStep? CurrentStep => _linearRun?.CurrentStep;
+    public EnemyCatalog? EnemyCatalog => enemyCatalog;
     [Obsolete("DEPRECATED: Branching map node; use CurrentStep instead.")]
     public MapNode? CurrentNode => _currentMap?.CurrentNode;
     public bool HasActiveRun => _linearRun != null;
@@ -268,6 +273,13 @@ public class RunManager : MonoBehaviour
         }
 
         int seed = _linearRun?.Seed ?? _lastSeed;
+        int stepIndex = _linearRun?.CurrentStep?.StepIndex ?? 0;
+        // Per-combat determinism: same runSeed + globalStepIndex → same wave picks.
+        unchecked
+        {
+            seed = (seed * 397) ^ stepIndex;
+        }
+
         var rng = new System.Random(seed);
         int minWaves = generationSettings.minWavesPerCombat;
         int maxWaves = generationSettings.maxWavesPerCombat;

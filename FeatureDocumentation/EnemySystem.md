@@ -23,6 +23,7 @@ Drives enemy movement, attacking, status effects, and death — using the Strate
 | `IChargingAttackStrategy` | `Assets/Scripts/Enemy/IChargingAttackStrategy.cs` |
 | `EnemyAttackDamage` | `Assets/Scripts/Enemy/EnemyAttackDamage.cs` |
 | `EnemyBeamLaser` | `Assets/Scripts/Enemy/EnemyBeamLaser.cs` |
+| `EnemyCatalog` | `Assets/Scripts/Enemy/EnemyCatalog.cs` |
 | `EnemySpawner` | `Assets/Scripts/Enemy/EnemySpawner.cs` |
 | `EnemyProjectile` | `Assets/Scripts/Enemy/EnemyProjectile.cs` |
 | `HitEffectAnimator` | `Assets/Scripts/Enemy/HitEffectAnimator.cs` |
@@ -53,6 +54,25 @@ Beam sniper fires a **telegraphed laser**: a translucent rectangle shows the hit
 Generate prefabs: **Henry → Generate New Enemy Archetype Prefabs**. Play Mode showcase: **Henry → Playtest → Spawn New Enemy Archetypes**.
 
 `IChargingAttackStrategy` enemies pause strafe movement while winding up a shot (shotgun, beam sniper, legacy ranged).
+
+---
+
+## Enemy Catalog & Spawn Scaling (Commit 19+)
+
+| Script / Asset | Path |
+|---|---|
+| `EnemyCatalog` | `Assets/Scripts/Enemy/EnemyCatalog.cs` + `Assets/Aaron/ScriptableObjects/EnemyCatalog.asset` |
+| `EnemyArchetype` | `Assets/Scripts/Enemy/EnemyArchetype.cs` |
+| `ElementStatKnobs` | `Assets/Scripts/Enemy/ElementStatKnobs.cs` |
+| `SpawnModifiers` / `DifficultyCurve` | `Assets/Scripts/Enemy/` |
+| `EncounterContext` | `Assets/Aaron/Scripts/Map/EncounterContext.cs` |
+
+`LevelLoader` applies spawn modifiers after each Instantiate:
+
+1. **Difficulty** from `(blockIndex, combatIndexInBlock)` — later combats / blocks get more HP & damage.
+2. **Elemental knobs** for new archetypes (`applyElementKnobsAtSpawn`) — Fire aggressive, Ice tanky/slow/hard, Lightning fast/weak. Legacy melee/ranged keep baked prefab stats.
+
+Generate / refresh catalog: **Henry → Generate Enemy Catalog** (also wires `RunManager.enemyCatalog` on CoreSystems).
 
 ---
 
@@ -101,4 +121,4 @@ Weapon hits enemy
 
 ## Spawning
 
-`EnemySpawner` instantiates enemy prefabs at designated `EnemySpawnPoint` locations, driven by `EnemyWaveConfig` ScriptableObjects. See [LevelGeneration.md](LevelGeneration.md) for how waves are selected.
+`LevelLoader` instantiates wave prefabs at `EnemySpawnPoint` markers, then calls `EnemyController.ApplySpawnModifiers` using `EncounterContext` + `EnemyCatalog`. Wave lists still come from `RunManager.BuildCombatWaves` (legacy pool) until Commit 21 replaces them with `EncounterBuilder`. See [LevelGeneration.md](LevelGeneration.md) and [MapRunSystem.md](MapRunSystem.md).

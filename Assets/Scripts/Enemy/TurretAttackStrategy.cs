@@ -69,7 +69,8 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
         }
         else
         {
-            nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, attackFrequency));
+            float rate = attackFrequency * (attackDamage != null ? attackDamage.AttackRateMultiplier : 1f);
+            nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, rate));
         }
     }
 
@@ -97,7 +98,8 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
         Rigidbody2D rb = projectile.GetComponent<Rigidbody2D>();
         if (rb != null)
         {
-            rb.linearVelocity = direction * projectileSpeed;
+            float speed = projectileSpeed * (attackDamage != null ? attackDamage.ProjectileSpeedMultiplier : 1f);
+            rb.linearVelocity = direction * speed;
         }
     }
 }

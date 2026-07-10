@@ -57,10 +57,44 @@ public static class EnemyArchetypePlaytestMenu
 
             float x = (i - (prefabNames.Length - 1) * 0.5f) * spacing;
             Vector3 position = origin + new Vector3(x, 3f, 0f);
-            Object.Instantiate(prefab, position, Quaternion.identity);
+            GameObject instance = Object.Instantiate(prefab, position, Quaternion.identity);
+            ApplyPlaytestModifiers(instance, prefab);
         }
 
         Debug.Log("EnemyArchetypePlaytestMenu: spawned turret, shotgun, and beam sniper showcase (physical + fire).");
+    }
+
+    private static void ApplyPlaytestModifiers(GameObject instance, GameObject prefab)
+    {
+        EnemyController? controller = instance.GetComponent<EnemyController>();
+        if (controller == null)
+        {
+            return;
+        }
+
+        EnemyCatalog? catalog = RunManager.Instance?.EnemyCatalog;
+        if (catalog == null)
+        {
+            catalog = AssetDatabase.LoadAssetAtPath<EnemyCatalog>("Assets/Aaron/ScriptableObjects/EnemyCatalog.asset");
+        }
+
+        if (catalog == null)
+        {
+            return;
+        }
+
+        if (EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
+        {
+            controller.ApplySpawnModifiers(catalog.ResolveSpawnModifiers(context, prefab));
+            return;
+        }
+
+        if (catalog.TryGetByPrefab(prefab, out EnemyArchetype? archetype)
+            && archetype != null
+            && archetype.applyElementKnobsAtSpawn)
+        {
+            controller.ApplySpawnModifiers(SpawnModifiers.FromElement(catalog.GetElementKnobs(archetype.element)));
+        }
     }
 }
 #endif

@@ -52,7 +52,8 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             if (Time.time >= nextAttackTime)
             {
                 isCharging = false;
-                nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, attackFrequency));
+                float rate = attackFrequency * (attackDamage != null ? attackDamage.AttackRateMultiplier : 1f);
+                nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, rate));
             }
 
             return;
@@ -86,8 +87,9 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         }
 
         // Same pattern as RangedAttackStrategy: enter charging before the wind-up completes.
+        float charge = chargeUpTime * (attackDamage != null ? attackDamage.ChargeTimeMultiplier : 1f);
         isCharging = true;
-        nextAttackTime = Time.time + chargeUpTime + beamDuration;
+        nextAttackTime = Time.time + charge + beamDuration;
 
         float finalDamage = damage * (attackDamage != null ? attackDamage.DamageMultiplier : 1f);
         GameObject laserInstance = PrefabPool.Instance!.Spawn(
@@ -103,7 +105,7 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
                 direction,
                 enemyController.element,
                 finalDamage,
-                chargeUpTime);
+                charge);
         }
     }
 

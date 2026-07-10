@@ -68,8 +68,8 @@ MonoBehaviour:
     bossWaves:
     - {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
     - {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
-  fallbackCombatLayout: {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
   fixedMapOverride: {fileID: 0}
+  fallbackCombatLayout: {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
   useRandomSeed: 1
   fixedSeed: 12345
   sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}
@@ -85,6 +85,7 @@ MonoBehaviour:
   stageCompleteContinueChannel: {fileID: 11400000, guid: d615518f5a98648be95b799bc77f67c0, type: 2}
   playerDefeatedChannel: {fileID: 11400000, guid: 4445eb8f6b5334d1591c68ff272262f9, type: 2}
   ultimateChargeTracker: {fileID: 3346800436722707166}
+  enemyCatalog: {fileID: 11400000, guid: f9f27ed1b4b262949b1a0bc2f6cab060, type: 2}
 --- !u!1 &2095857230064898771
 GameObject:
   m_ObjectHideFlags: 0

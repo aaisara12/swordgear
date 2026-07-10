@@ -49,10 +49,10 @@ public class MeleeAttackStrategy : MonoBehaviour, IAttackStrategy
                     defenderElement,
                     attackerElement,
                     scaledDamage);
-                
-                // Update next attack time based on attack frequency
-                nextAttackTime = Time.time + (1f / attackFrequency);
-                
+
+                float rate = attackFrequency * (damageScaler != null ? damageScaler.AttackRateMultiplier : 1f);
+                nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, rate));
+
                 player.TakeDamage(finalDamage);
             }
         }

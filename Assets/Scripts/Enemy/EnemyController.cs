@@ -27,6 +27,29 @@ public class EnemyController : MonoBehaviour
 
     public GameObject? floatingPoints;
 
+    /// <summary>
+    /// Applies difficulty / elemental / elite spawn multipliers.
+    /// Call immediately after Instantiate, before the enemy acts.
+    /// </summary>
+    public void ApplySpawnModifiers(in SpawnModifiers modifiers)
+    {
+        hp *= Mathf.Max(0.05f, modifiers.HpMultiplier);
+        speed *= Mathf.Max(0.05f, modifiers.SpeedMultiplier);
+
+        if (!Mathf.Approximately(modifiers.ScaleMultiplier, 1f))
+        {
+            transform.localScale *= Mathf.Max(0.05f, modifiers.ScaleMultiplier);
+        }
+
+        EnemyAttackDamage? combat = GetComponent<EnemyAttackDamage>();
+        if (combat == null)
+        {
+            combat = gameObject.AddComponent<EnemyAttackDamage>();
+        }
+
+        combat.ApplyCombatMultipliers(modifiers);
+    }
+
     private void OnEnable()
     {
         ActiveEnemyRegistry.Register(this);
