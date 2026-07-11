@@ -151,14 +151,23 @@ After changing shaders or prefab layout, run **Setup Augment Card Visuals** befo
 
 ---
 
-## Upgrade hub augment offer
+## Upgrade hub & post-combat augment offers
 
-The linear run loop (Combat×3 → Upgrade → Map) is handled by `RunManager` / `NodeStarter`. When the player enters an **Upgrade** step, **`UpgradeFlowController`** (on `Node Loop` in `Arena.unity`):
+Augment pacing for the linear run loop (Combat×3 → Upgrade → Map):
 
-1. Waits for the additive `AugmentShop` scene to load.
-2. Raises `ShowNextAugmentSetChannel` to roll three offers.
-3. Pauses gameplay (`timeScale = 0`) while the picker is visible.
-4. Resumes after the player chooses an augment.
+| Moment | Component | Offer |
+|---|---|---|
+| After each **combat** clear | `PostCombatAugmentFlow` on `Node Loop` | Standard tier % roll (`AugmentTierRollSettings` + combo floor) |
+| **Upgrade** hub enter | `UpgradeFlowController` on `Node Loop` | Guaranteed **Diamond** (`AugmentQualityTier.Elite`) |
+
+Both flows:
+
+1. Wait for the additive `AugmentShop` scene (post-combat waits ~0.75s unscaled after clear first).
+2. Pause gameplay (`timeScale = 0`), then call `RunManager.OfferStandardAugmentPick()` / `OfferDiamondAugmentPick()`.
+3. Card/shop intro anims keep running via `Time.unscaledTime` / `unscaledDeltaTime`.
+4. On choice: resume gameplay and call `LevelLoader.RequestExitPortal()` — the exit portal does **not** spawn until the pick is done (combat clear and upgrade hub).
+
+`InGameAugmentsManager.ResolveOfferTier()` consumes `RunManager.PendingAugmentTierOverride` when present.
 
 Related fix: `ShopAnimation` uses `Time.unscaledDeltaTime` so the shop intro animates while paused.
 

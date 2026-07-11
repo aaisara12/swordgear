@@ -62,32 +62,32 @@ namespace Shop
         private const float FlareIntensity = 1.2f;
         private const float RimGlowStrength = 1.5f;
 
-        private static readonly Color BronzeBase = new(0.22f, 0.11f, 0.03f, 1f);
-        private static readonly Color BronzeHighlight = new(0.72f, 0.42f, 0.12f, 0.9f);
-        private static readonly Color BronzeShadow = new(0.06f, 0.03f, 0.01f, 1f);
-        private static readonly Color BronzeBorder = new(0.82f, 0.48f, 0.12f, 0.9f);
-        private static readonly Color BronzeAura = new(1.0f, 0.42f, 0.06f, 1f);
+        private static readonly Color BronzeBase = new(0.12f, 0.06f, 0.015f, 1f);
+        private static readonly Color BronzeHighlight = new(0.48f, 0.28f, 0.08f, 0.85f);
+        private static readonly Color BronzeShadow = new(0.03f, 0.015f, 0.005f, 1f);
+        private static readonly Color BronzeBorder = new(0.62f, 0.36f, 0.09f, 0.9f);
+        private static readonly Color BronzeAura = new(0.85f, 0.32f, 0.04f, 1f);
 
-        private static readonly Color SilverBase = new(0.26f, 0.28f, 0.34f, 1f);
-        private static readonly Color SilverHighlight = new(0.60f, 0.64f, 0.74f, 0.80f);
-        private static readonly Color SilverShadow = new(0.11f, 0.12f, 0.15f, 1f);
-        private static readonly Color SilverBorder = new(0.70f, 0.74f, 0.80f, 0.9f);
-        private static readonly Color SilverAura = new(0.65f, 0.82f, 1.1f, 1f);
-        private static readonly Color SilverFlare = new(0.46f, 0.52f, 0.66f, 1f);
-        private const float SilverRimGlowStrength = 1.1f;
-        private const float SilverFlareIntensity = 1.0f;
+        private static readonly Color SilverBase = new(0.14f, 0.15f, 0.19f, 1f);
+        private static readonly Color SilverHighlight = new(0.40f, 0.44f, 0.52f, 0.75f);
+        private static readonly Color SilverShadow = new(0.05f, 0.055f, 0.07f, 1f);
+        private static readonly Color SilverBorder = new(0.52f, 0.56f, 0.62f, 0.9f);
+        private static readonly Color SilverAura = new(0.45f, 0.58f, 0.85f, 1f);
+        private static readonly Color SilverFlare = new(0.32f, 0.36f, 0.48f, 1f);
+        private const float SilverRimGlowStrength = 1.0f;
+        private const float SilverFlareIntensity = 0.85f;
 
-        private static readonly Color GoldBase = new(0.36f, 0.22f, 0.01f, 1f);
-        private static readonly Color GoldHighlight = new(0.85f, 0.70f, 0.14f, 0.95f);
-        private static readonly Color GoldShadow = new(0.13f, 0.07f, 0.0f, 1f);
-        private static readonly Color GoldBorder = new(0.85f, 0.64f, 0.05f, 0.95f);
-        private static readonly Color GoldAura = new(1.1f, 0.68f, 0.04f, 1f);
+        private static readonly Color GoldBase = new(0.20f, 0.12f, 0.005f, 1f);
+        private static readonly Color GoldHighlight = new(0.58f, 0.46f, 0.09f, 0.9f);
+        private static readonly Color GoldShadow = new(0.06f, 0.03f, 0.0f, 1f);
+        private static readonly Color GoldBorder = new(0.65f, 0.48f, 0.04f, 0.95f);
+        private static readonly Color GoldAura = new(0.85f, 0.5f, 0.03f, 1f);
 
-        private static readonly Color DiamondBase = new(0.06f, 0.14f, 0.38f, 1f);
-        private static readonly Color DiamondHighlight = new(0.45f, 0.78f, 1.2f, 1f);
-        private static readonly Color DiamondShadow = new(0.02f, 0.06f, 0.18f, 1f);
-        private static readonly Color DiamondBorder = new(0.55f, 0.88f, 1.3f, 1f);
-        private static readonly Color DiamondAura = new(0.30f, 0.65f, 1.5f, 1f);
+        private static readonly Color DiamondBase = new(0.03f, 0.07f, 0.20f, 1f);
+        private static readonly Color DiamondHighlight = new(0.28f, 0.52f, 0.85f, 1f);
+        private static readonly Color DiamondShadow = new(0.01f, 0.03f, 0.09f, 1f);
+        private static readonly Color DiamondBorder = new(0.38f, 0.65f, 1.0f, 1f);
+        private static readonly Color DiamondAura = new(0.20f, 0.45f, 1.1f, 1f);
 
         private static readonly int ColorId = Shader.PropertyToID("_Color");
         private static readonly int HighlightColorId = Shader.PropertyToID("_HighlightColor");

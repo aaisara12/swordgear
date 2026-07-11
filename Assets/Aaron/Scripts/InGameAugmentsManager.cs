@@ -108,6 +108,13 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 
     private AugmentQualityTier ResolveOfferTier()
     {
+        if (RunManager.Instance != null
+            && RunManager.Instance.TryConsumeAugmentTierOverride(out AugmentQualityTier forcedTier))
+        {
+            Debug.Log($"[InGameAugmentsManager] Using forced offer tier {forcedTier}.");
+            return forcedTier;
+        }
+
         AugmentTierRollWeights weights = tierRollSettings != null
             ? tierRollSettings.Weights
             : AugmentTierRollWeights.Default;

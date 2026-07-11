@@ -83,7 +83,14 @@ Generate / refresh catalog: **Henry → Generate Enemy Catalog** (also wires `Ru
 | `EliteAura` | `Assets/Visuals/Prefabs/Enemies/EliteAura.prefab` |
 | Shared spawn anim | `Assets/Visuals/Animations/EnemySpawn/` |
 
-On spawn, combat is disabled until the shared **Spawn** clip finishes (~0.65s pop-in on `VisualRoot`). Interim elite rule: **first enemy of the last wave** gets elite HP/damage/scale + `EliteAura` child enabled. Wire/refresh: **Henry → Wire Enemy Spawn Presentation**.
+On spawn, combat is disabled until the shared **Spawn** clip finishes (~0.75s punchy pop + burst particles on `VisualRoot`). Interim elite rule: **first enemy of the last wave** gets elite HP/damage/scale + soft multi-layer `EliteAura`. Wire/refresh: **Henry → Wire Enemy Spawn Presentation**.
+
+### Post-combat & upgrade hub augments
+
+| Moment | Offer |
+|---|---|
+| After each combat clear | Standard tier % roll (`AugmentTierRollSettings`) via `PostCombatAugmentFlow` |
+| Upgrade hub enter | Guaranteed **Diamond** (`AugmentQualityTier.Elite`) via `UpgradeFlowController` |
 
 ---
 

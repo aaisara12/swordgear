@@ -65,7 +65,7 @@ public class LevelLoader : MonoBehaviour
 
         if (blueprint.IsShopLevel)
         {
-            SpawnExitPortal();
+            // Exit portal is deferred until UpgradeFlowController finishes the diamond augment pick.
             return;
         }
 
@@ -219,8 +219,7 @@ public class LevelLoader : MonoBehaviour
 
     private void CompleteLevel()
     {
-        Debug.Log("Level Complete! Spawning exit portal.");
-        SpawnExitPortal();
+        Debug.Log("Level Complete! Waiting for post-combat augment before exit portal.");
         if (ComboSystem.Instance != null)
         {
             ComboSystem.Instance.OnLevelFinished();
@@ -228,6 +227,15 @@ public class LevelLoader : MonoBehaviour
 
         OnLevelClear?.Invoke();
         CleanupWaveSubscriptions();
+    }
+
+    /// <summary>
+    /// Spawns the exit portal after gated flows (post-combat / upgrade augment pick) finish.
+    /// Safe to call more than once — replaces any existing portal.
+    /// </summary>
+    public void RequestExitPortal()
+    {
+        SpawnExitPortal();
     }
 
     // --- Event Handler ---
@@ -282,7 +290,7 @@ public class LevelLoader : MonoBehaviour
         }
     }
 
-    /// <summary>Editor/dev helper: skip straight to the exit portal without fighting remaining waves.</summary>
+    /// <summary>Editor/dev helper: skip straight to level-clear (portal still gated by augment flow in combat).</summary>
     public void DebugCompleteLevel()
     {
         CancelInvoke(nameof(SpawnEnemiesForWave));

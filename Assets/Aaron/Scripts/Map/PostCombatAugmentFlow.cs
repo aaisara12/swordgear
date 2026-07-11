@@ -5,16 +5,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Linear upgrade step flow: offer an augment pick when the hub loads, then free roam until exit portal.
+/// After a combat stage clears, offers a standard-tier augment pick (existing % split) before the exit portal spawns.
+/// Upgrade hub diamond offers are handled by <see cref="UpgradeFlowController"/>.
 /// </summary>
-public class UpgradeFlowController : MonoBehaviour
+public class PostCombatAugmentFlow : MonoBehaviour
 {
     private const string AugmentShopSceneName = "AugmentShop";
     private const float AugmentShopLoadTimeoutSeconds = 10f;
 
-    [SerializeField] private TriggerEventChannelSO? showAugmentChannel;
     [SerializeField] private BoolEventChannelSO? augmentVisibilityChannel;
+    [SerializeField] private float delayAfterClearSeconds = 0.75f;
 
+    private LevelLoader? _levelLoader;
     private bool _augmentOffered;
     private bool _augmentChosen;
     private bool _pausedForAugmentPick;
@@ -22,35 +24,48 @@ public class UpgradeFlowController : MonoBehaviour
     private void Start()
     {
         RunStep? step = RunManager.Instance?.CurrentStep;
-        if (step == null || step.Type != RunStepType.Upgrade)
+        if (step == null || step.Type != RunStepType.Combat)
         {
             return;
         }
 
-        Debug.Log("[UpgradeFlowController] Upgrade step detected — starting augment offer flow.");
-
-        if (showAugmentChannel == null)
+        _levelLoader = LevelLoader.Instance;
+        if (_levelLoader == null)
         {
-            Debug.LogError("UpgradeFlowController: showAugmentChannel is null");
+            Debug.LogError("PostCombatAugmentFlow: LevelLoader.Instance is null.");
             return;
         }
 
         if (augmentVisibilityChannel == null)
         {
-            Debug.LogError("UpgradeFlowController: augmentVisibilityChannel is null");
+            Debug.LogError("PostCombatAugmentFlow: augmentVisibilityChannel is null.");
             return;
         }
 
         augmentVisibilityChannel.OnDataChanged += HandleAugmentVisibilityChanged;
-        StartCoroutine(OfferAugmentAfterLevelLoad());
+        _levelLoader.OnLevelClear += HandleCombatCleared;
     }
 
-    private IEnumerator OfferAugmentAfterLevelLoad()
+    private void HandleCombatCleared()
     {
-        // Let NodeStarter / LevelLoader finish instantiating ShopLevel first.
-        yield return null;
+        if (_augmentOffered)
+        {
+            return;
+        }
 
-        // AugmentShop loads additively in Awake and may not be ready on the next frame.
+        StartCoroutine(OfferAugmentAfterClear());
+    }
+
+    private IEnumerator OfferAugmentAfterClear()
+    {
+        // Brief beat after stage-complete UI, then freeze for the pick.
+        if (delayAfterClearSeconds > 0f)
+        {
+            yield return new WaitForSecondsRealtime(delayAfterClearSeconds);
+        }
+
+        PauseForAugmentPick();
+
         float elapsed = 0f;
         while (!SceneManager.GetSceneByName(AugmentShopSceneName).isLoaded)
         {
@@ -58,21 +73,20 @@ public class UpgradeFlowController : MonoBehaviour
             if (elapsed >= AugmentShopLoadTimeoutSeconds)
             {
                 Debug.LogError(
-                    $"UpgradeFlowController: timed out waiting for '{AugmentShopSceneName}' to load; spawning portal without augment.");
-                LevelLoader.Instance?.RequestExitPortal();
+                    $"PostCombatAugmentFlow: timed out waiting for '{AugmentShopSceneName}'; spawning portal without augment.");
+                FinishAndSpawnPortal();
                 yield break;
             }
 
             yield return null;
         }
 
-        // One more frame so ItemShopStateController can subscribe to event channels.
+        // One frame so ItemShopStateController can subscribe (same as UpgradeFlowController).
         yield return null;
 
         _augmentOffered = true;
-        PauseForAugmentPick();
-        Debug.Log("[UpgradeFlowController] Raising diamond augment offer.");
-        RunManager.Instance?.OfferDiamondAugmentPick();
+        Debug.Log("[PostCombatAugmentFlow] Offering standard-tier post-combat augment.");
+        RunManager.Instance?.OfferStandardAugmentPick();
     }
 
     private void HandleAugmentVisibilityChanged(bool isVisible)
@@ -88,11 +102,16 @@ public class UpgradeFlowController : MonoBehaviour
             return;
         }
 
+        FinishAndSpawnPortal();
+        Debug.Log("[PostCombatAugmentFlow] Augment chosen — resumed gameplay and spawned exit portal.");
+    }
+
+    private void FinishAndSpawnPortal()
+    {
         _augmentChosen = true;
         ComboSystem.Instance?.ResetPointsSinceLastAugment();
         ResumeGameplay();
-        LevelLoader.Instance?.RequestExitPortal();
-        Debug.Log("[UpgradeFlowController] Augment chosen — resumed gameplay and spawned exit portal.");
+        _levelLoader?.RequestExitPortal();
     }
 
     private void PauseForAugmentPick()
@@ -104,7 +123,7 @@ public class UpgradeFlowController : MonoBehaviour
 
         _pausedForAugmentPick = true;
         Time.timeScale = 0f;
-        Debug.Log("[UpgradeFlowController] Paused gameplay for augment pick (timeScale=0).");
+        Debug.Log("[PostCombatAugmentFlow] Paused gameplay for augment pick.");
     }
 
     private void ResumeGameplay()
@@ -115,6 +134,11 @@ public class UpgradeFlowController : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (_levelLoader != null)
+        {
+            _levelLoader.OnLevelClear -= HandleCombatCleared;
+        }
+
         if (augmentVisibilityChannel != null)
         {
             augmentVisibilityChannel.OnDataChanged -= HandleAugmentVisibilityChanged;

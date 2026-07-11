@@ -10,6 +10,8 @@ public static class CombatVfxPrefabBuilder
     private const string SquareSpritePath = "Assets/Visuals/UI/SolidWhite.png";
     private const string CircleSpriteGuid = "a86470a33a6bf42c4b3595704624658b";
     private const string ParticleMaterialGuid = "9834be5f44d4d44c1a70dbcffd44063e";
+    private const string SoftParticleMaterialPath = "Assets/Visuals/Materials/SoftParticleGlow.mat";
+    private const string SoftParticleTexturePath = "Assets/NamuFX/_CommonAssets/Images/Common/glow01.psd";
     private const int ParticleSortingOrder = 20;
 
     public static Sprite? LoadSquareSprite()
@@ -31,6 +33,13 @@ public static class CombatVfxPrefabBuilder
 
     public static Material? LoadParticleMaterial()
     {
+        // Prefer soft glow texture — ParticleAdditiveGlow has no _BaseMap and renders as hard quads.
+        Material? soft = EnsureSoftParticleMaterial();
+        if (soft != null)
+        {
+            return soft;
+        }
+
         Material? projectMaterial = AssetDatabase.LoadAssetAtPath<Material>(
             AssetDatabase.GUIDToAssetPath(ParticleMaterialGuid));
         if (projectMaterial != null)
@@ -39,6 +48,98 @@ public static class CombatVfxPrefabBuilder
         }
 
         return AssetDatabase.GetBuiltinExtraResource<Material>("Default-Particle.mat");
+    }
+
+    /// <summary>
+    /// Additive particle material with a soft glow texture.
+    /// NamuFX glow maps are black-background / no alpha — they only look correct with Additive blend
+    /// (black contributes nothing). Alpha blend produces the "black box with orange circle" look.
+    /// </summary>
+    public static Material? EnsureSoftParticleMaterial()
+    {
+        Material? existing = AssetDatabase.LoadAssetAtPath<Material>(SoftParticleMaterialPath);
+        Texture2D? glowTex = AssetDatabase.LoadAssetAtPath<Texture2D>(SoftParticleTexturePath);
+
+        // Prefer Unity's soft Default-Particle (has real alpha). Fall back to NamuFX glow01.
+        Texture? softTex = AssetDatabase.GetBuiltinExtraResource<Material>("Default-Particle.mat")?.mainTexture;
+        if (softTex == null)
+        {
+            softTex = glowTex;
+        }
+
+        if (softTex == null)
+        {
+            return existing;
+        }
+
+        if (existing == null)
+        {
+            Material? template = AssetDatabase.LoadAssetAtPath<Material>(
+                AssetDatabase.GUIDToAssetPath(ParticleMaterialGuid));
+            if (template == null)
+            {
+                return null;
+            }
+
+            existing = new Material(template) { name = "SoftParticleGlow" };
+            AssetDatabase.CreateAsset(existing, SoftParticleMaterialPath);
+        }
+
+        if (existing.HasProperty("_BaseMap"))
+        {
+            existing.SetTexture("_BaseMap", softTex);
+        }
+
+        if (existing.HasProperty("_MainTex"))
+        {
+            existing.SetTexture("_MainTex", softTex);
+        }
+
+        // URP Particles/Unlit — Additive so soft glows don't draw opaque quads.
+        if (existing.HasProperty("_Surface"))
+        {
+            existing.SetFloat("_Surface", 1f); // Transparent
+        }
+
+        if (existing.HasProperty("_Blend"))
+        {
+            existing.SetFloat("_Blend", 2f); // Additive
+        }
+
+        if (existing.HasProperty("_SrcBlend"))
+        {
+            existing.SetFloat("_SrcBlend", (float)UnityEngine.Rendering.BlendMode.One);
+        }
+
+        if (existing.HasProperty("_DstBlend"))
+        {
+            existing.SetFloat("_DstBlend", (float)UnityEngine.Rendering.BlendMode.One);
+        }
+
+        if (existing.HasProperty("_SrcBlendAlpha"))
+        {
+            existing.SetFloat("_SrcBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+        }
+
+        if (existing.HasProperty("_DstBlendAlpha"))
+        {
+            existing.SetFloat("_DstBlendAlpha", (float)UnityEngine.Rendering.BlendMode.One);
+        }
+
+        if (existing.HasProperty("_ZWrite"))
+        {
+            existing.SetFloat("_ZWrite", 0f);
+        }
+
+        if (existing.HasProperty("_ColorMode"))
+        {
+            existing.SetFloat("_ColorMode", 0f); // Multiply — particle startColor tints the glow
+        }
+
+        existing.EnableKeyword("_SURFACE_TYPE_TRANSPARENT");
+        existing.renderQueue = 3000;
+        EditorUtility.SetDirty(existing);
+        return existing;
     }
 
     public static SpriteRenderer CreateSpriteChild(

@@ -12,8 +12,9 @@ public class EnemySpawnPresentation : MonoBehaviour
 {
     [SerializeField] private Animator? visualAnimator;
     [SerializeField] private string spawnStateName = "Spawn";
-    [SerializeField] private float spawnDurationFallback = 0.65f;
+    [SerializeField] private float spawnDurationFallback = 0.75f;
     [SerializeField] private GameObject? eliteAuraChild;
+    [SerializeField] private ParticleSystem? spawnBurstParticles;
     [SerializeField] private Collider2D? bodyCollider;
 
     private readonly List<Behaviour> _disabledForSpawn = new();
@@ -44,6 +45,16 @@ public class EnemySpawnPresentation : MonoBehaviour
         if (eliteAuraChild != null)
         {
             eliteAuraChild.SetActive(isElite);
+            if (isElite)
+            {
+                // SetActive alone is unreliable for prewarmed systems that started disabled.
+                ParticleSystem[] auraSystems = eliteAuraChild.GetComponentsInChildren<ParticleSystem>(true);
+                for (int i = 0; i < auraSystems.Length; i++)
+                {
+                    auraSystems[i].Clear(true);
+                    auraSystems[i].Play(false);
+                }
+            }
         }
 
         if (_routine != null)
@@ -57,6 +68,7 @@ public class EnemySpawnPresentation : MonoBehaviour
     private IEnumerator SpawnRoutine()
     {
         DisableCombat();
+        PlaySpawnBurst();
 
         if (visualAnimator != null)
         {
@@ -85,6 +97,22 @@ public class EnemySpawnPresentation : MonoBehaviour
         EnableCombat();
         _presentationComplete = true;
         _routine = null;
+    }
+
+    private void PlaySpawnBurst()
+    {
+        if (spawnBurstParticles == null)
+        {
+            return;
+        }
+
+        // Play driver + every child burst layer (FlashRing / Sparks).
+        ParticleSystem[] systems = spawnBurstParticles.GetComponentsInChildren<ParticleSystem>(true);
+        for (int i = 0; i < systems.Length; i++)
+        {
+            systems[i].Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+            systems[i].Play(false);
+        }
     }
 
     private void DisableCombat()

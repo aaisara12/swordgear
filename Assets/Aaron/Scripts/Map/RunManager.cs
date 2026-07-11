@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using Shop;
 using UnityEngine;
 
 /// <summary>
@@ -62,6 +63,31 @@ public class RunManager : MonoBehaviour
     public LinearRunState? Run => _linearRun;
     public RunStep? CurrentStep => _linearRun?.CurrentStep;
     public EnemyCatalog? EnemyCatalog => enemyCatalog;
+
+    /// <summary>
+    /// Optional one-shot tier override for the next augment offer (e.g. guaranteed Diamond at the upgrade hub).
+    /// Consumed by <see cref="InGameAugmentsManager"/> when the offer is generated.
+    /// </summary>
+    public AugmentQualityTier? PendingAugmentTierOverride { get; private set; }
+
+    public void SetAugmentTierOverride(AugmentQualityTier tier)
+    {
+        PendingAugmentTierOverride = tier;
+    }
+
+    public bool TryConsumeAugmentTierOverride(out AugmentQualityTier tier)
+    {
+        if (PendingAugmentTierOverride == null)
+        {
+            tier = default;
+            return false;
+        }
+
+        tier = PendingAugmentTierOverride.Value;
+        PendingAugmentTierOverride = null;
+        return true;
+    }
+
     [Obsolete("DEPRECATED: Branching map node; use CurrentStep instead.")]
     public MapNode? CurrentNode => _currentMap?.CurrentNode;
     public bool HasActiveRun => _linearRun != null;
@@ -515,6 +541,32 @@ public class RunManager : MonoBehaviour
             return;
         }
         _augmentNodeActive = true;
+        showAugmentChannel.RaiseEventTriggered();
+    }
+
+    /// <summary>Opens the in-game augment UI with the normal tier % roll (post-combat rewards).</summary>
+    public void OfferStandardAugmentPick()
+    {
+        PendingAugmentTierOverride = null;
+        if (showAugmentChannel == null)
+        {
+            Debug.LogError("RunManager: showAugmentChannel is null; cannot open augment overlay.");
+            return;
+        }
+
+        showAugmentChannel.RaiseEventTriggered();
+    }
+
+    /// <summary>Opens the in-game augment UI forced to Diamond (upgrade hub).</summary>
+    public void OfferDiamondAugmentPick()
+    {
+        PendingAugmentTierOverride = AugmentQualityTier.Elite;
+        if (showAugmentChannel == null)
+        {
+            Debug.LogError("RunManager: showAugmentChannel is null; cannot open augment overlay.");
+            return;
+        }
+
         showAugmentChannel.RaiseEventTriggered();
     }
 
