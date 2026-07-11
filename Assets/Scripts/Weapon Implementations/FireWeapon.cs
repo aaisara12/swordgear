@@ -54,14 +54,18 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             applyBurn = true;
         }
 
+        float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        Vector3 spawnPos = player.position + player.up * reach;
+
         GameObject weaponHitbox;
         if (chargeTier == chargeAnimNames.Length - 1)
         {
-            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, spawnPos, Quaternion.identity);
             SpawnBombCascade(player);
         }
         else
-            weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, spawnPos, Quaternion.identity);
         weaponHitbox.transform.up = player.up;
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
@@ -71,30 +75,33 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         {
             if (chargeTier == chargeAnimNames.Length - 1)
             {
-                effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(strongEffectObject, spawnPos, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireCharged);
             } 
             else
             {
-                effect = PrefabPool.Instance!.Spawn(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireBasic);
             }
             
             effect.transform.up = player.up;
             effect.transform.localScale = Vector3.one * (1 + 0.2f * chargeTier);
             weaponHitbox.transform.localScale = Vector3.one * (1 + 0.2f * chargeTier);
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
         else
         {
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             anim.Play(chargeAnimNames[chargeTier]);
         }
 
         float elapsedTime = 0f;
-        while (elapsedTime < swingDuration)
+        while (elapsedTime < duration)
         {
-            // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
+            // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);
 
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -162,7 +169,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        transform.position = player.position + player.up * distanceFromPlayer;
+        transform.position = MeleeAugmentUtility.ForwardOffset(player, distanceFromPlayer);
         transform.up = player.up;
         StartCoroutine(Swing(player));
         ResetCharge();

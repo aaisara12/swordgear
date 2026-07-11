@@ -29,7 +29,11 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     private IEnumerator Swing(Transform player)
     {
-        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        Vector3 spawnPos = player.position + player.up * reach;
+
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, spawnPos, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
 
@@ -38,25 +42,28 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (weakEffectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(weakEffectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity);
             effect.transform.up = player.up;
             if (combo > 0)
             {
                 effect.transform.localScale += Vector3.left * 2; // x = -1 scale
             }
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
         else
         {
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             anim.Play(slashAnimName);  // Old implementation
         }
 
         AudioSystem.Play(AudioSystem.Sound.Slash_LightningBasic);
 
-        while (elapsedTime < swingDuration)
+        while (elapsedTime < duration)
         {
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
+            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);
 
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -71,21 +78,26 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     IEnumerator Thrust(Transform player)
     {
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        float thrustReach = MeleeAugmentUtility.ScaleDistance(thrustDistance);
+
         GameObject weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
+        MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
 
         float elapsedTime = 0f;
         lightningActive = true;
 
         Vector2 startPos = player.position;
-        Vector2 dest = player.position + player.up * thrustDistance;
+        Vector2 dest = player.position + player.up * thrustReach;
 
         GameObject effect = null;
         if (strongEffectObject != null)
         {
             effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position, Quaternion.identity);
             effect.transform.up = player.up;
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
@@ -96,13 +108,16 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
         AudioSystem.Play(AudioSystem.Sound.Slash_LightningEmpowered);
 
-        while (elapsedTime < swingDuration)
+        while (elapsedTime < duration)
         {
-            Vector2 pos = Vector2.Lerp(startPos, dest, elapsedTime * 8 / swingDuration);
-            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
+            Vector2 pos = Vector2.Lerp(startPos, dest, elapsedTime * 8 / duration);
+            float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);
             player.position = pos;
             weaponHitbox.transform.position = player.position;
-            effect.transform.position = player.position;
+            if (effect != null)
+            {
+                effect.transform.position = player.position;
+            }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -137,7 +152,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player, upgrades);
             return meleeCooldown;

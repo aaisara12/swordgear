@@ -36,11 +36,15 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     private IEnumerator Swing(Transform player)
     {
+        float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        Vector3 spawnPos = player.position + player.up * reach;
+
         GameObject weaponHitbox;
         if (combo == 0)
-            weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, spawnPos, Quaternion.identity);
         else
-            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, spawnPos, Quaternion.identity);
 
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
@@ -50,7 +54,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, spawnPos, Quaternion.identity);
             effect.transform.up = player.up;
             if (combo > 0)
             {
@@ -63,14 +67,17 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             {
                 AudioSystem.Play(AudioSystem.Sound.Slash_IceBasic);
             }
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
         else
         {
+            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             anim.Play(animName);
         }
-        while (elapsedTime < swingDuration)
+        while (elapsedTime < duration)
         {
 
             elapsedTime += Time.deltaTime;
@@ -97,7 +104,8 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         else
             combo = 0;
 
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player);
             return meleeCooldown;

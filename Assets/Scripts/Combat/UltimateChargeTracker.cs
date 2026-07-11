@@ -15,7 +15,8 @@ public class UltimateChargeTracker : MonoBehaviour
     [SerializeField] private UltimateAbilitySO? _activeUltimate;
     [SerializeField] private float _ultAvailableTimerBonus = 2f;
 
-    private readonly Dictionary<Element, int> _comboCharges = new();
+    // Fractional charges so UltimateChargeMultiplier can speed fill rate (e.g. 1.1 per hit).
+    private readonly Dictionary<Element, float> _comboCharges = new();
     private bool _isUltimateAvailable;
     private bool _isExecuting;
     private bool _subscribed;
@@ -75,12 +76,18 @@ public class UltimateChargeTracker : MonoBehaviour
         if (_isExecuting) return;
 
         Element element = moveType.Element;
-        _comboCharges[element] = (_comboCharges.TryGetValue(element, out int c) ? c : 0) + 1;
+        // UltimateChargeMultiplier is 1.0 base; +10% spark => 1.1 charges per hit.
+        float chargeGain = PlayerStatModifiers.Instance != null
+            ? Mathf.Max(0.01f, PlayerStatModifiers.Instance.UltimateChargeMultiplier)
+            : 1f;
+
+        float previous = _comboCharges.TryGetValue(element, out float existing) ? existing : 0f;
+        _comboCharges[element] = previous + chargeGain;
 
         float progress = ComputeProgress();
         OnProgressChanged?.Invoke(progress);
 
-        if (!_isUltimateAvailable && _activeUltimate != null && _activeUltimate.IsSatisfiedBy(_comboCharges))
+        if (!_isUltimateAvailable && _activeUltimate != null && IsRequirementsSatisfied())
         {
             _isUltimateAvailable = true;
             OnUltimateAvailable?.Invoke();
@@ -164,8 +171,8 @@ public class UltimateChargeTracker : MonoBehaviour
 
         foreach (var req in _activeUltimate.Requirements)
         {
-            int held = _comboCharges.TryGetValue(req.element, out int c) ? c : 0;
-            float fill = req.count > 0 ? Mathf.Clamp01((float)held / req.count) : 0f;
+            float held = _comboCharges.TryGetValue(req.element, out float c) ? c : 0f;
+            float fill = req.count > 0 ? Mathf.Clamp01(held / req.count) : 0f;
             results.Add((req.element, fill));
         }
     }
@@ -179,17 +186,34 @@ public class UltimateChargeTracker : MonoBehaviour
         if (_activeUltimate == null || _activeUltimate.Requirements.Count == 0)
             return 0f;
 
-        int total = 0;
-        int met = 0;
+        float total = 0f;
+        float met = 0f;
         foreach (var req in _activeUltimate.Requirements)
         {
             total += req.count;
-            int held = _comboCharges.TryGetValue(req.element, out int c) ? c : 0;
+            float held = _comboCharges.TryGetValue(req.element, out float c) ? c : 0f;
             met += Mathf.Min(held, req.count);
         }
 
-        return total > 0 ? (float)met / total : 0f;
+        return total > 0f ? met / total : 0f;
     }
 
     #endregion
+
+    private bool IsRequirementsSatisfied()
+    {
+        if (_activeUltimate == null)
+        {
+            return false;
+        }
+
+        // Floor fractional charges for the int-based requirement API.
+        var intCharges = new Dictionary<Element, int>(_comboCharges.Count);
+        foreach (KeyValuePair<Element, float> kvp in _comboCharges)
+        {
+            intCharges[kvp.Key] = Mathf.FloorToInt(kvp.Value);
+        }
+
+        return _activeUltimate.IsSatisfiedBy(intCharges);
+    }
 }

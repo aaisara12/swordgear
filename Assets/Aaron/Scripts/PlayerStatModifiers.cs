@@ -25,6 +25,8 @@ public class PlayerStatModifiers : InitializeableGameComponent
     public float UltimateChargeMultiplier { get; private set; } = 1f;
     public float LifestealPercent { get; private set; }
     public float RegenPercentPerSecond { get; private set; }
+    public float MeleeRangeMultiplier { get; private set; } = 1f;
+    public float AttackSpeedMultiplier { get; private set; } = 1f;
 
     private float _damageInverseProduct = 1f;
     private PlayerBlob? _mutablePlayerBlob;
@@ -150,6 +152,8 @@ public class PlayerStatModifiers : InitializeableGameComponent
         UltimateChargeMultiplier = 1f;
         LifestealPercent = 0f;
         RegenPercentPerSecond = 0f;
+        MeleeRangeMultiplier = 1f;
+        AttackSpeedMultiplier = 1f;
         _damageInverseProduct = 1f;
     }
 
@@ -184,6 +188,12 @@ public class PlayerStatModifiers : InitializeableGameComponent
                 break;
             case StatBoostKind.Regen:
                 RegenPercentPerSecond += total;
+                break;
+            case StatBoostKind.MeleeRange:
+                MeleeRangeMultiplier += total / 100f;
+                break;
+            case StatBoostKind.AttackSpeed:
+                AttackSpeedMultiplier += total / 100f;
                 break;
         }
     }

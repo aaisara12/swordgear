@@ -36,6 +36,7 @@ Spawn is triggered by a `TransformEventChannelSO` (event channel) so the caller 
 
 Health lives entirely in `PlayerGameplayManager` (not on the pawn):
 - `baseMaxHp` is a serialized base value; `maxHp` is computed as `baseMaxHp × PlayerStatModifiers.MaxHpMultiplier`.
+- When max HP increases from an augment, current HP rises by the same amount (e.g. +50 max also heals +50). Decreases only clamp.
 - Damage is received via `HandlePawnRegisterDamage` → `TakeDamage`.
 - `Heal(float)` is called by the lifesteal handler and the regen coroutine.
 - Regen runs via `RegenTick()` coroutine, ticking every second. It starts/stops in response to stat changes.

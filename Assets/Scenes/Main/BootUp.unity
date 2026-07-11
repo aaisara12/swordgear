@@ -367,6 +367,7 @@ MonoBehaviour:
   gameComponents:
   - {fileID: 1874817347}
   - {fileID: 873413179}
+  - {fileID: 1874817348}
   unrestrictedGameComponents:
   - {fileID: 12069622}
   - {fileID: 2847362519}
@@ -397,6 +398,17 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f74ebfa1aa2fccb4285eb68d547839f4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1874817348 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4070417383262906815, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+  m_PrefabInstance: {fileID: 9120229236985474497}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 68c0fa388b2694854b16029fd22ca12d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::PlayerStatModifiers
 --- !u!114 &2847362519 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 1657227221764735254, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}

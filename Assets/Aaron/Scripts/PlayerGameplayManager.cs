@@ -84,6 +84,8 @@ public class PlayerGameplayManager : MonoBehaviour
         }
         NotifyHealthChanged(0f);
         
+        // Avoid stacking handlers when SpawnPawnAtLocation is called without a matching Despawn.
+        spawnedPawn.OnRegisterDamage -= HandlePawnRegisterDamage;
         spawnedPawn.OnRegisterDamage += HandlePawnRegisterDamage;
         
         spawnedPawn.transform.position = location.position;
@@ -94,7 +96,9 @@ public class PlayerGameplayManager : MonoBehaviour
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = spawnedPawn.gameObject;
 
+        GameManager.OnPlayerDealtDamage -= HandlePlayerDealtDamage;
         GameManager.OnPlayerDealtDamage += HandlePlayerDealtDamage;
+        PlayerStatModifiers.OnStatsChanged -= HandleStatsChanged;
         PlayerStatModifiers.OnStatsChanged += HandleStatsChanged;
         StartRegenIfNeeded();
     }
@@ -172,10 +176,23 @@ public class PlayerGameplayManager : MonoBehaviour
     private void HandleStatsChanged()
     {
         if (spawnedPawn == null || !spawnedPawn.gameObject.activeInHierarchy) return;
+        float previousMaxHp = maxHp;
+        float previousHp = currentHp;
         float newMaxHp = baseMaxHp * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MaxHpMultiplier : 1f);
         maxHp = newMaxHp;
-        currentHp = Mathf.Clamp(currentHp, 0f, maxHp);
-        NotifyHealthChanged(0f);
+        // aisara => Max-HP augments grant the gained capacity as current HP (e.g. +50 max also heals +50).
+        // Decreases (trade-off augments) only clamp; never revive a dead player.
+        float maxDelta = newMaxHp - previousMaxHp;
+        if (maxDelta > 0f && currentHp > 0f)
+        {
+            currentHp = Mathf.Min(currentHp + maxDelta, maxHp);
+        }
+        else
+        {
+            currentHp = Mathf.Clamp(currentHp, 0f, maxHp);
+        }
+        NotifyHealthChanged(currentHp - previousHp);
+        StopRegen();
         StartRegenIfNeeded();
     }
 
@@ -190,7 +207,8 @@ public class PlayerGameplayManager : MonoBehaviour
 
     private IEnumerator RegenTick()
     {
-        WaitForSeconds wait = new WaitForSeconds(1f);
+        // Realtime so regen still ticks while augment UI pauses gameplay (timeScale=0).
+        WaitForSecondsRealtime wait = new WaitForSecondsRealtime(1f);
         while (true)
         {
             yield return wait;

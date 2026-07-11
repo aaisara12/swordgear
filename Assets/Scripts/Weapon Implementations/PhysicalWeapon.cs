@@ -22,17 +22,23 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     private IEnumerator Swing(Transform player)
     {
-        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+        float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        Vector3 spawnPos = player.position + player.up * reach;
+
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, spawnPos, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
+        MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
 
         float elapsedTime = 0f;
 
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(effectObject, player.position + player.up * distanceFromPlayer, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, spawnPos, Quaternion.identity);
             effect.transform.up = player.up;
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
             AudioSystem.Play(AudioSystem.Sound.Slash_Basic);
@@ -42,9 +48,9 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
             anim.Play(animName);
         }
         
-        while (elapsedTime < swingDuration)
+        while (elapsedTime < duration)
         {
-            // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / swingDuration);
+            // float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);
 
             elapsedTime += Time.deltaTime;
             yield return null;
@@ -65,7 +71,8 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, attackRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
             Strike(player);
             return meleeCooldown;

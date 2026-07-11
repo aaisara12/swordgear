@@ -33,12 +33,19 @@
 |---|---|---|
 | `MoveSpeedMultiplier` | `1.0` | Multiplier; boost expressed as % added |
 | `DamageMultiplier` | `1.0` | Multiplier on `GameManager.baseDamage`. Multiple +X% sources stack **multiplicatively** (50% + 50% => 1.75x, not 2.0x). |
-| `MaxHpMultiplier` | `1.0` | Multiplier; boost expressed as % added |
+| `MaxHpMultiplier` | `1.0` | Multiplier; boost expressed as % added. `PlayerGameplayManager` also heals by the gained max HP when this increases. |
 | `RangedDamageMultiplierBonus` | `0` | Additive bonus to `GameManager.rangedMultiplier` |
 | `ProjectileSpeedMultiplier` | `1.0` | Multiplier |
 | `UltimateChargeMultiplier` | `1.0` | Multiplier |
 | `LifestealPercent` | `0` | % of damage dealt converted to healing |
 | `RegenPercentPerSecond` | `0` | % of max HP regenerated per second |
+| `UltimateChargeMultiplier` | `1.0` | Multiplier on ult charge gain per combo hit |
+| `MeleeRangeMultiplier` | `1.0` | Scales melee spawn offset, hitbox/VFX size, and auto-target seek radius |
+| `AttackSpeedMultiplier` | `1.0` | Shortens melee cooldown and swing duration (`duration / speed`) |
+
+Melee range/speed are applied via `MeleeAugmentUtility` from elemental weapons and `ElementManager.MeleeStrike`.
+
+`PlayerStatModifiers` must be listed in `GameInitializer.gameComponents` on `BootUp.unity` so inventory changes re-apply stats. Without that, all augments appear to do nothing.
 
 ---
 

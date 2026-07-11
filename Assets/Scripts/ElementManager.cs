@@ -166,7 +166,8 @@ public class ElementManager : InitializeableGameComponent
     {
         if (activeWeapon == null) return 0f;
         Debug.Log(activeWeapon);
-        return activeWeapon.MeleeStrike(player, currentUpgrades);
+        float baseCooldown = activeWeapon.MeleeStrike(player, currentUpgrades);
+        return MeleeAugmentUtility.ScaleCooldown(baseCooldown);
     }
 
     public void MeleeCharge(Transform player, bool cancel = false)
