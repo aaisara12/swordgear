@@ -134,9 +134,9 @@ Shader-driven card styling lives in **`AugmentTierVisuals`** and is applied by *
 | `Assets/Visuals/Shaders/AugmentTierCardFlare.shader` | Additive inner flare (bottom band, drifts horizontally) |
 | `Assets/Visuals/Materials/AugmentTierCard.mat` | Template material for card background |
 | `Assets/Visuals/Materials/AugmentTierCardFlare.mat` | Template material for inner flare layer |
-| `Assets/Aaron/Prefabs/Shop/Augment Card.prefab` | `Main` (shader card), `Border`, `TierInnerFlare` child |
+| `Assets/Aaron/Prefabs/Shop/Augment Card.prefab` | `Main` (shader card + mask), diagonal grey `SwordWatermark`, `Border`, `TierInnerFlare` child |
 
-Per-tier colors and effect strengths are defined in `AugmentTierVisuals.GetCardStyle()`. Diamond adds light sweep and sparkles; all tiers share rim glow and inner flare with tier-tuned colors (silver uses muted flare colors to avoid white blowout).
+Per-tier colors and effect strengths are defined in `AugmentTierVisuals.GetCardStyle()`. Diamond adds light sweep and sparkles; all tiers share rim glow and inner flare with tier-tuned colors (silver uses muted flare colors to avoid white blowout). The card background also shows a masked, low-alpha diagonal Swordgear sword watermark.
 
 ### Editor tooling (Henry menu)
 
