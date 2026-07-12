@@ -51,6 +51,13 @@ public class PlayerController : PlayerGameplayPawn
     public float SwordCatchRadius => swordCatchRadius;
     public bool IsRecallChannelActive => recallSwordCoroutine != null;
     public bool IsSwordOut => playerState == PlayerState.SwordThrown;
+    private static readonly int AnimIdleHash = Animator.StringToHash("PlayerIdle");
+    private static readonly int AnimWalkSideHash = Animator.StringToHash("PlayerWalkSide");
+    private static readonly int AnimWalkUpHash = Animator.StringToHash("PlayerWalkUp");
+    private static readonly int AnimWalkDownHash = Animator.StringToHash("PlayerWalkDown");
+
+    private Animator? animator;
+    private int _currentAnimStateHash;
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;
@@ -168,6 +175,11 @@ public class PlayerController : PlayerGameplayPawn
         else
         {
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        }
+        animator = GetComponent<Animator>();
+        if (animator == null)
+        {
+            Debug.LogError("Animator component is missing!");
         }
         if (!_recallParticlesWarmed && recallParticles != null)
         {
@@ -518,6 +530,35 @@ public class PlayerController : PlayerGameplayPawn
 
     int walkSoundLoop = -1;
 
+    void SetAnimationState(int stateHash)
+    {
+        if (animator == null || _currentAnimStateHash == stateHash)
+        {
+            return;
+        }
+
+        _currentAnimStateHash = stateHash;
+        animator.Play(stateHash);
+    }
+
+    void UpdateMovementAnimation(Vector2 direction)
+    {
+        if (direction.sqrMagnitude < 0.001f)
+        {
+            SetAnimationState(AnimIdleHash);
+            return;
+        }
+
+        if (Mathf.Abs(direction.x) >= Mathf.Abs(direction.y))
+        {
+            SetAnimationState(AnimWalkSideHash);
+        }
+        else
+        {
+            SetAnimationState(direction.y > 0f ? AnimWalkUpHash : AnimWalkDownHash);
+        }
+    }
+
     public override void MoveInDirection(Vector2 direction)
     {
         if (IsGameplayBlocked)
@@ -527,6 +568,7 @@ public class PlayerController : PlayerGameplayPawn
 
         // RETROFIT: From OnMove
         _lastMoveDirection = direction;
+        UpdateMovementAnimation(direction);
         if (_isDashing) return;
         rb.ThrowIfNull(nameof(rb));
 
@@ -594,6 +636,8 @@ public class PlayerController : PlayerGameplayPawn
         // Reset facing/aim to a default.
         weaponIndicator?.EndThrowAim();
         transform.up = Vector2.up;
+
+        SetAnimationState(AnimIdleHash);
 
         playerState = PlayerState.MeleeReady;
     }

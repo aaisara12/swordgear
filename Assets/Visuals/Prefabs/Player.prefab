@@ -5212,7 +5212,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 199c28068f9f0ac4e948ece0f8dcbfb2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementThreshold: 0.001
+  movementThreshold: 0.02
 --- !u!1 &2389641053003122235
 GameObject:
   m_ObjectHideFlags: 0
