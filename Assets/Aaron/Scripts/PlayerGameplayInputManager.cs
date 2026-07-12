@@ -41,6 +41,20 @@ public class PlayerGameplayInputManager : MonoBehaviour
         gameplayActions.Disable();
     }
 
+    /// <summary>
+    /// Re-enables the gameplay action map after a temporary disable (e.g. pause menu).
+    /// No-ops when no pawn is linked.
+    /// </summary>
+    public void EnableGameplayInput()
+    {
+        if (pawn == null)
+        {
+            return;
+        }
+
+        gameplayActions.Enable();
+    }
+
     private void Awake()
     {
         var playerControls = new PlayerControls();

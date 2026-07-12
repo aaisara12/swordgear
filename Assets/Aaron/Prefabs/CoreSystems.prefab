@@ -557,6 +557,7 @@ MonoBehaviour:
   library: {fileID: 11400000, guid: 9aff9cf3ddfcde340b5dcba82221a48e, type: 2}
   initialPoolSize: 5
   unusedLifetime: 10
+  masterMixer: {fileID: 24100000, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
 --- !u!1 &5213471353205213649
 GameObject:
   m_ObjectHideFlags: 0
@@ -987,6 +988,7 @@ GameObject:
   - component: {fileID: 1656621677300627782}
   - component: {fileID: 7203599953307044813}
   - component: {fileID: 8450356845273623958}
+  - component: {fileID: 4659484844402989893}
   m_Layer: 0
   m_Name: Gameplay Input Manager
   m_TagString: Untagged
@@ -1036,6 +1038,21 @@ MonoBehaviour:
   sceneTransitioner: {fileID: 4235604047870542123}
   auxiliaryScene:
     sceneName: JoystickControls
+--- !u!114 &4659484844402989893
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8056026369581769779}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9db3a06ad0f14de5a484e0dd6d924c61, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::AuxiliarySceneAdder
+  sceneTransitioner: {fileID: 4235604047870542123}
+  auxiliaryScene:
+    sceneName: PauseMenu
 --- !u!1 &8240674318395454783
 GameObject:
   m_ObjectHideFlags: 0
