@@ -155,10 +155,7 @@ public static class StatBoostAugmentGenerator
         defs.Add(Def("diamond_ranged_specialist", "Ranged Specialist", "Ranged damage and projectile speed.", AugmentQualityTier.Elite,
             E(StatBoostKind.RangedDamage, 30), E(StatBoostKind.ProjectileSpeed, 40)));
         defs.Add(Def("diamond_fury_surge", "Fury Surge", "Faster ultimate charge and more damage.", AugmentQualityTier.Elite,
-            E(StatBoostKind.UltimateCharge, 30), E(StatBoostKind.DamageMultiplier, 20)));
-        defs.Add(Def("diamond_vampire", "Vampire", "Lifesteal and passive regen.", AugmentQualityTier.Elite,
-            E(StatBoostKind.Lifesteal, 20), E(StatBoostKind.Regen, 2f)));
-        defs.Add(Def("diamond_brittle_edge", "Brittle Edge", "High damage, less max HP.", AugmentQualityTier.Elite,
+            E(StatBoostKind.UltimateCharge, 30), E(StatBoostKind.DamageMultiplier, 20)));        defs.Add(Def("diamond_brittle_edge", "Brittle Edge", "High damage, less max HP.", AugmentQualityTier.Elite,
             E(StatBoostKind.DamageMultiplier, 40), E(StatBoostKind.MaxHp, -20)));
         defs.Add(Def("diamond_turtle", "Turtle", "Much more HP, less move speed.", AugmentQualityTier.Elite,
             E(StatBoostKind.MaxHp, 50), E(StatBoostKind.MoveSpeed, -20)));
