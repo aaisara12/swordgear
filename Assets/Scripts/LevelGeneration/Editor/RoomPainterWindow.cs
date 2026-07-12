@@ -9,7 +9,7 @@ using UnityEngine.Tilemaps;
 /// <summary>
 /// Grid-drawing tool for authoring arenas. Paint a <see cref="RoomDefinition"/> cell-by-cell, then
 /// bake it into an arena prefab + <see cref="ArenaLayoutTemplate"/> via <see cref="RoomBaker"/>.
-/// Menu: SwordGear → Room Painter.
+/// Menu: Henry → Room Painter.
 /// </summary>
 public class RoomPainterWindow : EditorWindow
 {
@@ -30,7 +30,7 @@ public class RoomPainterWindow : EditorWindow
     private Vector2 scroll;
     private const float CellPixels = 22f;
 
-    [MenuItem("SwordGear/Room Painter")]
+    [MenuItem("Henry/Room Painter")]
     public static void Open()
     {
         var window = GetWindow<RoomPainterWindow>("Room Painter");

@@ -361,7 +361,7 @@ Full procedural tilemap generation was considered and **rejected** for this game
 
 | | |
 |---|---|
-| **Adds** | `RoomDefinition` (grid SO), `RoomBaker` (grid → prefab + `ArenaLayoutTemplate`, with validation lint), `RoomPainterWindow` (menu **SwordGear → Room Painter**) |
+| **Adds** | `RoomDefinition` (grid SO), `RoomBaker` (grid → prefab + `ArenaLayoutTemplate`, with validation lint), `RoomPainterWindow` (menu **Henry → Room Painter**) |
 | **Changes** | Draw one arena, bake it, set as `fallbackCombatLayout` (or `combatLayouts[0]`) |
 | **Playtest** | Enter combat → you fight in a **room you drew**; player, enemies, and exit spawn at the painted markers; walls collide. Same M6 encounters as before. |
 | **Note** | Cell types: Empty / Wall / Crate / PlayerSpawn / EnemySpawn / Exit. Crate needs a prefab (M8) — warns + skips until then. |
@@ -446,7 +446,7 @@ Full procedural tilemap generation was considered and **rejected** for this game
 
 | | |
 |---|---|
-| **Adds** | `SwordGearLevelGenSetup.cs` — **Enemy Catalog** + **Wave Composer Settings** setup items (the **Room Painter** already ships under **SwordGear → Room Painter** from Commit 23) |
+| **Adds** | `SwordGearLevelGenSetup.cs` — **Enemy Catalog** + **Wave Composer Settings** setup items (the **Room Painter** already ships under **Henry → Room Painter** from Commit 23) |
 | **Playtest** | Run **SwordGear → Setup →** items; re-run M6 acceptance playtest to confirm nothing broke. |
 
 ### Commit 32 — Documentation for shipped milestones only
