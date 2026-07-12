@@ -180,6 +180,7 @@ public class RunManager : MonoBehaviour
         _lastSeed = useRandomSeed ? Environment.TickCount : fixedSeed;
         Debug.Log($"RunManager: generating linear run with seed {_lastSeed}.");
         _linearRun = LinearRunGenerator.GenerateInitialBlock(generationSettings.combatLayouts, _lastSeed);
+        PrerollUpcomingEncounters();
         _currentMap = null;
         _lastMapStepIndex = -1;
         ResetRunLongState();
@@ -294,8 +295,28 @@ public class RunManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>Composes a runtime encounter for the current combat step (Commit 21).</summary>
+    /// <summary>
+    /// Returns the current combat step's encounter, reusing the pre-rolled one cached on the step when present
+    /// (Commit 22) and composing + caching on demand otherwise. Deterministic either way.
+    /// </summary>
     public CombatEncounter? BuildCombatEncounter()
+    {
+        if (_linearRun == null || _linearRun.CurrentStep == null)
+        {
+            Debug.LogError("RunManager: BuildCombatEncounter called with no current combat step.");
+            return null;
+        }
+
+        RunStep step = _linearRun.CurrentStep;
+        step.Encounter ??= ComposeEncounterForStep(step);
+        return step.Encounter;
+    }
+
+    /// <summary>
+    /// Composes the deterministic encounter for a single combat step. Returns null for non-combat steps or
+    /// when the catalog / settings are missing.
+    /// </summary>
+    private CombatEncounter? ComposeEncounterForStep(RunStep step)
     {
         if (enemyCatalog == null)
         {
@@ -309,19 +330,33 @@ public class RunManager : MonoBehaviour
             return null;
         }
 
-        if (_linearRun == null || _linearRun.CurrentStep == null)
+        if (_linearRun == null || !EncounterContext.TryFrom(_linearRun, step, out EncounterContext context))
         {
-            Debug.LogError("RunManager: BuildCombatEncounter called with no current combat step.");
-            return null;
-        }
-
-        if (!EncounterContext.TryFrom(_linearRun, _linearRun.CurrentStep, out EncounterContext context))
-        {
-            Debug.LogError("RunManager: current step is not a combat step.");
             return null;
         }
 
         return EncounterBuilder.Build(context, enemyCatalog, waveComposerSettings);
+    }
+
+    /// <summary>
+    /// Pre-rolls (composes + caches) the encounter for every queued combat step that lacks one (Commit 22).
+    /// Runs at run start and whenever a block is appended, so the upgrade-hub preview can read the next
+    /// combats and each fight reuses the exact composition without re-rolling. A no-op once all are composed.
+    /// </summary>
+    public void PrerollUpcomingEncounters()
+    {
+        if (_linearRun == null || enemyCatalog == null || waveComposerSettings == null)
+        {
+            return;
+        }
+
+        foreach (RunStep step in _linearRun.Steps)
+        {
+            if (step.Type == RunStepType.Combat && step.Encounter == null)
+            {
+                step.Encounter = ComposeEncounterForStep(step);
+            }
+        }
     }
 
     /// <summary>
@@ -518,6 +553,7 @@ public class RunManager : MonoBehaviour
         }
 
         _linearRun.AppendSteps(nextBlock);
+        PrerollUpcomingEncounters();
         Debug.Log(
             $"RunManager: queued linear block {nextBlockIndex + 1} " +
             $"({LinearRunGenerator.CombatsPerBlock} combats + upgrade).");
