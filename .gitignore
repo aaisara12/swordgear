@@ -78,3 +78,4 @@ crashlytics-build.properties
 
 # OS generated files
 .DS_Store
+.mcp.json
