@@ -20,8 +20,10 @@ public class RoomPainterWindow : EditorWindow
     [SerializeField] private TileBase? wallTile;
     [SerializeField] private GameObject? cratePrefab;
     [SerializeField] private float cellSize = 1f;
-    [SerializeField] private bool blackBackdrop = true;
+    [SerializeField] private bool blackBackdrop = false;
     [SerializeField] private Sprite? wallBackdropSprite;
+    [SerializeField] private Sprite? floorSprite;
+    [SerializeField] private float floorScale = RoomBaker.DefaultFloorScale;
     [SerializeField] private string prefabFolder = RoomBaker.DefaultPrefabFolder;
     [SerializeField] private string templateFolder = RoomBaker.DefaultTemplateFolder;
 
@@ -49,6 +51,11 @@ public class RoomPainterWindow : EditorWindow
         if (wallBackdropSprite == null)
         {
             wallBackdropSprite = RoomBaker.BakeConfig.Default().WallBackdropSprite;
+        }
+
+        if (floorSprite == null)
+        {
+            floorSprite = RoomBaker.BakeConfig.Default().FloorSprite;
         }
     }
 
@@ -255,6 +262,8 @@ public class RoomPainterWindow : EditorWindow
             wallTile = (TileBase?)EditorGUILayout.ObjectField("Wall Tile", wallTile, typeof(TileBase), false);
             cratePrefab = (GameObject?)EditorGUILayout.ObjectField("Crate Prefab", cratePrefab, typeof(GameObject), false);
             cellSize = EditorGUILayout.FloatField("Cell Size", cellSize);
+            floorSprite = (Sprite?)EditorGUILayout.ObjectField("Floor Sprite", floorSprite, typeof(Sprite), false);
+            floorScale = EditorGUILayout.FloatField("Floor Tile Scale", floorScale);
             blackBackdrop = EditorGUILayout.Toggle("Black Backdrop", blackBackdrop);
             wallBackdropSprite = (Sprite?)EditorGUILayout.ObjectField("Wall Backdrop Sprite", wallBackdropSprite, typeof(Sprite), false);
             prefabFolder = EditorGUILayout.TextField("Prefab Folder", prefabFolder);
@@ -281,6 +290,8 @@ public class RoomPainterWindow : EditorWindow
             CellSize = cellSize,
             BlackBackdrop = blackBackdrop,
             WallBackdropSprite = wallBackdropSprite,
+            FloorSprite = floorSprite,
+            FloorTileScale = floorScale,
             PrefabFolder = prefabFolder,
             TemplateFolder = templateFolder,
         };

@@ -22,6 +22,14 @@ public static class RoomBaker
     /// <summary>World size of the black void quad baked behind each room.</summary>
     public const float BackdropSize = 400f;
 
+    public const string DefaultFloorSpritePath = "Assets/Visuals/swordgear_updated_floortile.png";
+    /// <summary>World units each floor tile renders at (matches the old scene floor's ~20x scale).</summary>
+    public const float DefaultFloorScale = 20f;
+    /// <summary>Uniform world scale applied to the baked room so tiles match the authored arenas (Grid scale 2).</summary>
+    public const float DefaultWorldScale = 2f;
+    /// <summary>Tint the old scene floor tilemap used to darken/desaturate the floor.</summary>
+    public static readonly Color DefaultFloorTint = new Color(0.27224994f, 0.3489652f, 0.3584906f, 1f);
+
     public struct BakeConfig
     {
         public TileBase? WallTile;
@@ -37,6 +45,18 @@ public static class RoomBaker
         /// <summary>Opaque sprite tinted black for the void quad. Defaults to the wall tile's sprite.</summary>
         public Sprite? WallBackdropSprite;
 
+        /// <summary>Tiled floor sprite baked into the room, clipped to the room bounds.</summary>
+        public Sprite? FloorSprite;
+
+        /// <summary>World units each floor tile renders at (e.g. 20 = the old scene floor scale).</summary>
+        public float FloorTileScale;
+
+        /// <summary>Tint multiplied onto the floor sprite (matches the old scene floor's darkening).</summary>
+        public Color FloorTint;
+
+        /// <summary>Uniform world scale of the baked room (2 = the authored arenas' tile scale).</summary>
+        public float WorldScale;
+
         public static BakeConfig Default() => new BakeConfig
         {
             WallTile = AssetDatabase.LoadAssetAtPath<TileBase>(DefaultWallTilePath),
@@ -44,8 +64,12 @@ public static class RoomBaker
             CellSize = 1f,
             PrefabFolder = DefaultPrefabFolder,
             TemplateFolder = DefaultTemplateFolder,
-            BlackBackdrop = true,
+            BlackBackdrop = false,
             WallBackdropSprite = LoadWallBackdropSprite(),
+            FloorSprite = AssetDatabase.LoadAssetAtPath<Sprite>(DefaultFloorSpritePath),
+            FloorTileScale = DefaultFloorScale,
+            FloorTint = DefaultFloorTint,
+            WorldScale = DefaultWorldScale,
         };
     }
 
@@ -229,6 +253,7 @@ public static class RoomBaker
         EnsureFolder(config.TemplateFolder);
 
         float cs = config.CellSize <= 0f ? 1f : config.CellSize;
+        float ws = config.WorldScale <= 0f ? DefaultWorldScale : config.WorldScale;
         int w = room.Width, h = room.Height;
         // Centre the room on the origin, like the authored arenas.
         Vector3 gridOffset = new Vector3(-w * cs * 0.5f, -h * cs * 0.5f, 0f);
@@ -278,12 +303,22 @@ public static class RoomBaker
                 }
             }
 
-            // Black void backdrop: one large quad behind the room so the arena floor and everything outside it
-            // read as black (no apron, no default background). A single SpriteRenderer, no collider.
+            // Tiled floor behind the walls, clipped to the room bounds so nothing shows outside it.
+            if (config.FloorSprite != null)
+            {
+                Color floorTint = config.FloorTint.a <= 0f ? DefaultFloorTint : config.FloorTint;
+                CreateFloor(rootGO, config.FloorSprite, w * cs, h * cs, config.FloorTileScale <= 0f ? DefaultFloorScale : config.FloorTileScale, floorTint);
+            }
+
+            // Optional black void quad behind everything (unused when the arena camera clears to black).
             if (config.BlackBackdrop && config.WallBackdropSprite != null)
             {
                 CreateBlackBackdrop(rootGO, config.WallBackdropSprite);
             }
+
+            // Apply the world scale AFTER all children are parented so it scales the room uniformly
+            // (SetParent keeps world scale, which would otherwise cancel a scale set on the empty root).
+            rootGO.transform.localScale = new Vector3(ws, ws, ws);
 
             string prefabPath = $"{config.PrefabFolder}/{roomName}.prefab";
             GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(rootGO, prefabPath, out bool ok);
@@ -303,6 +338,20 @@ public static class RoomBaker
         {
             Object.DestroyImmediate(rootGO);
         }
+    }
+
+    private static void CreateFloor(GameObject root, Sprite sprite, float worldW, float worldH, float scale, Color tint)
+    {
+        var go = new GameObject("Floor");
+        go.transform.SetParent(root.transform);
+        go.transform.localPosition = Vector3.zero;
+        go.transform.localScale = new Vector3(scale, scale, 1f);
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        sr.color = tint;
+        sr.drawMode = SpriteDrawMode.Tiled;
+        sr.size = new Vector2(worldW / scale, worldH / scale);
+        sr.sortingOrder = -10; // behind the walls, in front of the black void
     }
 
     private static void CreateBlackBackdrop(GameObject root, Sprite sprite)
