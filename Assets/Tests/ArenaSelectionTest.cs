@@ -78,29 +78,6 @@ public class ArenaSelectionTest
             "First combat's arena should vary across seeds, not be hard-wired to one.");
     }
 
-    [Test]
-    public void Orientation_IsDeterministic_InRange_AndVaries()
-    {
-        for (int seed = 0; seed < 20; seed++)
-        {
-            for (int step = 0; step < 8; step++)
-            {
-                int a = RunManager.SeededRotationSteps(seed, step);
-                Assert.AreEqual(a, RunManager.SeededRotationSteps(seed, step), "Orientation must be deterministic.");
-                Assert.GreaterOrEqual(a, 0);
-                Assert.Less(a, 4);
-            }
-        }
-
-        var seen = new HashSet<int>();
-        for (int seed = 0; seed < 20; seed++)
-        {
-            seen.Add(RunManager.SeededRotationSteps(seed, 0));
-        }
-
-        Assert.Greater(seen.Count, 1, "Rotation should vary across seeds.");
-    }
-
     private RunManager BuildManager(List<ArenaLayoutTemplate> pool, int seed)
     {
         var go = new GameObject("RunManagerArenaTest");

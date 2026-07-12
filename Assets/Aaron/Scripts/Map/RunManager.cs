@@ -249,19 +249,6 @@ public class RunManager : MonoBehaviour
         return generationSettings.shopLayout;
     }
 
-    /// <summary>
-    /// Deterministic 0..3 quarter-turn rotation for a combat step (Commit 25), decorrelated from the encounter
-    /// seed so orientation and composition vary independently. Same run seed + step → same orientation.
-    /// </summary>
-    public static int SeededRotationSteps(int runSeed, int stepIndex)
-    {
-        unchecked
-        {
-            int seed = (((runSeed * 397) ^ stepIndex) * 31) + 0x51ED2703;
-            return new System.Random(seed).Next(0, 4);
-        }
-    }
-
     /// <summary>Builds the arena blueprint for the current linear step (combat or upgrade hub).</summary>
     public LevelBlueprint? BuildBlueprintForCurrentStep()
     {
@@ -294,7 +281,6 @@ public class RunManager : MonoBehaviour
                 Encounter = encounter,
                 Waves = new List<EnemyWaveConfig>(),
                 IsShopLevel = false,
-                RotationSteps = SeededRotationSteps(_linearRun!.Seed, step.StepIndex),
             };
         }
 
