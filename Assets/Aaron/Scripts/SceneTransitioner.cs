@@ -28,6 +28,15 @@ public class SceneTransitioner : MonoBehaviour
 
     private string? lastSceneLoaded;
 
+    /// <summary>Name of the last successfully loaded main (non-auxiliary) scene, or null before the first transition finishes.</summary>
+    public string? CurrentMainScene => lastSceneLoaded;
+
+    /// <summary>True while an additive main-scene swap is in flight.</summary>
+    public bool IsTransitioning => ongoingSceneTransitionTask is { IsCompleted: false };
+
+    /// <summary>Raised with the new main scene name after load/unload completes and the loading screen is dismissed.</summary>
+    public UnityEvent<string> OnSceneTransitionFinished => onSceneTransitionFinished;
+
     // aisara => Don't return bool because it's our responsibility to figure out what to do in a failed scene transition,
     // not the caller's (for example, we could pop a UI that says scene transition failed or raise some events on our end).
     private async Task TransitionToScene(string sceneName)

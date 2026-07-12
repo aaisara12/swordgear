@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using System.Collections.Generic;
 
 public class AudioSystem : MonoBehaviour
@@ -40,6 +41,7 @@ public class AudioSystem : MonoBehaviour
     public AudioLibrary library;
     public int initialPoolSize = 5;
     public float unusedLifetime = 10f;
+    [SerializeField] private AudioMixer masterMixer;
 
     static AudioSystem instance;
 
@@ -65,6 +67,7 @@ public class AudioSystem : MonoBehaviour
 
         instance = this;
         library.Init();
+        MasterVolumeSettings.ApplySaved(masterMixer);
 
         for (int i = 0; i < initialPoolSize; i++)
             CreateSource();
