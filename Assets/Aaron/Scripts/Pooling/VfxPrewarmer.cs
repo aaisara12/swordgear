@@ -1,6 +1,7 @@
 #nullable enable
 
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -9,8 +10,12 @@ using UnityEngine;
 public class VfxPrewarmer : InitializeableGameComponent
 {
     [SerializeField] private VfxWarmupCatalog? catalog;
-    [SerializeField] private int entriesPerFrame = 2;
-    [SerializeField] private float simulateDuration = 1f;
+
+    // aisara => Assign the BootUp Main Camera in the Inspector. If left null we fall back to the first
+    // camera in the scene, since Camera.main is null during boot (the BootUp camera is untagged).
+    [SerializeField] private Camera? warmupCamera;
+    [SerializeField, Min(1)] private int drawFramesPerEntry = 2;
+    [SerializeField, Min(0f)] private float loadingOverlayTimeout = 5f;
 
     bool _isComplete;
 
@@ -39,35 +44,55 @@ public class VfxPrewarmer : InitializeableGameComponent
             yield break;
         }
 
+        Camera? camera = ResolveWarmupCamera();
+        if (camera == null)
+        {
+            Debug.LogError("VfxPrewarmer: no camera available to draw warmup VFX");
+            _isComplete = true;
+            yield break;
+        }
+
+        // Draw warmup effects only once the loading overlay is opaque, so they stay hidden from the player.
+        yield return WaitForLoadingOverlay();
+
         var svc = catalog.ShaderVariants;
         if (svc != null && svc.shaderCount > 0)
             svc.WarmUp();
 
-        int processedThisFrame = 0;
+        // Dedupe by prefab so repeated catalog entries do not pay the draw cost twice.
+        var warmed = new HashSet<GameObject>();
         foreach (var entry in catalog.Entries)
         {
             if (entry.prefab == null) continue;
+            if (!warmed.Add(entry.prefab)) continue;
 
-            switch (entry.tier)
-            {
-                case WarmupTier.Inert:
-                    PrefabPool.Instance.WarmupSimulate(entry.prefab, simulateDuration);
-                    PrefabPool.Instance.Prewarm(entry.prefab, entry.prewarmCount);
-                    break;
-                case WarmupTier.Behavioral:
-                    PrefabPool.Instance.WarmupBehavioral(entry.prefab, simulateDuration);
-                    PrefabPool.Instance.Prewarm(entry.prefab, entry.prewarmCount);
-                    break;
-            }
-
-            processedThisFrame++;
-            if (processedThisFrame >= entriesPerFrame)
-            {
-                processedThisFrame = 0;
-                yield return null;
-            }
+            yield return PrefabPool.Instance.WarmupByDrawing(entry.prefab, camera, drawFramesPerEntry);
+            PrefabPool.Instance.Prewarm(entry.prefab, entry.prewarmCount);
         }
 
         _isComplete = true;
+    }
+
+    Camera? ResolveWarmupCamera()
+    {
+        if (warmupCamera != null)
+            return warmupCamera;
+        if (Camera.main != null)
+            return Camera.main;
+        return FindFirstObjectByType<Camera>();
+    }
+
+    IEnumerator WaitForLoadingOverlay()
+    {
+        float elapsed = 0f;
+        while (elapsed < loadingOverlayTimeout)
+        {
+            var animator = FindFirstObjectByType<LoadingScreenAnimator>();
+            if (animator != null && animator.IsFullyOpaque)
+                yield break;
+
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
     }
 }

@@ -12,6 +12,10 @@ public class LoadingScreenAnimator : MonoBehaviour
 
     [SerializeField] private float durationOfFadeAnimation = 0.5f;
 
+    // aisara => Lets boot-time systems (e.g. VfxPrewarmer) confirm the overlay fully hides the screen
+    // before drawing hidden warmup VFX.
+    public bool IsFullyOpaque => canvasGroup != null && canvasGroup.alpha >= 0.99f;
+
     private void Awake()
     {
         if (canvasGroup == null)
