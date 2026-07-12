@@ -1,0 +1,16 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 18efdbbf5f109c143b88e9cfd9fcee0f, type: 3}
+  m_Name: Arena_Center
+  m_EditorClassIdentifier: Main::ArenaLayoutTemplate
+  LevelPrefab: {fileID: 1606211983386059777, guid: 6e70a1999ef19c149ad58f48dd8b0b7d, type: 3}
+  PreviewDiagram: {fileID: 0}

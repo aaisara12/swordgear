@@ -54,9 +54,9 @@ MonoBehaviour:
     minWavesPerCombat: 2
     maxWavesPerCombat: 3
     combatLayouts:
-    - {fileID: 11400000, guid: 93dafc6cab3ac5442b6ce0317a503a74, type: 2}
-    - {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
-    - {fileID: 11400000, guid: b3175b9e2630c8641baabd209337f075, type: 2}
+    - {fileID: 11400000, guid: 1ddaf3d763b665745a9ccbfdba112b20, type: 2}
+    - {fileID: 11400000, guid: a80297affdaaa39468b0c6561bbfbacc, type: 2}
+    - {fileID: 11400000, guid: 3278b0da68a68cb4c8b8e6b126b39120, type: 2}
     combatWaves:
     - {fileID: 11400000, guid: b00514f919aaf91448c3cd43eb0c0029, type: 2}
     - {fileID: 11400000, guid: c56f9b6ae7e601e4bbdfa74f91003499, type: 2}
@@ -69,7 +69,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 48275b19ae94f0040bafa58428bcfdfa, type: 2}
     - {fileID: 11400000, guid: b41072892101e9c49945ba71ca72a773, type: 2}
   fixedMapOverride: {fileID: 0}
-  fallbackCombatLayout: {fileID: 11400000, guid: 00733c9df474867448825212b0453724, type: 2}
+  fallbackCombatLayout: {fileID: 11400000, guid: 3278b0da68a68cb4c8b8e6b126b39120, type: 2}
   useRandomSeed: 1
   fixedSeed: 12345
   sceneChangeRequestChannel: {fileID: 11400000, guid: e85803ee4d6ac4ed8964998e21d903ca, type: 2}

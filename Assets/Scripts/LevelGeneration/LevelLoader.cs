@@ -59,6 +59,13 @@ public class LevelLoader : MonoBehaviour
 
         // Instantiate room geometry
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
+        if (blueprint.RotationSteps != 0)
+        {
+            // Seeded 90° rotation for variety (Commit 25). Markers are children, so the spawn lookups below
+            // pick up the rotated positions automatically.
+            currentRoom.transform.rotation = Quaternion.Euler(0f, 0f, 90f * blueprint.RotationSteps);
+        }
+
         MinimapController.Instance?.Refresh(currentRoom);
 
         SpawnPlayerFromRoomMarker();

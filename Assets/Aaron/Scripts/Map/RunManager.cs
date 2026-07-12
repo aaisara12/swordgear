@@ -220,9 +220,20 @@ public class RunManager : MonoBehaviour
 
     #region Linear step flow
 
-    /// <summary>Layout for combat Arena loads. Falls back to the first entry in <see cref="MapGenerationSettings.combatLayouts"/>.</summary>
+    /// <summary>
+    /// Layout for combat Arena loads. Prefers the current step's seeded pick (<see cref="RunStep.Layout"/>,
+    /// chosen from <see cref="MapGenerationSettings.combatLayouts"/> by <see cref="LinearRunGenerator"/> — Commit 24)
+    /// so different combats load different arenas deterministically. Falls back to
+    /// <c>fallbackCombatLayout</c>, then the first pool entry.
+    /// </summary>
     public ArenaLayoutTemplate? ResolveCombatLayout()
     {
+        ArenaLayoutTemplate? stepLayout = _linearRun?.CurrentStep?.Layout;
+        if (stepLayout != null)
+        {
+            return stepLayout;
+        }
+
         if (fallbackCombatLayout != null)
         {
             return fallbackCombatLayout;
@@ -236,6 +247,19 @@ public class RunManager : MonoBehaviour
     public ArenaLayoutTemplate? ResolveShopLayout()
     {
         return generationSettings.shopLayout;
+    }
+
+    /// <summary>
+    /// Deterministic 0..3 quarter-turn rotation for a combat step (Commit 25), decorrelated from the encounter
+    /// seed so orientation and composition vary independently. Same run seed + step → same orientation.
+    /// </summary>
+    public static int SeededRotationSteps(int runSeed, int stepIndex)
+    {
+        unchecked
+        {
+            int seed = (((runSeed * 397) ^ stepIndex) * 31) + 0x51ED2703;
+            return new System.Random(seed).Next(0, 4);
+        }
     }
 
     /// <summary>Builds the arena blueprint for the current linear step (combat or upgrade hub).</summary>
@@ -269,7 +293,8 @@ public class RunManager : MonoBehaviour
                 Layout = layout,
                 Encounter = encounter,
                 Waves = new List<EnemyWaveConfig>(),
-                IsShopLevel = false
+                IsShopLevel = false,
+                RotationSteps = SeededRotationSteps(_linearRun!.Seed, step.StepIndex),
             };
         }
 

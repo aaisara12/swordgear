@@ -12,6 +12,9 @@ public class LevelBlueprint
 
     public bool IsShopLevel;
 
+    /// <summary>Seeded 90° rotation applied to the instantiated room for variety (Commit 25). 0..3 = 0/90/180/270.</summary>
+    public int RotationSteps;
+
     public int WaveCount
     {
         get
