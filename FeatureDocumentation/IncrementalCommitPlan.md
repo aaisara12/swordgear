@@ -26,8 +26,8 @@ M3  Exit portal + step advance on rail
 M4  Full Combat×3 → Upgrade → Map loop (authored arenas only)
 M5  Upgrade hub — augment on enter (walkable zones deferred)
 M6  Complete encounter system (catalog, composer, difficulty, elites, spawn FX) — orthogonal to arena geometry
-M7  Procedural wall layout only (geometry + markers; reuses M6 encounters unchanged)
-M8  Procedural crates/props in arena
+M7  Authored arena system — Room Painter tool, drawn room library, seeded selection + rotation
+M8  Arena obstacles & props — crates, prop zones, optional swappable modules
 M9  Level preview UI in upgrade hub (encounter data already from M6)
 M10 Legacy cleanup + editor setup menus
 ```
@@ -253,7 +253,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ---
 
-### Commit 18 — New enemy archetypes (12 prefabs + attack/movement strategies)
+### Commit 18 — New enemy archetypes (12 prefabs + attack/movement strategies) ✅
 
 | | |
 |---|---|
@@ -268,7 +268,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ---
 
-### Commit 19 — `EnemyCatalog` + spawn modifiers + difficulty hook
+### Commit 19 — `EnemyCatalog` + spawn modifiers + difficulty hook ✅
 
 | | |
 |---|---|
@@ -284,7 +284,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ---
 
-### Commit 20 — Elite enemies + spawn presentation
+### Commit 20 — Elite enemies + spawn presentation ✅
 
 | | |
 |---|---|
@@ -298,7 +298,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ---
 
-### Commit 21 — `WaveComposer` + `EncounterBuilder` + runtime encounters
+### Commit 21 — `WaveComposer` + `EncounterBuilder` + runtime encounters ✅ *(working tree, verified)*
 
 | | |
 |---|---|
@@ -332,50 +332,85 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ---
 
-## M7 — Procedural arena geometry only
+## M7 — Authored arena system (draw → bake → select)
 
-> **Boundary:** M7 **only** replaces or generates **room prefabs** (`ArenaLayoutTemplate.LevelPrefab` or generated room root). It does **not** modify `WaveComposer`, `EncounterBuilder`, `CombatEncounter`, difficulty curve, elite rules, or `LevelLoader` spawn logic beyond loading a different room instance.
+> **Boundary:** M7 adds arenas as **authored content + selection**. It does **not** touch `WaveComposer`, `EncounterBuilder`, `CombatEncounter`, the difficulty curve, elite rules, or `LevelLoader` spawn logic. Baked rooms satisfy the same `PlayerSpawnMarker` / `EnemySpawnPoint` / `ExitSpawnPoint` marker contract as the hand-built arenas (proven), so the enemy system stays frozen from M6.
 
-### Commit 23 — Procedural room replaces prefab (walls only, no props)
+### Why authored, not procedural
+
+Full procedural tilemap generation was considered and **rejected** for this game. A wave arena lives or dies on *intentional* space — cover, sightlines, chokepoints — which is cheaper and better hand-drawn than generated, and M6 already owns the primary variety axis (enemy composition). Generation's real cost is guaranteeing every room is connected and playable; it buys shape-novelty that matters little for a wave fight. Instead we **draw** rooms on a grid and bake them; variety comes from a room library + seeded selection + rotation, with procedural **props** (M8) as the only randomized layer.
+
+### Scope boundary
+
+| In M7 (authored arenas) | Out of scope |
+|---|---|
+| Room Painter tool, `RoomDefinition` assets, `RoomBaker` | Procedural wall / tilemap generation (rejected, see above) |
+| Drawn room library + seeded per-combat selection | Crates / props / destructibles (M8) |
+| Rotation / reflection variety multiplier | Wave composition, difficulty, elites (M6, frozen) |
+| Bake-time validation lint (playable by construction) | Level preview UI (M9) |
+
+### Design principles
+
+1. **Authored-first.** Rooms are drawn on a grid and baked to prefabs; no runtime geometry generation.
+2. **Arena-agnostic contract (unchanged from M6).** Baked rooms discover-by-marker exactly like authored prefabs; `LevelLoader` is untouched.
+3. **Validity by construction.** `RoomBaker` lints every bake — exactly 1 player spawn, ≥1 enemy spawn + exit, and every marker reachable from the player (flood-fill). Unplayable drawings are refused, never shipped.
+4. **Determinism.** Room selection + orientation derive from `hash(runSeed, globalStepIndex)` — same seed reproduces the same arena per step, matching the encounter contract.
+5. **No class sprawl.** Selection lives in `RunManager.ResolveCombatLayout`; no new generator/composer classes.
+
+### Commit 23 — Room Painter tool + first drawn arena playable
 
 | | |
 |---|---|
-| **Adds** | `ArenaGraphSettings`, `ArenaGraphGenerator`, `ArenaTilemapBuilder`, `ArenaLayoutGenerator`, `ArenaLayoutResult` |
-| **Changes** | `RunManager.ResolveCombatLayout` or layout resolver — optional generated room **instead of** `Square_Arena` prefab |
-| **Changes** | Generated room **must include** `PlayerSpawnMarker`, `ExitSpawnPoint`, `EnemySpawnPoint` markers (same contract as authored arenas) |
-| **Playtest** | Enter combat → **procedural room** with correct wall scale; **same composed enemies** as before M7; spawn animation + elites still work. |
-| **EditMode** | `ArenaGraphGeneratorTest`, `ArenaLayoutGeneratorTest` |
+| **Adds** | `RoomDefinition` (grid SO), `RoomBaker` (grid → prefab + `ArenaLayoutTemplate`, with validation lint), `RoomPainterWindow` (menu **SwordGear → Room Painter**) |
+| **Changes** | Draw one arena, bake it, set as `fallbackCombatLayout` (or `combatLayouts[0]`) |
+| **Playtest** | Enter combat → you fight in a **room you drew**; player, enemies, and exit spawn at the painted markers; walls collide. Same M6 encounters as before. |
+| **Note** | Cell types: Empty / Wall / Crate / PlayerSpawn / EnemySpawn / Exit. Crate needs a prefab (M8) — warns + skips until then. |
 
-### Commit 24 — Generated room markers + exit portal placement
+### Commit 24 — Authored room library + seeded selection
 
 | | |
 |---|---|
-| **Changes** | Generated room reliably places spawn/exit markers; portal spawns at `ExitSpawnPoint` |
-| **Playtest** | Procedural combat → clear waves → portal at sensible spot → exit to Map. **No change** to wave composition or enemy behaviour. |
+| **Changes** | Author ~6–10 rooms of varied shape/feel; `RunManager.ResolveCombatLayout` picks from the pool by `hash(runSeed, globalStepIndex)` instead of always slot 0 |
+| **Playtest** | Consecutive combats load **different** drawn arenas; re-running the same seed reproduces the same arena per step. |
+| **EditMode (optional)** | `ArenaSelectionTest` — same seed + step → same layout |
 
-### ~~Commit 23 (old)~~ — Lane-based enemy spawn
+### Commit 25 — Rotation / reflection variety multiplier
 
-*Removed — enemy spawning is complete in M6. Procedural rooms place standard `EnemySpawnPoint` markers; no special lane spawn code.*
+| | |
+|---|---|
+| **Changes** | At selection the seed also picks an orientation (0/90/180/270 + optional mirror); the instantiated room is rotated/flipped (markers follow the transform) |
+| **Playtest** | The same drawn room recurs in **different orientations** across a run — a library of N rooms feels like 4–8×. Same seed → same orientation. |
+| **Note** | Floor stays background (no seams under rotation); mind directional wall art if any. |
 
 ---
 
-## M8 — Crates & props (arena decoration only)
+## M8 — Arena obstacles & props
 
-### Commit 25 — Crate/pillar prefabs + `ObstacleCatalog`
+> **Boundary:** M8 adds obstacles **inside** authored rooms. It never touches wave composition. Props must not break the marker contract — the populator excludes marker cells and re-checks reachability.
 
-| | |
-|---|---|
-| **Adds** | `ObstacleCatalog`, `DestructibleCrate`, `ArenaCrate.prefab`, `ArenaPillar.prefab` |
-| **Changes** | `Square_Arena` / template — catalog reference for manual placement tests |
-| **Playtest** | Manually place crate in **ShopLevel or Arena test scene** → visible, collidable, destructible. **Encounters unchanged.** |
-
-### Commit 26 — Spawn crates in procedural arenas
+### Commit 26 — `ObstacleCatalog` + destructible crate (crate cells bake)
 
 | | |
 |---|---|
-| **Adds** | `ArenaChunkPopulator`, `ArenaComposer`, `PropSpawnZone` (optional on authored arenas) |
-| **Changes** | Layout resolver / room generator — `ApplyProps` after geometry only; **does not touch** `CombatEncounter` |
-| **Playtest** | Procedural combat → **crates/pillars visible inside room**, collide with player. Same waves/elites as without props. |
+| **Adds** | `ObstacleCatalog`, `DestructibleCrate`, `ArenaCrate.prefab` |
+| **Changes** | Assign the crate prefab in **Bake Settings**; `Crate` cells in a `RoomDefinition` bake to crate instances |
+| **Playtest** | Draw crates in a room → they appear, collide, and are destructible. Encounters unchanged. |
+
+### Commit 27 — Prop zones + procedural population *(Option 2)*
+
+| | |
+|---|---|
+| **Adds** | One `ArenaPropPopulator` (single class, named by job) + a prop-zone cell type / zone marker |
+| **Changes** | Populator scatters crates/cover into painted zones at load, seeded by `hash(runSeed, globalStepIndex)`; excludes marker cells; re-runs the reachability flood-fill and backs off any prop that would wall off a spawn/exit |
+| **Playtest** | The **same** drawn room shows a different (still-valid) prop layout each combat; same seed reproduces it. |
+
+### Commit 28 — Swappable interior modules *(optional)*
+
+| | |
+|---|---|
+| **Adds** | Authored "insert" `RoomDefinition`s + slot cells in a shell room; a seeded insert fills each slot on bake/load |
+| **Playtest** | One shell yields **structurally different interiors** across combats. |
+| **Do only if** | the room library still feels too small after Commits 24–25. |
 
 ---
 
@@ -383,7 +418,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 > **Note:** Encounter pre-roll and queue promotion ship in **M6 Commit 22**. M9 is UI only.
 
-### Commit 27 — `LevelPreviewPanel` in upgrade hub
+### Commit 29 — `LevelPreviewPanel` in upgrade hub
 
 | | |
 |---|---|
@@ -395,7 +430,7 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 *Merged into M6 Commit 22. M9 no longer owns encounter composition.*
 
-### Commit 28 — Preview polish + docs
+### Commit 30 — Preview polish + docs
 
 | | |
 |---|---|
@@ -407,19 +442,19 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 
 ## M10 — Tooling & docs
 
-### Commit 29 — `SwordGearLevelGenSetup` menus
+### Commit 31 — `SwordGearLevelGenSetup` menus
 
 | | |
 |---|---|
-| **Adds** | `SwordGearLevelGenSetup.cs` — includes **Enemy Catalog** + **Wave Composer Settings** setup items |
+| **Adds** | `SwordGearLevelGenSetup.cs` — **Enemy Catalog** + **Wave Composer Settings** setup items (the **Room Painter** already ships under **SwordGear → Room Painter** from Commit 23) |
 | **Playtest** | Run **SwordGear → Setup →** items; re-run M6 acceptance playtest to confirm nothing broke. |
 
-### Commit 30 — Documentation for shipped milestones only
+### Commit 32 — Documentation for shipped milestones only
 
 | | |
 |---|---|
-| **Changes** | `MapRunSystem.md`, `LevelGeneration.md`, `EnemySystem.md`, `ProjectIndex.md`, `AGENTS.md` |
-| **Playtest** | N/A — review docs match commits 01–29. |
+| **Changes** | `MapRunSystem.md`, `LevelGeneration.md` (Room Painter + authored-arena model), `EnemySystem.md`, `ProjectIndex.md`, `AGENTS.md` |
+| **Playtest** | N/A — review docs match commits 01–31. |
 
 ---
 
@@ -444,21 +479,21 @@ Play through two full blocks (6 combats) on `Square_Arena` and verify:
 | **05–06** | Title → Map → Square_Arena combat |
 | **09** | One combat → portal → Map → token moved |
 | **12** | Full C×3 → Upgrade → Map → next cycle |
-| **17** | Upgrade hub roam + smooth map |
 | **18** | New enemies: turret, shotgun, beam sniper (per element) |
 | **22** | **M6 done** — 20 archetypes, difficulty curve, elites, spawn anim, composed waves, pre-roll |
-| **23–24** | Procedural **room only**; encounters identical to M6 |
-| **26** | Procedural + crates |
-| **27** | Preview **UI** matches pre-rolled encounters |
+| **23** | Fight in a room you **drew** in the Room Painter |
+| **24–25** | Combats load different drawn arenas (seeded selection + rotation) |
+| **26–27** | Crates + procedural props inside drawn rooms |
+| **29** | Preview **UI** matches pre-rolled encounters |
 
 ---
 
-## Local WIP today
+## Current status
 
-All of the above is **stashed/mixed** in one tree. Reset and land **Commit 01** first — do not cherry-pick Phase A markers in isolation.
+Commits **01–21 landed**; the M6 encounter system is verified in play (20 archetypes, composer, difficulty, elites, spawn FX). **Commit 22** (pre-roll) is the last M6 step. The **Room Painter tool** (Commit 23) is already built and its bake pipeline is verified end-to-end against `LevelLoader`.
 
-When ready: say **“start commit 01”** and we apply only that slice + give you the exact play steps.
+Next: finish **Commit 22**, then work through **M7 (authored arenas)** commit by commit. Say **“start commit 22”** (or a later number) and we apply only that slice + give you the exact play steps.
 
 ---
 
-*Last updated: 2026-07-05 — M6: 20 archetypes (12 new roles + elites at spawn), complete encounter system; arena gen orthogonal in M7+.*
+*Last updated: 2026-07-11 — M6 encounter system verified; M7 reworked to authored arenas via the Room Painter (procedural tilemap generation rejected); M8 = props/modules on top.*
