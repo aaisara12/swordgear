@@ -120,9 +120,7 @@ public static class StatBoostAugmentGenerator
         defs.Add(Def("bronze_ranged_edge", "Ranged Edge", "Ranged attacks deal 10% more damage.", AugmentQualityTier.Low, E(StatBoostKind.RangedDamage, 10)));
         defs.Add(Def("bronze_quick_release", "Quick Release", "Projectiles fly 10% faster.", AugmentQualityTier.Low, E(StatBoostKind.ProjectileSpeed, 10)));
         defs.Add(Def("bronze_ultimate_spark", "Ultimate Spark", "Ultimate charges 10% faster.", AugmentQualityTier.Low, E(StatBoostKind.UltimateCharge, 10)));
-        defs.Add(Def("bronze_vampiric_touch", "Vampiric Touch", "Heal for 10% of damage dealt.", AugmentQualityTier.Low, E(StatBoostKind.Lifesteal, 10)));
-        defs.Add(Def("bronze_passive_heal", "Passive Heal", "Regenerate 1% of max HP per second.", AugmentQualityTier.Low, E(StatBoostKind.Regen, 1f)));
-        defs.Add(Def("bronze_long_reach", "Long Reach", "Melee attacks have 10% more range.", AugmentQualityTier.Low, E(StatBoostKind.MeleeRange, 10)));
+        defs.Add(Def("bronze_vampiric_touch", "Vampiric Touch", "Heal for 10% of damage dealt.", AugmentQualityTier.Low, E(StatBoostKind.Lifesteal, 10)));        defs.Add(Def("bronze_long_reach", "Long Reach", "Melee attacks have 10% more range.", AugmentQualityTier.Low, E(StatBoostKind.MeleeRange, 10)));
         defs.Add(Def("bronze_quick_strikes", "Quick Strikes", "Melee attacks are 10% faster.", AugmentQualityTier.Low, E(StatBoostKind.AttackSpeed, 10)));
 
         // Silver (~30%)
@@ -132,9 +130,7 @@ public static class StatBoostAugmentGenerator
         defs.Add(Def("silver_sharpshooter", "Sharpshooter", "+30% ranged damage.", AugmentQualityTier.Medium, E(StatBoostKind.RangedDamage, 30)));
         defs.Add(Def("silver_overcharged_shot", "Overcharged Shot", "+30% projectile speed.", AugmentQualityTier.Medium, E(StatBoostKind.ProjectileSpeed, 30)));
         defs.Add(Def("silver_fury_accumulation", "Fury Accumulation", "+30% ultimate charge rate.", AugmentQualityTier.Medium, E(StatBoostKind.UltimateCharge, 30)));
-        defs.Add(Def("silver_blood_pact", "Blood Pact", "30% of damage dealt returns as HP.", AugmentQualityTier.Medium, E(StatBoostKind.Lifesteal, 30)));
-        defs.Add(Def("silver_steady_recovery", "Steady Recovery", "3% max HP per second regen.", AugmentQualityTier.Medium, E(StatBoostKind.Regen, 3f)));
-        defs.Add(Def("silver_wide_arc", "Wide Arc", "Melee attacks have 30% more range.", AugmentQualityTier.Medium, E(StatBoostKind.MeleeRange, 30)));
+        defs.Add(Def("silver_blood_pact", "Blood Pact", "30% of damage dealt returns as HP.", AugmentQualityTier.Medium, E(StatBoostKind.Lifesteal, 30)));        defs.Add(Def("silver_wide_arc", "Wide Arc", "Melee attacks have 30% more range.", AugmentQualityTier.Medium, E(StatBoostKind.MeleeRange, 30)));
         defs.Add(Def("silver_flurry", "Flurry", "Melee attacks are 30% faster.", AugmentQualityTier.Medium, E(StatBoostKind.AttackSpeed, 30)));
 
         // Gold (~50%)
@@ -144,9 +140,7 @@ public static class StatBoostAugmentGenerator
         defs.Add(Def("gold_snipers_mark", "Sniper's Mark", "+50% ranged damage.", AugmentQualityTier.High, E(StatBoostKind.RangedDamage, 50)));
         defs.Add(Def("gold_lightning_cast", "Lightning Cast", "+50% projectile speed.", AugmentQualityTier.High, E(StatBoostKind.ProjectileSpeed, 50)));
         defs.Add(Def("gold_overdrive", "Overdrive", "+50% ultimate charge gain.", AugmentQualityTier.High, E(StatBoostKind.UltimateCharge, 50)));
-        defs.Add(Def("gold_soul_leech", "Soul Leech", "50% lifesteal.", AugmentQualityTier.High, E(StatBoostKind.Lifesteal, 50)));
-        defs.Add(Def("gold_phoenix_ash", "Phoenix Ash", "5% max HP per second.", AugmentQualityTier.High, E(StatBoostKind.Regen, 5f)));
-        defs.Add(Def("gold_giant_cleave", "Giant Cleave", "Melee attacks have 50% more range.", AugmentQualityTier.High, E(StatBoostKind.MeleeRange, 50)));
+        defs.Add(Def("gold_soul_leech", "Soul Leech", "50% lifesteal.", AugmentQualityTier.High, E(StatBoostKind.Lifesteal, 50)));        defs.Add(Def("gold_giant_cleave", "Giant Cleave", "Melee attacks have 50% more range.", AugmentQualityTier.High, E(StatBoostKind.MeleeRange, 50)));
         defs.Add(Def("gold_blade_dance", "Blade Dance", "Melee attacks are 50% faster.", AugmentQualityTier.High, E(StatBoostKind.AttackSpeed, 50)));
 
         // Diamond — multi-stat / trade-offs
