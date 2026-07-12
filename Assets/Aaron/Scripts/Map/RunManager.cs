@@ -190,6 +190,9 @@ public class RunManager : MonoBehaviour
 
     private void ResetRunLongState()
     {
+        // Wipe augments/stats from any previous run BEFORE health init, so MaxHp recomputes to base and the
+        // next run (e.g. the next player at a booth) starts clean rather than inheriting a stacked build.
+        PlayerStatModifiers.Instance?.ClearForNewRun();
         PlayerGameplayManager.Instance?.InitializeHealthForNewRun();
         ComboSystem.Instance?.ResetForNewRun();
 

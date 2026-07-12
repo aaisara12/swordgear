@@ -133,6 +133,25 @@ public class PlayerStatModifiers : InitializeableGameComponent
     }
 
     /// <summary>
+    /// Wipes all augment-derived stats for a fresh run: clears the player's inventory and recomputes to
+    /// baseline. Prevents a previous run's augments/stats from leaking into the next run (e.g. back-to-back
+    /// players at a booth). Call from the run-start reset before health is initialised.
+    /// </summary>
+    public void ClearForNewRun()
+    {
+        _mutablePlayerBlob?.ClearInventory();
+        if (_playerBlob != null)
+        {
+            ReapplyFromBlob();
+        }
+        else
+        {
+            Reset();
+            OnStatsChanged?.Invoke();
+        }
+    }
+
+    /// <summary>
     /// Independent +X% bonuses combine multiplicatively: 50% + 50% => 1.75x (+75% total).
     /// </summary>
     public static float CombineMultiplicativePercentBonuses(float inverseProduct) =>
