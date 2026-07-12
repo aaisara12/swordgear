@@ -118,6 +118,7 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         GUILayout.EndHorizontal();
 
         DrawCombatDebugSection();
+        DrawLoadingDebugSection();
 
         GUILayout.Space(6f);
 
@@ -183,6 +184,37 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         if (loader.IsLevelComplete)
         {
             GUILayout.Label("Level complete — walk into the exit portal.");
+        }
+    }
+
+    private void DrawLoadingDebugSection()
+    {
+        GUILayout.Space(6f);
+        GUILayout.Label("Loading Overlay");
+
+        LoadingScreenAnimator? loading = FindFirstObjectByType<LoadingScreenAnimator>();
+        if (loading == null)
+        {
+            GUILayout.Label("LoadingScreenAnimator not found (Loading scene not loaded).");
+            return;
+        }
+
+        GUILayout.BeginHorizontal();
+        if (GUILayout.Button("Show Boot Loading..."))
+        {
+            loading.DebugShowBootLoadingOverlay();
+        }
+
+        if (GUILayout.Button("Hide Overlay"))
+        {
+            loading.FadeOutLoadingScreen();
+        }
+
+        GUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Restart Dots"))
+        {
+            loading.ShowBootLoadingLabel();
         }
     }
 #endif
