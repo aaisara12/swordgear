@@ -55,6 +55,9 @@ public class VfxPrewarmer : InitializeableGameComponent
         // Draw warmup effects only once the loading overlay is opaque, so they stay hidden from the player.
         yield return WaitForLoadingOverlay();
 
+        // aisara => Boot-only "Loading..." label; SceneTransitioner fade-ins keep the overlay black.
+        FindFirstObjectByType<LoadingScreenAnimator>()?.ShowBootLoadingLabel();
+
         var svc = catalog.ShaderVariants;
         if (svc != null && svc.shaderCount > 0)
             svc.WarmUp();
