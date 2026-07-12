@@ -20,6 +20,8 @@ public class RoomPainterWindow : EditorWindow
     [SerializeField] private TileBase? wallTile;
     [SerializeField] private GameObject? cratePrefab;
     [SerializeField] private float cellSize = 1f;
+    [SerializeField] private bool blackBackdrop = true;
+    [SerializeField] private Sprite? wallBackdropSprite;
     [SerializeField] private string prefabFolder = RoomBaker.DefaultPrefabFolder;
     [SerializeField] private string templateFolder = RoomBaker.DefaultTemplateFolder;
 
@@ -42,6 +44,11 @@ public class RoomPainterWindow : EditorWindow
         if (wallTile == null)
         {
             wallTile = AssetDatabase.LoadAssetAtPath<TileBase>(RoomBaker.DefaultWallTilePath);
+        }
+
+        if (wallBackdropSprite == null)
+        {
+            wallBackdropSprite = RoomBaker.BakeConfig.Default().WallBackdropSprite;
         }
     }
 
@@ -248,6 +255,8 @@ public class RoomPainterWindow : EditorWindow
             wallTile = (TileBase?)EditorGUILayout.ObjectField("Wall Tile", wallTile, typeof(TileBase), false);
             cratePrefab = (GameObject?)EditorGUILayout.ObjectField("Crate Prefab", cratePrefab, typeof(GameObject), false);
             cellSize = EditorGUILayout.FloatField("Cell Size", cellSize);
+            blackBackdrop = EditorGUILayout.Toggle("Black Backdrop", blackBackdrop);
+            wallBackdropSprite = (Sprite?)EditorGUILayout.ObjectField("Wall Backdrop Sprite", wallBackdropSprite, typeof(Sprite), false);
             prefabFolder = EditorGUILayout.TextField("Prefab Folder", prefabFolder);
             templateFolder = EditorGUILayout.TextField("Template Folder", templateFolder);
             EditorGUI.indentLevel--;
@@ -270,6 +279,8 @@ public class RoomPainterWindow : EditorWindow
             WallTile = wallTile,
             CratePrefab = cratePrefab,
             CellSize = cellSize,
+            BlackBackdrop = blackBackdrop,
+            WallBackdropSprite = wallBackdropSprite,
             PrefabFolder = prefabFolder,
             TemplateFolder = templateFolder,
         };

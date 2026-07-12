@@ -15,8 +15,12 @@ using UnityEngine.Tilemaps;
 public static class RoomBaker
 {
     public const string DefaultWallTilePath = "Assets/Visuals/walltile1.asset";
+    public const string DefaultWallSpritePath = "Assets/Visuals/swordgear_wallset1_tile1.png";
     public const string DefaultPrefabFolder = "Assets/Visuals/Prefabs/BakedRooms";
     public const string DefaultTemplateFolder = "Assets/Scripts/LevelGeneration/ArenaLayouts";
+
+    /// <summary>World size of the black void quad baked behind each room.</summary>
+    public const float BackdropSize = 400f;
 
     public struct BakeConfig
     {
@@ -26,6 +30,13 @@ public static class RoomBaker
         public string PrefabFolder;
         public string TemplateFolder;
 
+        /// <summary>When true, bakes a large black quad behind the room so the arena floor and everything outside
+        /// it read as a black void — no apron, no default background.</summary>
+        public bool BlackBackdrop;
+
+        /// <summary>Opaque sprite tinted black for the void quad. Defaults to the wall tile's sprite.</summary>
+        public Sprite? WallBackdropSprite;
+
         public static BakeConfig Default() => new BakeConfig
         {
             WallTile = AssetDatabase.LoadAssetAtPath<TileBase>(DefaultWallTilePath),
@@ -33,7 +44,39 @@ public static class RoomBaker
             CellSize = 1f,
             PrefabFolder = DefaultPrefabFolder,
             TemplateFolder = DefaultTemplateFolder,
+            BlackBackdrop = true,
+            WallBackdropSprite = LoadWallBackdropSprite(),
         };
+    }
+
+    /// <summary>
+    /// Sprite tiled behind the margin bands. Prefers the wall RuleTile's first fill sprite (so the backdrop
+    /// matches the arena walls), then its default sprite, then a direct wall sprite asset.
+    /// </summary>
+    private static Sprite? LoadWallBackdropSprite()
+    {
+        var tile = AssetDatabase.LoadAssetAtPath<Object>(DefaultWallTilePath);
+        if (tile != null)
+        {
+            var so = new SerializedObject(tile);
+            SerializedProperty rules = so.FindProperty("m_TilingRules");
+            if (rules != null && rules.arraySize > 0)
+            {
+                SerializedProperty sprites = rules.GetArrayElementAtIndex(0).FindPropertyRelative("m_Sprites");
+                if (sprites != null && sprites.arraySize > 0 && sprites.GetArrayElementAtIndex(0).objectReferenceValue is Sprite ruleSprite)
+                {
+                    return ruleSprite;
+                }
+            }
+
+            SerializedProperty defaultSprite = so.FindProperty("m_DefaultSprite");
+            if (defaultSprite != null && defaultSprite.objectReferenceValue is Sprite ds)
+            {
+                return ds;
+            }
+        }
+
+        return AssetDatabase.LoadAssetAtPath<Sprite>(DefaultWallSpritePath);
     }
 
     /// <summary>
@@ -235,6 +278,13 @@ public static class RoomBaker
                 }
             }
 
+            // Black void backdrop: one large quad behind the room so the arena floor and everything outside it
+            // read as black (no apron, no default background). A single SpriteRenderer, no collider.
+            if (config.BlackBackdrop && config.WallBackdropSprite != null)
+            {
+                CreateBlackBackdrop(rootGO, config.WallBackdropSprite);
+            }
+
             string prefabPath = $"{config.PrefabFolder}/{roomName}.prefab";
             GameObject savedPrefab = PrefabUtility.SaveAsPrefabAsset(rootGO, prefabPath, out bool ok);
             if (!ok || savedPrefab == null)
@@ -253,6 +303,22 @@ public static class RoomBaker
         {
             Object.DestroyImmediate(rootGO);
         }
+    }
+
+    private static void CreateBlackBackdrop(GameObject root, Sprite sprite)
+    {
+        var go = new GameObject("Backdrop");
+        go.transform.SetParent(root.transform);
+        go.transform.localPosition = Vector3.zero;
+        Vector2 spriteSize = sprite.bounds.size;
+        float sx = spriteSize.x > 0f ? BackdropSize / spriteSize.x : BackdropSize;
+        float sy = spriteSize.y > 0f ? BackdropSize / spriteSize.y : BackdropSize;
+        go.transform.localScale = new Vector3(sx, sy, 1f);
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        sr.color = Color.black;
+        sr.drawMode = SpriteDrawMode.Simple;
+        sr.sortingOrder = -1000; // behind everything
     }
 
     private static void MakeMarker<T>(GameObject root, string name, Vector3 localPos) where T : Component
