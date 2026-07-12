@@ -364,7 +364,7 @@ public class LevelLoader : MonoBehaviour
         {
             if (enemy != null)
             {
-                enemy.TakeDamage(99999f);
+                enemy.TakeDamage(99999f, default, applyImpactFeel: false);
             }
         }
     }

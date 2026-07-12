@@ -17,7 +17,7 @@ public class EnemyBurn : MonoBehaviour, IEnemyEffect
 
     void IEnemyEffect.EffectTick(EnemyController enemy)
     {
-        enemy.TakeDamage(damage);
+        enemy.TakeDamage(damage, default, applyImpactFeel: false);
     }
 
     EnemyEffect IEnemyEffect.getEffect()
