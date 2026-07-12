@@ -66,13 +66,18 @@ Generate prefabs: **Henry → Generate New Enemy Archetype Prefabs**. Play Mode 
 | `ElementStatKnobs` | `Assets/Scripts/Enemy/ElementStatKnobs.cs` |
 | `SpawnModifiers` / `DifficultyCurve` | `Assets/Scripts/Enemy/` |
 | `EncounterContext` | `Assets/Aaron/Scripts/Map/EncounterContext.cs` |
+| `WaveComposer` / `EncounterBuilder` | `Assets/Scripts/Enemy/WaveComposer.cs`, `EncounterBuilder.cs` |
+| `WaveComposerSettings` | `Assets/Scripts/Enemy/WaveComposerSettings.cs` + `Assets/Aaron/ScriptableObjects/WaveComposerSettings.asset` |
+| `CombatEncounter` / `ComposedWave` | `Assets/Scripts/Enemy/` |
+
+`RunManager.BuildBlueprintForCurrentStep` calls `EncounterBuilder` → `WaveComposer`, which spends a **per-wave** threat budget from `WaveComposerSettings` using catalog `baseThreatCost`, theme weights, and role mix. `LevelLoader` spawns from `ComposedSpawnSpec` ids (prefab lookup via catalog). Elites are marked on specs by the composer (combat 3 guarantees one).
 
 `LevelLoader` applies spawn modifiers after each Instantiate:
 
-1. **Difficulty** from `(blockIndex, combatIndexInBlock)` — later combats / blocks get more HP & damage.
+1. **Difficulty** from the composed encounter (settings curve × block index) — later combats / blocks get more HP & damage.
 2. **Elemental knobs** for new archetypes (`applyElementKnobsAtSpawn`) — Fire aggressive, Ice tanky/slow/hard, Lightning fast/weak. Legacy melee/ranged keep baked prefab stats.
 
-Generate / refresh catalog: **Henry → Generate Enemy Catalog** (also wires `RunManager.enemyCatalog` on CoreSystems).
+Generate / refresh catalog: **Henry → Generate Enemy Catalog**. Composer settings: **Henry → Generate Wave Composer Settings** (wires `RunManager.waveComposerSettings`).
 
 ### Spawn presentation & elites (Commit 20+)
 

@@ -1,0 +1,76 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0ec24c149b6fb6b429e12018aeed0f82, type: 3}
+  m_Name: WaveComposerSettings
+  m_EditorClassIdentifier: Main::WaveComposerSettings
+  combatProfiles:
+  - threatBudget: 80
+    minWaves: 2
+    maxWaves: 2
+    hpMultiplier: 1
+    damageMultiplier: 1
+    guaranteeElite: 0
+  - threatBudget: 110
+    minWaves: 2
+    maxWaves: 3
+    hpMultiplier: 1.15
+    damageMultiplier: 1.05
+    guaranteeElite: 0
+  - threatBudget: 140
+    minWaves: 3
+    maxWaves: 3
+    hpMultiplier: 1.3
+    damageMultiplier: 1.1
+    guaranteeElite: 1
+  blockThreatScale: 0.3
+  blockHpScale: 0.25
+  blockDamageScale: 0.1
+  themeWeightsCombat0:
+  - 30
+  - 40
+  - 10
+  - 10
+  - 10
+  themeWeightsCombat1:
+  - 25
+  - 15
+  - 20
+  - 20
+  - 20
+  themeWeightsCombat2:
+  - 10
+  - 0
+  - 30
+  - 30
+  - 30
+  roleWeightsCombat0:
+  - 45
+  - 30
+  - 5
+  - 10
+  - 10
+  roleWeightsCombat1:
+  - 35
+  - 25
+  - 10
+  - 15
+  - 15
+  roleWeightsCombat2:
+  - 20
+  - 20
+  - 20
+  - 20
+  - 20
+  maxEnemiesPerWave: 12
+  minEnemiesPerWave: 4
+  delayAfterClear: 1.5
+  themedElementBias: 0.8

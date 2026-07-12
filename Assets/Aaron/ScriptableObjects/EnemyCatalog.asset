@@ -23,115 +23,115 @@ MonoBehaviour:
     prefab: {fileID: 4519183777221867105, guid: 4f0cb03e528763644b6df6a011a78b1e, type: 3}
     element: 1
     role: 0
-    baseThreatCost: 11
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: melee_ice
     prefab: {fileID: 4519183777221867105, guid: 7ebe54f758ab16645a245de5a1592792, type: 3}
     element: 2
     role: 0
-    baseThreatCost: 14
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: melee_lightning
     prefab: {fileID: 4519183777221867105, guid: 5449fb24c7f598e43923b0666f4cea50, type: 3}
     element: 3
     role: 0
-    baseThreatCost: 11
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: ranged_physical
     prefab: {fileID: 4519183777221867105, guid: dc31ddd9613a84258ab3527a2a557cc3, type: 3}
     element: 0
     role: 1
-    baseThreatCost: 12
+    baseThreatCost: 10
     applyElementKnobsAtSpawn: 0
   - id: ranged_fire
     prefab: {fileID: 4519183777221867105, guid: 77b355a54daaec6408d8bbc841511494, type: 3}
     element: 1
     role: 1
-    baseThreatCost: 13
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: ranged_ice
     prefab: {fileID: 4519183777221867105, guid: cb0b62ea879ad704b92113efa5642dd9, type: 3}
     element: 2
     role: 1
-    baseThreatCost: 16
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: ranged_lightning
     prefab: {fileID: 4519183777221867105, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
     element: 3
     role: 1
-    baseThreatCost: 13
+    baseThreatCost: 15
     applyElementKnobsAtSpawn: 0
   - id: beamsniper_physical
     prefab: {fileID: 8975959547368482392, guid: 9f9fb9258378ad0448f831b6bd19f769, type: 3}
     element: 0
     role: 2
-    baseThreatCost: 18
+    baseThreatCost: 25
     applyElementKnobsAtSpawn: 1
   - id: beamsniper_fire
     prefab: {fileID: 8400354977603391265, guid: 21632f2ac89d16d47bb8754ade6b2016, type: 3}
     element: 1
     role: 2
-    baseThreatCost: 19
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   - id: beamsniper_ice
     prefab: {fileID: 3465097269950654021, guid: 192989eacc6cc2d4da7398875eae9736, type: 3}
     element: 2
     role: 2
-    baseThreatCost: 22
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   - id: beamsniper_lightning
     prefab: {fileID: 20400060302182631, guid: e42935e20734fc74db55d67a78d320e2, type: 3}
     element: 3
     role: 2
-    baseThreatCost: 19
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   - id: shotgun_physical
     prefab: {fileID: 5542582237736198131, guid: 3deaa10d504992b48850642628881ba6, type: 3}
     element: 0
     role: 3
-    baseThreatCost: 14
+    baseThreatCost: 20
     applyElementKnobsAtSpawn: 1
   - id: shotgun_fire
     prefab: {fileID: 7851730739399681070, guid: e8c21b8c150ee684f8cd4658b684aec7, type: 3}
     element: 1
     role: 3
-    baseThreatCost: 15
+    baseThreatCost: 25
     applyElementKnobsAtSpawn: 1
   - id: shotgun_ice
     prefab: {fileID: 1848401278355177373, guid: 0f7d3f390e1d16e46b8c771ffc0901ab, type: 3}
     element: 2
     role: 3
-    baseThreatCost: 18
+    baseThreatCost: 25
     applyElementKnobsAtSpawn: 1
   - id: shotgun_lightning
     prefab: {fileID: 3967241354527058178, guid: 5b43c4bacc55c4543bc945be3cd9dce0, type: 3}
     element: 3
     role: 3
-    baseThreatCost: 15
+    baseThreatCost: 25
     applyElementKnobsAtSpawn: 1
   - id: turret_physical
     prefab: {fileID: 1565207316266666314, guid: 167e3b5c5a8db7b4cb89191b99d83f60, type: 3}
     element: 0
     role: 4
-    baseThreatCost: 16
+    baseThreatCost: 20
     applyElementKnobsAtSpawn: 1
   - id: turret_fire
     prefab: {fileID: 1604372083531181312, guid: e74066d0c6194bc46bfbfac7a7dd7f49, type: 3}
     element: 1
     role: 4
-    baseThreatCost: 17
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   - id: turret_ice
     prefab: {fileID: 1170658601735208804, guid: c920a305237514c478bbfd8819e3a255, type: 3}
     element: 2
     role: 4
-    baseThreatCost: 20
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   - id: turret_lightning
     prefab: {fileID: 668439169082077661, guid: facd606b7f5c5854e81b3931033c2a2f, type: 3}
     element: 3
     role: 4
-    baseThreatCost: 17
+    baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
   elementKnobs:
   - element: 0
@@ -154,7 +154,7 @@ MonoBehaviour:
     speedMultiplier: 0.5
     attackRateMultiplier: 0.85
     chargeTimeMultiplier: 1.1
-    projectileSpeedMultiplier: 1
+    projectileSpeedMultiplier: 0.5
   - element: 3
     hpMultiplier: 1
     damageMultiplier: 0.5

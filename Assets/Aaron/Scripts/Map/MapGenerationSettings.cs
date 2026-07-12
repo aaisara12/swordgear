@@ -34,6 +34,7 @@ public class MapGenerationSettings
     [Min(1)] public int minWavesPerCombat = 2;
     [Min(1)] public int maxWavesPerCombat = 4;
     public List<ArenaLayoutTemplate> combatLayouts = new List<ArenaLayoutTemplate>();
+    [Obsolete("DEPRECATED: Prefer WaveComposer + EnemyCatalog (Commit 21). Kept for branching-map / legacy fallback.")]
     public List<EnemyWaveConfig> combatWaves = new List<EnemyWaveConfig>();
 
     [Header("Shop content")]

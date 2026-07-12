@@ -1,8 +1,8 @@
 #nullable enable
 
 /// <summary>
-/// Interim step-based difficulty scaling until WaveComposerSettings owns the curve (Commit 21).
-/// Combat 2 in a block is noticeably tankier than combat 1; later blocks ramp further.
+/// Fallback step-based difficulty when no <see cref="CombatEncounter"/> / <see cref="WaveComposerSettings"/> is available.
+/// Prefer modifiers baked on the composed encounter (Commit 21).
 /// </summary>
 public static class DifficultyCurve
 {

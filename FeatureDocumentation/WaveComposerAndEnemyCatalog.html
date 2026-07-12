@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SwordGear — Wave Composer &amp; Enemy Catalog</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Fraunces:opsz,wght@9..144,500;9..144,700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #f3efe6;
+      --bg-elev: #fffdf8;
+      --ink: #1c1915;
+      --muted: #5c564c;
+      --line: #d9d0c0;
+      --accent: #b54a2a;
+      --accent-soft: #f0ddd4;
+      --ok: #2f6b4f;
+      --ok-soft: #dceee4;
+      --warn: #8a6a12;
+      --warn-soft: #f5ecd0;
+      --code-bg: #1f1c18;
+      --code-ink: #f0e6d6;
+      --shadow: 0 1px 0 rgba(28, 25, 21, 0.06), 0 12px 32px rgba(28, 25, 21, 0.06);
+      --radius: 12px;
+      --max: 920px;
+      --toc: 240px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #ebe3d4 0%, transparent 55%),
+        radial-gradient(900px 500px at 100% 0%, #e8ddd0 0%, transparent 50%),
+        var(--bg);
+      font-family: "IBM Plex Sans", system-ui, sans-serif;
+      font-size: 16.5px;
+      line-height: 1.55;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: var(--toc) minmax(0, var(--max));
+      gap: 2.5rem;
+      max-width: calc(var(--toc) + var(--max) + 4rem);
+      margin: 0 auto;
+      padding: 2.5rem 1.5rem 5rem;
+      justify-content: center;
+    }
+
+    nav.toc {
+      position: sticky;
+      top: 1.5rem;
+      align-self: start;
+      max-height: calc(100vh - 3rem);
+      overflow: auto;
+      padding-right: 0.5rem;
+    }
+
+    nav.toc h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin: 0 0 0.75rem;
+      letter-spacing: 0.02em;
+    }
+
+    nav.toc ol {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-size: 0.86rem;
+    }
+
+    nav.toc li { margin: 0.35rem 0; }
+    nav.toc a {
+      color: var(--muted);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      padding-left: 0.55rem;
+      display: block;
+    }
+    nav.toc a:hover { color: var(--ink); border-left-color: var(--accent); }
+
+    main { min-width: 0; }
+
+    header.doc-hero {
+      margin-bottom: 2.25rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .eyebrow {
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin: 0 0 0.6rem;
+    }
+
+    h1 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: clamp(2rem, 4vw, 2.75rem);
+      font-weight: 700;
+      line-height: 1.15;
+      margin: 0 0 0.75rem;
+    }
+
+    .lede {
+      font-size: 1.08rem;
+      color: var(--muted);
+      max-width: 42rem;
+      margin: 0;
+    }
+
+    h2 {
+      font-family: Fraunces, Georgia, serif;
+      font-size: 1.55rem;
+      margin: 2.75rem 0 0.85rem;
+      scroll-margin-top: 1.25rem;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin: 1.75rem 0 0.55rem;
+      scroll-margin-top: 1.25rem;
+    }
+
+    p { margin: 0.65rem 0; }
+    ul, ol { margin: 0.5rem 0 0.9rem; padding-left: 1.25rem; }
+    li { margin: 0.3rem 0; }
+
+    a { color: var(--accent); }
+
+    .card {
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 1.1rem 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .callout {
+      border-radius: var(--radius);
+      padding: 0.95rem 1.1rem;
+      margin: 1rem 0;
+      border: 1px solid var(--line);
+    }
+    .callout.note { background: var(--accent-soft); border-color: #e2b7a6; }
+    .callout.ok { background: var(--ok-soft); border-color: #b7d7c6; }
+    .callout.warn { background: var(--warn-soft); border-color: #e4d59a; }
+    .callout strong { display: block; margin-bottom: 0.25rem; }
+
+    code, .mono {
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.88em;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border-radius: var(--radius);
+      padding: 1rem 1.1rem;
+      overflow-x: auto;
+      font-family: "IBM Plex Mono", ui-monospace, monospace;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 0.9rem 0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.92rem;
+      margin: 0.9rem 0 1.2rem;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    th, td {
+      text-align: left;
+      padding: 0.65rem 0.75rem;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+    }
+    th {
+      background: #ebe4d7;
+      font-weight: 600;
+      font-size: 0.82rem;
+      letter-spacing: 0.02em;
+    }
+    tr:last-child td { border-bottom: none; }
+
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+      margin: 1rem 0;
+    }
+    .steps > li {
+      position: relative;
+      padding: 0.85rem 0.9rem 0.85rem 3.1rem;
+      margin: 0.55rem 0;
+      background: var(--bg-elev);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+    }
+    .steps > li::before {
+      counter-increment: step;
+      content: counter(step);
+      position: absolute;
+      left: 0.85rem;
+      top: 0.85rem;
+      width: 1.6rem;
+      height: 1.6rem;
+      border-radius: 999px;
+      background: var(--ink);
+      color: var(--bg);
+      font-size: 0.8rem;
+      font-weight: 600;
+      display: grid;
+      place-items: center;
+    }
+
+    .recipe {
+      border-left: 4px solid var(--accent);
+      padding-left: 0.9rem;
+      margin: 1.1rem 0;
+    }
+    .recipe h4 {
+      margin: 0 0 0.35rem;
+      font-size: 1rem;
+    }
+
+    .path {
+      display: inline-block;
+      background: #ebe4d7;
+      border-radius: 6px;
+      padding: 0.15rem 0.45rem;
+      font-family: "IBM Plex Mono", monospace;
+      font-size: 0.8rem;
+    }
+
+    footer {
+      margin-top: 3rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.88rem;
+    }
+
+    @media (max-width: 960px) {
+      .shell {
+        grid-template-columns: 1fr;
+        padding-top: 1.25rem;
+      }
+      nav.toc {
+        position: static;
+        max-height: none;
+        border: 1px solid var(--line);
+        background: var(--bg-elev);
+        border-radius: var(--radius);
+        padding: 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <nav class="toc" aria-label="Table of contents">
+      <h2>Contents</h2>
+      <ol>
+        <li><a href="#overview">Overview</a></li>
+        <li><a href="#assets">Assets &amp; where to tune</a></li>
+        <li><a href="#run-structure">Run structure</a></li>
+        <li><a href="#catalog">Enemy Catalog</a></li>
+        <li><a href="#settings">Wave Composer Settings</a></li>
+        <li><a href="#pipeline">End-to-end pipeline</a></li>
+        <li><a href="#compose">Compose step-by-step</a></li>
+        <li><a href="#spawn">Arena spawn path</a></li>
+        <li><a href="#examples">Worked examples</a></li>
+        <li><a href="#recipes">Tuning recipes</a></li>
+        <li><a href="#debug">Debugging</a></li>
+        <li><a href="#limits">Limits &amp; gotchas</a></li>
+      </ol>
+    </nav>
+
+    <main>
+      <header class="doc-hero">
+        <p class="eyebrow">SwordGear · M6 Encounter System</p>
+        <h1>Wave Composer &amp; Enemy Catalog</h1>
+        <p class="lede">
+          How runtime combat encounters are built from a threat budget, catalog costs, themes, and roles —
+          and how to tune them for denser waves, elemental themes, or later-block difficulty.
+        </p>
+      </header>
+
+      <section id="overview">
+        <h2>1. Overview</h2>
+        <p>
+          Combat waves are <strong>not</strong> hand-authored ScriptableObject wave lists anymore (those still exist as legacy).
+          When the player enters a combat step, the game builds a <strong>runtime</strong>
+          <code>CombatEncounter</code>: a list of waves, each containing spawn specs
+          (<code>archetypeId</code> + optional elite flag).
+        </p>
+        <div class="card">
+          <strong>Two assets drive everything</strong>
+          <ul>
+            <li><span class="path">EnemyCatalog.asset</span> — who can spawn (20 archetypes), each with a threat cost and prefab.</li>
+            <li><span class="path">WaveComposerSettings.asset</span> — how much to spend per wave, how many waves, theme/role weights, block scaling, caps.</li>
+          </ul>
+        </div>
+        <p>
+          <strong>Determinism:</strong> same run seed + same step index → identical encounter composition
+          (spawn <em>positions</em> in the room still use Unity random).
+        </p>
+      </section>
+
+      <section id="assets">
+        <h2>2. Assets &amp; where to tune</h2>
+        <table>
+          <thead>
+            <tr><th>What</th><th>Path</th><th>Notes</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Catalog</td>
+              <td><span class="path">Assets/Aaron/ScriptableObjects/EnemyCatalog.asset</span></td>
+              <td>Base Threat Cost per enemy. Wired on CoreSystems → RunManager.</td>
+            </tr>
+            <tr>
+              <td>Composer settings</td>
+              <td><span class="path">Assets/Aaron/ScriptableObjects/WaveComposerSettings.asset</span></td>
+              <td>Budgets, waves, weights, block scales, caps.</td>
+            </tr>
+            <tr>
+              <td>Elite presentation</td>
+              <td><span class="path">Assets/Aaron/ScriptableObjects/ElitePresentation.asset</span></td>
+              <td>Elite scale / HP / damage / aura — applied at spawn, not during composition.</td>
+            </tr>
+            <tr>
+              <td>Code</td>
+              <td><span class="path">Assets/Scripts/Enemy/WaveComposer.cs</span>, <span class="path">EncounterBuilder.cs</span>, <span class="path">EnemyCatalog.cs</span></td>
+              <td>Logic lives here; settings are data-only.</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="callout warn">
+          <strong>Regenerate carefully</strong>
+          Henry → Generate Enemy Catalog / Generate Wave Composer Settings can overwrite tuned values with defaults.
+          Prefer editing the assets directly after initial create.
+        </div>
+      </section>
+
+      <section id="run-structure">
+        <h2>3. Run structure (how context is derived)</h2>
+        <p>The linear rail is repeating blocks of <strong>Combat → Combat → Combat → Upgrade</strong>.</p>
+        <table>
+          <thead>
+            <tr><th>Term</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>blockIndex</code></td><td>0 for first loop, 1 after first upgrade, etc.</td></tr>
+            <tr><td><code>combatIndexInBlock</code></td><td>0, 1, or 2 — which of the three fights in the block.</td></tr>
+            <tr><td><code>globalStepIndex</code></td><td>Absolute step on the rail (0, 1, 2, 4, 5… skipping upgrades for combat context).</td></tr>
+            <tr><td><code>CombinedSeed()</code></td><td><code>(runSeed * 397) ^ globalStepIndex</code> — feeds <code>System.Random</code> for composition.</td></tr>
+          </tbody>
+        </table>
+        <p>
+          Profile lookup uses <code>combatIndexInBlock</code> (which of the three combat profiles).
+          Block scaling uses <code>blockIndex</code>.
+        </p>
+      </section>
+
+      <section id="catalog">
+        <h2>4. Enemy Catalog (deep dive)</h2>
+        <p>20 archetypes = <strong>5 roles × 4 elements</strong>.</p>
+
+        <h3>4.1 Roles</h3>
+        <table>
+          <thead>
+            <tr><th>Role</th><th>Behaviour (short)</th><th>Typical cost band</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Melee</td><td>Chase + melee</td><td>~10–14</td></tr>
+            <tr><td>Ranged</td><td>Strafe + projectile</td><td>~12–16</td></tr>
+            <tr><td>BeamSniper</td><td>Telegraphed laser</td><td>~18–22</td></tr>
+            <tr><td>Shotgun</td><td>Pellet spread</td><td>~14–18</td></tr>
+            <tr><td>Turret</td><td>Stationary shooter</td><td>~16+</td></tr>
+          </tbody>
+        </table>
+
+        <h3>4.2 Per-archetype fields</h3>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>What it does</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>id</code></td>
+              <td>Stable string the composer stores on spawn specs (e.g. <code>melee_fire</code>). LevelLoader looks this up to get the prefab.</td>
+            </tr>
+            <tr>
+              <td><code>prefab</code></td>
+              <td>The enemy GameObject to Instantiate.</td>
+            </tr>
+            <tr>
+              <td><code>element</code> / <code>role</code></td>
+              <td>Used when filtering candidates after role/element rolls.</td>
+            </tr>
+            <tr>
+              <td><code>baseThreatCost</code></td>
+              <td><strong>Fixed</strong> cost subtracted from the <em>per-wave</em> budget when that enemy is chosen. Does <strong>not</strong> scale with block index.</td>
+            </tr>
+            <tr>
+              <td><code>applyElementKnobsAtSpawn</code></td>
+              <td>If true (new archetypes), multiply stats by catalog ElementStatKnobs at spawn. Legacy melee/ranged usually false (stats baked into prefab).</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>4.3 Element stat knobs (spawn-time, not composition)</h3>
+        <p>
+          For archetypes with <code>applyElementKnobsAtSpawn</code>, defaults roughly:
+        </p>
+        <ul>
+          <li><strong>Fire</strong> — more damage/speed, aggressive.</li>
+          <li><strong>Ice</strong> — much more HP/damage, slower.</li>
+          <li><strong>Lightning</strong> — fast, weak hits, short charge.</li>
+          <li><strong>Physical</strong> — identity (1×).</li>
+        </ul>
+        <p>These stack <em>on top of</em> the shared block HP/damage multipliers from WaveComposerSettings.</p>
+
+        <div class="callout note">
+          <strong>Cost vs difficulty</strong>
+          Raising an enemy’s <code>baseThreatCost</code> makes it “rarer” under a fixed budget (fewer of them fit).
+          It does <strong>not</strong> make that enemy tankier. Tankiness comes from prefab stats, element knobs, block HP scale, and elite multipliers.
+        </div>
+      </section>
+
+      <section id="settings">
+        <h2>5. Wave Composer Settings (every field)</h2>
+
+        <h3>5.1 Combat profiles (3 slots)</h3>
+        <p>Index 0 / 1 / 2 = first / second / third combat in a block.</p>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>threatBudget</code></td>
+              <td><strong>Per wave</strong>. Each wave in that fight independently spends this much (then × block threat scale). Example: budget 80 with 3 waves ≈ up to ~240 total cost spent if every wave fills.</td>
+            </tr>
+            <tr>
+              <td><code>minWaves</code> / <code>maxWaves</code></td>
+              <td>Inclusive random wave count for that fight.</td>
+            </tr>
+            <tr>
+              <td><code>guaranteeElite</code></td>
+              <td>If true, at least one elite in the fight (preferably first spawn of the last wave).</td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Within a block, HP and damage are <strong>identical</strong> across the three profiles. Use budget + wave count (+ elite) for within-block pacing.</p>
+
+        <h3>5.2 Later-block scaling</h3>
+        <p>Formula: <code>value × (1 + blockIndex × scale)</code></p>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Applies to</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>blockThreatScale</code></td><td>Per-wave threat budget (more enemies later, until caps).</td></tr>
+            <tr><td><code>blockHpScale</code></td><td>Shared HP mult for all three fights in that block.</td></tr>
+            <tr><td><code>blockDamageScale</code></td><td>Shared damage mult for all three fights in that block.</td></tr>
+          </tbody>
+        </table>
+        <pre>Block 0: HP = 1.0, budget = base
+Block 1 (scale 0.25 HP / 0.35 threat): HP = 1.25, budget = base × 1.35
+Block 2: HP = 1.5, budget = base × 1.7</pre>
+
+        <h3>5.3 Theme weights</h3>
+        <p>One array per combat slot. Order is always:</p>
+        <ol>
+          <li>Mixed</li>
+          <li>Physical</li>
+          <li>Fire</li>
+          <li>Ice</li>
+          <li>Lightning</li>
+        </ol>
+        <p>Relative weights only (do not need to sum to 100). Theme is picked <strong>once per fight</strong>.</p>
+
+        <h3>5.4 Role weights</h3>
+        <p>Order is always:</p>
+        <ol>
+          <li>Melee</li>
+          <li>Ranged</li>
+          <li>BeamSniper</li>
+          <li>Shotgun</li>
+          <li>Turret</li>
+        </ol>
+        <p>Rolled <strong>independently for every enemy spawn</strong>.</p>
+
+        <h3>5.5 Composition limits</h3>
+        <table>
+          <thead>
+            <tr><th>Field</th><th>Meaning</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>maxEnemiesPerWave</code></td><td>Hard cap. Extra budget past this does nothing for count.</td></tr>
+            <tr><td><code>minEnemiesPerWave</code></td><td>Always at least this many (can overspend slightly).</td></tr>
+            <tr><td><code>delayAfterClear</code></td><td>Seconds after a wave dies before the next starts.</td></tr>
+            <tr>
+              <td><code>themedElementBias</code></td>
+              <td>
+                If theme is not Mixed: with probability <em>bias</em>, force the themed element;
+                otherwise roll any of the 4 elements with <strong>equal</strong> probability
+                (including the themed one again). So effective themed rate is a bit higher than the bias alone.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="pipeline">
+        <h2>6. End-to-end pipeline</h2>
+        <ol class="steps">
+          <li>
+            <strong>Player enters combat arena</strong><br />
+            <code>NodeStarter</code> → <code>RunManager.BuildBlueprintForCurrentStep()</code>.
+          </li>
+          <li>
+            <strong>Build encounter context</strong><br />
+            From current <code>RunStep</code>: seed, block, combat index.
+          </li>
+          <li>
+            <strong>Compose</strong><br />
+            <code>EncounterBuilder.Build</code> → <code>WaveComposer.Compose(catalog, settings)</code>
+            returns a <code>CombatEncounter</code>.
+          </li>
+          <li>
+            <strong>Blueprint</strong><br />
+            <code>LevelBlueprint</code> holds arena layout + that encounter (legacy wave list empty).
+          </li>
+          <li>
+            <strong>Load room</strong><br />
+            <code>LevelLoader</code> instantiates arena prefab, spawns player at <code>PlayerSpawnMarker</code>.
+          </li>
+          <li>
+            <strong>Play waves</strong><br />
+            For each composed wave: wait delay → instantiate catalog prefabs at random <code>EnemySpawnPoint</code>s → apply modifiers → spawn presentation → fight until clear.
+          </li>
+        </ol>
+      </section>
+
+      <section id="compose">
+        <h2>7. Compose algorithm (step-by-step)</h2>
+        <p>This is the exact logic in <code>WaveComposer.Compose</code>.</p>
+
+        <h3>7.1 Fight-level setup</h3>
+        <ol class="steps">
+          <li>Create <code>System.Random(CombinedSeed())</code>.</li>
+          <li>Resolve combat profile (budget/waves/elite) with block scaling for threat + shared HP/damage.</li>
+          <li>Pick <strong>one theme</strong> from that combat’s theme weights.</li>
+          <li>Pick <strong>wave count</strong> in <code>[minWaves, maxWaves]</code>.</li>
+          <li>Assign <strong>each wave the full per-wave budget</strong> (no splitting across waves).</li>
+        </ol>
+
+        <h3>7.2 Filling one wave</h3>
+        <ol class="steps">
+          <li>Set <code>remaining = budgetPerWave</code>.</li>
+          <li>
+            Loop while under min count, <em>or</em> (remaining ≥ cheapest catalog cost AND count &lt; max):
+            <ul>
+              <li>Roll <strong>role</strong> from role weights.</li>
+              <li>Roll <strong>element</strong> (theme bias rules above).</li>
+              <li>Find catalog match: prefer exact role+element; else same role any element; else any archetype.</li>
+              <li>If last wave + guarantee elite + first spawn of that wave → mark elite.</li>
+              <li>If already at min and can’t afford usefully / remaining ≤ 0 → stop.</li>
+              <li>Else append spawn spec and subtract <code>baseThreatCost</code> from remaining (slight overspend allowed).</li>
+            </ul>
+          </li>
+          <li>If wave empty → force one random enemy (elite if needed).</li>
+        </ol>
+
+        <h3>7.3 After all waves</h3>
+        <p>If elite was required but never placed, force the first spawn of the last wave to elite.</p>
+        <p>Package theme, waves, budget, spent, difficulty modifiers; log <code>[WaveComposer] …</code>.</p>
+      </section>
+
+      <section id="spawn">
+        <h2>8. Arena spawn path (after composition)</h2>
+        <ol class="steps">
+          <li>Announce wave number (banner shows <code>WAVE N</code> only).</li>
+          <li>Wait <code>DelayAfterClear</code>.</li>
+          <li>For each <code>ComposedSpawnSpec</code>: lookup prefab by id → Instantiate at random spawn point.</li>
+          <li>
+            Build modifiers:
+            <ul>
+              <li>Shared encounter HP/damage (from block scales)</li>
+              <li>× element knobs if <code>applyElementKnobsAtSpawn</code></li>
+              <li>× elite presentation if <code>IsElite</code></li>
+            </ul>
+          </li>
+          <li><code>EnemySpawnPresentation</code> plays spawn clip; AI disabled until done.</li>
+        </ol>
+      </section>
+
+      <section id="examples">
+        <h2>9. Worked examples</h2>
+
+        <h3>Example A — Combat 1, block 0, budget 80, 2 waves</h3>
+        <pre>Per-wave budget: 80
+Cheapest melee ~10 → theoretical max ~8 enemies/wave before maxEnemiesPerWave
+With maxEnemiesPerWave = 6 → each wave stops at 6 even if budget remains
+
+Possible wave 1 spend:
+  melee_physical (10) + ranged_fire (13) + shotgun_physical (14) + turret_fire (16) + …
+  until remaining &lt; cheapest or count == 6</pre>
+
+        <h3>Example B — Same profile, but 3 waves</h3>
+        <pre>Total threat capacity ≈ 80 × 3 = 240 (before caps)
+Previously (old split): wave1 only got ~13 → often 1 enemy
+Now: every wave gets a full 80</pre>
+
+        <h3>Example C — Fire theme, bias 0.72</h3>
+        <pre>Theme roll → Fire
+Each spawn:
+  72% → force Fire
+  28% → equal among Physical/Fire/Ice/Lightning (25% each of that 28%)
+
+Approx P(Fire) ≈ 0.72 + 0.28×0.25 = 0.79
+Not “72% Fire / 28% non-Fire only”.</pre>
+
+        <h3>Example D — Block 1 with threatScale 0.35, hpScale 0.25</h3>
+        <pre>Base per-wave budget 110 → effective 110 × 1.35 = 148.5
+All three fights in block 1 share HP × 1.25 and damage × (1 + blockDamageScale)
+Enemy costs still 10–22 — more enemies fit until maxEnemiesPerWave</pre>
+      </section>
+
+      <section id="recipes">
+        <h2>10. Tuning recipes (goal → knobs)</h2>
+
+        <div class="recipe">
+          <h4>Make early fights denser</h4>
+          <p>Raise <code>threatBudget</code> on combat profile 0. Optionally raise <code>maxEnemiesPerWave</code> if you hit the cap. Lower melee/ranged costs in the catalog if you want more bodies without raising budget.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Make combat 3 feel like a climax without tankier stats</h4>
+          <p>Higher budget + higher min/max waves + <code>guaranteeElite = true</code> on profile 2. Keep HP/damage flat (already). Push role weights toward BeamSniper / Shotgun / Turret.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Mostly melee / tutorial-ish opening</h4>
+          <p><code>roleWeightsCombat0</code> ≈ high Melee, some Ranged, near-zero sniper/shotgun/turret. Theme weights toward Mixed/Physical.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Strong elemental “Fire Assault” nights</h4>
+          <p>Raise Fire weight in theme arrays; raise <code>themedElementBias</code> toward 0.85–0.95. Remember miss-rolls can still pick Fire again.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Later blocks harder without packing the arena</h4>
+          <p>Keep <code>maxEnemiesPerWave</code> modest. Raise <code>blockHpScale</code> / <code>blockDamageScale</code>. Optionally lower <code>blockThreatScale</code> so count doesn’t explode.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Later blocks denser (more enemies)</h4>
+          <p>Raise <code>blockThreatScale</code> and/or <code>maxEnemiesPerWave</code>. Costs stay fixed, so budget growth directly buys more spawns until the cap.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Make snipers “expensive” so they appear less often under budget pressure</h4>
+          <p>Raise <code>baseThreatCost</code> on beam sniper catalog entries. Role weights still control how often the composer <em>tries</em> to pick that role; cost controls how many fit after a pick.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Fewer but scarier ice enemies</h4>
+          <p>Catalog: higher ice costs + ice element knobs already tanky. Theme bias toward Ice. Don’t raise budget as much as for physical spam.</p>
+        </div>
+
+        <div class="recipe">
+          <h4>Breathers between waves feel too short/long</h4>
+          <p>Tune <code>delayAfterClear</code> only — does not change composition.</p>
+        </div>
+
+        <div class="callout ok">
+          <strong>Quick mental model</strong>
+          Budget × waves ≈ how much “enemy cost” you can buy.<br />
+          Role/theme weights ≈ which kinds you try to buy.<br />
+          Catalog costs ≈ price tags.<br />
+          Block HP/damage ≈ same army, tougher stats.<br />
+          Max enemies/wave ≈ hard ceiling on density.
+        </div>
+      </section>
+
+      <section id="debug">
+        <h2>11. Debugging</h2>
+        <p>Watch the Unity Console when a combat starts:</p>
+        <pre>[WaveComposer] seed=… block=0 combat=2 theme=Ice Assault waves=3
+budgetPerWave=140 spent=392 elite=yes roles=BeamSniper×2, Turret×3, …</pre>
+        <ul>
+          <li><code>spent</code> much lower than <code>budgetPerWave × waves</code> → hitting caps early, or expensive picks, or loop stop conditions.</li>
+          <li><code>spent</code> ≈ cap × cheapest cost → you’re maxed on count; raise budget won’t add bodies until you raise <code>maxEnemiesPerWave</code>.</li>
+          <li>Theme never shows in UI (by design); it only biases element rolls and appears in this log.</li>
+        </ul>
+      </section>
+
+      <section id="limits">
+        <h2>12. Limits &amp; gotchas</h2>
+        <ul>
+          <li><strong>Costs don’t scale with block</strong> — only budget and HP/damage do. Past the enemy-count cap, HP/damage are the remaining difficulty levers.</li>
+          <li><strong>Within-block HP/damage are flat</strong> — don’t expect combat 3 to be tankier than combat 1 unless you change that design again.</li>
+          <li><strong>Spawn positions aren’t deterministic</strong> — same composition, different room spots.</li>
+          <li><strong>Slight budget overspend</strong> is allowed so waves aren’t empty when remaining is awkward.</li>
+          <li><strong>Legacy wave assets</strong> are unused by the linear RunManager path; branching/map legacy may still reference them.</li>
+          <li><strong>Commit 22 (not done yet)</strong> will pre-roll the next block at upgrade so preview/UI can show the same encounters you’ll fight.</li>
+        </ul>
+      </section>
+
+      <footer>
+        Generated for SwordGear · documents WaveComposer (per-wave budget) + EnemyCatalog as of Commit 21+.
+        Open this file in a browser from
+        <span class="path">FeatureDocumentation/WaveComposerAndEnemyCatalog.html</span>.
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

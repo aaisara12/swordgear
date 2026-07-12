@@ -86,6 +86,7 @@ MonoBehaviour:
   playerDefeatedChannel: {fileID: 11400000, guid: 4445eb8f6b5334d1591c68ff272262f9, type: 2}
   ultimateChargeTracker: {fileID: 3346800436722707166}
   enemyCatalog: {fileID: 11400000, guid: f9f27ed1b4b262949b1a0bc2f6cab060, type: 2}
+  waveComposerSettings: {fileID: 11400000, guid: 4319e9c40fb7e4d44837d9f9a9dc8728, type: 2}
 --- !u!1 &2095857230064898771
 GameObject:
   m_ObjectHideFlags: 0

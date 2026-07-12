@@ -97,27 +97,104 @@ public class LevelLoader : MonoBehaviour
 
     private void StartNextWave()
     {
-        if (currentWaveIndex >= currentBlueprint.Waves.Count)
+        if (currentWaveIndex >= currentBlueprint.WaveCount)
         {
             CompleteLevel();
             return;
         }
 
-        EnemyWaveConfig wave = currentBlueprint.Waves[currentWaveIndex];
-        Debug.Log(wave.name);
-
-        // Announce the incoming wave (1-based) so the HUD can show a banner + cue during the DelayAfterClear breather.
+        float delay = GetCurrentWaveDelay();
+        Debug.Log($"LevelLoader: starting wave {currentWaveIndex + 1}/{currentBlueprint.WaveCount}");
         OnWaveIncoming?.Invoke(currentWaveIndex + 1);
 
         // Use Invoke to handle the delay defined in the previous wave's data (DelayAfterClear)
-        Invoke(nameof(SpawnEnemiesForWave), wave.DelayAfterClear);
+        Invoke(nameof(SpawnEnemiesForWave), delay);
+    }
+
+    private float GetCurrentWaveDelay()
+    {
+        if (currentBlueprint.Encounter != null
+            && currentWaveIndex >= 0
+            && currentWaveIndex < currentBlueprint.Encounter.Waves.Count)
+        {
+            return currentBlueprint.Encounter.Waves[currentWaveIndex].DelayAfterClear;
+        }
+
+        if (currentBlueprint.Waves != null
+            && currentWaveIndex >= 0
+            && currentWaveIndex < currentBlueprint.Waves.Count)
+        {
+            return currentBlueprint.Waves[currentWaveIndex].DelayAfterClear;
+        }
+
+        return 1.5f;
     }
 
     private void SpawnEnemiesForWave()
     {
         Debug.Log("Spawning enemies!");
         isWaveAdvancing = false;
-        EnemyWaveConfig wave = currentBlueprint.Waves[currentWaveIndex];
+
+        if (currentBlueprint.Encounter != null)
+        {
+            SpawnComposedWave(currentBlueprint.Encounter.Waves[currentWaveIndex]);
+            return;
+        }
+
+        SpawnLegacyWave(currentBlueprint.Waves[currentWaveIndex]);
+    }
+
+    private void SpawnComposedWave(ComposedWave wave)
+    {
+        EnemyCatalog? catalog = RunManager.Instance?.EnemyCatalog;
+        if (catalog == null)
+        {
+            Debug.LogError("LevelLoader: EnemyCatalog missing; cannot spawn composed wave.");
+            TryAdvanceIfWaveEmpty();
+            return;
+        }
+
+        EnemySpawnPoint[] spawnPoints = FindObjectsByType<EnemySpawnPoint>(FindObjectsSortMode.None);
+        if (spawnPoints.Length == 0)
+        {
+            Debug.LogWarning("LevelLoader: no EnemySpawnPoint found; skipping enemy spawn for this wave.");
+            TryAdvanceIfWaveEmpty();
+            return;
+        }
+
+        foreach (ComposedSpawnSpec spawn in wave.Spawns)
+        {
+            if (!catalog.TryGetById(spawn.ArchetypeId, out EnemyArchetype? archetype)
+                || archetype == null
+                || archetype.prefab == null)
+            {
+                Debug.LogWarning($"LevelLoader: unknown archetype id '{spawn.ArchetypeId}' — skip spawn.");
+                continue;
+            }
+
+            int spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
+            GameObject enemyGO = Instantiate(
+                archetype.prefab,
+                spawnPoints[spawnIndex].transform.position,
+                Quaternion.identity);
+
+            EnemyController enemyController = enemyGO.GetComponent<EnemyController>();
+            if (enemyController == null)
+            {
+                continue;
+            }
+
+            enemyController.OnDeath += EnemyDied;
+            activeEnemies.Add(enemyController);
+            ApplySpawnModifiers(enemyController, archetype.prefab, spawn.IsElite);
+            BeginSpawnPresentation(enemyGO, spawn.IsElite);
+        }
+
+        TryAdvanceIfWaveEmpty();
+    }
+
+    private void SpawnLegacyWave(EnemyWaveConfig wave)
+    {
         EnemySpawnPoint[] spawnPoints = FindObjectsByType<EnemySpawnPoint>(FindObjectsSortMode.None);
 
         if (spawnPoints.Length == 0)
@@ -127,31 +204,23 @@ public class LevelLoader : MonoBehaviour
             return;
         }
 
-        bool isLastWave = currentWaveIndex >= currentBlueprint.Waves.Count - 1;
+        bool isLastWave = currentWaveIndex >= currentBlueprint.WaveCount - 1;
         bool eliteAssignedThisWave = false;
 
         foreach (var enemyCount in wave.Enemies)
         {
             for (int i = 0; i < enemyCount.Count; i++)
             {
-                // Pick a random index every time an enemy is created
                 int spawnIndex = UnityEngine.Random.Range(0, spawnPoints.Length);
-
-                // Instantiate the enemy prefab at the random spawn point
                 GameObject enemyGO = Instantiate(enemyCount.EnemyPrefab, spawnPoints[spawnIndex].transform.position, Quaternion.identity);
-
-                // Get the controller component
                 EnemyController enemyController = enemyGO.GetComponent<EnemyController>();
 
                 if (enemyController != null)
                 {
-                    // Subscribe to the enemy's death event
                     enemyController.OnDeath += EnemyDied;
-
-                    // Add the controller to the list
                     activeEnemies.Add(enemyController);
 
-                    // Interim elite rule (until WaveComposer owns placement): first enemy of the last wave.
+                    // Legacy path: first enemy of the last wave is elite.
                     bool isElite = isLastWave && !eliteAssignedThisWave;
                     if (isElite)
                     {
@@ -171,7 +240,17 @@ public class LevelLoader : MonoBehaviour
     {
         SpawnModifiers modifiers = SpawnModifiers.Identity;
 
-        if (EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
+        if (currentBlueprint?.Encounter != null)
+        {
+            modifiers = currentBlueprint.Encounter.DifficultyModifiers;
+            EnemyCatalog? catalog = RunManager.Instance?.EnemyCatalog;
+            if (catalog != null && catalog.TryGetByPrefab(enemyPrefab, out EnemyArchetype? archetype)
+                && archetype != null && archetype.applyElementKnobsAtSpawn)
+            {
+                modifiers = SpawnModifiers.Combine(modifiers, SpawnModifiers.FromElement(catalog.GetElementKnobs(archetype.element)));
+            }
+        }
+        else if (EncounterContext.TryFromCurrent(RunManager.Instance?.Run, out EncounterContext context))
         {
             EnemyCatalog? enemyCatalog = RunManager.Instance?.EnemyCatalog;
             modifiers = enemyCatalog != null
@@ -271,7 +350,7 @@ public class LevelLoader : MonoBehaviour
         CancelInvoke(nameof(SpawnEnemiesForWave));
         CleanupWaveSubscriptions();
         isWaveAdvancing = true;
-        currentWaveIndex = currentBlueprint.Waves.Count;
+        currentWaveIndex = currentBlueprint.WaveCount;
         CompleteLevel();
     }
 
@@ -296,13 +375,13 @@ public class LevelLoader : MonoBehaviour
         CancelInvoke(nameof(SpawnEnemiesForWave));
         CleanupWaveSubscriptions();
         isWaveAdvancing = true;
-        currentWaveIndex = currentBlueprint.Waves.Count;
+        currentWaveIndex = currentBlueprint.WaveCount;
         CompleteLevel();
     }
 
     public int CurrentWaveIndex => currentWaveIndex;
-    public int TotalWaveCount => currentBlueprint != null ? currentBlueprint.Waves.Count : 0;
-    public bool IsLevelComplete => currentBlueprint != null && currentWaveIndex >= currentBlueprint.Waves.Count;
+    public int TotalWaveCount => currentBlueprint != null ? currentBlueprint.WaveCount : 0;
+    public bool IsLevelComplete => currentBlueprint != null && currentWaveIndex >= currentBlueprint.WaveCount;
 
     private void CleanupWaveSubscriptions()
     {

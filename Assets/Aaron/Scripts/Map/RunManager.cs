@@ -51,6 +51,8 @@ public class RunManager : MonoBehaviour
     [Header("Encounter (M6)")]
     [Tooltip("Roster of all 20 enemy archetypes + elemental stat knobs. Required for spawn scaling.")]
     [SerializeField] private EnemyCatalog? enemyCatalog;
+    [Tooltip("Threat budgets, theme/role weights, elite rules for WaveComposer (Commit 21).")]
+    [SerializeField] private WaveComposerSettings? waveComposerSettings;
 
     private RunMap? _currentMap;
     private LinearRunState? _linearRun;
@@ -63,6 +65,7 @@ public class RunManager : MonoBehaviour
     public LinearRunState? Run => _linearRun;
     public RunStep? CurrentStep => _linearRun?.CurrentStep;
     public EnemyCatalog? EnemyCatalog => enemyCatalog;
+    public WaveComposerSettings? WaveComposerSettings => waveComposerSettings;
 
     /// <summary>
     /// Optional one-shot tier override for the next augment offer (e.g. guaranteed Diamond at the upgrade hub).
@@ -253,17 +256,18 @@ public class RunManager : MonoBehaviour
                 return null;
             }
 
-            List<EnemyWaveConfig> waves = BuildCombatWaves();
-            if (waves.Count == 0)
+            CombatEncounter? encounter = BuildCombatEncounter();
+            if (encounter == null || encounter.WaveCount == 0)
             {
-                Debug.LogError("RunManager: combat wave pool is empty.");
+                Debug.LogError("RunManager: failed to compose combat encounter (catalog/settings missing or empty).");
                 return null;
             }
 
             return new LevelBlueprint
             {
                 Layout = layout,
-                Waves = waves,
+                Encounter = encounter,
+                Waves = new List<EnemyWaveConfig>(),
                 IsShopLevel = false
             };
         }
@@ -280,6 +284,7 @@ public class RunManager : MonoBehaviour
             return new LevelBlueprint
             {
                 Layout = layout,
+                Encounter = null!,
                 Waves = new List<EnemyWaveConfig>(),
                 IsShopLevel = true
             };
@@ -289,7 +294,40 @@ public class RunManager : MonoBehaviour
         return null;
     }
 
-    /// <summary>Wave list for combat steps using the run seed and designer wave pool (no EncounterBuilder).</summary>
+    /// <summary>Composes a runtime encounter for the current combat step (Commit 21).</summary>
+    public CombatEncounter? BuildCombatEncounter()
+    {
+        if (enemyCatalog == null)
+        {
+            Debug.LogError("RunManager: enemyCatalog is not assigned.");
+            return null;
+        }
+
+        if (waveComposerSettings == null)
+        {
+            Debug.LogError("RunManager: waveComposerSettings is not assigned.");
+            return null;
+        }
+
+        if (_linearRun == null || _linearRun.CurrentStep == null)
+        {
+            Debug.LogError("RunManager: BuildCombatEncounter called with no current combat step.");
+            return null;
+        }
+
+        if (!EncounterContext.TryFrom(_linearRun, _linearRun.CurrentStep, out EncounterContext context))
+        {
+            Debug.LogError("RunManager: current step is not a combat step.");
+            return null;
+        }
+
+        return EncounterBuilder.Build(context, enemyCatalog, waveComposerSettings);
+    }
+
+    /// <summary>
+    /// DEPRECATED: legacy ScriptableObject wave pool. Prefer <see cref="BuildCombatEncounter"/>.
+    /// </summary>
+    [Obsolete("Use BuildCombatEncounter / WaveComposer instead of the combatWaves pool.")]
     public List<EnemyWaveConfig> BuildCombatWaves()
     {
         List<EnemyWaveConfig> pool = generationSettings.combatWaves;
