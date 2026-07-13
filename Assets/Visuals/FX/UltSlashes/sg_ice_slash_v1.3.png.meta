@@ -1,0 +1,553 @@
+fileFormatVersion: 2
+guid: e81444d0eb723a642a11cf247aa31b0b
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -7437446113608507061
+    second: sg_ice_slash_v1.3_0
+  - first:
+      213: -6094755726191532002
+    second: sg_ice_slash_v1.3_1
+  - first:
+      213: 5511542139531505524
+    second: sg_ice_slash_v1.3_2
+  - first:
+      213: -6653304424528634981
+    second: sg_ice_slash_v1.3_3
+  - first:
+      213: -6491531888778117799
+    second: sg_ice_slash_v1.3_4
+  - first:
+      213: -7764334702650624147
+    second: sg_ice_slash_v1.3_5
+  - first:
+      213: -1484051896277391708
+    second: sg_ice_slash_v1.3_6
+  - first:
+      213: -7950280056744159280
+    second: sg_ice_slash_v1.3_7
+  - first:
+      213: -760923191310199203
+    second: sg_ice_slash_v1.3_8
+  - first:
+      213: 1285810452916926267
+    second: sg_ice_slash_v1.3_9
+  - first:
+      213: 574392153896901663
+    second: sg_ice_slash_v1.3_10
+  - first:
+      213: 4063335431372060753
+    second: sg_ice_slash_v1.3_11
+  - first:
+      213: -7051651461217045669
+    second: sg_ice_slash_v1.3_12
+  - first:
+      213: 6177989081554757903
+    second: sg_ice_slash_v1.3_13
+  - first:
+      213: -5776743315138639222
+    second: sg_ice_slash_v1.3_14
+  - first:
+      213: 5400464915252259345
+    second: sg_ice_slash_v1.3_15
+  - first:
+      213: -2848534710649222665
+    second: sg_ice_slash_v1.3_16
+  - first:
+      213: -3773974923237065265
+    second: sg_ice_slash_v1.3_17
+  - first:
+      213: 5648237985300275700
+    second: sg_ice_slash_v1.3_18
+  - first:
+      213: -276558718458289081
+    second: sg_ice_slash_v1.3_19
+  - first:
+      213: 6659276723835776958
+    second: sg_ice_slash_v1.3_20
+  - first:
+      213: 2608782718845557753
+    second: sg_ice_slash_v1.3_21
+  - first:
+      213: 8707155312996476828
+    second: sg_ice_slash_v1.3_22
+  - first:
+      213: 2605791320710728830
+    second: sg_ice_slash_v1.3_23
+  - first:
+      213: 888757206463337331
+    second: sg_ice_slash_v1.3_24
+  - first:
+      213: 790965812333074323
+    second: sg_ice_slash_v1.3_25
+  - first:
+      213: 315820949006588768
+    second: sg_ice_slash_v1.3_26
+  - first:
+      213: -1235224968358379318
+    second: sg_ice_slash_v1.3_27
+  - first:
+      213: -7533513089088545272
+    second: sg_ice_slash_v1.3_28
+  - first:
+      213: 6043512613354132226
+    second: sg_ice_slash_v1.3_29
+  - first:
+      213: -2999647186399116484
+    second: sg_ice_slash_v1.3_30
+  - first:
+      213: -3960343356389926496
+    second: sg_ice_slash_v1.3_31
+  - first:
+      213: 5097684888975274600
+    second: sg_ice_slash_v1.3_32
+  - first:
+      213: 467201293875443352
+    second: sg_ice_slash_v1.3_33
+  - first:
+      213: -7184938531448045231
+    second: sg_ice_slash_v1.3_34
+  - first:
+      213: -5465041102244192324
+    second: sg_ice_slash_v1.3_35
+  - first:
+      213: 5912899844919696668
+    second: sg_ice_slash_v1.3_36
+  - first:
+      213: 167996169577150883
+    second: sg_ice_slash_v1.3_37
+  - first:
+      213: 2925554565952479783
+    second: sg_ice_slash_v1.3_38
+  - first:
+      213: 8822176710411218053
+    second: sg_ice_slash_v1.3_39
+  - first:
+      213: 5007568024941514690
+    second: sg_ice_slash_v1.3_40
+  - first:
+      213: -6986522462842132069
+    second: sg_ice_slash_v1.3_41
+  - first:
+      213: -6399363324956226110
+    second: sg_ice_slash_v1.3_42
+  - first:
+      213: 8661533040280308851
+    second: sg_ice_slash_v1.3_43
+  - first:
+      213: -6008484874047875629
+    second: sg_ice_slash_v1.3_44
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b41614a3a22e8c890800000000000000
+      internalID: -7437446113608507061
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_1
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e18639b55f31b6ba0800000000000000
+      internalID: -6094755726191532002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_2
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47f2f5fdf5eec7c40800000000000000
+      internalID: 5511542139531505524
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_3
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 2400
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b9b9f6960e6baa3a0800000000000000
+      internalID: -6653304424528634981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 95d7249042279e5a0800000000000000
+      internalID: -6491531888778117799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_5
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d677543a9ba8f3490800000000000000
+      internalID: -7764334702650624147
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_6
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a62426c9a6976be0800000000000000
+      internalID: -1484051896277391708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_7
+      rect:
+        serializedVersion: 2
+        x: 2400
+        y: 1600
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0d754e8296eeaa190800000000000000
+      internalID: -7950280056744159280
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5659989368a075f0800000000000000
+      internalID: -760923191310199203
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_9
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b37f89e5bcd18d110800000000000000
+      internalID: 1285810452916926267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_10
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 800
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1cdbc6ee96a8f700800000000000000
+      internalID: 574392153896901663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_11
+      rect:
+        serializedVersion: 2
+        x: 800
+        y: 0
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 158b03edb0ed36830800000000000000
+      internalID: 4063335431372060753
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: sg_ice_slash_v1.3_12
+      rect:
+        serializedVersion: 2
+        x: 1600
+        y: 0
+        width: 800
+        height: 800
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b533b467b50832e90800000000000000
+      internalID: -7051651461217045669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 78dec55377d270d41a63bb9fd4226872
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":800.0,"y":800.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      sg_ice_slash_v1.3_0: -7437446113608507061
+      sg_ice_slash_v1.3_1: -6094755726191532002
+      sg_ice_slash_v1.3_10: 574392153896901663
+      sg_ice_slash_v1.3_11: 4063335431372060753
+      sg_ice_slash_v1.3_12: -7051651461217045669
+      sg_ice_slash_v1.3_2: 5511542139531505524
+      sg_ice_slash_v1.3_3: -6653304424528634981
+      sg_ice_slash_v1.3_4: -6491531888778117799
+      sg_ice_slash_v1.3_5: -7764334702650624147
+      sg_ice_slash_v1.3_6: -1484051896277391708
+      sg_ice_slash_v1.3_7: -7950280056744159280
+      sg_ice_slash_v1.3_8: -760923191310199203
+      sg_ice_slash_v1.3_9: 1285810452916926267
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
