@@ -22,6 +22,8 @@ public class SwordLodgedIndicator : MonoBehaviour
     [SerializeField] private float pulseScaleAmplitude = 0.06f;
     [SerializeField] private float basePulseAlpha = 0.85f;
     [SerializeField] private float maxTetherWidth = 0.12f;
+    [Tooltip("Minimum tether visibility when the sword is far, so the guide line is always on. 0 = fade out past maxTetherRange like before.")]
+    [SerializeField] private float minTetherIntensity = 0.35f;
 
     [Header("References")]
     [SerializeField] private SpriteRenderer? swordSprite;
@@ -389,22 +391,20 @@ public class SwordLodgedIndicator : MonoBehaviour
             return;
         }
 
-        if (intensity <= 0.01f)
-        {
-            SetTetherVisible(false);
-            return;
-        }
+        // Always show the tether as a guide back to the lodged sword; brighten/thicken as the player nears
+        // it, but never fully fade so the sword is always findable.
+        float display = Mathf.Max(intensity, minTetherIntensity);
 
         Color tint = ElementVisuals.GetGlowColor(_lastTintElement);
-        float alpha = Mathf.Clamp01(intensity * tint.a);
+        float alpha = Mathf.Clamp01(display * tint.a);
         Color startColor = new Color(tint.r, tint.g, tint.b, alpha * 0.25f);
         Color endColor = new Color(tint.r, tint.g, tint.b, alpha);
 
         tetherLine.enabled = true;
         tetherLine.startColor = startColor;
         tetherLine.endColor = endColor;
-        tetherLine.startWidth = maxTetherWidth * intensity * 0.5f;
-        tetherLine.endWidth = maxTetherWidth * intensity;
+        tetherLine.startWidth = maxTetherWidth * display * 0.5f;
+        tetherLine.endWidth = maxTetherWidth * display;
         tetherLine.SetPosition(0, playerPos);
         tetherLine.SetPosition(1, HiltWorldPosition);
     }
