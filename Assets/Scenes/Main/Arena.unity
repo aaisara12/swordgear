@@ -5159,7 +5159,7 @@ MonoBehaviour:
     CustomLookAtTarget: 0
   Lens:
     FieldOfView: 60
-    OrthographicSize: 7
+    OrthographicSize: 13
     NearClipPlane: 0.3
     FarClipPlane: 1000
     Dutch: 0
@@ -5687,7 +5687,7 @@ MonoBehaviour:
   spinSpeed: 400
   terrainLayers:
     serializedVersion: 2
-    m_Bits: 129
+    m_Bits: 128
   gearPhysicsLayer: Gear
   lightningPrefab: {fileID: 5926290009230079728, guid: a44ca6b70c4f71a4b95a974f77ac5dcd, type: 3}
   lodgedIndicator: {fileID: 1234295554}
@@ -5935,7 +5935,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 7
+  orthographic size: 13
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -6446,7 +6446,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeY:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
@@ -6499,7 +6499,7 @@ ParticleSystem:
         m_RotationOrder: 4
     startSizeZ:
       serializedVersion: 2
-      minMaxState: 0
+      minMaxState: 3
       scalar: 1
       minScalar: 1
       maxCurve:
