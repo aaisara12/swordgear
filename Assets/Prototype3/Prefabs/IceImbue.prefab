@@ -276,7 +276,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae0052b7a3733814ca21f5a4dbe277ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  forceMultiplier: 1.2
+  forceMultiplier: 1.1
   onHitActivationDuration: 0.1
   activatedState: {fileID: 5062562943634393672}
   inactiveState: {fileID: 736913866806666551}
@@ -587,7 +587,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   embueType: 2
-  effectDuration: 30
+  effectDuration: 5
   damageMultiplier: 1.2
 --- !u!1 &8207664395119889897
 GameObject:
