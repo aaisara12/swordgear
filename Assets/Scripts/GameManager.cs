@@ -58,6 +58,9 @@ public class GameManager : MonoBehaviour
     // A private field to store the reference to the currently running empowerment coroutine
     private Coroutine? _currentEmpowermentRoutine;
 
+    /// <summary> Fired every frame while an elemental empowerment (imbue) is active, with remaining/total duration. </summary>
+    public event Action<float, float>? OnEmpowermentTimerChanged;
+
     private void Awake()
     {
         Instance = this;
@@ -119,8 +122,15 @@ public class GameManager : MonoBehaviour
 
         Debug.Log($"Sword {gameObject.name} is now {elementToApply}. Current Damage: {currentDamage}");
 
-        // --- Wait for Duration ---
-        yield return new WaitForSeconds(duration);
+        // --- Wait for Duration, ticking so UI (e.g. the radial imbue timer) can track remaining time ---
+        float remaining = duration;
+        OnEmpowermentTimerChanged?.Invoke(remaining, duration);
+        while (remaining > 0f)
+        {
+            yield return null;
+            remaining -= Time.deltaTime;
+            OnEmpowermentTimerChanged?.Invoke(Mathf.Max(0f, remaining), duration);
+        }
 
         // --- Undo Empowerment ---
         Debug.Log($"Empower effect for {elementToApply} on {gameObject.name} finished.");

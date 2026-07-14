@@ -55,6 +55,8 @@ public class PlayerController : PlayerGameplayPawn
     private static readonly int AnimWalkSideHash = Animator.StringToHash("PlayerWalkSide");
     private static readonly int AnimWalkUpHash = Animator.StringToHash("PlayerWalkUp");
     private static readonly int AnimWalkDownHash = Animator.StringToHash("PlayerWalkDown");
+    private static readonly int AnimUltVanishHash = Animator.StringToHash("PlayerUltVanish");
+    private static readonly int AnimUltAppearHash = Animator.StringToHash("PlayerUltAppear");
 
     private Animator? animator;
     private int _currentAnimStateHash;
@@ -67,12 +69,39 @@ public class PlayerController : PlayerGameplayPawn
     private Vector2 _lastMoveDirection = Vector2.zero;
 
     private bool _isUltimateInvincible = false;
+    private bool _isUltimateFrozen = false;
 
     private bool IsOnAttackCooldown => _attackCooldownRemaining > 0f;
     private bool IsOnDashCooldown => _dashCooldownRemaining > 0f;
     private bool IsInvincible => _isDashing || _iFrameRemaining > 0f || _isUltimateInvincible;
 
     public void SetUltimateInvincible(bool invincible) => _isUltimateInvincible = invincible;
+    public void SetUltimateFrozen(bool frozen) => _isUltimateFrozen = frozen;
+
+    public IEnumerator PlayVanishAndHide()
+    {
+        yield return PlayAnimationState(AnimUltVanishHash);
+        if (playerRenderer != null)
+            playerRenderer.enabled = false;
+    }
+
+    public IEnumerator PlayAppearAndShow()
+    {
+        yield return PlayAnimationState(AnimUltAppearHash);
+        if (playerRenderer != null)
+            playerRenderer.enabled = true;
+    }
+
+    private IEnumerator PlayAnimationState(int stateHash)
+    {
+        if (animator == null)
+            yield break;
+
+        _currentAnimStateHash = stateHash;
+        animator.Play(stateHash, 0, 0f);
+        yield return null;
+        yield return new WaitForSeconds(animator.GetCurrentAnimatorStateInfo(0).length);
+    }
 
     public void ApplyAttackCooldown(float seconds)
     {
@@ -566,6 +595,11 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
+        if (_isUltimateFrozen)
+        {
+            direction = Vector2.zero;
+        }
+
         // RETROFIT: From OnMove
         _lastMoveDirection = direction;
         UpdateMovementAnimation(direction);
@@ -614,12 +648,14 @@ public class PlayerController : PlayerGameplayPawn
         _lastMoveDirection = Vector2.zero;
         _iFrameRemaining = 0f;
         _isUltimateInvincible = false;
+        _isUltimateFrozen = false;
 
         if (playerRenderer != null)
         {
             Color c = playerRenderer.color;
             c.a = 1f;
             playerRenderer.color = c;
+            playerRenderer.enabled = true;
         }
 
         // Zero out physics velocity so the pawn isn't drifting at the new spawn.

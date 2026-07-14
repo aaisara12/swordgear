@@ -28,6 +28,10 @@ public class ElementalSlashUltimateController : MonoBehaviour
     {
         PlayerController? playerController = player.GetComponent<PlayerController>();
         playerController?.SetUltimateInvincible(true);
+        playerController?.SetUltimateFrozen(true);
+
+        if (playerController != null)
+            yield return playerController.PlayVanishAndHide();
 
         List<EnemyController> enemySnapshot = new(ActiveEnemyRegistry.All);
 
@@ -50,8 +54,12 @@ public class ElementalSlashUltimateController : MonoBehaviour
             yield return new WaitUntil(() => remaining <= 0);
         }
 
+        if (playerController != null)
+            yield return playerController.PlayAppearAndShow();
+
         UltimateChargeTracker.Instance?.EndExecution();
         playerController?.SetUltimateInvincible(false);
+        playerController?.SetUltimateFrozen(false);
         Destroy(gameObject);
     }
 
