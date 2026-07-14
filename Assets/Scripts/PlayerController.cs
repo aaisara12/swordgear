@@ -67,6 +67,7 @@ public class PlayerController : PlayerGameplayPawn
     private bool _isDashing = false;
     private Coroutine? _dashCoroutine;
     private Vector2 _lastMoveDirection = Vector2.zero;
+    private bool _swordHasLeftCatchRadius = false;
 
     private bool _isUltimateInvincible = false;
     private bool _isUltimateFrozen = false;
@@ -76,7 +77,16 @@ public class PlayerController : PlayerGameplayPawn
     private bool IsInvincible => _isDashing || _iFrameRemaining > 0f || _isUltimateInvincible;
 
     public void SetUltimateInvincible(bool invincible) => _isUltimateInvincible = invincible;
-    public void SetUltimateFrozen(bool frozen) => _isUltimateFrozen = frozen;
+    public void SetUltimateFrozen(bool frozen)
+    {
+        _isUltimateFrozen = frozen;
+        if (frozen)
+        {
+            _lastMoveDirection = Vector2.zero;
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+        }
+    }
 
     public IEnumerator PlayVanishAndHide()
     {
@@ -132,6 +142,32 @@ public class PlayerController : PlayerGameplayPawn
             c.a = 1f;
             playerRenderer.color = c;
         }
+
+        if (playerState == PlayerState.SwordThrown)
+        {
+            UpdateSwordAutoCatch();
+        }
+    }
+
+    // Catches the sword automatically once it's back in range. _swordHasLeftCatchRadius gates this
+    // so the sword thrown from right next to the player doesn't get caught the instant it's thrown.
+    private void UpdateSwordAutoCatch()
+    {
+        float distance = Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position);
+
+        if (!_swordHasLeftCatchRadius)
+        {
+            if (distance >= swordCatchRadius)
+            {
+                _swordHasLeftCatchRadius = true;
+            }
+            return;
+        }
+
+        if (distance < swordCatchRadius)
+        {
+            CatchSword();
+        }
     }
 
     private IEnumerator DashCoroutine(Vector2 direction)
@@ -149,13 +185,6 @@ public class PlayerController : PlayerGameplayPawn
         while (elapsed < dashDuration)
         {
             rb!.linearVelocity = direction * dashSpeed;
-
-            if (playerState == PlayerState.SwordThrown &&
-                Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < swordCatchRadius)
-            {
-                CatchSword();
-            }
-
             elapsed += Time.deltaTime;
             yield return null;
         }
@@ -307,6 +336,7 @@ public class PlayerController : PlayerGameplayPawn
         weaponIndicator?.SetEquippedVisible(false);
         SwordProjectile.Instance.StartFlight(throwOrigin, direction * effectiveProjectileSpeed);
         playerState = PlayerState.SwordThrown;
+        _swordHasLeftCatchRadius = false;
         swordFlightSound = AudioSystem.PlayLoop(AudioSystem.Sound.Basic_Flight);
     }
 
@@ -457,11 +487,10 @@ public class PlayerController : PlayerGameplayPawn
             SyncMeleeFacingFromIndicator(direction);
             ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
         }
-
-        if (playerState == PlayerState.SwordThrown &&
-            Vector2.Distance(transform.position, SwordProjectile.Instance.transform.position) < swordCatchRadius)
+        else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            CatchSword();
+            Vector2 facingDirection = weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
+            _dashCoroutine = StartCoroutine(DashCoroutine(facingDirection.normalized));
         }
     }
 
