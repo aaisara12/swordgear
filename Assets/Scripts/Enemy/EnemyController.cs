@@ -28,11 +28,11 @@ public class EnemyController : MonoBehaviour
 
     // --- Hit feedback / juice (Tier 0) ---
     private const float FlashDuration = 0.06f;       // real-time white flash on hit
-    private const float HitStopHitSeconds = 0.04f;   // freeze on a non-lethal hit
-    private const float HitStopKillSeconds = 0.08f;  // longer freeze on a kill
-    private const float KnockbackBase = 4f;
-    private const float KnockbackPerDamage = 0.15f;
-    private const float KnockbackMax = 9f;
+    private const float HitStopHitSeconds = 0.03f;   // freeze on a non-lethal hit
+    private const float HitStopKillSeconds = 0.06f;  // longer freeze on a kill
+    private const float KnockbackBase = 2.8f;
+    private const float KnockbackPerDamage = 0.105f;
+    private const float KnockbackMax = 6.3f;
     private const float KnockbackDuration = 0.12f;   // game-time window where movement is suppressed
 
     private SpriteRenderer[]? _sprites;
