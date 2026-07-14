@@ -104,6 +104,37 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
         sequenceRoutine = StartCoroutine(BeamSequence(telegraphDuration));
     }
 
+    /// <summary>
+    /// Immediately end this beam if it still belongs to <paramref name="owner"/>. Called when the firing
+    /// enemy dies mid-beam so the laser doesn't hang frozen in the air — or keep dealing damage — after the
+    /// enemy is gone. No-op if the beam has already finished or been recycled onto another enemy.
+    /// </summary>
+    public void TerminateIfOwnedBy(Transform owner)
+    {
+        if (attachTransform != owner)
+        {
+            return;
+        }
+
+        if (sequenceRoutine != null)
+        {
+            StopCoroutine(sequenceRoutine);
+            sequenceRoutine = null;
+        }
+
+        beamActive = false;
+        attachTransform = null;
+        ShowTelegraph(false);
+        ShowBeam(false);
+        StopAllParticleSystems();
+        if (damageCollider != null)
+        {
+            damageCollider.enabled = false;
+        }
+
+        PrefabPool.Instance?.Release(gameObject);
+    }
+
     private void LateUpdate()
     {
         SyncToAttachPoint();

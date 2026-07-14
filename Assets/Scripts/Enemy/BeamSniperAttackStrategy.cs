@@ -16,6 +16,7 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
     private Transform playerTransform;
     private EnemyController enemyController;
     private EnemyAttackDamage? attackDamage;
+    private EnemyBeamLaser? activeBeam;
 
     public bool IsCharging => isCharging;
 
@@ -32,6 +33,10 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         if (enemyController == null)
         {
             Debug.LogError($"BeamSniperAttackStrategy on {gameObject.name} requires EnemyController.");
+        }
+        else
+        {
+            enemyController.OnDeath += HandleOwnerDeath;
         }
 
         if (beamLaserPrefab == null)
@@ -106,6 +111,26 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
                 enemyController.element,
                 finalDamage,
                 charge);
+            activeBeam = beamLaser;
+        }
+    }
+
+    private void HandleOwnerDeath()
+    {
+        // The firing enemy just died — kill any beam it still owns so the laser doesn't linger in the
+        // air (or keep dealing damage) after the enemy is gone.
+        if (activeBeam != null)
+        {
+            activeBeam.TerminateIfOwnedBy(transform);
+            activeBeam = null;
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (enemyController != null)
+        {
+            enemyController.OnDeath -= HandleOwnerDeath;
         }
     }
 
