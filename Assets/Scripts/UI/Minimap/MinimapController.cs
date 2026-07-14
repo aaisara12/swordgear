@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Mobile schematic minimap: runtime-generated map, player/enemy blips.
+/// Mobile schematic minimap: runtime-generated map, player/enemy blips, and an exit-portal marker.
 /// UI references must be assigned in the CombatHUD scene.
 /// </summary>
 public class MinimapController : MonoBehaviour
@@ -18,6 +18,7 @@ public class MinimapController : MonoBehaviour
     private static readonly Color FireColor = new(1f, 0.333f, 0.2f, 1f);
     private static readonly Color IceColor = new(0.267f, 0.8f, 1f, 1f);
     private static readonly Color LightningColor = new(1f, 0.839f, 0.2f, 1f);
+    private static readonly Color PortalColor = new(0.2f, 0.75f, 1f, 1f); // matches the portal's halo ring
 
     [Header("UI")]
     [SerializeField] private RectTransform? minimapPanel;
@@ -26,7 +27,7 @@ public class MinimapController : MonoBehaviour
     [SerializeField] private RectTransform? blipContainer;
     [SerializeField] private Image? playerBlip;
     [SerializeField] private Image? enemyBlipPrefab;
-    [SerializeField] private Image? swordBlip;
+    [SerializeField] private Image? portalBlip;
 
     [Header("UI Size")]
     [SerializeField]
@@ -66,7 +67,7 @@ public class MinimapController : MonoBehaviour
 
         ApplyPanelSize();
         EnsureEnemyBlips();
-        EnsureSwordBlip();
+        EnsurePortalBlip();
         ApplyPlayerBlipSprite();
         CacheMapDisplaySize();
         EnsurePanelCanvasGroup();
@@ -215,16 +216,28 @@ public class MinimapController : MonoBehaviour
         {
             playerBlip.enabled = false;
             HideEnemyBlips();
-            HideSwordBlip();
+            HidePortalBlip();
             return;
         }
 
         Vector2 playerPos = GetMapPosition(player);
         CacheMapDisplaySize();
         UpdateViewport(playerPos);
-        UpdatePlayerBlip(playerPos, GetPlayerMovementDirection(player));
         UpdateEnemyBlips();
-        UpdateSwordBlip();
+        UpdatePortalBlip();
+        UpdatePlayerBlip(playerPos, GetPlayerMovementDirection(player));
+    }
+
+    private const float PortalBlipInset = 11f;
+
+    // Rounded-square panel: clamp to the box (per-axis), not a circle, so a marker off the viewport lands on
+    // the correct edge instead of somewhere inside the corners. Inset keeps the whole icon on-panel.
+    private Vector2 ClampBlipToEdge(Vector2 blipPos, float inset)
+    {
+        float half = Mathf.Max(0f, GetViewportRadiusPixels() - inset);
+        blipPos.x = Mathf.Clamp(blipPos.x, -half, half);
+        blipPos.y = Mathf.Clamp(blipPos.y, -half, half);
+        return blipPos;
     }
 
     public void Refresh(GameObject? roomRoot)
@@ -281,7 +294,7 @@ public class MinimapController : MonoBehaviour
             playerBlip.enabled = false;
         }
 
-        HideSwordBlip();
+        HidePortalBlip();
         SetPanelVisible(false);
     }
 
@@ -305,46 +318,54 @@ public class MinimapController : MonoBehaviour
     }
 #endif
 
-    private void EnsureSwordBlip()
+    private void EnsurePortalBlip()
     {
-        if (swordBlip != null || blipContainer == null)
+        if (portalBlip != null || blipContainer == null || enemyBlipPrefab == null)
         {
             return;
         }
 
-        if (enemyBlipPrefab == null)
-        {
-            return;
-        }
-
-        swordBlip = Instantiate(enemyBlipPrefab, blipContainer);
-        swordBlip.gameObject.name = "SwordBlip";
-        swordBlip.sprite = CreateSwordBlipSprite();
-        swordBlip.rectTransform.sizeDelta = new Vector2(14f, 14f);
-        swordBlip.gameObject.SetActive(false);
+        portalBlip = Instantiate(enemyBlipPrefab, blipContainer);
+        portalBlip.gameObject.name = "PortalBlip";
+        portalBlip.sprite = CreatePortalBlipSprite();
+        portalBlip.color = PortalColor;
+        portalBlip.preserveAspect = true;
+        portalBlip.rectTransform.sizeDelta = new Vector2(17f, 24f); // taller than wide (vertical oval)
+        portalBlip.gameObject.SetActive(false);
     }
 
-    private static Sprite? swordBlipSprite;
+    private static Sprite? portalBlipSprite;
 
-    private static Sprite CreateSwordBlipSprite()
+    private static Sprite CreatePortalBlipSprite()
     {
-        if (swordBlipSprite != null)
+        if (portalBlipSprite != null)
         {
-            return swordBlipSprite;
+            return portalBlipSprite;
         }
 
-        const int size = 16;
-        Texture2D texture = new Texture2D(size, size, TextureFormat.RGBA32, false);
-        Color32[] pixels = new Color32[size * size];
-        Vector2 tip = new Vector2(size * 0.5f, size * 0.9f);
-        Vector2 left = new Vector2(size * 0.35f, size * 0.15f);
-        Vector2 right = new Vector2(size * 0.65f, size * 0.15f);
+        // Vertical oval ring — reads as a portal/gateway (blue via PortalColor), distinct from the enemy dots.
+        const int w = 20;
+        const int h = 28;
+        Texture2D texture = new Texture2D(w, h, TextureFormat.RGBA32, false);
+        Color32[] pixels = new Color32[w * h];
+        float cx = (w - 1) * 0.5f;
+        float cy = (h - 1) * 0.5f;
+        float outerRx = w * 0.46f;
+        float outerRy = h * 0.46f;
+        float innerRx = w * 0.30f;
+        float innerRy = h * 0.30f;
 
-        for (int y = 0; y < size; y++)
+        for (int y = 0; y < h; y++)
         {
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < w; x++)
             {
-                pixels[y * size + x] = PointInTriangle(new Vector2(x, y), tip, left, right)
+                float nxO = (x - cx) / outerRx;
+                float nyO = (y - cy) / outerRy;
+                float nxI = (x - cx) / innerRx;
+                float nyI = (y - cy) / innerRy;
+                bool insideOuter = nxO * nxO + nyO * nyO <= 1f;
+                bool outsideInner = nxI * nxI + nyI * nyI >= 1f;
+                pixels[y * w + x] = insideOuter && outsideInner
                     ? new Color32(255, 255, 255, 255)
                     : new Color32(0, 0, 0, 0);
             }
@@ -352,55 +373,39 @@ public class MinimapController : MonoBehaviour
 
         texture.SetPixels32(pixels);
         texture.Apply();
-        swordBlipSprite = Sprite.Create(texture, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100f);
-        return swordBlipSprite;
+        portalBlipSprite = Sprite.Create(texture, new Rect(0, 0, w, h), new Vector2(0.5f, 0.5f), 100f);
+        return portalBlipSprite;
     }
 
-    private void UpdateSwordBlip()
+    private void UpdatePortalBlip()
     {
-        if (swordBlip == null)
+        if (portalBlip == null)
         {
             return;
         }
 
-        SwordProjectile? projectile = SwordProjectile.Instance;
-        if (projectile == null || !projectile.IsLodgedIndicatorActive)
+        Transform? portal = LevelLoader.Instance != null ? LevelLoader.Instance.ExitPortalTransform : null;
+        if (portal == null)
         {
-            HideSwordBlip();
+            HidePortalBlip();
             return;
         }
 
-        Vector2 swordPos = projectile.LodgedHiltWorldPosition;
-        Vector2 normalized = MinimapMapGenerator.WorldToNormalized(swordPos, roomBounds);
-        if (normalized.x < -0.05f || normalized.x > 1.05f || normalized.y < -0.05f || normalized.y > 1.05f)
-        {
-            float half = GetViewportRadiusPixels();
-            Vector2 blipPos = WorldToBlipPosition(swordPos);
-            if (blipPos.sqrMagnitude > half * half)
-            {
-                blipPos = blipPos.normalized * half;
-            }
+        // The exit is the objective — keep it on-panel by clamping to the edge when it's off-view so it
+        // always points the way out.
+        Vector2 blipPos = ClampBlipToEdge(WorldToBlipPosition(portal.position), PortalBlipInset);
 
-            swordBlip.gameObject.SetActive(true);
-            swordBlip.enabled = true;
-            swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
-            swordBlip.rectTransform.anchoredPosition = blipPos;
-            swordBlip.transform.SetAsLastSibling();
-            return;
-        }
-
-        swordBlip.gameObject.SetActive(true);
-        swordBlip.enabled = true;
-        swordBlip.color = GetElementColor(ElementVisuals.GetCurrentElement());
-        swordBlip.rectTransform.anchoredPosition = WorldToBlipPosition(swordPos);
-        swordBlip.transform.SetAsLastSibling();
+        portalBlip.gameObject.SetActive(true);
+        portalBlip.enabled = true;
+        portalBlip.rectTransform.anchoredPosition = blipPos;
+        portalBlip.transform.SetAsLastSibling();
     }
 
-    private void HideSwordBlip()
+    private void HidePortalBlip()
     {
-        if (swordBlip != null)
+        if (portalBlip != null)
         {
-            swordBlip.gameObject.SetActive(false);
+            portalBlip.gameObject.SetActive(false);
         }
     }
 
