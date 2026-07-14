@@ -387,7 +387,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 83937471578851723, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0000038146973
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1326079308537979913, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_Pivot.x
@@ -495,7 +495,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6699700377431767434, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 0.0000038146973
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8090670148895329199, guid: b9b187c940b664043b5a9cfc2a296128, type: 3}
       propertyPath: m_joystickCanvas
