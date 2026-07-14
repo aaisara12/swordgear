@@ -895,7 +895,7 @@ GameObject:
   - component: {fileID: 1859516342827825061}
   - component: {fileID: 3266737467128378431}
   - component: {fileID: 8440414124237892339}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WallTilemap
   m_TagString: Untagged
   m_Icon: {fileID: 0}

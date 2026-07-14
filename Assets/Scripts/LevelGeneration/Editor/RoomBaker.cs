@@ -270,6 +270,17 @@ public static class RoomBaker
             var tmGO = new GameObject("WallTilemap");
             tmGO.transform.SetParent(gridGO.transform);
             tmGO.transform.localPosition = Vector3.zero;
+            // Walls live on the Arena layer to match the hand-authored arenas — the Physics2D collision
+            // matrix routes wall collisions by this layer, so baked rooms left on Default collide wrong.
+            int arenaLayer = LayerMask.NameToLayer("Arena");
+            if (arenaLayer >= 0)
+            {
+                tmGO.layer = arenaLayer;
+            }
+            else
+            {
+                Debug.LogWarning("RoomBaker: 'Arena' layer not found; wall tilemap left on the Default layer.");
+            }
             Tilemap tilemap = tmGO.AddComponent<Tilemap>();
             tmGO.AddComponent<TilemapRenderer>();
             tmGO.AddComponent<TilemapCollider2D>();
