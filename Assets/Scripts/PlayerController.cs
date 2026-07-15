@@ -233,6 +233,8 @@ public class PlayerController : PlayerGameplayPawn
         else
         {
             rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+            // Continuous collision so the fast dash can't tunnel straight through thin wall colliders.
+            rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
         }
         animator = GetComponent<Animator>();
         if (animator == null)
