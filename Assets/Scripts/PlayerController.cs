@@ -10,8 +10,10 @@ public class PlayerController : PlayerGameplayPawn
     [Header("References")]
     [SerializeField] private Transform? playerDirectionReference;  // Need this since we are no longer turning the player object when moving
     [SerializeField] private PlayerWeaponIndicator? weaponIndicator;
+    [SerializeField] private PlayerAimIndicator? aimIndicator;
     [SerializeField] private SpriteRenderer? playerRenderer;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
+    public float DashDistance => dashSpeed * dashDuration;
     
     [Header("Combat")]
     [SerializeField] private float projectileSpeed = 5f;
@@ -560,6 +562,14 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         weaponIndicator?.UpdateThrowAim(direction);
+
+        if (direction.sqrMagnitude > 0.001f && aimIndicator != null)
+        {
+            PlayerAimIndicator.AimMode mode = IsSwordOut
+                ? PlayerAimIndicator.AimMode.Dash
+                : PlayerAimIndicator.AimMode.SwordThrow;
+            aimIndicator.SetAim(direction, mode);
+        }
     }
 
     public override void DoAimedAttackInDirection(Vector2 direction)
@@ -589,6 +599,7 @@ public class PlayerController : PlayerGameplayPawn
     public override void StopAiming()
     {
         weaponIndicator?.EndThrowAim();
+        aimIndicator?.Clear();
     }
 
     int walkSoundLoop = -1;
@@ -705,6 +716,7 @@ public class PlayerController : PlayerGameplayPawn
 
         // Reset facing/aim to a default.
         weaponIndicator?.EndThrowAim();
+        aimIndicator?.Clear();
         transform.up = Vector2.up;
 
         SetAnimationState(AnimIdleHash);

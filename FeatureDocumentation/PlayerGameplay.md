@@ -18,7 +18,10 @@ Manages the player's in-game pawn: spawning, despawning, health (including regen
 | `Attacker` | `Assets/Aaron/Scripts/PlayerBehaviours/Attacker.cs` |
 | `Shooter` | `Assets/Aaron/Scripts/PlayerBehaviours/Shooter.cs` |
 | `PlayerVisual` | `Assets/Aaron/Scripts/PlayerBehaviours/PlayerVisual.cs` |
-| `ShootDirectionVisualizer` | `Assets/Aaron/Scripts/PlayerBehaviours/ShootDirectionVisualizer.cs` |
+| `ShootDirectionVisualizer` | `Assets/Aaron/Scripts/PlayerBehaviours/ShootDirectionVisualizer.cs` (TestPlayer only) |
+| `PlayerAimIndicator` | `Assets/Aaron/Scripts/PlayerBehaviours/PlayerAimIndicator.cs` (production Player) |
+| `PlayerController` | `Assets/Scripts/PlayerController.cs` |
+| `PlayerWeaponIndicator` | `Assets/Scripts/PlayerWeaponIndicator.cs` |
 
 ---
 
@@ -57,7 +60,17 @@ The pawn composes discrete behaviour components rather than implementing everyth
 | `Attacker` | Handles melee attack with cooldown |
 | `Shooter` | Handles ranged attack |
 | `PlayerVisual` | Manages sprite/animation based on movement direction |
-| `ShootDirectionVisualizer` | Draws an aim indicator |
+| `ShootDirectionVisualizer` | TestPlayer-only aim arrow (direction only) |
+| `PlayerAimIndicator` | Production aim preview on `Player.prefab` during AimedAttack hold |
+
+### Production aim preview (`PlayerAimIndicator`)
+
+While the player holds AimedAttack:
+
+- **Sword in hand (`MeleeReady`)** — fixed-length throw line from the throw origin. A `Physics2D.BoxCast` finds the nearest blocker: a `Bumper` (bounce segment along `Vector2.Reflect`) or a wall (`TilemapCollider2D` / `CompositeCollider2D`, plus any solid collider on `wallLayers`). Walls clip the line with no bounce. Bounce length is separately configurable.
+- **Sword out (`SwordThrown`)** — dash preview only: primary line scales to `dashSpeed × dashDuration`. No bounce segment. Attack-button dash (move-stick) does not show this indicator.
+
+Cleared on `StopAiming` (aim stick release / aim session end). TestPlayer still uses `ShootDirectionVisualizer` and is unchanged.
 
 ---
 
