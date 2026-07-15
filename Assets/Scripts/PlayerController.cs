@@ -402,7 +402,7 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
-        GameObject fx = Instantiate(catchExplosionFX, transform.position, Quaternion.identity);
+        GameObject fx = Instantiate(catchExplosionFX, transform.position, Quaternion.identity, transform);
         CatchExplosionFX? explosion = fx.GetComponent<CatchExplosionFX>();
         if (explosion != null)
         {

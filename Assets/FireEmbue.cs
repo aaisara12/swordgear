@@ -12,7 +12,7 @@ public class FireEmbue : Embue
 
     private void Start()
     {
-        damageMultiplier = 1.5f;
-        effectDuration = 30f;
+        // damageMultiplier = 1.5f;
+        // effectDuration = 30f;
     }
 }

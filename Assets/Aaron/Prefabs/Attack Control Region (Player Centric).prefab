@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.0047169924, b: 0.0047169924, a: 1}
+  m_Color: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -790,5 +790,7 @@ MonoBehaviour:
   iconImage: {fileID: 8348080972069032173}
   attackIconSprite: {fileID: -4595611934606938456, guid: b547d469b6437483fa4d1169c32c0419, type: 3}
   dashIconSprite: {fileID: 21300000, guid: 269d0adec98441349b057e8673021bc0, type: 3}
+  knobImage: {fileID: 6538003213827653658}
   imbueBorder: {fileID: 1995915782623287117}
   inactiveBorderColor: {r: 1, g: 1, b: 1, a: 0}
+  inactiveKnobColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
