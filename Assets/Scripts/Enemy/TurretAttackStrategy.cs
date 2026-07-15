@@ -48,6 +48,11 @@ public class TurretAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             return;
         }
 
+        if (PlayerGameplayManager.Instance?.IsDefeated == true)
+        {
+            return; // stop firing once the run is over — the scene/pool may be tearing down
+        }
+
         // Wind-up: telegraph the burst, then fire its opening shot the instant the charge completes.
         if (isCharging)
         {
@@ -108,7 +113,7 @@ public class TurretAttackStrategy : MonoBehaviour, IChargingAttackStrategy
 
     public void Attack(Transform selfTransform, Transform targetTransform)
     {
-        if (enemyController == null)
+        if (enemyController == null || PrefabPool.Instance == null)
         {
             return;
         }
