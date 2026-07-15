@@ -394,6 +394,10 @@ public class PlayerController : PlayerGameplayPawn
 
     void PlayCatchExplosion()
     {
+        // The catch is the identity payoff of the throw->recall loop — give it a brief hit-stop so it lands
+        // with weight. Camera shake / SFX are intentionally left to the sword catch attack, which owns that beat.
+        HitStop.Do(0.045f);
+
         if (catchExplosionFX == null)
         {
             return;
