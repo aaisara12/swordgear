@@ -122,7 +122,7 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
             yield break;
         }
 
-        GameObject effect = PrefabPool.Instance!.Spawn(cleaveEffectObject, player.position, Quaternion.identity);
+        GameObject effect = PrefabPool.Instance!.Spawn(cleaveEffectObject, player.position, Quaternion.identity, player);
         effect.transform.up = player.up;
         IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
         attackAnimator.PlayAnimation();
