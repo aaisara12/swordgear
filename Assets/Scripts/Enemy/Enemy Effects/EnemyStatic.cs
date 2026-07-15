@@ -10,11 +10,13 @@ public class EnemyStatic : MonoBehaviour, IEnemyEffect
     void IEnemyEffect.EffectBegin(EnemyController enemy)
     {
         enemy.speedMultiplier *= speedMultiplier;
+        EnemyStatusVisual.For(enemy).SetStatic(true);
     }
 
     void IEnemyEffect.EffectEnd(EnemyController enemy)
     {
         enemy.speedMultiplier /= speedMultiplier;
+        EnemyStatusVisual.For(enemy).SetStatic(false);
     }
 
     void IEnemyEffect.EffectTick(EnemyController enemy)

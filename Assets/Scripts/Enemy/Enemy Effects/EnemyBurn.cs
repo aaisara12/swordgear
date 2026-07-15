@@ -9,10 +9,12 @@ public class EnemyBurn : MonoBehaviour, IEnemyEffect
 
     void IEnemyEffect.EffectBegin(EnemyController enemy)
     {
+        EnemyStatusVisual.For(enemy).SetBurn(true);
     }
 
     void IEnemyEffect.EffectEnd(EnemyController enemy)
     {
+        EnemyStatusVisual.For(enemy).SetBurn(false);
     }
 
     void IEnemyEffect.EffectTick(EnemyController enemy)
