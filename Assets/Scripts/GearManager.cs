@@ -8,6 +8,7 @@ public enum GearTile
     Lightning,
     Fire,
     Ice,
+    Wind,
 }
 
 [System.Serializable]
@@ -80,7 +81,7 @@ public class GearManager : InitializeableGameComponent
     {
         if (slots.Count < 4) return;
 
-        SetTile(0, GearTile.Bumper);
+        SetTile(0, GearTile.Wind);
         SetTile(1, GearTile.Lightning);
         SetTile(2, GearTile.Fire);
         SetTile(3, GearTile.Ice);
@@ -147,7 +148,9 @@ public class GearManager : InitializeableGameComponent
             transform.position = GameManager.Instance.player.transform.position;
         }
 
-        if (spinSpeed != 0f)
+        bool swordInFlight = SwordProjectile.Instance != null && SwordProjectile.Instance.IsInFlight;
+
+        if (spinSpeed != 0f && !swordInFlight)
         {
             transform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
         }

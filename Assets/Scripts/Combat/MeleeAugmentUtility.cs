@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -8,10 +9,17 @@ using UnityEngine;
 /// </summary>
 public static class MeleeAugmentUtility
 {
+    private static readonly List<EnemyController> _radiusScanBuffer = new();
+
     public static void DamageEnemiesInRadius(Vector2 origin, float radius, Action<EnemyController> onHit)
     {
+        // Snapshot first: onHit can kill an enemy, which unregisters it from ActiveEnemyRegistry.All
+        // (the same list) mid-enumeration and would otherwise throw InvalidOperationException.
+        _radiusScanBuffer.Clear();
+        _radiusScanBuffer.AddRange(ActiveEnemyRegistry.All);
+
         float radiusSqr = radius * radius;
-        foreach (EnemyController enemy in ActiveEnemyRegistry.All)
+        foreach (EnemyController enemy in _radiusScanBuffer)
         {
             if (enemy == null) continue;
             if (((Vector2)enemy.transform.position - origin).sqrMagnitude > radiusSqr) continue;

@@ -225,6 +225,27 @@ public class EnemyController : MonoBehaviour
         _flashRoutine = null;
     }
 
+    /// <summary>
+    /// External pull toward a point (e.g. a wind vortex), reusing the knockback coast window so
+    /// normal movement is suppressed while the pull plays out.
+    /// </summary>
+    public void ApplyPull(Vector2 towardPosition, float force)
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        Vector2 dir = towardPosition - (Vector2)transform.position;
+        if (dir.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        rb.linearVelocity = dir.normalized * force;
+        _knockbackTimer = KnockbackDuration;
+    }
+
     private void ApplyKnockback(float damage)
     {
         if (rb == null)

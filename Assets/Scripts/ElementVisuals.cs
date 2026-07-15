@@ -9,6 +9,7 @@ public static class ElementVisuals
             Element.Fire => Color.red,
             Element.Lightning => Color.yellow,
             Element.Ice => Color.cyan,
+            Element.Wind => new Color(0.56f, 0.93f, 0.56f, 1f), // light green
             _ => new Color(0.85f, 1f, 1f, 1f), // bright white-cyan for Physical
         };
     }

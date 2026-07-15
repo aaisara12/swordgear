@@ -70,6 +70,7 @@ public class SwordProjectile : MonoBehaviour
 
     public bool IsRecalling => isRecalling;
     public bool IsLodged => gameObject.activeSelf && !isFlying && !isRecalling;
+    public bool IsInFlight => isFlying && !isRecalling;
 
     [SerializeField] private SwordLodgedIndicator? lodgedIndicator;
     public bool IsLodgedIndicatorActive => lodgedIndicator != null && lodgedIndicator.IsActive;
