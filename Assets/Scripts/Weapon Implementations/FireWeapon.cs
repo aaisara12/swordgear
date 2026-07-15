@@ -81,12 +81,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         {
             if (chargeTier == chargeAnimNames.Length - 1)
             {
-                effect = PrefabPool.Instance!.Spawn(strongEffectObject, spawnPos, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(strongEffectObject, spawnPos, Quaternion.identity, player);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireCharged);
             } 
             else
             {
-                effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity);
+                effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity, player);
                 AudioSystem.Play(AudioSystem.Sound.Slash_FireBasic);
             }
             

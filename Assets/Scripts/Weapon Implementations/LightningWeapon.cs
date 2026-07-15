@@ -47,7 +47,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (weakEffectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(weakEffectObject, spawnPos, Quaternion.identity, player);
             effect.transform.up = player.up;
             if (combo > 0)
             {
@@ -100,7 +100,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (strongEffectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position, Quaternion.identity, player);
             effect.transform.up = player.up;
             MeleeAugmentUtility.ApplyRangeScale(effect.transform);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
@@ -119,10 +119,6 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
             float alpha = Mathf.Lerp(1f, 0f, elapsedTime / duration);
             player.position = pos;
             weaponHitbox.transform.position = player.position;
-            if (effect != null)
-            {
-                effect.transform.position = player.position;
-            }
             elapsedTime += Time.deltaTime;
             yield return null;
         }
