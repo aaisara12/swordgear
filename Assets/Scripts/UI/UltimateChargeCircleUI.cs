@@ -64,10 +64,8 @@ public class UltimateChargeCircleUI : MaskableGraphic
 
     private void TrySubscribe()
     {
-        if (_subscribed || UltimateChargeTracker.Instance == null) 
+        if (_subscribed || UltimateChargeTracker.Instance == null)
         {
-            Debug.Log($"[UltimateChargeCircleUI] TrySubscribe: " +
-                      $"subscribed={_subscribed}, tracker={(UltimateChargeTracker.Instance != null ? "found" : "NULL")}");
             return;
         }
         UltimateChargeTracker.Instance.OnProgressChanged += HandleProgressChanged;
@@ -105,7 +103,6 @@ public class UltimateChargeCircleUI : MaskableGraphic
     {
         _currentFills.Clear();
         UltimateChargeTracker.Instance?.GetChargeFills(_currentFills);
-        Debug.Log($"Current fills: {string.Join(", ", _currentFills)}");
         SetVerticesDirty();
     }
 
