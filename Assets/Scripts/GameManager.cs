@@ -79,11 +79,19 @@ public class GameManager : MonoBehaviour
 
     public void DisplayDamageUI(Vector3 position, float amt)
     {
+        // Back-compat: falls back to the player's current element when no source is given.
+        DisplayDamageUI(position, amt, currentElement);
+    }
+
+    public void DisplayDamageUI(Vector3 position, float amt, Element sourceElement)
+    {
         if (!damageUI) return;
 
         GameObject ui = PrefabPool.Instance!.Spawn(damageUI, position, Quaternion.identity);
 
-        ui.GetComponent<DamageUI>().ShowNumber(amt, currentElement);
+        // Colour by the DAMAGE's source element, not the player's current element, so DoT ticks and
+        // off-element hits (burn/chill/static) read with the correct colour.
+        ui.GetComponent<DamageUI>().ShowNumber(amt, sourceElement);
     }
 
     public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)

@@ -139,7 +139,7 @@ public class EnemyController : MonoBehaviour
     public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true)
     {
         if (GameManager.Instance)
-            GameManager.Instance.DisplayDamageUI(transform.position, damage);
+            GameManager.Instance.DisplayDamageUI(transform.position, damage, moveType.Element);
 
         OnAnyEnemyHit?.Invoke(this, damage, moveType);
 
