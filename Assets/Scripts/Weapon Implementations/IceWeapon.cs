@@ -59,7 +59,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         GameObject effect = null;
         if (effectObject != null)
         {
-            effect = PrefabPool.Instance!.Spawn(effectObject, spawnPos, Quaternion.identity);
+            effect = PrefabPool.Instance!.Spawn(effectObject, spawnPos, Quaternion.identity, player);
             effect.transform.up = player.up;
             if (combo > 0)
             {
