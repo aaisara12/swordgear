@@ -25,6 +25,9 @@ public class GearManager : InitializeableGameComponent
     public float radius = 2f;
     public GameObject slotPrefab; // Optional: for visualizing slots
 
+    [Header("Spin Settings")]
+    public float spinSpeed = 0f; // degrees per second
+
     private List<Transform> slots = new List<Transform>();
 
     // runtime gear state
@@ -140,8 +143,13 @@ public class GearManager : InitializeableGameComponent
         
         if (gameManager.player != null)
         {
-            // Follow player position 
+            // Follow player position
             transform.position = GameManager.Instance.player.transform.position;
+        }
+
+        if (spinSpeed != 0f)
+        {
+            transform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
         }
     }
 

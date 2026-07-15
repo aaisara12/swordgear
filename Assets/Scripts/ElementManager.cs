@@ -27,6 +27,7 @@ public interface IElementalWeapon
     // Universal
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
+    public void Cleave(Transform player, HashSet<UpgradeType> upgrades);
 
     // Ranged
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
@@ -192,6 +193,13 @@ public class ElementManager : InitializeableGameComponent
     {
         if (activeWeapon == null) return;
         activeWeapon.OnBuffEnd(player, sword, currentUpgrades);
+    }
+
+    /// <summary> Triggered when the player catches the thrown sword; each element performs its own cleave attack. </summary>
+    public void Cleave(Transform player)
+    {
+        if (activeWeapon == null) return;
+        activeWeapon.Cleave(player, currentUpgrades);
     }
 
     public void OnRangedFlight(Transform player, SwordProjectile sword)

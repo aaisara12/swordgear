@@ -15,9 +15,14 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float meleeCooldown = 0.3f;
 
+    [Header("Cleave")]
+    [SerializeField] private GameObject cleaveEffectObject;
+    [SerializeField] private float cleaveRadius = 2.5f;
+    [SerializeField] private float cleaveDuration = 0.4f;
+
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
-        return; // Physical does not have charge attacks 
+        return; // Physical does not have charge attacks
     }
 
     private IEnumerator Swing(Transform player)
@@ -95,6 +100,36 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
         return;
+    }
+
+    public void Cleave(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        StartCoroutine(PlayCleave(player));
+    }
+
+    private IEnumerator PlayCleave(Transform player)
+    {
+        MeleeAugmentUtility.DamageEnemiesInRadius(player.position, MeleeAugmentUtility.ScaleSeekRadius(cleaveRadius), enemy =>
+        {
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage()),
+                new MoveType(Element.Physical, AttackKind.MeleeStrike));
+        });
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_Basic);
+
+        if (cleaveEffectObject == null)
+        {
+            yield break;
+        }
+
+        GameObject effect = PrefabPool.Instance!.Spawn(cleaveEffectObject, player.position, Quaternion.identity, player);
+        effect.transform.up = player.up;
+        IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+        attackAnimator.PlayAnimation();
+
+        yield return new WaitForSeconds(MeleeAugmentUtility.ScaleSwingDuration(cleaveDuration));
+
+        PrefabPool.Instance!.Release(effect);
     }
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)

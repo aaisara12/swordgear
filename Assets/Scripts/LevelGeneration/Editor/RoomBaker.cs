@@ -270,16 +270,16 @@ public static class RoomBaker
             var tmGO = new GameObject("WallTilemap");
             tmGO.transform.SetParent(gridGO.transform);
             tmGO.transform.localPosition = Vector3.zero;
-            // Walls live on the Arena layer to match the hand-authored arenas — the Physics2D collision
-            // matrix routes wall collisions by this layer, so baked rooms left on Default collide wrong.
+            // aisara => Walls must be on Arena so SwordProjectile.terrainLayers can lodge on hit
+            // and IgnoreLayerCollision can let recalls clip through (same contract as hand-built arenas).
             int arenaLayer = LayerMask.NameToLayer("Arena");
-            if (arenaLayer >= 0)
+            if (arenaLayer < 0)
             {
-                tmGO.layer = arenaLayer;
+                Debug.LogError("RoomBaker: 'Arena' physics layer is missing; walls will not interact with the sword correctly.");
             }
             else
             {
-                Debug.LogWarning("RoomBaker: 'Arena' layer not found; wall tilemap left on the Default layer.");
+                tmGO.layer = arenaLayer;
             }
             Tilemap tilemap = tmGO.AddComponent<Tilemap>();
             tmGO.AddComponent<TilemapRenderer>();

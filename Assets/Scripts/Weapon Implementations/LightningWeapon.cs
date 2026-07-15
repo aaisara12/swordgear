@@ -21,6 +21,11 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float thrustDistance = 1.5f;
     [SerializeField] private float meleeCooldown = 0.3f;
 
+    [Header("Cleave")]
+    [SerializeField] private GameObject cleaveEffectObject;
+    [SerializeField] private float cleaveRadius = 2.5f;
+    [SerializeField] private float cleaveDuration = 0.4f;
+
     int combo = 0;
     bool lightningActive = false;
 
@@ -175,7 +180,44 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        
+
+    }
+
+    public void Cleave(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        StartCoroutine(PlayCleave(player, upgrades));
+    }
+
+    private IEnumerator PlayCleave(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        bool applyCleaveStatic = upgrades.Contains(UpgradeType.Lightning_ApplyStatic);
+        MeleeAugmentUtility.DamageEnemiesInRadius(player.position, MeleeAugmentUtility.ScaleSeekRadius(cleaveRadius), enemy =>
+        {
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage()),
+                new MoveType(Element.Lightning, AttackKind.MeleeStrike));
+
+            if (applyCleaveStatic)
+            {
+                ChainLightningProjectile lightning = PrefabPool.Instance!.Spawn(lightningPrefab, enemy.transform.position, Quaternion.identity).GetComponent<ChainLightningProjectile>();
+                lightning.Initialize(transform);
+            }
+        });
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_LightningBasic);
+
+        if (cleaveEffectObject == null)
+        {
+            yield break;
+        }
+
+        GameObject effect = PrefabPool.Instance!.Spawn(cleaveEffectObject, player.position, Quaternion.identity, player);
+        effect.transform.up = player.up;
+        IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+        attackAnimator.PlayAnimation();
+
+        yield return new WaitForSeconds(MeleeAugmentUtility.ScaleSwingDuration(cleaveDuration));
+
+        PrefabPool.Instance!.Release(effect);
     }
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
