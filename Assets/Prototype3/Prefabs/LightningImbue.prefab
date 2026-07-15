@@ -317,7 +317,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   embueType: 3
   effectDuration: 5
-  damageMultiplier: 0
+  damageMultiplier: 1.2
   burnDuration: 3
 --- !u!1 &5117383216751334092
 GameObject:
