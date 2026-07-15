@@ -144,6 +144,10 @@ MonoBehaviour:
   - FireStrongSwipe
   weakEffectObject: {fileID: 4924145055515192846, guid: 3e31b181a52490041b62a9c198263531, type: 3}
   strongEffectObject: {fileID: 3295937853743057273, guid: c35302333a29d214782dce3eb8004a92, type: 3}
+  cleaveEffectObject: {fileID: 1768101877311086085, guid: 4c4245b12e70af749b34b50ca8dc1c85, type: 3}
+  cleaveRadius: 3
+  cleaveDuration: 0.4
+  cleaveBurnDuration: 3
   bombObject: {fileID: 6440557294651380317, guid: 0a4e93c3511ef9d44bf6b8677bea28db, type: 3}
   waves: 5
   bombsPerWave: 5
@@ -273,6 +277,9 @@ MonoBehaviour:
   dashFactor: 0.2
   thrustDistance: 1.5
   meleeCooldown: 0.15
+  cleaveEffectObject: {fileID: 7629752438906148674, guid: 2fb956f3d9d854547882cdf227068efd, type: 3}
+  cleaveRadius: 2.5
+  cleaveDuration: 0.4
 --- !u!1 &3925378626850400808
 GameObject:
   m_ObjectHideFlags: 0
@@ -401,6 +408,9 @@ MonoBehaviour:
   attackRadius: 3
   dashFactor: 0.2
   meleeCooldown: 0.25
+  cleaveEffectObject: {fileID: 7437199953995764964, guid: 26e73632f695dd648a525f4867928509, type: 3}
+  cleaveRadius: 3
+  cleaveDuration: 0.4
 --- !u!1 &4242799776733528313
 GameObject:
   m_ObjectHideFlags: 0
@@ -511,6 +521,9 @@ MonoBehaviour:
   meleeCooldown: 0.3
   strongHitBonusDmg: 10
   chillDuration: 5
+  cleaveEffectObject: {fileID: 6798840966112144939, guid: bc77e84f4ff291147b7aa7dc91398ffa, type: 3}
+  cleaveRadius: 2.5
+  cleaveDuration: 0.4
 --- !u!1 &5018969045373207494
 GameObject:
   m_ObjectHideFlags: 0
@@ -1362,8 +1375,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   catalog: {fileID: 11400000, guid: e4f8a2b6c9d14e3f8a1b0c5d6e7f8091, type: 2}
-  entriesPerFrame: 2
-  simulateDuration: 1
+  warmupCamera: {fileID: 0}
+  drawFramesPerEntry: 2
+  loadingOverlayTimeout: 5
 --- !u!1001 &3201619485837583286
 PrefabInstance:
   m_ObjectHideFlags: 0

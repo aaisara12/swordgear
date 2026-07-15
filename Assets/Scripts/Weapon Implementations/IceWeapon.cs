@@ -27,9 +27,14 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float strongHitBonusDmg = 10f;
     [SerializeField] private int chillDuration = 5;
 
+    [Header("Cleave")]
+    [SerializeField] private GameObject cleaveEffectObject;
+    [SerializeField] private float cleaveRadius = 2.5f;
+    [SerializeField] private float cleaveDuration = 0.4f;
+
     public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
-        
+
     }
 
     int combo = 1;
@@ -128,6 +133,41 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
         combo = 1;
+    }
+
+    public void Cleave(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        StartCoroutine(PlayCleave(player, upgrades));
+    }
+
+    private IEnumerator PlayCleave(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        bool applyCleaveChill = upgrades.Contains(UpgradeType.Ice_EmpowerMelee);
+        MeleeAugmentUtility.DamageEnemiesInRadius(player.position, MeleeAugmentUtility.ScaleSeekRadius(cleaveRadius), enemy =>
+        {
+            enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage()),
+                new MoveType(Element.Ice, AttackKind.MeleeStrike));
+            if (applyCleaveChill)
+            {
+                GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Chill, chillDuration);
+            }
+        });
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_IceBasic);
+
+        if (cleaveEffectObject == null)
+        {
+            yield break;
+        }
+
+        GameObject effect = PrefabPool.Instance!.Spawn(cleaveEffectObject, player.position, Quaternion.identity);
+        effect.transform.up = player.up;
+        IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
+        attackAnimator.PlayAnimation();
+
+        yield return new WaitForSeconds(MeleeAugmentUtility.ScaleSwingDuration(cleaveDuration));
+
+        PrefabPool.Instance!.Release(effect);
     }
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)

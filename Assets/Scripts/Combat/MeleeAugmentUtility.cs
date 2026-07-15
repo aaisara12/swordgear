@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using UnityEngine;
 
 /// <summary>
@@ -7,6 +8,18 @@ using UnityEngine;
 /// </summary>
 public static class MeleeAugmentUtility
 {
+    public static void DamageEnemiesInRadius(Vector2 origin, float radius, Action<EnemyController> onHit)
+    {
+        float radiusSqr = radius * radius;
+        foreach (EnemyController enemy in ActiveEnemyRegistry.All)
+        {
+            if (enemy == null) continue;
+            if (((Vector2)enemy.transform.position - origin).sqrMagnitude > radiusSqr) continue;
+
+            onHit(enemy);
+        }
+    }
+
     public static float RangeMultiplier =>
         PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MeleeRangeMultiplier : 1f;
 

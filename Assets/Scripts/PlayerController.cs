@@ -384,6 +384,7 @@ public class PlayerController : PlayerGameplayPawn
         if (countAsCatch)
         {
             PlayCatchExplosion();
+            ElementManager.Instance.Cleave(transform);
         }
     }
 
