@@ -11,6 +11,7 @@ Shader "Swordgear/DashIndicatorFlow"
         _BandWidth ("Band Width", Range(0.02, 0.4)) = 0.14
         _BandSoftness ("Band Softness", Range(0.005, 0.2)) = 0.05
         _TrailStrength ("Trail Strength", Range(0, 1)) = 0.55
+        _ArrowDepth ("Arrow Depth", Range(0, 1.5)) = 0.55
         _EdgeFeather ("Edge Feather", Range(0, 0.5)) = 0.18
         _BaseOpacity ("Base Opacity", Range(0, 1)) = 0.55
         _Intensity ("Intensity", Range(0, 4)) = 1.55
@@ -70,6 +71,7 @@ Shader "Swordgear/DashIndicatorFlow"
                 half _BandWidth;
                 half _BandSoftness;
                 half _TrailStrength;
+                half _ArrowDepth;
                 half _EdgeFeather;
                 half _BaseOpacity;
                 half _Intensity;
@@ -100,8 +102,9 @@ Shader "Swordgear/DashIndicatorFlow"
                 half2 uv = input.uv;
 
                 // Length axis: player (near) at uv.y = 0 → tip at uv.y = 1.
-                // Use uv.y only so bands stay perpendicular to the indicator borders.
-                half along = uv.y;
+                // Chevron offset makes iso-contours into ^ arrows pointing toward the tip.
+                half lateral = abs(uv.x - 0.5);
+                half along = uv.y + lateral * _ArrowDepth;
 
                 half sideMask = 1.0;
                 if (_EdgeFeather > 0.0001)
@@ -119,7 +122,7 @@ Shader "Swordgear/DashIndicatorFlow"
                 half travel = 1.0 - phase;
                 half band = SoftBand(travel, _BandWidth, _BandSoftness);
 
-                // Secondary thinner accent band for shimmer.
+                // Secondary thinner accent wave for shimmer.
                 half phase2 = frac(along * (bands * 0.5) - _Time.y * (_FlowSpeed * 1.35) + 0.37);
                 half accent = SoftBand(1.0 - phase2, _BandWidth * 0.45, _BandSoftness * 0.7) * 0.55;
 
