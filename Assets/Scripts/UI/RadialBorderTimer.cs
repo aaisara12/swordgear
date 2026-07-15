@@ -14,6 +14,28 @@ public class RadialBorderTimer : MaskableGraphic
     [SerializeField] private int _segments = 48;
     [SerializeField] [Range(0f, 1f)] private float _progress;
 
+    public float OuterRadius
+    {
+        get => _outerRadius;
+        set
+        {
+            if (Mathf.Approximately(_outerRadius, value)) return;
+            _outerRadius = value;
+            SetVerticesDirty();
+        }
+    }
+
+    public float InnerRadius
+    {
+        get => _innerRadius;
+        set
+        {
+            if (Mathf.Approximately(_innerRadius, value)) return;
+            _innerRadius = value;
+            SetVerticesDirty();
+        }
+    }
+
     public float Progress
     {
         get => _progress;

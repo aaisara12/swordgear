@@ -4,12 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Attack mode: Knob shows shadedDark49 (pad + glyph); range ring tints from the active element.
-/// Dash mode: Knob keeps a plain dark pad with DashIcon on top; imbue border and elemental
-/// range-ring tint are suppressed (Physical / gray) until the sword is caught.
+/// Attack mode: Knob shows shadedDark49 (pad + glyph); range ring tints from the active element;
+/// imbue border uses full thickness.
+/// Dash mode: Knob keeps a plain dark pad with DashIcon on top; range-ring tint is suppressed
+/// (Physical / gray); imbue border stays visible at half thickness and half opacity until the sword is caught.
 /// </summary>
 public class AttackJoystickImbueIndicator : MonoBehaviour
 {
+    private const float DashBorderThicknessScale = 0.5f;
+    private const float DashBorderOpacityScale = 0.5f;
+
     [SerializeField] private Image? iconImage;
     [SerializeField] private Sprite? attackIconSprite;
     [SerializeField] private Sprite? dashIconSprite;
@@ -24,9 +28,11 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
     private bool _subscribedToGameManager;
     private Image? _modeKnobImage;
     private RectTransform? _dashOverlayRect;
-    private bool _dashSuppressingImbue;
+    private bool _inDashMode;
     private float _storedImbueProgress;
     private float _knobAlpha = 1f;
+    private float _normalOuterRadius;
+    private float _normalInnerRadius;
 
     private void Awake()
     {
@@ -44,6 +50,12 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
             iconImage.enabled = false;
             iconImage.raycastTarget = false;
             iconImage.preserveAspect = true;
+        }
+
+        if (imbueBorder != null)
+        {
+            _normalOuterRadius = imbueBorder.OuterRadius;
+            _normalInnerRadius = imbueBorder.InnerRadius;
         }
     }
 
@@ -124,9 +136,11 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
             iconImage.enabled = false;
         }
 
-        if (_dashSuppressingImbue)
+        ApplyImbueBorderThickness(fullThickness: true);
+
+        if (_inDashMode)
         {
-            _dashSuppressingImbue = false;
+            _inDashMode = false;
             RefreshColors();
         }
     }
@@ -151,15 +165,24 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
             iconImage.enabled = true;
         }
 
-        if (!_dashSuppressingImbue)
+        ApplyImbueBorderThickness(fullThickness: false);
+
+        if (!_inDashMode)
         {
-            _dashSuppressingImbue = true;
-            if (imbueBorder != null)
-            {
-                _storedImbueProgress = imbueBorder.Progress;
-            }
+            _inDashMode = true;
             RefreshColors();
         }
+    }
+
+    private void ApplyImbueBorderThickness(bool fullThickness)
+    {
+        if (imbueBorder == null) return;
+
+        float thickness = _normalOuterRadius - _normalInnerRadius;
+        float targetThickness = fullThickness ? thickness : thickness * DashBorderThicknessScale;
+        // Keep the inner edge flush with the joystick; thickness shrinks by pulling the outer radius in.
+        imbueBorder.InnerRadius = _normalInnerRadius;
+        imbueBorder.OuterRadius = _normalInnerRadius + targetThickness;
     }
 
     private void EnsureDashOverlayOnKnob()
@@ -200,33 +223,30 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
         float progress = duration > 0f ? remaining / duration : 0f;
         _storedImbueProgress = progress;
 
-        if (_dashSuppressingImbue || imbueBorder == null)
-        {
-            // Keep tracking duration while sword is out; only the visible border is suppressed.
-            if (_dashSuppressingImbue && imbueBorder != null)
-            {
-                imbueBorder.Progress = 0f;
-            }
-            return;
-        }
+        if (imbueBorder == null) return;
 
         imbueBorder.Progress = progress;
     }
 
     private void RefreshColors()
     {
-        bool useInactive = _dashSuppressingImbue || _activeElement == Element.Physical;
+        bool physical = _activeElement == Element.Physical;
 
         if (imbueBorder != null)
         {
-            if (useInactive)
+            if (physical)
             {
                 imbueBorder.color = inactiveBorderColor;
                 imbueBorder.Progress = 0f;
             }
             else
             {
-                imbueBorder.color = ElementVisualUtility.GetAccentColor(_activeElement);
+                Color borderColor = ElementVisualUtility.GetAccentColor(_activeElement);
+                if (_inDashMode)
+                {
+                    borderColor.a *= DashBorderOpacityScale;
+                }
+                imbueBorder.color = borderColor;
                 imbueBorder.Progress = _storedImbueProgress;
             }
         }
@@ -234,7 +254,7 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
         // knobImage is the Range Indicator ring (element accent / gray when Physical or dash).
         if (knobImage != null)
         {
-            Color tint = useInactive
+            Color tint = physical || _inDashMode
                 ? inactiveKnobColor
                 : ElementVisualUtility.GetAccentColor(_activeElement);
             tint.a = _knobAlpha;
