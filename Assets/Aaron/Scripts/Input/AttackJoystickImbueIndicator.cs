@@ -4,26 +4,43 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Drives the attack joystick's icon (sword vs. dash), imbue tint, and radial imbue-duration
-/// border. Lives alongside ChargeAttackJoystickIndicator on the "Joystick" node.
+/// Drives the attack joystick's icon (sword vs. dash), range-knob tint, imbue tint, and
+/// radial imbue-duration border. Lives alongside ChargeAttackJoystickIndicator on the
+/// "Joystick" node.
 /// </summary>
 public class AttackJoystickImbueIndicator : MonoBehaviour
 {
     [SerializeField] private Image? iconImage;
     [SerializeField] private Sprite? attackIconSprite;
     [SerializeField] private Sprite? dashIconSprite;
+    [SerializeField] private Image? knobImage;
     [SerializeField] private RadialBorderTimer? imbueBorder;
     [SerializeField] private Color inactiveBorderColor = new(1f, 1f, 1f, 0f);
+    [SerializeField] private Color inactiveKnobColor = new(0.55f, 0.55f, 0.55f, 1f);
 
     private Element _activeElement = Element.Physical;
     private bool _subscribedToGameManager;
+    private float _knobAlpha = 1f;
+
+    private void Awake()
+    {
+        if (knobImage != null)
+        {
+            _knobAlpha = knobImage.color.a;
+        }
+    }
 
     private void OnEnable()
     {
         ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+        if (ElementManager.Instance != null)
+        {
+            _activeElement = ElementManager.Instance.ActiveElement;
+        }
+
         TrySubscribeToGameManager();
         UpdateIcon();
-        RefreshBorderColor();
+        RefreshColors();
     }
 
     private void OnDisable()
@@ -77,7 +94,7 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
     private void HandleActiveElementChanged(Element element)
     {
         _activeElement = element;
-        RefreshBorderColor();
+        RefreshColors();
 
         if (element == Element.Physical && imbueBorder != null)
         {
@@ -91,12 +108,22 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
         imbueBorder.Progress = duration > 0f ? remaining / duration : 0f;
     }
 
-    private void RefreshBorderColor()
+    private void RefreshColors()
     {
-        if (imbueBorder == null) return;
+        if (imbueBorder != null)
+        {
+            imbueBorder.color = _activeElement == Element.Physical
+                ? inactiveBorderColor
+                : ElementVisualUtility.GetAccentColor(_activeElement);
+        }
 
-        imbueBorder.color = _activeElement == Element.Physical
-            ? inactiveBorderColor
-            : ElementVisualUtility.GetAccentColor(_activeElement);
+        if (knobImage != null)
+        {
+            Color tint = _activeElement == Element.Physical
+                ? inactiveKnobColor
+                : ElementVisualUtility.GetAccentColor(_activeElement);
+            tint.a = _knobAlpha;
+            knobImage.color = tint;
+        }
     }
 }
