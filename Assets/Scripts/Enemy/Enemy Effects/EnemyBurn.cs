@@ -17,7 +17,8 @@ public class EnemyBurn : MonoBehaviour, IEnemyEffect
 
     void IEnemyEffect.EffectTick(EnemyController enemy)
     {
-        enemy.TakeDamage(damage, default, applyImpactFeel: false);
+        // Fire-coloured DoT number, but don't let the burn feed the combo/ult (feedsCombo:false).
+        enemy.TakeDamage(damage, new MoveType(Element.Fire, AttackKind.Ranged), applyImpactFeel: false, feedsCombo: false);
     }
 
     EnemyEffect IEnemyEffect.getEffect()

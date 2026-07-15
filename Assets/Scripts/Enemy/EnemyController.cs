@@ -149,15 +149,19 @@ public class EnemyController : MonoBehaviour
     }
 
     /// <summary>
-    /// Deal damage to this enemy. <paramref name="applyImpactFeel"/> gates knockback + hit-stop so passive
-    /// damage-over-time ticks and mass-cleanup kills don't jerk enemies or freeze the game.
+    /// Deal damage to this enemy. <paramref name="applyImpactFeel"/> gates knockback + hit-stop + shake so
+    /// passive damage-over-time ticks and mass-cleanup kills don't jerk enemies or freeze the game.
+    /// <paramref name="feedsCombo"/> gates the OnAnyEnemyHit event so DoT ticks don't inflate the combo/ult.
     /// </summary>
-    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true)
+    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true, bool feedsCombo = true)
     {
         if (GameManager.Instance)
             GameManager.Instance.DisplayDamageUI(transform.position, damage, moveType.Element);
 
-        OnAnyEnemyHit?.Invoke(this, damage, moveType);
+        // DoT ticks pass feedsCombo:false so a burning enemy can't passively keep a combo alive, charge the
+        // ult, or pollute move-staleness while the player does nothing.
+        if (feedsCombo)
+            OnAnyEnemyHit?.Invoke(this, damage, moveType);
 
         hp -= damage;
 
