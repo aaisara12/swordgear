@@ -33,6 +33,8 @@ public class PlayerAimIndicator : MonoBehaviour
     [Header("Length Mapping")]
     [Tooltip("World length that matches the authored Visual localScale.y / localPosition.")]
     [SerializeField] private float referenceLength = 5f;
+    [Tooltip("Multiplier on the authored indicator Visual localScale.x (1 = prefab width).")]
+    [SerializeField] private float indicatorWidth = 1f;
 
     private Vector2 aimDirection;
     private AimMode aimMode;
@@ -172,8 +174,9 @@ public class PlayerAimIndicator : MonoBehaviour
             bounceIndicator.SetActive(false);
         }
 
-        float dashLength = playerController != null ? playerController.DashDistance : referenceLength;
-        PlaceIndicator(primaryIndicator, primaryVisual, transform.position, aimDirection, dashLength, primaryBaseScale, primaryBaseLocalPos);
+        float dashTipDistance = playerController != null ? playerController.DashDistance : referenceLength;
+        float dashLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, dashTipDistance);
+        PlaceIndicator(primaryIndicator, primaryVisual, transform.position, aimDirection, dashLengthParam, primaryBaseScale, primaryBaseLocalPos);
     }
 
     private void UpdateSwordThrowPreview()
@@ -228,7 +231,8 @@ public class PlayerAimIndicator : MonoBehaviour
 
         if (!blockingHit.HasValue)
         {
-            PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, swordThrowLength, primaryBaseScale, primaryBaseLocalPos);
+            float freeLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, swordThrowLength);
+            PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, freeLengthParam, primaryBaseScale, primaryBaseLocalPos);
 
             if (bounceIndicator != null)
             {
@@ -239,8 +243,11 @@ public class PlayerAimIndicator : MonoBehaviour
         }
 
         RaycastHit2D blockHit = blockingHit.Value;
-        float primaryLength = Mathf.Clamp(blockHit.distance, 0.05f, swordThrowLength);
-        PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, primaryLength, primaryBaseScale, primaryBaseLocalPos);
+        // Seam on the aim centerline — BoxCast hit.point can sit laterally off-axis inside the cast width.
+        float contactDist = Mathf.Clamp(blockHit.distance, 0.05f, swordThrowLength);
+        Vector2 contact = origin + aimDirection * contactDist;
+        float primaryLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, contactDist);
+        PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, primaryLengthParam, primaryBaseScale, primaryBaseLocalPos);
 
         if (blockKind != AimBlockKind.Bumper)
         {
@@ -263,14 +270,28 @@ public class PlayerAimIndicator : MonoBehaviour
             return;
         }
 
+        Vector2 reflectDir = reflected.normalized;
+        float bounceLengthParam = LengthParamForTipDistance(bounceBaseLocalPos, bounceBaseScale, bounceSegmentLength);
         PlaceIndicator(
             bounceIndicator,
             bounceVisual,
-            blockHit.point,
-            reflected.normalized,
-            bounceSegmentLength,
+            contact,
+            reflectDir,
+            bounceLengthParam,
             bounceBaseScale,
             bounceBaseLocalPos);
+    }
+
+    private float LengthParamForTipDistance(Vector3 baseLocalPos, Vector3 baseScale, float tipDistance)
+    {
+        // Near tip is anchored at the root; far tip lands at factor * baseScale.y.
+        float tipSpanAtReference = baseScale.y;
+        if (Mathf.Abs(tipSpanAtReference) < 0.001f)
+        {
+            return tipDistance;
+        }
+
+        return tipDistance * referenceLength / tipSpanAtReference;
     }
 
     private AimBlockKind ClassifyBlock(Collider2D collider)
@@ -329,8 +350,12 @@ public class PlayerAimIndicator : MonoBehaviour
             return;
         }
 
-        float factor = length / referenceLength;
-        visual.localScale = new Vector3(baseScale.x, baseScale.y * factor, baseScale.z);
-        visual.localPosition = new Vector3(baseLocalPos.x, baseLocalPos.y * factor, baseLocalPos.z);
+        float factor = length / Mathf.Max(referenceLength, 0.001f);
+        float width = Mathf.Max(0.001f, indicatorWidth);
+        float scaleY = baseScale.y * factor;
+        // Anchor the near tip at the root so length changes only grow the far tip.
+        float halfY = Mathf.Abs(scaleY) * 0.5f;
+        visual.localScale = new Vector3(baseScale.x * width, scaleY, baseScale.z);
+        visual.localPosition = new Vector3(baseLocalPos.x, halfY, baseLocalPos.z);
     }
 }

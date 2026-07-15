@@ -5618,6 +5618,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 1
   referenceLength: 5
+  indicatorWidth: 2
 --- !u!1 &2605354968175412357
 GameObject:
   m_ObjectHideFlags: 0
