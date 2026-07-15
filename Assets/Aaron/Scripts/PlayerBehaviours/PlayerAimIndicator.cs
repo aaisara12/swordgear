@@ -17,6 +17,8 @@ public class PlayerAimIndicator : MonoBehaviour
     [SerializeField] private Transform? primaryVisual;
     [SerializeField] private GameObject? bounceIndicator;
     [SerializeField] private Transform? bounceVisual;
+    [SerializeField] private GameObject? dashIndicator;
+    [SerializeField] private Transform? dashVisual;
 
     [Header("References")]
     [SerializeField] private PlayerWeaponIndicator? weaponIndicator;
@@ -33,8 +35,10 @@ public class PlayerAimIndicator : MonoBehaviour
     [Header("Length Mapping")]
     [Tooltip("World length that matches the authored Visual localScale.y / localPosition.")]
     [SerializeField] private float referenceLength = 5f;
-    [Tooltip("Multiplier on the authored indicator Visual localScale.x (1 = prefab width).")]
+    [Tooltip("Multiplier on the authored throw-indicator Visual localScale.x (1 = prefab width).")]
     [SerializeField] private float indicatorWidth = 1f;
+    [Tooltip("Multiplier on the authored dash-indicator Visual localScale.x. Defaults to 2x throw width.")]
+    [SerializeField] private float dashIndicatorWidth = 2f;
 
     private Vector2 aimDirection;
     private AimMode aimMode;
@@ -44,6 +48,8 @@ public class PlayerAimIndicator : MonoBehaviour
     private Vector3 primaryBaseLocalPos = Vector3.zero;
     private Vector3 bounceBaseScale = Vector3.one;
     private Vector3 bounceBaseLocalPos = Vector3.zero;
+    private Vector3 dashBaseScale = Vector3.one;
+    private Vector3 dashBaseLocalPos = Vector3.zero;
 
     private readonly List<RaycastHit2D> castHits = new List<RaycastHit2D>(16);
     private ContactFilter2D aimCastFilter;
@@ -87,6 +93,19 @@ public class PlayerAimIndicator : MonoBehaviour
                 : null;
         }
 
+        if (dashIndicator == null)
+        {
+            Debug.LogError("PlayerAimIndicator: dashIndicator is null");
+            return;
+        }
+
+        if (dashVisual == null)
+        {
+            dashVisual = dashIndicator.transform.childCount > 0
+                ? dashIndicator.transform.GetChild(0)
+                : null;
+        }
+
         if (primaryVisual != null)
         {
             primaryBaseScale = primaryVisual.localScale;
@@ -97,6 +116,12 @@ public class PlayerAimIndicator : MonoBehaviour
         {
             bounceBaseScale = bounceVisual.localScale;
             bounceBaseLocalPos = bounceVisual.localPosition;
+        }
+
+        if (dashVisual != null)
+        {
+            dashBaseScale = dashVisual.localScale;
+            dashBaseLocalPos = dashVisual.localPosition;
         }
 
         if (boxCastDistance <= 0f)
@@ -128,32 +153,18 @@ public class PlayerAimIndicator : MonoBehaviour
     {
         aimActive = false;
         aimDirection = Vector2.zero;
-
-        if (primaryIndicator != null)
-        {
-            primaryIndicator.SetActive(false);
-        }
-
-        if (bounceIndicator != null)
-        {
-            bounceIndicator.SetActive(false);
-        }
+        SetIndicatorActive(primaryIndicator, false);
+        SetIndicatorActive(bounceIndicator, false);
+        SetIndicatorActive(dashIndicator, false);
     }
 
     private void LateUpdate()
     {
         if (!aimActive || aimDirection.sqrMagnitude < 0.001f)
         {
-            if (primaryIndicator != null && primaryIndicator.activeSelf)
-            {
-                primaryIndicator.SetActive(false);
-            }
-
-            if (bounceIndicator != null && bounceIndicator.activeSelf)
-            {
-                bounceIndicator.SetActive(false);
-            }
-
+            SetIndicatorActive(primaryIndicator, false);
+            SetIndicatorActive(bounceIndicator, false);
+            SetIndicatorActive(dashIndicator, false);
             return;
         }
 
@@ -169,18 +180,26 @@ public class PlayerAimIndicator : MonoBehaviour
 
     private void UpdateDashPreview()
     {
-        if (bounceIndicator != null)
-        {
-            bounceIndicator.SetActive(false);
-        }
+        SetIndicatorActive(primaryIndicator, false);
+        SetIndicatorActive(bounceIndicator, false);
 
         float dashTipDistance = playerController != null ? playerController.DashDistance : referenceLength;
-        float dashLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, dashTipDistance);
-        PlaceIndicator(primaryIndicator, primaryVisual, transform.position, aimDirection, dashLengthParam, primaryBaseScale, primaryBaseLocalPos);
+        float dashLengthParam = LengthParamForTipDistance(dashBaseScale, dashTipDistance);
+        PlaceIndicator(
+            dashIndicator,
+            dashVisual,
+            transform.position,
+            aimDirection,
+            dashLengthParam,
+            dashBaseScale,
+            dashBaseLocalPos,
+            dashIndicatorWidth);
     }
 
     private void UpdateSwordThrowPreview()
     {
+        SetIndicatorActive(dashIndicator, false);
+
         Vector2 origin = weaponIndicator != null
             ? (Vector2)weaponIndicator.GetThrowOrigin()
             : (Vector2)transform.position;
@@ -231,14 +250,18 @@ public class PlayerAimIndicator : MonoBehaviour
 
         if (!blockingHit.HasValue)
         {
-            float freeLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, swordThrowLength);
-            PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, freeLengthParam, primaryBaseScale, primaryBaseLocalPos);
+            float freeLengthParam = LengthParamForTipDistance(primaryBaseScale, swordThrowLength);
+            PlaceIndicator(
+                primaryIndicator,
+                primaryVisual,
+                origin,
+                aimDirection,
+                freeLengthParam,
+                primaryBaseScale,
+                primaryBaseLocalPos,
+                indicatorWidth);
 
-            if (bounceIndicator != null)
-            {
-                bounceIndicator.SetActive(false);
-            }
-
+            SetIndicatorActive(bounceIndicator, false);
             return;
         }
 
@@ -246,32 +269,32 @@ public class PlayerAimIndicator : MonoBehaviour
         // Seam on the aim centerline — BoxCast hit.point can sit laterally off-axis inside the cast width.
         float contactDist = Mathf.Clamp(blockHit.distance, 0.05f, swordThrowLength);
         Vector2 contact = origin + aimDirection * contactDist;
-        float primaryLengthParam = LengthParamForTipDistance(primaryBaseLocalPos, primaryBaseScale, contactDist);
-        PlaceIndicator(primaryIndicator, primaryVisual, origin, aimDirection, primaryLengthParam, primaryBaseScale, primaryBaseLocalPos);
+        float primaryLengthParam = LengthParamForTipDistance(primaryBaseScale, contactDist);
+        PlaceIndicator(
+            primaryIndicator,
+            primaryVisual,
+            origin,
+            aimDirection,
+            primaryLengthParam,
+            primaryBaseScale,
+            primaryBaseLocalPos,
+            indicatorWidth);
 
         if (blockKind != AimBlockKind.Bumper)
         {
-            if (bounceIndicator != null)
-            {
-                bounceIndicator.SetActive(false);
-            }
-
+            SetIndicatorActive(bounceIndicator, false);
             return;
         }
 
         Vector2 reflected = Vector2.Reflect(aimDirection, blockHit.normal);
         if (reflected.sqrMagnitude < 0.001f)
         {
-            if (bounceIndicator != null)
-            {
-                bounceIndicator.SetActive(false);
-            }
-
+            SetIndicatorActive(bounceIndicator, false);
             return;
         }
 
         Vector2 reflectDir = reflected.normalized;
-        float bounceLengthParam = LengthParamForTipDistance(bounceBaseLocalPos, bounceBaseScale, bounceSegmentLength);
+        float bounceLengthParam = LengthParamForTipDistance(bounceBaseScale, bounceSegmentLength);
         PlaceIndicator(
             bounceIndicator,
             bounceVisual,
@@ -279,10 +302,11 @@ public class PlayerAimIndicator : MonoBehaviour
             reflectDir,
             bounceLengthParam,
             bounceBaseScale,
-            bounceBaseLocalPos);
+            bounceBaseLocalPos,
+            indicatorWidth);
     }
 
-    private float LengthParamForTipDistance(Vector3 baseLocalPos, Vector3 baseScale, float tipDistance)
+    private float LengthParamForTipDistance(Vector3 baseScale, float tipDistance)
     {
         // Near tip is anchored at the root; far tip lands at factor * baseScale.y.
         float tipSpanAtReference = baseScale.y;
@@ -325,6 +349,14 @@ public class PlayerAimIndicator : MonoBehaviour
         return (wallLayers.value & (1 << collider.gameObject.layer)) != 0;
     }
 
+    private static void SetIndicatorActive(GameObject? indicator, bool active)
+    {
+        if (indicator != null && indicator.activeSelf != active)
+        {
+            indicator.SetActive(active);
+        }
+    }
+
     private void PlaceIndicator(
         GameObject? root,
         Transform? visual,
@@ -332,7 +364,8 @@ public class PlayerAimIndicator : MonoBehaviour
         Vector2 direction,
         float length,
         Vector3 baseScale,
-        Vector3 baseLocalPos)
+        Vector3 baseLocalPos,
+        float widthMultiplier)
     {
         if (root == null)
         {
@@ -351,7 +384,7 @@ public class PlayerAimIndicator : MonoBehaviour
         }
 
         float factor = length / Mathf.Max(referenceLength, 0.001f);
-        float width = Mathf.Max(0.001f, indicatorWidth);
+        float width = Mathf.Max(0.001f, widthMultiplier);
         float scaleY = baseScale.y * factor;
         // Anchor the near tip at the root so length changes only grow the far tip.
         float halfY = Mathf.Abs(scaleY) * 0.5f;
