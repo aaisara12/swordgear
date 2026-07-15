@@ -99,9 +99,9 @@ public class PlayerController : PlayerGameplayPawn
 
     public IEnumerator PlayAppearAndShow()
     {
-        yield return PlayAnimationState(AnimUltAppearHash);
         if (playerRenderer != null)
             playerRenderer.enabled = true;
+        yield return PlayAnimationState(AnimUltAppearHash);
     }
 
     private IEnumerator PlayAnimationState(int stateHash)
@@ -642,7 +642,15 @@ public class PlayerController : PlayerGameplayPawn
 
         if (_isUltimateFrozen)
         {
-            direction = Vector2.zero;
+            _lastMoveDirection = Vector2.zero;
+            if (walkSoundLoop != -1)
+            {
+                AudioSystem.StopLoop(walkSoundLoop);
+                walkSoundLoop = -1;
+            }
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+            return;
         }
 
         // RETROFIT: From OnMove
