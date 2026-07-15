@@ -489,8 +489,12 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            Vector2 facingDirection = weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
-            _dashCoroutine = StartCoroutine(DashCoroutine(facingDirection.normalized));
+            // Prefer the movement joystick's current direction so this can't get dragged into an
+            // enemy the weapon indicator has auto-locked onto; only fall back to facing when idle.
+            Vector2 dashDirection = _lastMoveDirection.sqrMagnitude > 0.001f
+                ? _lastMoveDirection
+                : (weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up);
+            _dashCoroutine = StartCoroutine(DashCoroutine(dashDirection.normalized));
         }
     }
 

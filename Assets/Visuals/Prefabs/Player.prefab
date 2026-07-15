@@ -5392,7 +5392,7 @@ MonoBehaviour:
   playerDirectionReference: {fileID: 3864638014259052123}
   weaponIndicator: {fileID: 9158325853920699210}
   playerRenderer: {fileID: 8489099556410545801}
-  projectileSpeed: 20
+  projectileSpeed: 16
   swordCatchRadius: 2
   iFrameDuration: 1
   iFrameBlinkInterval: 0.1
@@ -5415,7 +5415,7 @@ MonoBehaviour:
     - Key: 1
       Value: {fileID: 7239837464341167353, guid: d12525de1f4188a4c88e957c0ff845ef, type: 3}
   recallParticles: {fileID: 5407275584140350040}
-  recallTime: 0.1
+  recallTime: 0.2
   recallSpeed: 30
   recallMaxDuration: 3
 --- !u!114 &755102423431142018

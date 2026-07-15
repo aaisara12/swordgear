@@ -445,7 +445,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 1106902424761290458, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: spinSpeed
-      value: 12
+      value: 20
       objectReference: {fileID: 0}
     - target: {fileID: 2387851173567323624, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: baseDamage
