@@ -77,13 +77,13 @@ public class GameManager : MonoBehaviour
         AudioSystem.PlayLoop(AudioSystem.Sound.BGM);  // TODO: put this logic in a place where we can control the background music better (fading in different tracks, etc.)
     }
 
-    public void DisplayDamageUI(Vector3 position, float amt)
+    public void DisplayDamageUI(Vector3 position, float amt, Element? elementOverride = null)
     {
         if (!damageUI) return;
 
         GameObject ui = PrefabPool.Instance!.Spawn(damageUI, position, Quaternion.identity);
 
-        ui.GetComponent<DamageUI>().ShowNumber(amt, currentElement);
+        ui.GetComponent<DamageUI>().ShowNumber(amt, elementOverride ?? currentElement);
     }
 
     public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)

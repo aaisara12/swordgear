@@ -136,10 +136,10 @@ public class EnemyController : MonoBehaviour
     /// Deal damage to this enemy. <paramref name="applyImpactFeel"/> gates knockback + hit-stop so passive
     /// damage-over-time ticks and mass-cleanup kills don't jerk enemies or freeze the game.
     /// </summary>
-    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true)
+    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true, Element? damageElementOverride = null)
     {
         if (GameManager.Instance)
-            GameManager.Instance.DisplayDamageUI(transform.position, damage);
+            GameManager.Instance.DisplayDamageUI(transform.position, damage, damageElementOverride);
 
         OnAnyEnemyHit?.Invoke(this, damage, moveType);
 

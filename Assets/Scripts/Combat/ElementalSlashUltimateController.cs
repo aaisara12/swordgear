@@ -89,7 +89,7 @@ public class ElementalSlashUltimateController : MonoBehaviour
                 ? GameManager.Instance.CalculateDamage(enemy.element, slash.element, baseDamage)
                 : baseDamage;
 
-            enemy.TakeDamage(damage, moveType);
+            enemy.TakeDamage(damage, moveType, damageElementOverride: slash.element);
         }
     }
 }
