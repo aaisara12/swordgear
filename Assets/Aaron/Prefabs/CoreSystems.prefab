@@ -278,7 +278,7 @@ MonoBehaviour:
   thrustDistance: 1.5
   meleeCooldown: 0.15
   cleaveEffectObject: {fileID: 7629752438906148674, guid: 2fb956f3d9d854547882cdf227068efd, type: 3}
-  cleaveRadius: 2.5
+  cleaveRadius: 3
   cleaveDuration: 0.4
 --- !u!1 &3925378626850400808
 GameObject:
@@ -522,7 +522,7 @@ MonoBehaviour:
   strongHitBonusDmg: 10
   chillDuration: 5
   cleaveEffectObject: {fileID: 6798840966112144939, guid: bc77e84f4ff291147b7aa7dc91398ffa, type: 3}
-  cleaveRadius: 2.5
+  cleaveRadius: 3
   cleaveDuration: 0.4
 --- !u!1 &5018969045373207494
 GameObject:
