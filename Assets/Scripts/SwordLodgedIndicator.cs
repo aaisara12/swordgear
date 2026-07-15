@@ -14,6 +14,10 @@ public class SwordLodgedIndicator : MonoBehaviour
     [Header("Anchors")]
     [Tooltip("Local offset toward the grip (along -transform.up). Particles and tether end use this; catch ring uses pivot.")]
     [SerializeField] private Vector2 hiltLocalOffset = new Vector2(0f, -0.35f);
+    [Tooltip("Local offset to the blade tip (along +transform.up) where the wall-impact VFX spawns.")]
+    [SerializeField] private Vector2 tipLocalOffset = new Vector2(0f, 0.5f);
+    [Tooltip("Raises the lodged hilt FX in WORLD/screen up (independent of the sword's angle).")]
+    [SerializeField] private float hiltFxWorldRaise = 0.25f;
 
     [Header("Proximity")]
     [SerializeField] private float maxTetherRange = 4f;
@@ -44,6 +48,8 @@ public class SwordLodgedIndicator : MonoBehaviour
     public bool IsActive => _isActive;
 
     public Vector2 HiltWorldPosition => transform.TransformPoint(hiltLocalOffset);
+
+    public Vector2 TipWorldPosition => transform.TransformPoint(tipLocalOffset);
 
     public Vector2 PivotWorldPosition => transform.position;
 
@@ -104,7 +110,7 @@ public class SwordLodgedIndicator : MonoBehaviour
             GameObject instance = Instantiate(hiltFxPrefab, transform);
             instance.name = "LodgedHiltFX";
             _hiltFxRoot = instance.transform;
-            _hiltFxRoot.localPosition = hiltLocalOffset;
+            PlaceHiltFx();
             _hiltFxRoot.gameObject.SetActive(false);
         }
 
@@ -144,6 +150,38 @@ public class SwordLodgedIndicator : MonoBehaviour
         return renderer;
     }
 
+    static Texture2D? _hiltDotTexture;
+
+    // Soft round glow dot (radial alpha falloff) so particles read as embers, not squares.
+    static Texture2D SoftDotTexture()
+    {
+        if (_hiltDotTexture != null)
+        {
+            return _hiltDotTexture;
+        }
+
+        const int size = 32;
+        Texture2D tex = new Texture2D(size, size, TextureFormat.RGBA32, false) { wrapMode = TextureWrapMode.Clamp };
+        Vector2 c = new Vector2((size - 1) * 0.5f, (size - 1) * 0.5f);
+        float r = size * 0.5f;
+        Color32[] px = new Color32[size * size];
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float d = Vector2.Distance(new Vector2(x, y), c) / r;
+                float a = Mathf.Clamp01(1f - d);
+                a *= a; // soft falloff toward the edge
+                px[y * size + x] = new Color32(255, 255, 255, (byte)(a * 255f));
+            }
+        }
+
+        tex.SetPixels32(px);
+        tex.Apply();
+        _hiltDotTexture = tex;
+        return tex;
+    }
+
     Transform CreateRuntimeHiltFx()
     {
         GameObject root = new GameObject("LodgedHiltFX");
@@ -151,22 +189,51 @@ public class SwordLodgedIndicator : MonoBehaviour
         root.transform.localPosition = hiltLocalOffset;
 
         ParticleSystem ps = root.AddComponent<ParticleSystem>();
+
         var main = ps.main;
         main.loop = true;
-        main.startLifetime = 0.45f;
-        main.startSpeed = 0.35f;
-        main.startSize = 0.08f;
-        main.maxParticles = 24;
+        main.startLifetime = 0.75f;
+        main.startSpeed = 0.7f;
+        main.startSize = new ParticleSystem.MinMaxCurve(0.22f, 0.45f); // big, clearly visible embers
+        main.maxParticles = 90;
+        main.gravityModifier = -0.3f;     // rise well up off the hilt
         main.simulationSpace = ParticleSystemSimulationSpace.World;
 
         var emission = ps.emission;
-        emission.rateOverTime = 8f;
+        emission.rateOverTime = 18f;
 
         var shape = ps.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
-        shape.radius = 0.08f;
+        shape.radius = 0.16f;
+
+        // Fade in fast then out over life for a soft glow (particle startColor is tinted per element elsewhere).
+        var col = ps.colorOverLifetime;
+        col.enabled = true;
+        Gradient grad = new Gradient();
+        grad.SetKeys(
+            new[] { new GradientColorKey(Color.white, 0f), new GradientColorKey(Color.white, 1f) },
+            new[]
+            {
+                new GradientAlphaKey(0f, 0f),
+                new GradientAlphaKey(1f, 0.25f),
+                new GradientAlphaKey(0f, 1f)
+            });
+        col.color = new ParticleSystem.MinMaxGradient(grad);
+
+        // Shrink as they rise so they twinkle out.
+        var sol = ps.sizeOverLifetime;
+        sol.enabled = true;
+        sol.size = new ParticleSystem.MinMaxCurve(1f, AnimationCurve.EaseInOut(0f, 1f, 1f, 0f));
 
         var renderer = ps.GetComponent<ParticleSystemRenderer>();
+        // Runtime ParticleSystems have NO material (Unity draws magenta). Use the URP-safe sprite shader with
+        // a soft dot so the hilt reads as glowing embers; bright element colours bloom via the arena post-FX.
+        Shader particleShader = Shader.Find("Sprites/Default");
+        if (particleShader != null)
+        {
+            Material mat = new Material(particleShader) { mainTexture = SoftDotTexture() };
+            renderer.material = mat;
+        }
         renderer.sortingOrder = 48;
 
         root.SetActive(false);
@@ -214,10 +281,10 @@ public class SwordLodgedIndicator : MonoBehaviour
         _isActive = true;
         _pulsePhase = 0f;
 
-        Vector3 impactPos = contactPoint.HasValue
-            ? (Vector3)contactPoint.Value
-            : transform.position;
-        SpawnStickImpact(impactPos);
+        // Spawn the impact at the blade TIP (following the sword's rotation + embedded position), not the
+        // collider contact point — the contact point lands wherever the collider edges touched, which reads
+        // as off from where the blade actually meets the wall.
+        SpawnStickImpact(TipWorldPosition);
         PlayStickSound();
         OnSwordLodged?.Invoke();
 
@@ -345,7 +412,8 @@ public class SwordLodgedIndicator : MonoBehaviour
         swordSprite.color = color;
     }
 
-    void UpdateHiltFxIntensity(float intensity)
+    // Places the hilt FX at the grip, then lifts it in WORLD up (screen up) regardless of the sword's angle.
+    void PlaceHiltFx()
     {
         if (_hiltFxRoot == null)
         {
@@ -353,6 +421,22 @@ public class SwordLodgedIndicator : MonoBehaviour
         }
 
         _hiltFxRoot.localPosition = hiltLocalOffset;
+        if (!Mathf.Approximately(hiltFxWorldRaise, 0f))
+        {
+            Vector3 p = _hiltFxRoot.position;
+            p.y += hiltFxWorldRaise;
+            _hiltFxRoot.position = p;
+        }
+    }
+
+    void UpdateHiltFxIntensity(float intensity)
+    {
+        if (_hiltFxRoot == null)
+        {
+            return;
+        }
+
+        PlaceHiltFx();
         foreach (ParticleSystem ps in _hiltFxRoot.GetComponentsInChildren<ParticleSystem>(true))
         {
             var emission = ps.emission;
@@ -443,7 +527,7 @@ public class SwordLodgedIndicator : MonoBehaviour
             return;
         }
 
-        _hiltFxRoot.localPosition = hiltLocalOffset;
+        PlaceHiltFx();
         _hiltFxRoot.gameObject.SetActive(true);
 
         foreach (ParticleSystem ps in _hiltFxRoot.GetComponentsInChildren<ParticleSystem>(true))

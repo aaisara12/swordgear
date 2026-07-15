@@ -56,6 +56,8 @@ public class SwordProjectile : MonoBehaviour
     [Header("Terrain")]
     [SerializeField] private LayerMask terrainLayers;
     [SerializeField] private string gearPhysicsLayer = "Gear";
+    [Tooltip("How far the blade sinks into the wall on impact so it reads as lodged, not floating at the surface.")]
+    [SerializeField] private float wallEmbedDepth = 0.28f;
 
     [Header("Lightning Projectile")]
     [SerializeField] GameObject lightningPrefab;
@@ -355,6 +357,10 @@ public class SwordProjectile : MonoBehaviour
         swingTrail.Stop();
         StopSwingRibbon();
         isFlying = false;
+        // Sink the blade a touch further along its travel direction so it looks driven INTO the wall rather
+        // than stopped at the surface (the trigger fires when the collider edges first touch). The impact VFX
+        // still spawns at the surface contact point below.
+        transform.position += (Vector3)((Vector2)transform.up * wallEmbedDepth);
         Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), true);
         lodgedIndicator?.OnLodged(contactPoint);
     }
