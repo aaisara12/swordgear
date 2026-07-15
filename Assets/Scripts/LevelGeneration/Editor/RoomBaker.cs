@@ -270,6 +270,17 @@ public static class RoomBaker
             var tmGO = new GameObject("WallTilemap");
             tmGO.transform.SetParent(gridGO.transform);
             tmGO.transform.localPosition = Vector3.zero;
+            // aisara => Walls must be on Arena so SwordProjectile.terrainLayers can lodge on hit
+            // and IgnoreLayerCollision can let recalls clip through (same contract as hand-built arenas).
+            int arenaLayer = LayerMask.NameToLayer("Arena");
+            if (arenaLayer < 0)
+            {
+                Debug.LogError("RoomBaker: 'Arena' physics layer is missing; walls will not interact with the sword correctly.");
+            }
+            else
+            {
+                tmGO.layer = arenaLayer;
+            }
             Tilemap tilemap = tmGO.AddComponent<Tilemap>();
             tmGO.AddComponent<TilemapRenderer>();
             tmGO.AddComponent<TilemapCollider2D>();
