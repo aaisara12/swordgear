@@ -35,10 +35,22 @@ public class EnemyController : MonoBehaviour
     private const float KnockbackMax = 6.3f;
     private const float KnockbackDuration = 0.12f;   // game-time window where movement is suppressed
 
+    // Screen shake (centralised here so every damage source — melee, ranged, all elements — shakes
+    // consistently and scales by damage, instead of a flat identical shake at each weapon call site).
+    private const float ShakeDamageMin = 5f;         // damage that maps to the smallest hit shake
+    private const float ShakeDamageMax = 30f;        // damage at/above which the hit shake maxes out
+    private const float ShakeHitForceMin = 0.15f;
+    private const float ShakeHitForceMax = 0.45f;
+    private const float ShakeKillForce = 0.7f;       // base kill kick
+    private const float ShakeKillHpDivisor = 60f;    // + up to ShakeKillBonusMax more, scaled by spawn HP
+    private const float ShakeKillBonusMax = 0.8f;    // so tanky/elite kills kick harder (no elite flag needed)
+
     private SpriteRenderer[]? _sprites;
     private Material?[]? _origMats;
     private Coroutine? _flashRoutine;
     private float _knockbackTimer;
+    private Vector2 _lastHitDir = Vector2.down;      // direction the last hit knocked this enemy (shake bias)
+    private float _spawnHp = 1f;                      // HP at spawn (post-modifiers) — scales the kill shake
     private static Material? _flashMat;
 
     /// <summary>
@@ -93,6 +105,10 @@ public class EnemyController : MonoBehaviour
         {
             _flashMat = Resources.Load<Material>("EnemyFlash");
         }
+
+        // Spawn modifiers (incl. elite HP boost) have already been applied, so this captures the effective
+        // max HP — used to make tankier/elite kills kick the camera harder.
+        _spawnHp = Mathf.Max(1f, hp);
     }
 
     private void FixedUpdate()
@@ -160,6 +176,7 @@ public class EnemyController : MonoBehaviour
         {
             ApplyKnockback(damage);
             HitStop.Do(HitStopHitSeconds);
+            ShakeForHit(damage);
         }
     }
 
@@ -168,6 +185,9 @@ public class EnemyController : MonoBehaviour
         if (impactFeel)
         {
             HitStop.Do(HitStopKillSeconds);
+            // Tankier / elite enemies (higher spawn HP) kick the camera harder on death.
+            float killForce = ShakeKillForce + Mathf.Min(_spawnHp / ShakeKillHpDivisor, ShakeKillBonusMax);
+            Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake(killForce);
         }
 
         // Global death event for systems that care about any enemy death.
@@ -244,9 +264,24 @@ public class EnemyController : MonoBehaviour
         }
 
         dir = dir.sqrMagnitude < 0.0001f ? Vector2.up : dir.normalized;
+        _lastHitDir = dir;
 
         float force = Mathf.Clamp(KnockbackBase + damage * KnockbackPerDamage, KnockbackBase, KnockbackMax);
         rb.linearVelocity = dir * force;
         _knockbackTimer = KnockbackDuration;
+    }
+
+    /// <summary>
+    /// Damage-scaled camera kick, biased toward the direction the enemy was knocked so hits don't all read
+    /// the same. Runs on every impactful hit — melee, ranged, all elements — now that shake is centralised.
+    /// </summary>
+    private void ShakeForHit(float damage)
+    {
+        float t = Mathf.InverseLerp(ShakeDamageMin, ShakeDamageMax, damage);
+        float force = Mathf.Lerp(ShakeHitForceMin, ShakeHitForceMax, t);
+
+        // Mostly downward (reads as a shake, not a directional push) with only a faint nudge toward the hit.
+        Vector3 dir = Vector3.down + (Vector3)(_lastHitDir * 0.15f);
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake(force, dir);
     }
 }

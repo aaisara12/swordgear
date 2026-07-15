@@ -180,7 +180,6 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage()),
             new MoveType(Element.Lightning, AttackKind.MeleeStrike));
         if (lightningActive && upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
