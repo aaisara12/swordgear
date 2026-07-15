@@ -220,11 +220,8 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        SpriteRenderer sprite = sword.sprite;
-
-        sword.ToggleSwingTrail(true);
-        sprite.color = Color.red;
-        sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
+        // Blade colour + trail are driven centrally in SwordProjectile.UpdateFlightVisuals now; nothing
+        // element-specific happens on Fire's flight anymore.
     }
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)

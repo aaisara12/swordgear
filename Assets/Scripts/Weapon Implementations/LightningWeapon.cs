@@ -192,7 +192,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        sword.sprite.color = Color.cyan;
+        sword.sprite.color = ElementVisuals.GetColor(Element.Lightning); // was Color.cyan (Ice's colour) — a thrown Lightning sword looked like Ice
     }
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
