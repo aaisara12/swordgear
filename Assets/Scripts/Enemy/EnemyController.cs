@@ -53,6 +53,21 @@ public class EnemyController : MonoBehaviour
     private float _spawnHp = 1f;                      // HP at spawn (post-modifiers) — scales the kill shake
     private static Material? _flashMat;
 
+    // Attack telegraph: a smooth RED warning pulse while a charging attacker (ranged/shotgun/beam) winds up,
+    // so an incoming shot reads on a busy screen. Uses the sprite COLOUR channel — deliberately distinct from
+    // the white hit-flash (which swaps the material) so "winding up" never looks like "just got hit".
+    private const float TelegraphPulseHz = 2.5f;                          // warning pulse speed
+    private static readonly Color TelegraphWarnColor = new(1f, 0.3f, 0.1f, 1f);
+    private IChargingAttackStrategy? _chargingAttack;
+    private Color[]? _baseColors;
+    private bool _wasCharging;
+
+    // Charge-up glow aura (Resources/EnemyChargeGlow), shown behind the enemy while it winds up — reinforces
+    // the red tint pulse with a gathering-energy read. Loaded once, instanced per enemy, toggled on/off.
+    private static GameObject? _chargeGlowPrefab;
+    private static bool _chargeGlowLoaded;
+    private GameObject? _chargeGlow;
+
     /// <summary>
     /// Applies difficulty / elemental / elite spawn multipliers.
     /// Call immediately after Instantiate, before the enemy acts.
@@ -96,9 +111,11 @@ public class EnemyController : MonoBehaviour
         // multiplies colour and can't brighten to white on its own).
         _sprites = GetComponentsInChildren<SpriteRenderer>(true);
         _origMats = new Material?[_sprites.Length];
+        _baseColors = new Color[_sprites.Length];
         for (int i = 0; i < _sprites.Length; i++)
         {
             _origMats[i] = _sprites[i] != null ? _sprites[i].sharedMaterial : null;
+            _baseColors[i] = _sprites[i] != null ? _sprites[i].color : Color.white;
         }
 
         if (_flashMat == null)
@@ -109,6 +126,112 @@ public class EnemyController : MonoBehaviour
         // Spawn modifiers (incl. elite HP boost) have already been applied, so this captures the effective
         // max HP — used to make tankier/elite kills kick the camera harder.
         _spawnHp = Mathf.Max(1f, hp);
+
+        // Charging attackers drive a wind-up telegraph (ranged/shotgun/beam).
+        _chargingAttack = GetComponent<IChargingAttackStrategy>();
+    }
+
+    private void Update()
+    {
+        // Telegraph: pulse a red warning colour while a charging attacker winds up, so ranged/shotgun/beam
+        // shots read as "incoming". Edge-restore the base colour when the charge ends (fired or cancelled).
+        if (_chargingAttack == null)
+        {
+            return;
+        }
+
+        bool charging = _chargingAttack.IsCharging;
+        if (charging)
+        {
+            PulseTelegraph();
+        }
+        else if (_wasCharging)
+        {
+            RestoreTelegraph();
+        }
+
+        _wasCharging = charging;
+    }
+
+    private void PulseTelegraph()
+    {
+        if (_sprites == null || _baseColors == null)
+        {
+            return;
+        }
+
+        // Smooth 0..1 pulse (cosine, no harsh on/off), lerp the sprite toward a bright warning red. Bright
+        // red pops under the scene bloom so it reads as a glow, not just a recolour.
+        float t = 0.5f - 0.5f * Mathf.Cos(Time.time * TelegraphPulseHz * 2f * Mathf.PI);
+        for (int i = 0; i < _sprites.Length; i++)
+        {
+            if (_sprites[i] != null)
+            {
+                _sprites[i].color = Color.Lerp(_baseColors[i], TelegraphWarnColor, t);
+            }
+        }
+
+        EnsureChargeGlow();
+        if (_chargeGlow != null && !_chargeGlow.activeSelf)
+        {
+            _chargeGlow.SetActive(true);
+        }
+    }
+
+    private void EnsureChargeGlow()
+    {
+        if (_chargeGlow != null)
+        {
+            return;
+        }
+
+        if (!_chargeGlowLoaded)
+        {
+            _chargeGlowPrefab = Resources.Load<GameObject>("EnemyChargeGlow");
+            _chargeGlowLoaded = true;
+        }
+
+        if (_chargeGlowPrefab == null)
+        {
+            return;
+        }
+
+        _chargeGlow = Instantiate(_chargeGlowPrefab, transform);
+        _chargeGlow.transform.localPosition = Vector3.zero;
+
+        // Sit the aura just behind the enemy's own sprite.
+        if (_sprites != null && _sprites.Length > 0 && _sprites[0] != null)
+        {
+            ParticleSystemRenderer? pr = _chargeGlow.GetComponent<ParticleSystemRenderer>();
+            if (pr != null)
+            {
+                pr.sortingLayerID = _sprites[0].sortingLayerID;
+                pr.sortingOrder = _sprites[0].sortingOrder - 1;
+            }
+        }
+
+        _chargeGlow.SetActive(false);
+    }
+
+    private void RestoreTelegraph()
+    {
+        if (_sprites == null || _baseColors == null)
+        {
+            return;
+        }
+
+        for (int i = 0; i < _sprites.Length; i++)
+        {
+            if (_sprites[i] != null)
+            {
+                _sprites[i].color = _baseColors[i];
+            }
+        }
+
+        if (_chargeGlow != null && _chargeGlow.activeSelf)
+        {
+            _chargeGlow.SetActive(false);
+        }
     }
 
     private void FixedUpdate()
