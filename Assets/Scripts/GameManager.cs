@@ -91,6 +91,15 @@ public class GameManager : MonoBehaviour
 
     public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)
     {
+        // Attunement augment: attacks deal NO damage to a same-element target — both directions, since this one
+        // method serves player->enemy and enemy->player damage.
+        if (attackerElement == defenderElement
+            && ElementManager.Instance != null
+            && ElementManager.Instance.HasUpgrade(UpgradeType.Nonelemental_Attunement))
+        {
+            return 0f;
+        }
+
         // add multipliers in the future
         float finalDamage = baseDamage;
         //// Apply all embue multipliers

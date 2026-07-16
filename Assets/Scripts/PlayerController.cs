@@ -232,6 +232,53 @@ public class PlayerController : PlayerGameplayPawn
         return _lastFacingDir.sqrMagnitude > 0.001f ? _lastFacingDir.normalized : Vector2.up;
     }
 
+    // Thunderstep augment: instead of dashing, blink to the thrown sword and immediately catch it — which
+    // fires the element's cleave (FinishRecall -> ElementManager.Cleave) and returns the sword to the player.
+    // Returns true if the teleport happened (so the caller skips the normal dash).
+    private bool TryThunderstepToSword()
+    {
+        if (playerState != PlayerState.SwordThrown)
+        {
+            return false;
+        }
+
+        if (ElementManager.Instance == null || !ElementManager.Instance.HasUpgrade(UpgradeType.Lightning_Thunderstep))
+        {
+            return false;
+        }
+
+        SwordProjectile? sword = SwordProjectile.Instance;
+        if (sword == null || !sword.gameObject.activeSelf)
+        {
+            return false;
+        }
+
+        // A hold-recall already resolves the catch on arrival; don't fight it (would double-cleave).
+        CancelRecallChannel();
+        if (sword.IsRecalling)
+        {
+            return false;
+        }
+
+        _dashCooldownRemaining = dashCooldown;                 // parity with the dash it replaces
+        AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+        SpawnAfterimage();                                     // ghost left at the launch point reads as a blink
+
+        transform.position = sword.transform.position;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // Brief i-frames so blinking into a pack isn't an instant hit (the cleave clears most of it anyway).
+        _iFrameRemaining = Mathf.Max(_iFrameRemaining, 0.3f);
+
+        // Guarantee the auto-catch gate passes even on a throw-then-instant-blink, then catch now (cleave + pickup).
+        _swordHasLeftCatchRadius = true;
+        CatchSword();
+        return true;
+    }
+
     // Fading ghost silhouette of the player body, tinted to the live element — the dash's motion echo.
     private void SpawnAfterimage()
     {
@@ -585,7 +632,10 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
+            if (!TryThunderstepToSword())
+            {
+                _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
+            }
         }
     }
 
@@ -682,7 +732,10 @@ public class PlayerController : PlayerGameplayPawn
         {
             // Aimed dash (right-stick hold-drag): honour the explicit aim direction. GetDashDirection() is
             // only for the no-aim tap-dash — here the player is actively steering the dash.
-            _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
+            if (!TryThunderstepToSword())
+            {
+                _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
+            }
         }
     }
 

@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public enum UpgradeType
 {
     // Every upgrade should be named in the format <element-name>_<upgrade-name>
+    // NOTE: serialized by integer index in store-item assets — APPEND new values, never insert.
     Nonelemental_DemoUpgrade,
     Ice_EmpowerMelee,
     Ice_RangedChill,
@@ -15,6 +16,8 @@ public enum UpgradeType
     Fire_RangedBurn,
     Lightning_DashStrike,
     Lightning_ApplyStatic,
+    Lightning_Thunderstep,        // dash while sword is out -> blink to the sword, cleave + pick it up
+    Nonelemental_Attunement,      // same-element attacks deal 0 damage (both player and enemy side)
 }
 
 public interface IElementalWeapon
