@@ -76,8 +76,8 @@ public class TurretAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             shotsFiredInBurst = 0;
         }
 
-        float distance = Vector2.Distance(transform.position, playerTransform.position);
-        if (distance > attackRange || Time.time < nextAttackTime)
+        // Stationary turret: no range gate — it can't chase, so it snipes the player at any distance.
+        if (Time.time < nextAttackTime)
         {
             return;
         }

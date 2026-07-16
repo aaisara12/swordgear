@@ -678,7 +678,9 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
         {
-            _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
+            // Aimed dash (right-stick hold-drag): honour the explicit aim direction. GetDashDirection() is
+            // only for the no-aim tap-dash — here the player is actively steering the dash.
+            _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
         }
     }
 
