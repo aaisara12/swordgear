@@ -30,6 +30,13 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private float dashCooldown = 1f;
     [SerializeField] private string enemyPhysicsLayer = "Enemies";
 
+    [Header("Dash Juice")]
+    [SerializeField] private float afterimageFadeTime = 0.2f;     // how long each echo lingers
+    [SerializeField] private float afterimageStartAlpha = 0.5f;   // echo opacity at spawn
+    // 4 echoes at these fractions of the dash. Gaps shrink over the dash (0.4, 0.3, 0.2), so the ghosts are
+    // spaced wide at the launch and bunch up toward the end — reads like a decelerating burst.
+    private static readonly float[] AfterimageTimes = { 0f, 0.4f, 0.7f, 0.9f };
+
     [Header("Movement")]
     [SerializeField] private float speed = 3f;
 
@@ -67,6 +74,7 @@ public class PlayerController : PlayerGameplayPawn
     private bool _isDashing = false;
     private Coroutine? _dashCoroutine;
     private Vector2 _lastMoveDirection = Vector2.zero;
+    private Vector2 _lastFacingDir = Vector2.up;   // last non-zero move dir — the dash's fallback when idle
     private bool _swordHasLeftCatchRadius = false;
 
     private bool _isUltimateInvincible = false;
@@ -182,17 +190,94 @@ public class PlayerController : PlayerGameplayPawn
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, true);
 
         float elapsed = 0f;
+        int nextImage = 0;
         while (elapsed < dashDuration)
         {
             rb!.linearVelocity = direction * dashSpeed;
+            while (nextImage < AfterimageTimes.Length && elapsed >= AfterimageTimes[nextImage] * dashDuration)
+            {
+                SpawnAfterimage();
+                nextImage++;
+            }
             elapsed += Time.deltaTime;
             yield return null;
+        }
+
+        while (nextImage < AfterimageTimes.Length) // guarantee all 4 echoes even on a very short dash
+        {
+            SpawnAfterimage();
+            nextImage++;
         }
 
         Physics2D.IgnoreLayerCollision(playerLayer, enemyLayer, false);
         _isDashing = false;
         _dashCoroutine = null;
         MoveInDirection(_lastMoveDirection);
+    }
+
+    // The dash goes where the MOVEMENT stick points; with no movement, it goes where the player last faced.
+    // Deliberately ignores the throw aim-assist (which snaps toward the nearest enemy) — dashing should never
+    // yank the player toward an enemy they didn't aim at.
+    private Vector2 GetDashDirection()
+    {
+        if (_lastMoveDirection.sqrMagnitude > 0.001f)
+        {
+            return _lastMoveDirection.normalized;
+        }
+
+        return _lastFacingDir.sqrMagnitude > 0.001f ? _lastFacingDir.normalized : Vector2.up;
+    }
+
+    // Fading ghost silhouette of the player body, tinted to the live element — the dash's motion echo.
+    private void SpawnAfterimage()
+    {
+        if (playerRenderer == null || playerRenderer.sprite == null)
+        {
+            return;
+        }
+
+        var go = new GameObject("DashAfterimage");
+        Transform src = playerRenderer.transform;
+        go.transform.SetPositionAndRotation(src.position, src.rotation);
+        go.transform.localScale = src.lossyScale;
+
+        var sr = go.AddComponent<SpriteRenderer>();
+        sr.sprite = playerRenderer.sprite;
+        sr.flipX = playerRenderer.flipX;
+        sr.flipY = playerRenderer.flipY;
+        sr.sortingLayerID = playerRenderer.sortingLayerID;
+        sr.sortingOrder = playerRenderer.sortingOrder - 1; // just behind the player
+
+        Element el = ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical;
+        Color tint = ElementVisuals.GetGlowColor(el);
+        tint.a = afterimageStartAlpha;
+        sr.color = tint;
+
+        StartCoroutine(FadeAfterimage(sr));
+    }
+
+    private IEnumerator FadeAfterimage(SpriteRenderer sr)
+    {
+        float t = 0f;
+        float startAlpha = sr.color.a;
+        while (t < afterimageFadeTime)
+        {
+            if (sr == null)
+            {
+                yield break;
+            }
+
+            Color c = sr.color;
+            c.a = Mathf.Lerp(startAlpha, 0f, t / afterimageFadeTime);
+            sr.color = c;
+            t += Time.deltaTime;
+            yield return null;
+        }
+
+        if (sr != null)
+        {
+            Destroy(sr.gameObject);
+        }
     }
 
     // aisara => Cancels an in-progress dash and restores the enemy-collision ignore that DashCoroutine toggles,
@@ -495,8 +580,7 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            Vector2 facingDirection = weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
-            _dashCoroutine = StartCoroutine(DashCoroutine(facingDirection.normalized));
+            _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
         }
     }
 
@@ -583,7 +667,7 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
         {
-            _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
+            _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
         }
     }
 
@@ -648,6 +732,7 @@ public class PlayerController : PlayerGameplayPawn
                 walkSoundLoop = AudioSystem.PlayLoop(AudioSystem.Sound.Player_Walking);
             }
 
+            _lastFacingDir = direction.normalized;
             weaponIndicator?.SetMoveFallbackDirection(direction);
         }
         else
