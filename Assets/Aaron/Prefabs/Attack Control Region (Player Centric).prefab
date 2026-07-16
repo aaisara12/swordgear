@@ -136,7 +136,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0.0047169924, b: 0.0047169924, a: 1}
+  m_Color: {r: 0.55, g: 0.55, b: 0.55, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -498,7 +498,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 7482667652216324306, guid: 48e93eef0688c4a259cb0eddcd8661f7, type: 3}
+  m_Sprite: {fileID: -7559798307494053763, guid: 929ecacc45d6347abba712b69edd3be2, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -788,7 +788,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Main::AttackJoystickImbueIndicator
   iconImage: {fileID: 8348080972069032173}
-  attackIconSprite: {fileID: -4595611934606938456, guid: b547d469b6437483fa4d1169c32c0419, type: 3}
+  attackIconSprite: {fileID: -7559798307494053763, guid: 929ecacc45d6347abba712b69edd3be2, type: 3}
   dashIconSprite: {fileID: 21300000, guid: 269d0adec98441349b057e8673021bc0, type: 3}
+  knobBackingSprite: {fileID: -1710961190818768919, guid: 4e7829d048ea6436a98267d8422f6bf0, type: 3}
+  knobImage: {fileID: 6538003213827653658}
   imbueBorder: {fileID: 1995915782623287117}
   inactiveBorderColor: {r: 1, g: 1, b: 1, a: 0}
+  inactiveKnobColor: {r: 0.55, g: 0.55, b: 0.55, a: 1}
+  dashIconScale: 0.55

@@ -220,6 +220,76 @@ MonoBehaviour:
   inputManager: {fileID: 7203599953307044813}
   spawnPawnAtLocationEventChannel: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}
   baseMaxHp: 500
+--- !u!1 &2808173134471561784
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3188503388509383987}
+  - component: {fileID: 6824312504684377404}
+  m_Layer: 0
+  m_Name: Wind
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3188503388509383987
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2808173134471561784}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4815673249366981286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6824312504684377404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2808173134471561784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51cd2905544d62746917be8994d28111, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::WindWeapon
+  weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
+  swingDuration: 0.3
+  distanceFromPlayer: 0.5
+  animName: EnergySwipe
+  effectObject: {fileID: 2325353192704701246, guid: a3dee1705f267694ab830e809fa6f1c6, type: 3}
+  attackRadius: 3
+  dashFactor: 0.2
+  meleeCooldown: 0.25
+  cleaveEffectObject: {fileID: 7437199953995764964, guid: 26e73632f695dd648a525f4867928509, type: 3}
+  cleaveRadius: 3
+  cleaveDuration: 0.4
+  maxWindCharges: 2
+  wispEffectPrefab: {fileID: 5943037512361198043, guid: abe8edd0a5ccac14885160cd4de1d301, type: 3}
+  wispBaseRadius: 1.5
+  wispRadiusPerCharge: 0.4
+  wispBaseDamageMultiplier: 0.3
+  wispDamageMultiplierPerCharge: 0.15
+  wispTickInterval: 0.4
+  wispBaseDuration: 1.5
+  wispDurationPerCharge: 0.5
+  tornadoEffectPrefab: {fileID: 4103213308485462041, guid: 6d2c811d5afbc4143b0ecb335aef4f8d, type: 3}
+  tornadoRadius: 4
+  tornadoDamageMultiplier: 1.2
+  tornadoTickInterval: 0.35
+  tornadoDuration: 4
+  tornadoPullForce: 4.5
 --- !u!1 &3535113181673445424
 GameObject:
   m_ObjectHideFlags: 0
@@ -968,6 +1038,7 @@ Transform:
   - {fileID: 4391190340003022578}
   - {fileID: 8649689702465357832}
   - {fileID: 1851117990950764812}
+  - {fileID: 3188503388509383987}
   m_Father: {fileID: 4848120501802802916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8073755906317011575
@@ -991,6 +1062,8 @@ MonoBehaviour:
     weapon: {fileID: 2053428891277870805}
   - element: 2
     weapon: {fileID: 7744698468929616165}
+  - element: 4
+    weapon: {fileID: 6824312504684377404}
 --- !u!1 &8056026369581769779
 GameObject:
   m_ObjectHideFlags: 0

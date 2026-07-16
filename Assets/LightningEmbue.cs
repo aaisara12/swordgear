@@ -9,7 +9,7 @@ public class LightningEmbue : Embue
 
     private void Start()
     {
-        damageMultiplier = 1.2f;
-        effectDuration = 30f;
+        //damageMultiplier = 1.2f;
+        //effectDuration = 30f;
     }
 }

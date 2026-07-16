@@ -682,7 +682,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   embueType: 1
   effectDuration: 5
-  damageMultiplier: 0
+  damageMultiplier: 1.2
   burnDuration: 3
   burnDPS: 5
 --- !u!1 &8772874478239291164

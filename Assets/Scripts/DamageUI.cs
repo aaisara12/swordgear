@@ -58,6 +58,12 @@ public class DamageUI : MonoBehaviour
                 effect = effectObject.GetComponent<IAttackAnimator>();
                 break;
 
+            case Element.Wind:
+                color = new Color(0.56f, 0.93f, 0.56f, 1f);
+                effectObject = PrefabPool.Instance!.Spawn(physicalHitEffect, transform.position, Quaternion.identity);
+                effect = effectObject.GetComponent<IAttackAnimator>();
+                break;
+
             default:
                 color = Color.white;
                 effectObject = PrefabPool.Instance!.Spawn(physicalHitEffect, transform.position, Quaternion.identity);

@@ -10,8 +10,10 @@ public class PlayerController : PlayerGameplayPawn
     [Header("References")]
     [SerializeField] private Transform? playerDirectionReference;  // Need this since we are no longer turning the player object when moving
     [SerializeField] private PlayerWeaponIndicator? weaponIndicator;
+    [SerializeField] private PlayerAimIndicator? aimIndicator;
     [SerializeField] private SpriteRenderer? playerRenderer;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
+    public float DashDistance => dashSpeed * dashDuration;
     
     [Header("Combat")]
     [SerializeField] private float projectileSpeed = 5f;
@@ -97,9 +99,9 @@ public class PlayerController : PlayerGameplayPawn
 
     public IEnumerator PlayAppearAndShow()
     {
-        yield return PlayAnimationState(AnimUltAppearHash);
         if (playerRenderer != null)
             playerRenderer.enabled = true;
+        yield return PlayAnimationState(AnimUltAppearHash);
     }
 
     private IEnumerator PlayAnimationState(int stateHash)
@@ -560,6 +562,14 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         weaponIndicator?.UpdateThrowAim(direction);
+
+        if (direction.sqrMagnitude > 0.001f && aimIndicator != null)
+        {
+            PlayerAimIndicator.AimMode mode = IsSwordOut
+                ? PlayerAimIndicator.AimMode.Dash
+                : PlayerAimIndicator.AimMode.SwordThrow;
+            aimIndicator.SetAim(direction, mode);
+        }
     }
 
     public override void DoAimedAttackInDirection(Vector2 direction)
@@ -589,6 +599,7 @@ public class PlayerController : PlayerGameplayPawn
     public override void StopAiming()
     {
         weaponIndicator?.EndThrowAim();
+        aimIndicator?.Clear();
     }
 
     int walkSoundLoop = -1;
@@ -631,7 +642,15 @@ public class PlayerController : PlayerGameplayPawn
 
         if (_isUltimateFrozen)
         {
-            direction = Vector2.zero;
+            _lastMoveDirection = Vector2.zero;
+            if (walkSoundLoop != -1)
+            {
+                AudioSystem.StopLoop(walkSoundLoop);
+                walkSoundLoop = -1;
+            }
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+            return;
         }
 
         // RETROFIT: From OnMove
@@ -705,6 +724,7 @@ public class PlayerController : PlayerGameplayPawn
 
         // Reset facing/aim to a default.
         weaponIndicator?.EndThrowAim();
+        aimIndicator?.Clear();
         transform.up = Vector2.up;
 
         SetAnimationState(AnimIdleHash);

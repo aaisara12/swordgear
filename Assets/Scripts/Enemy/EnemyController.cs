@@ -136,10 +136,10 @@ public class EnemyController : MonoBehaviour
     /// Deal damage to this enemy. <paramref name="applyImpactFeel"/> gates knockback + hit-stop so passive
     /// damage-over-time ticks and mass-cleanup kills don't jerk enemies or freeze the game.
     /// </summary>
-    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true)
+    public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true, Element? damageElementOverride = null)
     {
         if (GameManager.Instance)
-            GameManager.Instance.DisplayDamageUI(transform.position, damage);
+            GameManager.Instance.DisplayDamageUI(transform.position, damage, damageElementOverride);
 
         OnAnyEnemyHit?.Invoke(this, damage, moveType);
 
@@ -223,6 +223,27 @@ public class EnemyController : MonoBehaviour
         }
 
         _flashRoutine = null;
+    }
+
+    /// <summary>
+    /// External pull toward a point (e.g. a wind vortex), reusing the knockback coast window so
+    /// normal movement is suppressed while the pull plays out.
+    /// </summary>
+    public void ApplyPull(Vector2 towardPosition, float force)
+    {
+        if (rb == null)
+        {
+            return;
+        }
+
+        Vector2 dir = towardPosition - (Vector2)transform.position;
+        if (dir.sqrMagnitude < 0.0001f)
+        {
+            return;
+        }
+
+        rb.linearVelocity = dir.normalized * force;
+        _knockbackTimer = KnockbackDuration;
     }
 
     private void ApplyKnockback(float damage)

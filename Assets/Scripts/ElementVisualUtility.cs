@@ -12,6 +12,8 @@ public static class ElementVisualUtility
                 return new Color(0.35f, 0.88f, 1f, 1f);
             case Element.Lightning:
                 return new Color(1f, 0.92f, 0.2f, 1f);
+            case Element.Wind:
+                return new Color(0.56f, 0.93f, 0.56f, 1f);
             default:
                 return new Color(0.92f, 0.92f, 0.92f, 1f);
         }
