@@ -26,6 +26,13 @@ public abstract class
     public abstract void MoveInDirection(Vector2 direction);
 
     /// <summary>
+    /// The most recent direction passed to <see cref="MoveInDirection"/>, exposed so visual-only
+    /// components (e.g. sprite facing) can react to movement input without depending on the
+    /// concrete pawn implementation.
+    /// </summary>
+    public abstract Vector2 MoveDirection { get; }
+
+    /// <summary>
     /// Resets transient combat/movement state so the pawn is clean when (re)spawned into a node:
     /// stops in-flight weapons, cancels dashes/recalls, clears cooldowns and velocity, and resets facing.
     /// Does not touch health (owned by <see cref="PlayerGameplayManager"/>).

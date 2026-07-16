@@ -264,11 +264,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 51cd2905544d62746917be8994d28111, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::WindWeapon
-  weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
+  weaponCollider: {fileID: 9122065580246906617, guid: 83a30a801a45c3845a942f7046d5739c, type: 3}
   swingDuration: 0.3
   distanceFromPlayer: 0.5
   animName: EnergySwipe
-  effectObject: {fileID: 2325353192704701246, guid: a3dee1705f267694ab830e809fa6f1c6, type: 3}
+  effectObject: {fileID: 2325353192704701246, guid: 2f8c5844573540f42802817f5219ea59, type: 3}
   attackRadius: 3
   dashFactor: 0.2
   meleeCooldown: 0.25
@@ -279,9 +279,9 @@ MonoBehaviour:
   wispEffectPrefab: {fileID: 5943037512361198043, guid: abe8edd0a5ccac14885160cd4de1d301, type: 3}
   wispBaseRadius: 1.5
   wispRadiusPerCharge: 0.4
-  wispBaseDamageMultiplier: 0.3
-  wispDamageMultiplierPerCharge: 0.15
-  wispTickInterval: 0.4
+  wispBaseDamageMultiplier: 0.2
+  wispDamageMultiplierPerCharge: 0.1
+  wispTickInterval: 0.3
   wispBaseDuration: 1.5
   wispDurationPerCharge: 0.5
   tornadoEffectPrefab: {fileID: 4103213308485462041, guid: 6d2c811d5afbc4143b0ecb335aef4f8d, type: 3}
@@ -289,7 +289,7 @@ MonoBehaviour:
   tornadoDamageMultiplier: 1.2
   tornadoTickInterval: 0.35
   tornadoDuration: 4
-  tornadoPullForce: 4.5
+  tornadoPullForce: 8
 --- !u!1 &3535113181673445424
 GameObject:
   m_ObjectHideFlags: 0

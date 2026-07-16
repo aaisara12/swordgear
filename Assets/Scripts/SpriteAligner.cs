@@ -7,15 +7,14 @@ public class SpriteAligner : MonoBehaviour
 
     // State
     private Quaternion initialWorldRotation;
-    private Vector3 lastPosition;
+    private PlayerGameplayPawn playerPawn;
 
     void Start()
     {
         // Store the starting global rotation
         initialWorldRotation = transform.rotation;
 
-        // Initialize last position
-        lastPosition = transform.position;
+        playerPawn = GetComponentInParent<PlayerGameplayPawn>();
     }
 
     void Update()
@@ -23,18 +22,18 @@ public class SpriteAligner : MonoBehaviour
         // --- Maintain global rotation ---
         transform.rotation = initialWorldRotation;
 
-        // --- Calculate movement ---
-        Vector3 currentPosition = transform.position;
-        Vector3 delta = currentPosition - lastPosition;
-
-        // Only update direction if movement is significant
-        if (delta.sqrMagnitude > movementThreshold * movementThreshold)
+        if (playerPawn == null)
         {
-            Vector3 direction = delta.normalized;
+            return;
+        }
 
+        // --- Flip based on horizontal movement input ---
+        Vector2 direction = playerPawn.MoveDirection;
+
+        if (direction.sqrMagnitude > movementThreshold * movementThreshold)
+        {
             Vector3 scale = transform.localScale;
 
-            // Flip based on horizontal movement
             if (direction.x > 0)
             {
                 scale.x = -Mathf.Abs(scale.x);
@@ -46,8 +45,5 @@ public class SpriteAligner : MonoBehaviour
 
             transform.localScale = scale;
         }
-
-        // Store position for next frame
-        lastPosition = currentPosition;
     }
 }

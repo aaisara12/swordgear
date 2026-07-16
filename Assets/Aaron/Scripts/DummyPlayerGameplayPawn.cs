@@ -16,6 +16,9 @@ namespace Testing
         [SerializeField] private ShootDirectionVisualizer? shootDirectionVisualizer;
         [SerializeField] private PlayerVisual? visual;
 
+        private Vector2 _lastMoveDirection;
+        public override Vector2 MoveDirection => _lastMoveDirection;
+
         private void Awake()
         {
             // TODO: Refactor this once we do game manager refactor - this is here as a hacky way to make the UI read the player movements correctly
@@ -51,6 +54,7 @@ namespace Testing
 
         public override void MoveInDirection(Vector2 direction)
         {
+            _lastMoveDirection = direction;
             mover?.Move(direction);
             visual?.RotateTowardsDirection(direction);
         }

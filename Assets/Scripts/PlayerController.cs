@@ -79,6 +79,8 @@ public class PlayerController : PlayerGameplayPawn
     private Vector2 _lastFacingDir = Vector2.up;   // last non-zero move dir — the dash's fallback when idle
     private bool _swordHasLeftCatchRadius = false;
 
+    public override Vector2 MoveDirection => _lastMoveDirection;
+
     private bool _isUltimateInvincible = false;
     private bool _isUltimateFrozen = false;
 
