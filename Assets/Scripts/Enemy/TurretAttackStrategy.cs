@@ -1,7 +1,7 @@
 using UnityEngine;
 
-/// <summary>Stationary burst fire — rapid shots, then a reload pause before the next magazine.</summary>
-public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
+/// <summary>Stationary burst fire — a brief wind-up telegraph, then rapid shots, then a reload pause.</summary>
+public class TurretAttackStrategy : MonoBehaviour, IChargingAttackStrategy
 {
     [SerializeField] private GameObject projectilePrefab;
     [SerializeField] private float attackFrequency = 3f;
@@ -10,13 +10,20 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
     [SerializeField] private float damage = 4f;
     [SerializeField] private int burstSize = 6;
     [SerializeField] private float reloadDuration = 2f;
+    [SerializeField] private float chargeUpTime = 0.5f; // wind-up telegraph before each burst
 
     private float nextAttackTime;
     private int shotsFiredInBurst;
     private bool isReloading;
+    private bool isCharging;
+    private float chargeEndTime;
     private Transform playerTransform;
     private EnemyController enemyController;
     private EnemyAttackDamage? attackDamage;
+
+    // Charging only ever precedes the FIRST shot of a burst, so the enemy telegraphs (tint/glow) before the
+    // magazine opens up, then fires the rest rapidly.
+    public bool IsCharging => isCharging;
 
     private void Start()
     {
@@ -41,6 +48,23 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
             return;
         }
 
+        if (PlayerGameplayManager.Instance?.IsDefeated == true)
+        {
+            return; // stop firing once the run is over — the scene/pool may be tearing down
+        }
+
+        // Wind-up: telegraph the burst, then fire its opening shot the instant the charge completes.
+        if (isCharging)
+        {
+            if (Time.time >= chargeEndTime)
+            {
+                isCharging = false;
+                FireShot();
+            }
+
+            return;
+        }
+
         if (isReloading)
         {
             if (Time.time < nextAttackTime)
@@ -58,6 +82,19 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
             return;
         }
 
+        // Start of a fresh burst → play a wind-up telegraph before the first shot (the rest fire rapidly).
+        if (shotsFiredInBurst == 0)
+        {
+            isCharging = true;
+            chargeEndTime = Time.time + chargeUpTime * (attackDamage != null ? attackDamage.ChargeTimeMultiplier : 1f);
+            return;
+        }
+
+        FireShot();
+    }
+
+    private void FireShot()
+    {
         Attack(transform, playerTransform);
         shotsFiredInBurst++;
 
@@ -76,7 +113,7 @@ public class TurretAttackStrategy : MonoBehaviour, IAttackStrategy
 
     public void Attack(Transform selfTransform, Transform targetTransform)
     {
-        if (enemyController == null)
+        if (enemyController == null || PrefabPool.Instance == null)
         {
             return;
         }

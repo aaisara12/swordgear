@@ -38,6 +38,7 @@ public class SwordProjectile : MonoBehaviour
     [SerializeField] ParticleSystem swingTrail;
     [SerializeField] GameObject? recallTrailPrefab;
     GameObject? recallTrailInstance;
+    [SerializeField] TrailRenderer? swingRibbon; // polished element-tinted ribbon streak (editor component on child "SwingRibbon")
 
     // [SerializeField] Vector2 startingVelocity = Vector2.zero;
     [SerializeField] private float maxSpeed = 10f;
@@ -55,6 +56,8 @@ public class SwordProjectile : MonoBehaviour
     [Header("Terrain")]
     [SerializeField] private LayerMask terrainLayers;
     [SerializeField] private string gearPhysicsLayer = "Gear";
+    [Tooltip("How far the blade sinks into the wall on impact so it reads as lodged, not floating at the surface.")]
+    [SerializeField] private float wallEmbedDepth = 0.28f;
 
     [Header("Lightning Projectile")]
     [SerializeField] GameObject lightningPrefab;
@@ -123,6 +126,7 @@ public class SwordProjectile : MonoBehaviour
         rb.linearVelocity = velocity;
         sprite.enabled = true;
         isFlying = true;
+        StartSwingTrail(); // element-coloured streak for every thrown sword (was Fire-only)
     }
 
     public void StartRecallFlight(
@@ -174,6 +178,11 @@ public class SwordProjectile : MonoBehaviour
         ClearRecallState();
 
         Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), false);
+        if (swingTrail != null)
+        {
+            swingTrail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear); // don't let a caught/recalled sword linger a trail
+        }
+        StopSwingRibbon();
         gameObject.SetActive(false);
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
@@ -347,7 +356,12 @@ public class SwordProjectile : MonoBehaviour
         rb.linearVelocity = Vector2.zero;
         rb.angularVelocity = 0;
         swingTrail.Stop();
+        StopSwingRibbon();
         isFlying = false;
+        // Sink the blade a touch further along its travel direction so it looks driven INTO the wall rather
+        // than stopped at the surface (the trigger fires when the collider edges first touch). The impact VFX
+        // still spawns at the surface contact point below.
+        transform.position += (Vector3)((Vector2)transform.up * wallEmbedDepth);
         Physics2D.IgnoreLayerCollision(gameObject.layer, LayerMask.NameToLayer(gearPhysicsLayer), true);
         lodgedIndicator?.OnLodged(contactPoint);
     }
@@ -362,6 +376,60 @@ public class SwordProjectile : MonoBehaviour
         else
         {
             swingTrail.Stop();
+        }
+    }
+
+    /// <summary>Starts the swing trail for every thrown sword (was Fire-only): an element-tinted sparkle
+    /// particle stream plus a polished ribbon streak with a hot, blooming head that tapers off behind.</summary>
+    private void StartSwingTrail()
+    {
+        Element element = ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical;
+
+        if (swingRibbon != null)
+        {
+            swingRibbon.Clear();
+            swingRibbon.emitting = true;
+        }
+        // The old thin particle trail is replaced by the ribbon — keep it OFF (it was a Fire-only red streak
+        // baked red via colour-over-lifetime, so it reads wrong on every other element).
+        if (swingTrail != null)
+        {
+            swingTrail.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+        }
+
+        ApplyRibbonColor(ElementVisuals.GetColor(element));
+    }
+
+    /// <summary>Tints the ribbon streak + sparkle particles to <paramref name="bladeColor"/> (hot blooming
+    /// head that tapers/fades behind). Fed the blade's live colour every frame so the trail always matches it.</summary>
+    private void ApplyRibbonColor(Color bladeColor)
+    {
+        if (swingRibbon != null)
+        {
+            Color hot = Color.Lerp(bladeColor, Color.white, 0.5f); // bright core that pops under bloom
+            Gradient g = new Gradient();
+            g.SetKeys(
+                new[]
+                {
+                    new GradientColorKey(hot, 0f),
+                    new GradientColorKey(bladeColor, 0.4f),
+                    new GradientColorKey(bladeColor, 1f)
+                },
+                new[]
+                {
+                    new GradientAlphaKey(0.95f, 0f), // head (at the blade): bright
+                    new GradientAlphaKey(0.55f, 0.4f),
+                    new GradientAlphaKey(0f, 1f)     // tail: fade out
+                });
+            swingRibbon.colorGradient = g;
+        }
+    }
+
+    private void StopSwingRibbon()
+    {
+        if (swingRibbon != null)
+        {
+            swingRibbon.emitting = false;
         }
     }
 
@@ -423,8 +491,26 @@ public class SwordProjectile : MonoBehaviour
         if (!isRecalling)
         {
             ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
+            UpdateFlightVisuals();
         }
-        //DisplaySword();
+    }
+
+    /// <summary>
+    /// Drives the thrown blade's visuals from the LIVE imbue (ElementManager.ActiveElement) every frame, so
+    /// colour / spin / ribbon update the instant the player switches element mid-flight — not after a catch.
+    /// </summary>
+    private void UpdateFlightVisuals()
+    {
+        if (sprite == null)
+        {
+            return;
+        }
+
+        // Colour the blade to the live imbue, then match the ribbon + sparkles to that EXACT blade colour
+        // every frame — so the trail always agrees with the sword and recolours the instant the imbue changes.
+        Element el = ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical;
+        sprite.color = ElementVisuals.GetColor(el);
+        ApplyRibbonColor(sprite.color);
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

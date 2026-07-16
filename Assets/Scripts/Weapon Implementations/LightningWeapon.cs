@@ -218,7 +218,6 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage()),
             new MoveType(Element.Lightning, AttackKind.MeleeStrike));
         if (lightningActive && upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
@@ -230,7 +229,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        sword.sprite.color = Color.cyan;
+        sword.sprite.color = ElementVisuals.GetColor(Element.Lightning); // was Color.cyan (Ice's colour) — a thrown Lightning sword looked like Ice
     }
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)

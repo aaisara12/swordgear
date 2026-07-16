@@ -249,7 +249,6 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         AttackKind kind = chargeTier > 0 ? AttackKind.MeleeCharge : AttackKind.MeleeStrike;
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * (1f + 0.2f * chargeTier)),
             new MoveType(Element.Fire, kind));
@@ -261,16 +260,12 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        SpriteRenderer sprite = sword.sprite;
-
-        sword.ToggleSwingTrail(true);
-        sprite.color = Color.red;
-        sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
+        // Blade colour + trail are driven centrally in SwordProjectile.UpdateFlightVisuals now; nothing
+        // element-specific happens on Fire's flight anymore.
     }
 
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
             new MoveType(Element.Fire, AttackKind.Ranged));
         if (upgrades.Contains(UpgradeType.Fire_RangedBurn))

@@ -10,11 +10,13 @@ public class EnemyChill : MonoBehaviour, IEnemyEffect
     void IEnemyEffect.EffectBegin(EnemyController enemy)
     {
         enemy.speedMultiplier *= speedMultiplier;
+        EnemyStatusVisual.For(enemy).SetChill(true);
     }
 
     void IEnemyEffect.EffectEnd(EnemyController enemy)
     {
         enemy.speedMultiplier /= speedMultiplier;
+        EnemyStatusVisual.For(enemy).SetChill(false);
     }
 
     void IEnemyEffect.EffectTick(EnemyController enemy)

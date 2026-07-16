@@ -42,6 +42,11 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             return;
         }
 
+        if (PlayerGameplayManager.Instance?.IsDefeated == true)
+        {
+            return; // stop firing once the run is over — the scene/pool may be tearing down
+        }
+
         if (isCharging)
         {
             if (Time.time >= nextAttackTime)
@@ -69,7 +74,7 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
 
     public void Attack(Transform selfTransform, Transform targetTransform)
     {
-        if (enemyController == null)
+        if (enemyController == null || PrefabPool.Instance == null)
         {
             return;
         }

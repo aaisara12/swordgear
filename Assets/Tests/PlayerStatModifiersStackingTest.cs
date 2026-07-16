@@ -6,32 +6,33 @@ using NUnit.Framework;
 public class PlayerStatModifiersStackingTest
 {
     [Test]
-    public void CombineMultiplicativePercentBonuses_TwoFiftyPercentBonuses_YieldsSeventyFivePercentTotal()
+    public void AddPercentBonus_TwoFiftyPercentBonuses_YieldsOneHundredPercentTotal()
     {
-        float inverse = PlayerStatModifiers.ApplyMultiplicativePercentBonus(1f, 50f);
-        inverse = PlayerStatModifiers.ApplyMultiplicativePercentBonus(inverse, 50f);
+        float multiplier = PlayerStatModifiers.AddPercentBonus(1f, 50f);
+        multiplier = PlayerStatModifiers.AddPercentBonus(multiplier, 50f);
 
-        float multiplier = PlayerStatModifiers.CombineMultiplicativePercentBonuses(inverse);
-
-        Assert.AreEqual(1.75f, multiplier, 0.001f);
+        Assert.AreEqual(2.0f, multiplier, 0.001f);
     }
 
     [Test]
-    public void CombineMultiplicativePercentBonuses_SingleBonus_MatchesAdditive()
+    public void AddPercentBonus_SingleBonus_MatchesAdditive()
     {
-        float inverse = PlayerStatModifiers.ApplyMultiplicativePercentBonus(1f, 30f);
-        float multiplier = PlayerStatModifiers.CombineMultiplicativePercentBonuses(inverse);
-
+        float multiplier = PlayerStatModifiers.AddPercentBonus(1f, 30f);
         Assert.AreEqual(1.3f, multiplier, 0.001f);
     }
 
     [Test]
-    public void CombineMultiplicativePercentBonuses_PositiveAndNegative_AppliesBoth()
+    public void AddPercentBonus_Stacks_MultiplyBonusByCount()
     {
-        float inverse = PlayerStatModifiers.ApplyMultiplicativePercentBonus(1f, 50f);
-        inverse = PlayerStatModifiers.ApplyMultiplicativePercentBonus(inverse, -10f);
-        float multiplier = PlayerStatModifiers.CombineMultiplicativePercentBonuses(inverse);
+        float multiplier = PlayerStatModifiers.AddPercentBonus(1f, 50f, 2);
+        Assert.AreEqual(2.0f, multiplier, 0.001f);
+    }
 
-        Assert.AreEqual(1.45f, multiplier, 0.001f);
+    [Test]
+    public void AddPercentBonus_PositiveAndNegative_AppliesBoth()
+    {
+        float multiplier = PlayerStatModifiers.AddPercentBonus(1f, 50f);
+        multiplier = PlayerStatModifiers.AddPercentBonus(multiplier, -10f);
+        Assert.AreEqual(1.4f, multiplier, 0.001f);
     }
 }

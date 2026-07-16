@@ -16,7 +16,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
     /// <summary> Fired after modifiers are re-applied (e.g. after a purchase). Use to refresh MaxHp, start Regen, etc. </summary>
     public static event Action? OnStatsChanged;
 
-    // DamageMultiplier stacks multiplicatively; other multiplier stats add percent to base 1.0.
+    // All multiplier stats add percent to base 1.0; independent +X% bonuses stack additively.
     public float MoveSpeedMultiplier { get; private set; } = 1f;
     public float DamageMultiplier { get; private set; } = 1f;
     public float MaxHpMultiplier { get; private set; } = 1f;
@@ -28,7 +28,6 @@ public class PlayerStatModifiers : InitializeableGameComponent
     public float MeleeRangeMultiplier { get; private set; } = 1f;
     public float AttackSpeedMultiplier { get; private set; } = 1f;
 
-    private float _damageInverseProduct = 1f;
     private PlayerBlob? _mutablePlayerBlob;
     private IReadOnlyPlayerBlob? _playerBlob;
 
@@ -128,7 +127,6 @@ public class PlayerStatModifiers : InitializeableGameComponent
                 ApplyStatBoost(entry.kind, entry.value, count);
         }
 
-        DamageMultiplier = CombineMultiplicativePercentBonuses(_damageInverseProduct);
         OnStatsChanged?.Invoke();
     }
 
@@ -152,14 +150,10 @@ public class PlayerStatModifiers : InitializeableGameComponent
     }
 
     /// <summary>
-    /// Independent +X% bonuses combine multiplicatively: 50% + 50% => 1.75x (+75% total).
+    /// Independent +X% bonuses stack additively onto a 1.0 base: 50% + 50% => 2.0x (+100% total).
     /// </summary>
-    public static float CombineMultiplicativePercentBonuses(float inverseProduct) =>
-        1f + (1f - inverseProduct);
-
-    /// <summary>Apply one +X% (or -X%) bonus; call once per stack.</summary>
-    public static float ApplyMultiplicativePercentBonus(float inverseProduct, float percentBonus) =>
-        inverseProduct * (1f - percentBonus / 100f);
+    public static float AddPercentBonus(float multiplier, float percentBonus, int stacks = 1) =>
+        multiplier + (percentBonus * stacks) / 100f;
 
     private void Reset()
     {
@@ -173,7 +167,6 @@ public class PlayerStatModifiers : InitializeableGameComponent
         RegenPercentPerSecond = 0f;
         MeleeRangeMultiplier = 1f;
         AttackSpeedMultiplier = 1f;
-        _damageInverseProduct = 1f;
     }
 
     private void ApplyStatBoost(StatBoostKind kind, float value, int stacks)
@@ -185,10 +178,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
                 MoveSpeedMultiplier += (total / 100f);
                 break;
             case StatBoostKind.DamageMultiplier:
-                for (int i = 0; i < stacks; i++)
-                {
-                    _damageInverseProduct = ApplyMultiplicativePercentBonus(_damageInverseProduct, value);
-                }
+                DamageMultiplier = AddPercentBonus(DamageMultiplier, value, stacks);
                 break;
             case StatBoostKind.MaxHp:
                 MaxHpMultiplier += (total / 100f);
