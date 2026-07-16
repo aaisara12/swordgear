@@ -330,7 +330,6 @@ public class CombatHUD : MonoBehaviour
 
     private void TryUseUltimate()
     {
-        Debug.Log("Trying ultimate from CombatHUD");
         UltimateChargeTracker.Instance?.TryActivate();
     }
 

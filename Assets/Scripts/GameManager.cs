@@ -77,13 +77,16 @@ public class GameManager : MonoBehaviour
         AudioSystem.PlayLoop(AudioSystem.Sound.BGM);  // TODO: put this logic in a place where we can control the background music better (fading in different tracks, etc.)
     }
 
-    public void DisplayDamageUI(Vector3 position, float amt, Element? elementOverride = null)
+    public void DisplayDamageUI(Vector3 position, float amt, Element? sourceElement = null)
     {
         if (!damageUI) return;
 
         GameObject ui = PrefabPool.Instance!.Spawn(damageUI, position, Quaternion.identity);
 
-        ui.GetComponent<DamageUI>().ShowNumber(amt, elementOverride ?? currentElement);
+        // Colour by the DAMAGE's source element, not the player's current element, so DoT ticks and
+        // off-element hits (burn/chill/static) read with the correct colour; fall back to the current
+        // element when no source is given.
+        ui.GetComponent<DamageUI>().ShowNumber(amt, sourceElement ?? currentElement);
     }
 
     public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)

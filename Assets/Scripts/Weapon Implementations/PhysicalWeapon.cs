@@ -134,7 +134,6 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage()),
             new MoveType(Element.Physical, AttackKind.MeleeStrike));
     }

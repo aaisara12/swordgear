@@ -39,6 +39,9 @@ public class LevelLoader : MonoBehaviour
         }
     }
 
+    /// <summary>Transform of the active exit portal, or null if none is spawned yet. Used by the minimap marker.</summary>
+    public Transform ExitPortalTransform => spawnedExitPortal != null ? spawnedExitPortal.transform : null;
+
     public void LoadLevel(LevelBlueprint blueprint)
     {
         // Reset combo/scoring state for the new level.
