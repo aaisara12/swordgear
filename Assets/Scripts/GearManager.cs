@@ -148,9 +148,9 @@ public class GearManager : InitializeableGameComponent
             transform.position = GameManager.Instance.player.transform.position;
         }
 
-        bool swordInFlight = SwordProjectile.Instance != null && SwordProjectile.Instance.IsInFlight;
+        // bool swordInFlight = SwordProjectile.Instance != null && SwordProjectile.Instance.IsInFlight;
 
-        if (spinSpeed != 0f && !swordInFlight)
+        if (spinSpeed != 0f)
         {
             transform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
         }

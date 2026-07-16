@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6117815341773683249}
   - component: {fileID: 2739700355287015200}
   - component: {fileID: 4694220033348229464}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WindImbue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 6636807553596761213}
   - component: {fileID: 8856587706613391538}
   - component: {fileID: 5166126820639006783}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wind
   m_TagString: Wind
   m_Icon: {fileID: 0}
@@ -261,7 +261,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4998427494421093015}
   - component: {fileID: 4356438607321820366}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: bumper-open
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -352,7 +352,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1302849730631985405}
   - component: {fileID: 6297742270928554377}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: bumper-closed
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -442,7 +442,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3482586393488906772}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Visual - New
   m_TagString: Untagged
   m_Icon: {fileID: 0}
