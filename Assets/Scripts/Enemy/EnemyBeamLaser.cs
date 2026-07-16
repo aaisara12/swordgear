@@ -426,6 +426,17 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
                     new Color(1f, 1f, 0.9f, 1f));
                 TintParticles(new Color(1f, 0.98f, 0.45f, 1f), new Color(1f, 1f, 0.75f, 1f));
                 break;
+            case Element.Wind:
+                telegraphGlowBaseColor = new Color(0.3f, 1f, 0.4f, 0.28f);
+                telegraphEdgeBaseColor = new Color(0.5f, 1f, 0.55f, 0.92f);
+                telegraphFillBaseColor = new Color(0.05f, 0.3f, 0.1f, 0.38f);
+                SetBeamColors(
+                    new Color(0.1f, 0.7f, 0.2f, 0.32f),
+                    new Color(0.2f, 0.85f, 0.35f, 0.58f),
+                    new Color(0.45f, 1f, 0.55f, 0.95f),
+                    new Color(0.85f, 1f, 0.9f, 1f));
+                TintParticles(new Color(0.45f, 1f, 0.5f, 1f), new Color(0.8f, 1f, 0.85f, 1f));
+                break;
             default:
                 telegraphGlowBaseColor = new Color(0.55f, 0.72f, 1f, 0.28f);
                 telegraphEdgeBaseColor = new Color(0.82f, 0.9f, 1f, 0.92f);

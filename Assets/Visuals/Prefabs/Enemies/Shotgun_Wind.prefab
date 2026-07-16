@@ -1,0 +1,132 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2700163654506810873
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: -6.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -6.97
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 557463099670980507, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3457207750712895610, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: hp
+      value: 22
+      objectReference: {fileID: 0}
+    - target: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      propertyPath: m_Name
+      value: Shotgun_Wind
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 3690023069366871206, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+    - {fileID: 5514362759253591608, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+    - {fileID: 7868449032308609468, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 5501477679107656524}
+    - targetCorrespondingSourceObject: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 762119498747567519}
+    - targetCorrespondingSourceObject: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7639560660851893334}
+  m_SourcePrefab: {fileID: 100100000, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+--- !u!1 &2004019619954228120 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+  m_PrefabInstance: {fileID: 2700163654506810873}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &5501477679107656524
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004019619954228120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea07688d962f14943989a8f4a052ce90, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::EnemyAttackDamage
+  damageMultiplier: 1
+  attackRateMultiplier: 1
+  chargeTimeMultiplier: 1
+  projectileSpeedMultiplier: 1
+--- !u!114 &762119498747567519
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004019619954228120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e43d6de336471e442b0f66e22d0fcc74, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::StrafeMovementStrategy
+  strafeDistance: 4.5
+  strafeSpeed: 2.5
+  strafeDistanceTolerance: 1
+  directionChangeTimeRange: {x: 1, y: 3}
+--- !u!114 &7639560660851893334
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2004019619954228120}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f43a410bbaca1da43935af169d7b1909, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::ShotgunAttackStrategy
+  projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
+  attackFrequency: 0.35
+  attackRange: 6
+  projectileSpeed: 9
+  damagePerPellet: 4
+  pelletCount: 5
+  spreadDegrees: 40
+  chargeUpTime: 0.65

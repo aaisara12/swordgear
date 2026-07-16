@@ -40,18 +40,21 @@ MonoBehaviour:
   - 10
   - 10
   - 10
+  - 10
   themeWeightsCombat1:
   - 25
   - 15
   - 20
   - 20
   - 20
+  - 18
   themeWeightsCombat2:
   - 10
   - 0
   - 30
   - 30
   - 30
+  - 22
   roleWeightsCombat0:
   - 45
   - 30

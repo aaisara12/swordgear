@@ -44,6 +44,7 @@ public static class EnemyArchetypePrefabGenerator
         new(Element.Fire, "RangedEnemyFire", new Color(0.85f, 0.35f, 0.2f, 1f)),
         new(Element.Ice, "RangedEnemyIce", new Color(0.45f, 0.7f, 1f, 1f)),
         new(Element.Lightning, "RangedEnemyLightning", new Color(0.95f, 0.9f, 0.35f, 1f)),
+        new(Element.Wind, "RangedEnemyWind", new Color(0.5f, 0.9f, 0.45f, 1f)),
     };
 
     [MenuItem("Henry/Generate New Enemy Archetype Prefabs")]

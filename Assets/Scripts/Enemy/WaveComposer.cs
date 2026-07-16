@@ -10,6 +10,11 @@ using UnityEngine;
 /// </summary>
 public static class WaveComposer
 {
+    // Driven off the enum sizes so adding the next element (Element + EncounterTheme entry + catalog rows) needs
+    // no edits here — the composer will roll and theme it automatically.
+    private static readonly int ElementCount = System.Enum.GetValues(typeof(Element)).Length;
+    private static readonly int ThemeCount = System.Enum.GetValues(typeof(EncounterTheme)).Length;
+
     public static CombatEncounter Compose(
         in EncounterContext context,
         EnemyCatalog catalog,
@@ -147,6 +152,7 @@ public static class WaveComposer
             EncounterTheme.Fire => "Fire Assault",
             EncounterTheme.Ice => "Ice Assault",
             EncounterTheme.Lightning => "Lightning Assault",
+            EncounterTheme.Wind => "Wind Assault",
             _ => "Mixed Assault",
         };
 
@@ -164,8 +170,8 @@ public static class WaveComposer
 
     private static EncounterTheme PickTheme(System.Random rng, float[] weights)
     {
-        int index = PickWeightedIndex(rng, weights, (int)EncounterTheme.Lightning + 1);
-        return (EncounterTheme)Mathf.Clamp(index, 0, (int)EncounterTheme.Lightning);
+        int index = PickWeightedIndex(rng, weights, ThemeCount);
+        return (EncounterTheme)Mathf.Clamp(index, 0, ThemeCount - 1);
     }
 
     private static EnemyRole PickWeightedRole(System.Random rng, float[] weights)
@@ -178,7 +184,7 @@ public static class WaveComposer
     {
         if (theme == EncounterTheme.Mixed)
         {
-            return (Element)rng.Next(0, 4);
+            return (Element)rng.Next(0, ElementCount);
         }
 
         Element themed = theme switch
@@ -187,6 +193,7 @@ public static class WaveComposer
             EncounterTheme.Fire => Element.Fire,
             EncounterTheme.Ice => Element.Ice,
             EncounterTheme.Lightning => Element.Lightning,
+            EncounterTheme.Wind => Element.Wind,
             _ => Element.Physical,
         };
 
@@ -195,7 +202,7 @@ public static class WaveComposer
             return themed;
         }
 
-        return (Element)rng.Next(0, 4);
+        return (Element)rng.Next(0, ElementCount);
     }
 
     private static EnemyArchetype? PickArchetype(

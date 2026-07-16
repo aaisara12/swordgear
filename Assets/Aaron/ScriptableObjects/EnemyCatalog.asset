@@ -133,6 +133,36 @@ MonoBehaviour:
     role: 4
     baseThreatCost: 30
     applyElementKnobsAtSpawn: 1
+  - id: melee_wind
+    prefab: {fileID: 4519183777221867105, guid: 88b201a7654661649b166d7fcf9442c4, type: 3}
+    element: 4
+    role: 0
+    baseThreatCost: 11
+    applyElementKnobsAtSpawn: 1
+  - id: ranged_wind
+    prefab: {fileID: 4519183777221867105, guid: 084bd10402cde654193a553c14d57a33, type: 3}
+    element: 4
+    role: 1
+    baseThreatCost: 13
+    applyElementKnobsAtSpawn: 1
+  - id: shotgun_wind
+    prefab: {fileID: 2004019619954228120, guid: c18595e247c3a0c4e99f67a3a7865b9f, type: 3}
+    element: 4
+    role: 3
+    baseThreatCost: 15
+    applyElementKnobsAtSpawn: 1
+  - id: turret_wind
+    prefab: {fileID: 6974376479047011328, guid: 7c7fd1073e0b12d4fa8e0b47d96c0164, type: 3}
+    element: 4
+    role: 4
+    baseThreatCost: 17
+    applyElementKnobsAtSpawn: 1
+  - id: beamsniper_wind
+    prefab: {fileID: 4440909867525398264, guid: 4203c82430a53df45a5de056c4c8f1c6, type: 3}
+    element: 4
+    role: 2
+    baseThreatCost: 19
+    applyElementKnobsAtSpawn: 1
   elementKnobs:
   - element: 0
     hpMultiplier: 1

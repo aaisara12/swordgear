@@ -63,6 +63,13 @@ public static class EnemyCatalogCreator
         new("turret_fire", "Turret_Fire", Element.Fire, EnemyRole.Turret, 17f, true),
         new("turret_ice", "Turret_Ice", Element.Ice, EnemyRole.Turret, 20f, true),
         new("turret_lightning", "Turret_Lightning", Element.Lightning, EnemyRole.Turret, 17f, true),
+
+        // Wind — agile hit-and-run; Physical-baseline prefabs, ElementStatKnobs(Wind) applied at spawn.
+        new("melee_wind", "MeleeEnemyWind", Element.Wind, EnemyRole.Melee, 11f, true),
+        new("ranged_wind", "RangedEnemyWind", Element.Wind, EnemyRole.Ranged, 13f, true),
+        new("shotgun_wind", "Shotgun_Wind", Element.Wind, EnemyRole.Shotgun, 15f, true),
+        new("turret_wind", "Turret_Wind", Element.Wind, EnemyRole.Turret, 17f, true),
+        new("beamsniper_wind", "BeamSniper_Wind", Element.Wind, EnemyRole.BeamSniper, 19f, true),
     };
 
     [MenuItem("Henry/Generate Enemy Catalog")]
@@ -107,6 +114,7 @@ public static class EnemyCatalogCreator
             ElementStatKnobs.DefaultFor(Element.Fire),
             ElementStatKnobs.DefaultFor(Element.Ice),
             ElementStatKnobs.DefaultFor(Element.Lightning),
+            ElementStatKnobs.DefaultFor(Element.Wind),
         };
 
         catalog.EditorSetArchetypes(entries);

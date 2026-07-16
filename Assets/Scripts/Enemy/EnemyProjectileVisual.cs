@@ -13,6 +13,7 @@ public class EnemyProjectileVisual : MonoBehaviour, IPoolReset
     private static readonly Color FireColor = new Color(1f, 0.45f, 0.1f, 1f);
     private static readonly Color IceColor = new Color(0.45f, 0.9f, 1f, 1f);
     private static readonly Color LightningColor = new Color(1f, 0.98f, 0.35f, 1f);
+    private static readonly Color WindColor = new Color(0.5f, 1f, 0.55f, 1f);
 
     public void OnSpawned()
     {
@@ -55,6 +56,7 @@ public class EnemyProjectileVisual : MonoBehaviour, IPoolReset
             Element.Fire => FireColor,
             Element.Ice => IceColor,
             Element.Lightning => LightningColor,
+            Element.Wind => WindColor,
             _ => PhysicalColor,
         };
     }

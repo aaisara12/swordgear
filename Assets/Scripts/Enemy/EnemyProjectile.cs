@@ -12,6 +12,7 @@ public class EnemyProjectile : MonoBehaviour
     [SerializeField] private Color fireColor = Color.red;
     [SerializeField] private Color iceColor = Color.blue;
     [SerializeField] private Color lightningColor = Color.cyan;
+    [SerializeField] private Color windColor = new Color(0.45f, 0.95f, 0.5f, 1f);
 
     private Element attackerElement = Element.Physical;
     private float damage = 10f;
@@ -71,6 +72,9 @@ public class EnemyProjectile : MonoBehaviour
                 break;
             case Element.Lightning:
                 spriteRenderer.color = lightningColor;
+                break;
+            case Element.Wind:
+                spriteRenderer.color = windColor;
                 break;
             default:
                 spriteRenderer.color = physicalColor;

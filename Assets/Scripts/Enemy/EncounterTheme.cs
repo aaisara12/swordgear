@@ -8,4 +8,5 @@ public enum EncounterTheme
     Fire = 2,
     Ice = 3,
     Lightning = 4,
+    Wind = 5,
 }

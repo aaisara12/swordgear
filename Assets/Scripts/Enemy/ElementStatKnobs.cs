@@ -66,6 +66,17 @@ public struct ElementStatKnobs
                 chargeTimeMultiplier = 0.25f,
                 projectileSpeedMultiplier = 2f,
             },
+            // Wind: agile hit-and-run — very fast + fragile, moderate damage, quick wind-up.
+            Element.Wind => new ElementStatKnobs
+            {
+                element = Element.Wind,
+                hpMultiplier = 0.6f,
+                damageMultiplier = 1f,
+                speedMultiplier = 2.2f,
+                attackRateMultiplier = 1.25f,
+                chargeTimeMultiplier = 0.6f,
+                projectileSpeedMultiplier = 1.7f,
+            },
             _ => Identity(Element.Physical),
         };
     }

@@ -36,10 +36,10 @@ public class WaveComposerSettings : ScriptableObject
     [Min(0f)] public float blockHpScale = 0.25f;
     [Min(0f)] public float blockDamageScale = 0.1f;
 
-    [Header("Theme weights (Mixed, Physical, Fire, Ice, Lightning)")]
-    public float[] themeWeightsCombat0 = { 40f, 25f, 12f, 12f, 11f };
-    public float[] themeWeightsCombat1 = { 25f, 15f, 20f, 20f, 20f };
-    public float[] themeWeightsCombat2 = { 15f, 10f, 25f, 25f, 25f };
+    [Header("Theme weights (Mixed, Physical, Fire, Ice, Lightning, Wind)")]
+    public float[] themeWeightsCombat0 = { 40f, 25f, 12f, 12f, 11f, 10f };
+    public float[] themeWeightsCombat1 = { 25f, 15f, 20f, 20f, 20f, 18f };
+    public float[] themeWeightsCombat2 = { 15f, 10f, 25f, 25f, 25f, 22f };
 
     [Header("Role weights (Melee, Ranged, BeamSniper, Shotgun, Turret)")]
     public float[] roleWeightsCombat0 = { 45f, 30f, 5f, 10f, 10f };
