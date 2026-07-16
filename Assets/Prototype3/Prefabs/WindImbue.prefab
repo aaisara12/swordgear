@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 6117815341773683249}
   - component: {fileID: 2739700355287015200}
   - component: {fileID: 4694220033348229464}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: WindImbue
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -109,7 +109,7 @@ GameObject:
   - component: {fileID: 6636807553596761213}
   - component: {fileID: 8856587706613391538}
   - component: {fileID: 5166126820639006783}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Wind
   m_TagString: Wind
   m_Icon: {fileID: 0}
