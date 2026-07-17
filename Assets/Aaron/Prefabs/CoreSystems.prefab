@@ -265,7 +265,7 @@ MonoBehaviour:
   pawnPrefab: {fileID: 8377646472276769222, guid: 74697b7d91d2c43eca0de5c9735a968e, type: 3}
   inputManager: {fileID: 7203599953307044813}
   spawnPawnAtLocationEventChannel: {fileID: 11400000, guid: 7f5eac9929e414af98d648b4b736eb6b, type: 2}
-  baseMaxHp: 500
+  baseMaxHp: 200
 --- !u!1 &2808173134471561784
 GameObject:
   m_ObjectHideFlags: 0

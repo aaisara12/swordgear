@@ -135,14 +135,9 @@ public class ComboSystem : MonoBehaviour
         {
             _currentComboCount++;
 
-            // Extend timer only when move differs from the immediately previous one
-            if (_lastMoveType.HasValue && moveType != _lastMoveType.Value)
-            {
-                int staleness = _stalenessCounts.TryGetValue(moveType, out int s) ? s : 0;
-                float extensionMult = 1f / (1f + staleness * stalenessFalloff);
-                float extension = comboTimerExtension * extensionMult;
-                _comboTimer = Mathf.Min(_comboTimer + extension, GetEffectiveComboDuration());
-            }
+            int staleness = _stalenessCounts.TryGetValue(moveType, out int s) ? s : 0;
+            float extensionMult = 1f / (1f + staleness * stalenessFalloff);
+            _comboTimer = Mathf.Min(_comboTimer + comboTimerExtension * extensionMult, GetEffectiveComboDuration());
         }
 
         _lastMoveType = moveType;

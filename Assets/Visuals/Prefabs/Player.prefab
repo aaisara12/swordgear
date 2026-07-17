@@ -5413,7 +5413,7 @@ MonoBehaviour:
   playerDamageFX: {fileID: 1423386123474127677, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
   catchExplosionFX: {fileID: 5307315877580334196, guid: b5e505e63635c4d13bbf941e618ba1be, type: 3}
   swordThrowCooldown: 0.5
-  dashSpeed: 50
+  dashSpeed: 60
   dashDuration: 0.1
   dashCooldown: 1
   enemyPhysicsLayer: Enemies
