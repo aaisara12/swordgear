@@ -45,6 +45,8 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Weapon Management")]
     [SerializeField] private SwordController? sword;
     [SerializeField] private GearController? gear;
+    [Tooltip("Optional Light2D flash popped on dash/blink for a bit of motion juice.")]
+    [SerializeField] private LightFlash? dashLight;
     [SerializedDictionary("Element Type", "Weapon Prefab")]
     [SerializeField] private SerializedDictionary<Element, GameObject>? elementWeaponDict;
     Dictionary<Element, IMeleeWeapon> elementToWeapon = new Dictionary<Element, IMeleeWeapon>();
@@ -191,6 +193,7 @@ public class PlayerController : PlayerGameplayPawn
         _dashCooldownRemaining = dashCooldown;
 
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+        dashLight?.Flash();
 
         int playerLayer = gameObject.layer;
         int enemyLayer = LayerMask.NameToLayer(enemyPhysicsLayer);
@@ -241,6 +244,7 @@ public class PlayerController : PlayerGameplayPawn
     {
         _dashCooldownRemaining = dashCooldown;
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+        dashLight?.Flash();
         SpawnAfterimage();
         transform.position = position;
         if (rb != null)
