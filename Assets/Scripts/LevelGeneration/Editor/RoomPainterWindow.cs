@@ -19,6 +19,8 @@ public class RoomPainterWindow : EditorWindow
     // Bake config (persisted while the window is open).
     [SerializeField] private TileBase? wallTile;
     [SerializeField] private TileBase? lowWallTile;
+    [SerializeField] private TileBase? propBox1Tile;
+    [SerializeField] private TileBase? propBox2Tile;
     [SerializeField] private GameObject? cratePrefab;
     [SerializeField] private float cellSize = 1f;
     [SerializeField] private bool blackBackdrop = false;
@@ -53,6 +55,17 @@ public class RoomPainterWindow : EditorWindow
         if (lowWallTile == null)
         {
             lowWallTile = AssetDatabase.LoadAssetAtPath<TileBase>(RoomBaker.DefaultLowWallTilePath);
+        }
+
+        // Best-effort: pre-fill the prop-box tiles if assets named prop_box1 / prop_box2 exist.
+        if (propBox1Tile == null)
+        {
+            propBox1Tile = FindTileByName("prop_box1");
+        }
+
+        if (propBox2Tile == null)
+        {
+            propBox2Tile = FindTileByName("prop_box2");
         }
 
         if (wallBackdropSprite == null)
@@ -268,6 +281,8 @@ public class RoomPainterWindow : EditorWindow
             EditorGUI.indentLevel++;
             wallTile = (TileBase?)EditorGUILayout.ObjectField("Wall Tile", wallTile, typeof(TileBase), false);
             lowWallTile = (TileBase?)EditorGUILayout.ObjectField("Low Wall Tile", lowWallTile, typeof(TileBase), false);
+            propBox1Tile = (TileBase?)EditorGUILayout.ObjectField("Prop Box 1 Tile (solid)", propBox1Tile, typeof(TileBase), false);
+            propBox2Tile = (TileBase?)EditorGUILayout.ObjectField("Prop Box 2 Tile (sword-permeable)", propBox2Tile, typeof(TileBase), false);
             cratePrefab = (GameObject?)EditorGUILayout.ObjectField("Crate Prefab", cratePrefab, typeof(GameObject), false);
             cellSize = EditorGUILayout.FloatField("Cell Size", cellSize);
             floorSprite = (Sprite?)EditorGUILayout.ObjectField("Floor Sprite", floorSprite, typeof(Sprite), false);
@@ -299,6 +314,8 @@ public class RoomPainterWindow : EditorWindow
         {
             WallTile = wallTile,
             LowWallTile = lowWallTile,
+            PropBox1Tile = propBox1Tile,
+            PropBox2Tile = propBox2Tile,
             CratePrefab = cratePrefab,
             CellSize = cellSize,
             BlackBackdrop = blackBackdrop,
@@ -416,7 +433,30 @@ public class RoomPainterWindow : EditorWindow
         RoomCellType.PlayerSpawn => new Color(0.24f, 0.72f, 0.34f),
         RoomCellType.EnemySpawn => new Color(0.82f, 0.26f, 0.26f),
         RoomCellType.Exit => new Color(0.26f, 0.52f, 0.92f),
+        RoomCellType.PropBox1 => new Color(0.85f, 0.60f, 0.25f), // solid box prop (amber)
+        RoomCellType.PropBox2 => new Color(0.60f, 0.75f, 0.50f), // sword-permeable box prop (light green)
         _ => Color.magenta,
     };
+
+    /// <summary>Best-effort lookup of a TileBase asset by exact file name (used to pre-fill the prop-box tiles).</summary>
+    private static TileBase? FindTileByName(string name)
+    {
+        foreach (string guid in AssetDatabase.FindAssets(name))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            if (!System.IO.Path.GetFileNameWithoutExtension(path).Equals(name, System.StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var tile = AssetDatabase.LoadAssetAtPath<TileBase>(path);
+            if (tile != null)
+            {
+                return tile;
+            }
+        }
+
+        return null;
+    }
 }
 #endif

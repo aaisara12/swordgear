@@ -25,6 +25,12 @@ public enum RoomCellType
     /// the sword flies straight through while the player is still blocked.
     /// Appended last so existing painted RoomDefinition assets keep their int values.</summary>
     LowWall,
+    /// <summary>Solid box prop. Behaves exactly like <see cref="Wall"/> (WallTilemap, Arena layer, casts
+    /// shadows) but painted with its own prop tile. Appended for int-serialization stability.</summary>
+    PropBox1,
+    /// <summary>Sword-permeable box prop. Behaves exactly like <see cref="LowWall"/> (LowWallTilemap,
+    /// LowWall layer, no shadows) but painted with its own prop tile. Appended for stability.</summary>
+    PropBox2,
 }
 
 /// <summary>

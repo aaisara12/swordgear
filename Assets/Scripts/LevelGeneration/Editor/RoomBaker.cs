@@ -36,6 +36,8 @@ public static class RoomBaker
     {
         public TileBase? WallTile;
         public TileBase? LowWallTile;
+        public TileBase? PropBox1Tile; // solid box prop -> WallTilemap (falls back to WallTile)
+        public TileBase? PropBox2Tile; // sword-permeable box prop -> LowWallTilemap (falls back to LowWallTile)
         public GameObject? CratePrefab;
         public float CellSize;
         public string PrefabFolder;
@@ -220,7 +222,8 @@ public static class RoomBaker
                 }
 
                 RoomCellType c = room.GetCell(nx, ny);
-                if (c == RoomCellType.Wall || c == RoomCellType.Crate || c == RoomCellType.LowWall)
+                if (c == RoomCellType.Wall || c == RoomCellType.Crate || c == RoomCellType.LowWall
+                    || c == RoomCellType.PropBox1 || c == RoomCellType.PropBox2)
                 {
                     continue; // solid to the player — blocks reachability
                 }
@@ -332,6 +335,25 @@ public static class RoomBaker
                             }
 
                             lowWallTilemap.SetTile(new Vector3Int(x, y, 0), config.LowWallTile);
+                            break;
+                        case RoomCellType.PropBox1:
+                            // Solid box prop: same WallTilemap as walls (Arena layer + shadow caster),
+                            // just its own tile. Wall tile is required to bake, so the fallback is always valid.
+                            tilemap.SetTile(new Vector3Int(x, y, 0), config.PropBox1Tile != null ? config.PropBox1Tile : config.WallTile);
+                            break;
+                        case RoomCellType.PropBox2:
+                            // Sword-permeable box prop: same LowWallTilemap as low walls (LowWall layer, no
+                            // shadows), just its own tile. Falls back to the low wall tile.
+                            {
+                                TileBase? propBox2Tile = config.PropBox2Tile != null ? config.PropBox2Tile : config.LowWallTile;
+                                if (propBox2Tile == null)
+                                {
+                                    Debug.LogWarning("RoomBaker: room has PropBox2 cells but no prop-box-2 / low-wall tile is assigned; skipping.");
+                                    break;
+                                }
+
+                                lowWallTilemap.SetTile(new Vector3Int(x, y, 0), propBox2Tile);
+                            }
                             break;
                         case RoomCellType.PlayerSpawn:
                             MakeMarker<PlayerSpawnMarker>(rootGO, "PlayerSpawnMarker", center);
