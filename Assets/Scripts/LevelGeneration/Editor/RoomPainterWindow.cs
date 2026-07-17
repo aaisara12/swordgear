@@ -31,6 +31,7 @@ public class RoomPainterWindow : EditorWindow
     [SerializeField] private int pendingWidth = 16;
     [SerializeField] private int pendingHeight = 16;
     [SerializeField] private bool bakeFoldout = true;
+    [SerializeField] private bool addToCombatPool = true;
 
     private Vector2 scroll;
     private const float CellPixels = 22f;
@@ -278,9 +279,13 @@ public class RoomPainterWindow : EditorWindow
             EditorGUI.indentLevel--;
         }
 
+        addToCombatPool = EditorGUILayout.ToggleLeft(
+            "Also add to RunManager combat pool (so the arena appears in runs)", addToCombatPool);
+
         using (new EditorGUI.DisabledScope(room == null || wallTile == null))
         {
-            if (GUILayout.Button("Bake to Arena Prefab", GUILayout.Height(30f)))
+            string bakeLabel = addToCombatPool ? "Bake to Arena Prefab + Add to Combat Pool" : "Bake to Arena Prefab";
+            if (GUILayout.Button(bakeLabel, GUILayout.Height(30f)))
             {
                 BakeCurrent();
             }
@@ -307,9 +312,89 @@ public class RoomPainterWindow : EditorWindow
         ArenaLayoutTemplate? template = RoomBaker.Bake(room!, config, room!.name);
         if (template != null)
         {
+            if (addToCombatPool)
+            {
+                RegisterInCombatPool(template);
+            }
+
             EditorGUIUtility.PingObject(template);
             Selection.activeObject = template;
         }
+    }
+
+    /// <summary>
+    /// Appends the baked template to the RunManager's combat-layout pool (on whichever prefab holds the
+    /// RunManager, e.g. CoreSystems) so the new arena actually shows up in runs. No-op if already present.
+    /// </summary>
+    private static void RegisterInCombatPool(ArenaLayoutTemplate template)
+    {
+        string? prefabPath = FindRunManagerPrefabPath();
+        if (prefabPath == null)
+        {
+            Debug.LogWarning("Room Painter: no prefab with a RunManager found; add the template to the combat pool manually.");
+            return;
+        }
+
+        GameObject root = PrefabUtility.LoadPrefabContents(prefabPath);
+        try
+        {
+            RunManager? rm = root.GetComponentInChildren<RunManager>(true);
+            if (rm == null)
+            {
+                Debug.LogWarning($"Room Painter: RunManager not found inside {prefabPath}.");
+                return;
+            }
+
+            var so = new SerializedObject(rm);
+            SerializedProperty list = so.FindProperty("generationSettings.combatLayouts");
+            if (list == null || !list.isArray)
+            {
+                Debug.LogWarning("Room Painter: could not find the combatLayouts list on RunManager.");
+                return;
+            }
+
+            for (int i = 0; i < list.arraySize; i++)
+            {
+                if (list.GetArrayElementAtIndex(i).objectReferenceValue == template)
+                {
+                    Debug.Log($"Room Painter: '{template.name}' is already in the combat pool.");
+                    return;
+                }
+            }
+
+            list.arraySize++;
+            list.GetArrayElementAtIndex(list.arraySize - 1).objectReferenceValue = template;
+            so.ApplyModifiedPropertiesWithoutUndo();
+            PrefabUtility.SaveAsPrefabAsset(root, prefabPath);
+            Debug.Log($"Room Painter: added '{template.name}' to the RunManager combat pool ({System.IO.Path.GetFileName(prefabPath)}).");
+        }
+        finally
+        {
+            PrefabUtility.UnloadPrefabContents(root);
+        }
+    }
+
+    /// <summary>Finds the prefab asset that carries a RunManager (fast path: CoreSystems; else scan prefabs).</summary>
+    private static string? FindRunManagerPrefabPath()
+    {
+        const string known = "Assets/Aaron/Prefabs/CoreSystems.prefab";
+        GameObject knownGO = AssetDatabase.LoadAssetAtPath<GameObject>(known);
+        if (knownGO != null && knownGO.GetComponentInChildren<RunManager>(true) != null)
+        {
+            return known;
+        }
+
+        foreach (string guid in AssetDatabase.FindAssets("t:Prefab"))
+        {
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            GameObject go = AssetDatabase.LoadAssetAtPath<GameObject>(path);
+            if (go != null && go.GetComponentInChildren<RunManager>(true) != null)
+            {
+                return path;
+            }
+        }
+
+        return null;
     }
 
     private void MarkRoomDirty()
