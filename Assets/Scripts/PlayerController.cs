@@ -66,9 +66,12 @@ public class PlayerController : PlayerGameplayPawn
     private static readonly int AnimWalkDownHash = Animator.StringToHash("PlayerWalkDown");
     private static readonly int AnimUltVanishHash = Animator.StringToHash("PlayerUltVanish");
     private static readonly int AnimUltAppearHash = Animator.StringToHash("PlayerUltAppear");
+    private static readonly int AnimAttackSideHash = Animator.StringToHash("PlayerAttackSide");
 
     private Animator? animator;
     private int _currentAnimStateHash;
+    private bool _isAttacking = false;
+    private Coroutine? _attackAnimationCoroutine;
     private Rigidbody2D? rb;
     private float _attackCooldownRemaining = 0f;
     private float _dashCooldownRemaining = 0f;
@@ -547,6 +550,7 @@ public class PlayerController : PlayerGameplayPawn
     private void OnDisable()
     {
         SwordLodgedIndicator.OnSwordLodged -= HandleSwordLodged;
+        CancelAttackAnimation();
 
         if (playerState == PlayerState.SwordThrown)
         {
@@ -582,6 +586,7 @@ public class PlayerController : PlayerGameplayPawn
         {
             SyncMeleeFacingFromIndicator(direction);
             ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
+            PlayAttackAnimation();
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
@@ -627,6 +632,7 @@ public class PlayerController : PlayerGameplayPawn
             {
                 SyncMeleeFacingFromIndicator();
                 ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
+                PlayAttackAnimation();
             }
         }
     }
@@ -705,8 +711,48 @@ public class PlayerController : PlayerGameplayPawn
         animator.Play(stateHash);
     }
 
+    void PlayAttackAnimation()
+    {
+        if (animator == null)
+        {
+            return;
+        }
+
+        if (_attackAnimationCoroutine != null)
+        {
+            StopCoroutine(_attackAnimationCoroutine);
+        }
+
+        _attackAnimationCoroutine = StartCoroutine(AttackAnimationRoutine());
+    }
+
+    private IEnumerator AttackAnimationRoutine()
+    {
+        _isAttacking = true;
+        yield return PlayAnimationState(AnimAttackSideHash);
+        _isAttacking = false;
+        _attackAnimationCoroutine = null;
+        UpdateMovementAnimation(_lastMoveDirection);
+    }
+
+    void CancelAttackAnimation()
+    {
+        if (_attackAnimationCoroutine != null)
+        {
+            StopCoroutine(_attackAnimationCoroutine);
+            _attackAnimationCoroutine = null;
+        }
+
+        _isAttacking = false;
+    }
+
     void UpdateMovementAnimation(Vector2 direction)
     {
+        if (_isAttacking)
+        {
+            return;
+        }
+
         if (direction.sqrMagnitude < 0.001f)
         {
             SetAnimationState(AnimIdleHash);
@@ -779,6 +825,9 @@ public class PlayerController : PlayerGameplayPawn
         // Cancel an in-progress dash and restore enemy-collision ignore.
         CancelDash();
 
+        // Cancel an in-progress attack animation so it doesn't keep blocking movement anims after reset.
+        CancelAttackAnimation();
+
         // Stop the looping walk SFX if it was playing.
         if (walkSoundLoop != -1)
         {
@@ -845,6 +894,7 @@ public class PlayerController : PlayerGameplayPawn
         _lastMoveDirection = Vector2.zero;
         ForceResetThrownSword();
         CancelDash();
+        CancelAttackAnimation();
 
         if (walkSoundLoop != -1)
         {

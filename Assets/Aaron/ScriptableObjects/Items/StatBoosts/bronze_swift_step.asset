@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MoveSpeed-10
   displayName: Swift Step
-  description: Move 10% faster.
+  description: Move faster.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0

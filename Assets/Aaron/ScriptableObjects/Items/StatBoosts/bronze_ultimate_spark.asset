@@ -12,12 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_ultimate_spark
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-UltimateCharge-10
-  displayName: Ultimate Spark
-  description: Ultimate charges 10% faster.
+  id: stat-MaxHp-3,DamageMultiplier-3
+  displayName: Combat Training
+  description: Slight improvements to health and damage
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
-  - kind: 5
-    value: 10
+  - kind: 2
+    value: 3
+  - kind: 1
+    value: 3
