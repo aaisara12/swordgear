@@ -278,6 +278,14 @@ public class EnemyController : MonoBehaviour
     /// </summary>
     public void TakeDamage(float damage, MoveType moveType = default, bool applyImpactFeel = true, bool feedsCombo = true, Element? damageElementOverride = null)
     {
+        // Attunement: a same-element hit is ignored entirely — no damage number, no flash/knockback/hit-stop,
+        // no combo. The attack simply doesn't connect.
+        Element attackElement = damageElementOverride ?? moveType.Element;
+        if (GameManager.Instance != null && GameManager.Instance.IsAttunementBlocked(attackElement, element))
+        {
+            return;
+        }
+
         if (GameManager.Instance)
             GameManager.Instance.DisplayDamageUI(transform.position, damage, damageElementOverride ?? moveType.Element);
 

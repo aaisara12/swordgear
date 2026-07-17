@@ -305,9 +305,16 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
             return;
         }
 
+        Element defenderElement = GameManager.Instance.currentElement;
+        // Attunement: a same-element beam passes through harmlessly — no hit, and don't latch
+        // playerDamagedThisBeam so it can still connect if the player swaps element mid-beam.
+        if (GameManager.Instance.IsAttunementBlocked(attackerElement, defenderElement))
+        {
+            return;
+        }
+
         playerDamagedThisBeam = true;
 
-        Element defenderElement = GameManager.Instance.currentElement;
         float finalDamage = GameManager.Instance.CalculateDamage(defenderElement, attackerElement, damage);
         player.TakeDamage(finalDamage);
     }

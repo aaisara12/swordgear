@@ -40,6 +40,12 @@ public class EnemyProjectile : MonoBehaviour
             if (player != null && GameManager.Instance != null)
             {
                 Element defenderElement = GameManager.Instance.currentElement;
+                // Attunement: a same-element shot phases straight through — no hit, and the projectile isn't
+                // consumed (it keeps flying), so it reads as "passed through you", not "blocked".
+                if (GameManager.Instance.IsAttunementBlocked(attackerElement, defenderElement))
+                {
+                    return;
+                }
                 float finalDamage = GameManager.Instance.CalculateDamage(defenderElement, attackerElement, damage);
                 player.TakeDamage(finalDamage);
             }

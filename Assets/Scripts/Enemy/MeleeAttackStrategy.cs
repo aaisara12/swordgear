@@ -53,7 +53,12 @@ public class MeleeAttackStrategy : MonoBehaviour, IAttackStrategy
                 float rate = attackFrequency * (damageScaler != null ? damageScaler.AttackRateMultiplier : 1f);
                 nextAttackTime = Time.time + (1f / Mathf.Max(0.05f, rate));
 
-                player.TakeDamage(finalDamage);
+                // Attunement: a same-element melee hit doesn't connect — the enemy still swings (cooldown
+                // advances) but the player takes no damage and no hurt reaction.
+                if (!GameManager.Instance.IsAttunementBlocked(attackerElement, defenderElement))
+                {
+                    player.TakeDamage(finalDamage);
+                }
             }
         }
     }

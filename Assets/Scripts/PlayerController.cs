@@ -247,6 +247,12 @@ public class PlayerController : PlayerGameplayPawn
             return false;
         }
 
+        // Only while Lightning is the active imbue — it's a lightning power, not an always-on dash replacement.
+        if (ElementManager.Instance.ActiveElement != Element.Lightning)
+        {
+            return false;
+        }
+
         SwordProjectile? sword = SwordProjectile.Instance;
         if (sword == null || !sword.gameObject.activeSelf)
         {
