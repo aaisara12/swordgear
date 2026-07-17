@@ -90,9 +90,9 @@ public class GearManager : InitializeableGameComponent
         if (slots.Count < 4) return;
 
         SetTile(0, GearTile.Wind);
-        SetTile(1, GearTile.Lightning);
-        SetTile(2, GearTile.Fire);
-        SetTile(3, GearTile.Ice);
+        SetTile(1, GearTile.Fire);
+        SetTile(2, GearTile.Ice);
+        SetTile(3, GearTile.Lightning);
     }
 
     void SpawnFullRing(GearTile tile)

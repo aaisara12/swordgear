@@ -7,6 +7,7 @@ public class Bumper : MonoBehaviour
 {
     [SerializeField] float forceMultiplier = 1.2f;
     [SerializeField] float onHitActivationDuration = 0.2f;
+    [SerializeField] float comboTimerBonus = 1f;
     
     [SerializeField] GameObject activatedState;
     [SerializeField] GameObject inactiveState;
@@ -67,6 +68,9 @@ public class Bumper : MonoBehaviour
         AudioSystem.Play(AudioSystem.Sound.Bounce);
         rb.linearVelocity = reflectedVelocity;
         collision.transform.up = reflectedVelocity;
+
+        if (collision.transform.GetComponent<SwordProjectile>() != null)
+            ComboSystem.Instance?.ExtendTimer(comboTimerBonus);
 
         if (lastHitEffectCoroutine != null)
         {
