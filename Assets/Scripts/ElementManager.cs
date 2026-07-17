@@ -15,6 +15,8 @@ public enum UpgradeType
     Fire_RangedBurn,
     Lightning_DashStrike,
     Lightning_ApplyStatic,
+    Wind_Windstorm,
+    Wind_RendingGale,
 }
 
 public interface IElementalWeapon

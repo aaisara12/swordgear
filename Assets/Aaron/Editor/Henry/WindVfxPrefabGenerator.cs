@@ -105,6 +105,7 @@ public static class WindVfxPrefabGenerator
         main.startSize = size;
         main.startColor = color;
         main.simulationSpace = ParticleSystemSimulationSpace.Local;
+        main.scalingMode = ParticleSystemScalingMode.Hierarchy; // so WindWispEffect/WindTornadoEffect's charge-based parent scale actually resizes the swirl
         main.maxParticles = 96;
 
         ParticleSystem.EmissionModule emission = particles.emission;
@@ -117,6 +118,12 @@ public static class WindVfxPrefabGenerator
 
         ParticleSystem.VelocityOverLifetimeModule velocity = particles.velocityOverLifetime;
         velocity.enabled = true;
+        // Explicitly zero X/Y: enabling this module pre-fills every axis with a non-zero default
+        // (observed orbitalY defaulting to 4 even though only orbitalZ was ever assigned), which
+        // orbits particles into/out of Z depth instead of swirling flat in the 2D view plane —
+        // depth-sorts them behind other sprites depending on GPU depth precision.
+        velocity.orbitalX = new ParticleSystem.MinMaxCurve(0f);
+        velocity.orbitalY = new ParticleSystem.MinMaxCurve(0f);
         velocity.orbitalZ = new ParticleSystem.MinMaxCurve(orbitalSpeed);
 
         ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particles.colorOverLifetime;

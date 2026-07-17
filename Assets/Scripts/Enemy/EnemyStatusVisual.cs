@@ -15,6 +15,7 @@ public class EnemyStatusVisual : MonoBehaviour
     private static readonly Color BurnTint = new(1f, 0.55f, 0.25f, 1f);
     private static readonly Color ChillTint = new(0.5f, 0.75f, 1f, 1f);
     private static readonly Color StaticTint = new(1f, 0.95f, 0.35f, 1f);
+    private static readonly Color BuffettedTint = new(0.56f, 0.93f, 0.56f, 1f);
     private const float StaticFlickerHz = 12f;
 
     private SpriteRenderer[]? _sprites;
@@ -22,6 +23,7 @@ public class EnemyStatusVisual : MonoBehaviour
     private bool _burn;
     private bool _chill;
     private bool _static;
+    private bool _buffetted;
 
     /// <summary>Gets (or lazily adds) the status-visual component on an enemy.</summary>
     public static EnemyStatusVisual For(EnemyController enemy)
@@ -48,6 +50,7 @@ public class EnemyStatusVisual : MonoBehaviour
     public void SetBurn(bool on) => _burn = on;
     public void SetChill(bool on) => _chill = on;
     public void SetStatic(bool on) => _static = on;
+    public void SetBuffetted(bool on) => _buffetted = on;
 
     private void LateUpdate()
     {
@@ -56,7 +59,7 @@ public class EnemyStatusVisual : MonoBehaviour
             return;
         }
 
-        // Priority when several stack (rare): burn > static > chill. White == no tint (base colour).
+        // Priority when several stack (rare): burn > static > chill > buffetted. White == no tint (base colour).
         Color tint = Color.white;
         if (_burn)
         {
@@ -69,6 +72,10 @@ public class EnemyStatusVisual : MonoBehaviour
         else if (_chill)
         {
             tint = ChillTint;
+        }
+        else if (_buffetted)
+        {
+            tint = BuffettedTint;
         }
 
         for (int i = 0; i < _sprites.Length; i++)
