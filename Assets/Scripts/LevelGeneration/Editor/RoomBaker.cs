@@ -287,7 +287,10 @@ public static class RoomBaker
             }
             Tilemap tilemap = tmGO.AddComponent<Tilemap>();
             tmGO.AddComponent<TilemapRenderer>();
-            tmGO.AddComponent<TilemapCollider2D>();
+            TilemapCollider2D wallCollider = tmGO.AddComponent<TilemapCollider2D>();
+            // Dynamic 2D shadows: walls occlude the point lights, sourced from the collider we just added
+            // (no extra collider / no collision change). Matches the hand-baked arena prefabs.
+            AddWallShadowCaster(tmGO, wallCollider);
 
             var lowWallGO = new GameObject("LowWallTilemap");
             lowWallGO.transform.SetParent(gridGO.transform);
@@ -381,6 +384,41 @@ public static class RoomBaker
         {
             Object.DestroyImmediate(rootGO);
         }
+    }
+
+    /// <summary>
+    /// Adds a URP 2D <c>ShadowCaster2D</c> to the wall tilemap so a baked arena casts dynamic shadows from
+    /// the point lights (player/sword/portal). The shadow shape is sourced from the wall's existing
+    /// <see cref="TilemapCollider2D"/> via URP's internal Collider2D shape provider, so no extra collider is
+    /// added and collision is unchanged. Kept in sync with the hand-baked arena prefabs.
+    /// </summary>
+    private static void AddWallShadowCaster(GameObject wallTilemapGO, TilemapCollider2D wallCollider)
+    {
+        var caster = wallTilemapGO.AddComponent<UnityEngine.Rendering.Universal.ShadowCaster2D>();
+
+        // ShadowShape2DProvider_Collider2D is internal, so instantiate it reflectively and assign it as the
+        // caster's managed-reference shape provider.
+        System.Type providerType = typeof(UnityEngine.Rendering.Universal.ShadowCaster2D).Assembly
+            .GetType("UnityEngine.Rendering.Universal.ShadowShape2DProvider_Collider2D");
+
+        var so = new SerializedObject(caster);
+        so.FindProperty("m_ShadowCastingSource").enumValueIndex = 2; // ShapeProvider
+        if (providerType != null)
+        {
+            so.FindProperty("m_ShadowShape2DProvider").managedReferenceValue = System.Activator.CreateInstance(providerType);
+        }
+        else
+        {
+            Debug.LogWarning("RoomBaker: URP ShadowShape2DProvider_Collider2D not found; baked wall shadows may be inert.");
+        }
+        so.FindProperty("m_ShadowShape2DComponent").objectReferenceValue = wallCollider;
+        so.FindProperty("m_CastingOption").enumValueIndex = 1; // CastShadow (no self-shadow)
+        so.FindProperty("m_CastsShadows").boolValue = true;
+        so.FindProperty("m_SelfShadows").boolValue = false;
+        SerializedProperty layers = so.FindProperty("m_ApplyToSortingLayers");
+        layers.arraySize = 1;
+        layers.GetArrayElementAtIndex(0).intValue = 0; // Default sorting layer
+        so.ApplyModifiedPropertiesWithoutUndo();
     }
 
     private static void CreateFloor(GameObject root, Sprite sprite, float worldW, float worldH, float scale, Color tint)
