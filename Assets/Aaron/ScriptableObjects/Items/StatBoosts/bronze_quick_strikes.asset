@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_quick_strikes
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-AttackSpeed-10
+  id: stat-AttackSpeed-5
   displayName: Quick Strikes
-  description: Melee attacks are 10% faster.
+  description: Melee attacks are slightly faster
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
   - kind: 9
-    value: 10
+    value: 5

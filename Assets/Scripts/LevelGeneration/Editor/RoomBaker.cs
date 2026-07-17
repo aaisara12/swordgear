@@ -16,6 +16,8 @@ public static class RoomBaker
 {
     public const string DefaultWallTilePath = "Assets/Visuals/walltile1.asset";
     public const string DefaultWallSpritePath = "Assets/Visuals/swordgear_wallset1_tile1.png";
+    /// <summary>Visually distinct from the regular wall tile so LowWall cells read as sword-permeable at a glance.</summary>
+    public const string DefaultLowWallTilePath = "Assets/Visuals/walltile2.asset";
     public const string DefaultPrefabFolder = "Assets/Visuals/Prefabs/BakedRooms";
     public const string DefaultTemplateFolder = "Assets/Scripts/LevelGeneration/ArenaLayouts";
 
@@ -33,6 +35,7 @@ public static class RoomBaker
     public struct BakeConfig
     {
         public TileBase? WallTile;
+        public TileBase? LowWallTile;
         public GameObject? CratePrefab;
         public float CellSize;
         public string PrefabFolder;
@@ -60,6 +63,7 @@ public static class RoomBaker
         public static BakeConfig Default() => new BakeConfig
         {
             WallTile = AssetDatabase.LoadAssetAtPath<TileBase>(DefaultWallTilePath),
+            LowWallTile = AssetDatabase.LoadAssetAtPath<TileBase>(DefaultLowWallTilePath),
             CratePrefab = null,
             CellSize = 1f,
             PrefabFolder = DefaultPrefabFolder,
@@ -216,9 +220,9 @@ public static class RoomBaker
                 }
 
                 RoomCellType c = room.GetCell(nx, ny);
-                if (c == RoomCellType.Wall || c == RoomCellType.Crate)
+                if (c == RoomCellType.Wall || c == RoomCellType.Crate || c == RoomCellType.LowWall)
                 {
-                    continue; // solid — blocks reachability
+                    continue; // solid to the player — blocks reachability
                 }
 
                 visited[idx] = true;
@@ -285,6 +289,25 @@ public static class RoomBaker
             tmGO.AddComponent<TilemapRenderer>();
             tmGO.AddComponent<TilemapCollider2D>();
 
+            var lowWallGO = new GameObject("LowWallTilemap");
+            lowWallGO.transform.SetParent(gridGO.transform);
+            lowWallGO.transform.localPosition = Vector3.zero;
+            // aisara => LowWall cells sit on their own "LowWall" layer, deliberately left out of
+            // SwordProjectile.terrainLayers, so they block the player (normal solid collider) but the
+            // thrown sword's trigger flies straight through instead of lodging.
+            int lowWallLayer = LayerMask.NameToLayer("LowWall");
+            if (lowWallLayer < 0)
+            {
+                Debug.LogError("RoomBaker: 'LowWall' physics layer is missing; LowWall cells will fall back to the Default layer instead of being sword-permeable.");
+            }
+            else
+            {
+                lowWallGO.layer = lowWallLayer;
+            }
+            Tilemap lowWallTilemap = lowWallGO.AddComponent<Tilemap>();
+            lowWallGO.AddComponent<TilemapRenderer>();
+            lowWallGO.AddComponent<TilemapCollider2D>();
+
             int enemyIndex = 0;
             for (int y = 0; y < h; y++)
             {
@@ -297,6 +320,15 @@ public static class RoomBaker
                     {
                         case RoomCellType.Wall:
                             tilemap.SetTile(new Vector3Int(x, y, 0), config.WallTile);
+                            break;
+                        case RoomCellType.LowWall:
+                            if (config.LowWallTile == null)
+                            {
+                                Debug.LogWarning("RoomBaker: room has LowWall cells but no low wall tile is assigned; skipping.");
+                                break;
+                            }
+
+                            lowWallTilemap.SetTile(new Vector3Int(x, y, 0), config.LowWallTile);
                             break;
                         case RoomCellType.PlayerSpawn:
                             MakeMarker<PlayerSpawnMarker>(rootGO, "PlayerSpawnMarker", center);

@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: bronze_heavy_edge
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-DamageMultiplier-10
-  displayName: Heavy Edge
-  description: Deal 10% more damage.
+  displayName: Whetstone
+  description: Minor improvement to damage
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0

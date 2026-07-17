@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_long_reach
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MeleeRange-10
-  displayName: Long Reach
-  description: Melee attacks have 10% more range.
+  id: stat-MaxHp-5
+  displayName: Extra Padding
+  description: Increase max health by 5%
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
-  - kind: 8
-    value: 10
+  - kind: 2
+    value: 5
