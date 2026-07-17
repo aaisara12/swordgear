@@ -20,6 +20,11 @@ public enum RoomCellType
     EnemySpawn,
     /// <summary>Exit portal location. Bakes to an <see cref="ExitSpawnPoint"/>.</summary>
     Exit,
+    /// <summary>Solid to the player but not the thrown sword. Bakes to a wall tile on the LowWallTilemap
+    /// (with collider), on the "LowWall" physics layer — excluded from SwordProjectile.terrainLayers so
+    /// the sword flies straight through while the player is still blocked.
+    /// Appended last so existing painted RoomDefinition assets keep their int values.</summary>
+    LowWall,
 }
 
 /// <summary>

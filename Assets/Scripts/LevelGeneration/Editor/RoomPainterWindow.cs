@@ -18,6 +18,7 @@ public class RoomPainterWindow : EditorWindow
 
     // Bake config (persisted while the window is open).
     [SerializeField] private TileBase? wallTile;
+    [SerializeField] private TileBase? lowWallTile;
     [SerializeField] private GameObject? cratePrefab;
     [SerializeField] private float cellSize = 1f;
     [SerializeField] private bool blackBackdrop = false;
@@ -46,6 +47,11 @@ public class RoomPainterWindow : EditorWindow
         if (wallTile == null)
         {
             wallTile = AssetDatabase.LoadAssetAtPath<TileBase>(RoomBaker.DefaultWallTilePath);
+        }
+
+        if (lowWallTile == null)
+        {
+            lowWallTile = AssetDatabase.LoadAssetAtPath<TileBase>(RoomBaker.DefaultLowWallTilePath);
         }
 
         if (wallBackdropSprite == null)
@@ -260,6 +266,7 @@ public class RoomPainterWindow : EditorWindow
         {
             EditorGUI.indentLevel++;
             wallTile = (TileBase?)EditorGUILayout.ObjectField("Wall Tile", wallTile, typeof(TileBase), false);
+            lowWallTile = (TileBase?)EditorGUILayout.ObjectField("Low Wall Tile", lowWallTile, typeof(TileBase), false);
             cratePrefab = (GameObject?)EditorGUILayout.ObjectField("Crate Prefab", cratePrefab, typeof(GameObject), false);
             cellSize = EditorGUILayout.FloatField("Cell Size", cellSize);
             floorSprite = (Sprite?)EditorGUILayout.ObjectField("Floor Sprite", floorSprite, typeof(Sprite), false);
@@ -286,6 +293,7 @@ public class RoomPainterWindow : EditorWindow
         var config = new RoomBaker.BakeConfig
         {
             WallTile = wallTile,
+            LowWallTile = lowWallTile,
             CratePrefab = cratePrefab,
             CellSize = cellSize,
             BlackBackdrop = blackBackdrop,
@@ -318,6 +326,7 @@ public class RoomPainterWindow : EditorWindow
     {
         RoomCellType.Empty => new Color(0.16f, 0.16f, 0.18f),
         RoomCellType.Wall => new Color(0.52f, 0.52f, 0.58f),
+        RoomCellType.LowWall => new Color(0.42f, 0.58f, 0.62f),
         RoomCellType.Crate => new Color(0.62f, 0.42f, 0.20f),
         RoomCellType.PlayerSpawn => new Color(0.24f, 0.72f, 0.34f),
         RoomCellType.EnemySpawn => new Color(0.82f, 0.26f, 0.26f),
