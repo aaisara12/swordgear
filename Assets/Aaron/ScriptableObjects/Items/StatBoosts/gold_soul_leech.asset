@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: gold_soul_leech
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-Lifesteal-50
-  displayName: Soul Leech
-  description: 50% lifesteal.
+  displayName: Blood Pact
+  description: Max health is reduced significantly, gain 30% lifesteal
   cost: 0
   icon: {fileID: 0}
   qualityTier: 2
   statBoosts:
   - kind: 6
-    value: 50
+    value: 30
+  - kind: 2
+    value: -50

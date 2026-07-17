@@ -14,10 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-AttackSpeed-50
   displayName: Blade Dance
-  description: Melee attacks are 50% faster.
+  description: Melee attacks are much faster, but overall damage is reduced
   cost: 0
   icon: {fileID: 0}
   qualityTier: 2
   statBoosts:
   - kind: 9
     value: 50
+  - kind: 1
+    value: -25

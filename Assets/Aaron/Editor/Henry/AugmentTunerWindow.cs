@@ -345,9 +345,16 @@ public class AugmentTunerWindow : EditorWindow
             EditorGUIUtility.PingObject(item);
         }
 
+        GUI.backgroundColor = new Color(1f, 0.55f, 0.55f);
+        if (GUILayout.Button("Delete Augment"))
+        {
+            DeleteSelected();
+        }
+        GUI.backgroundColor = Color.white;
+
         EditorGUILayout.EndHorizontal();
 
-        _selectedSerialized.ApplyModifiedProperties();
+        _selectedSerialized?.ApplyModifiedProperties();
         EditorGUILayout.EndScrollView();
         EditorGUILayout.EndVertical();
     }
@@ -461,6 +468,37 @@ public class AugmentTunerWindow : EditorWindow
         _selectedSerialized.ApplyModifiedProperties();
         EditorUtility.SetDirty(_items[_selectedIndex]);
         AssetDatabase.SaveAssets();
+        ReloadItems();
+    }
+
+    private void DeleteSelected()
+    {
+        if (_selectedIndex < 0 || _selectedIndex >= _items.Count)
+        {
+            return;
+        }
+
+        LoadableStoreItem item = _items[_selectedIndex];
+        bool confirmed = EditorUtility.DisplayDialog(
+            "Delete Augment",
+            $"Permanently delete '{item.DisplayName}' ({item.Id})? This deletes the asset file and cannot be undone.",
+            "Delete",
+            "Cancel");
+
+        if (!confirmed)
+        {
+            return;
+        }
+
+        string path = AssetDatabase.GetAssetPath(item);
+        AssetDatabase.DeleteAsset(path);
+        AssetDatabase.SaveAssets();
+
+        if (_catalog != null)
+        {
+            EditorUtility.SetDirty(_catalog);
+        }
+
         ReloadItems();
     }
 

@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: silver_overcharged_shot
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-ProjectileSpeed-30
-  displayName: Overcharged Shot
+  displayName: Servo Assist
   description: +30% projectile speed.
   cost: 0
   icon: {fileID: 0}

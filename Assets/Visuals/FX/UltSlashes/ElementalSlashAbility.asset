@@ -14,5 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::UltimateAbilitySO
   _requirements:
   - element: 1
-    count: 3
+    count: 1
+  - element: 2
+    count: 1
+  - element: 3
+    count: 1
+  - element: 4
+    count: 1
   _effect: {fileID: 11400000, guid: 589899daa36435f44b5d5b58e3bb7847, type: 2}

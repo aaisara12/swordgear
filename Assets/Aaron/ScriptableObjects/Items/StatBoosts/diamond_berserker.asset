@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: diamond_berserker
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-DamageMultiplier-30,MoveSpeed--15
-  displayName: Berserker
+  displayName: Heavy Impact
   description: More damage, slower movement.
   cost: 0
   icon: {fileID: 0}
-  qualityTier: 3
+  qualityTier: 2
   statBoosts:
   - kind: 1
-    value: 30
+    value: 20
   - kind: 0
     value: -15

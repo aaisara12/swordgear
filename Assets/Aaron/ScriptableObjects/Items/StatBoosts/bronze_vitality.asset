@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MaxHp-10
   displayName: Vitality
-  description: +10% max HP.
+  description: Slight passive regeneration
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
-  - kind: 2
-    value: 10
+  - kind: 7
+    value: 1

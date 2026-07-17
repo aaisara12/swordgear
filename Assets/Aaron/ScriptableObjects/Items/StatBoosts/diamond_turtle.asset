@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: diamond_turtle
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MaxHp-50,MoveSpeed--20
-  displayName: Turtle
+  displayName: Bulwark
   description: Much more HP, less move speed.
   cost: 0
   icon: {fileID: 0}
-  qualityTier: 3
+  qualityTier: 2
   statBoosts:
   - kind: 2
-    value: 50
+    value: 30
   - kind: 0
-    value: -20
+    value: -10

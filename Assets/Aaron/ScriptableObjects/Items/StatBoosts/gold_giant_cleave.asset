@@ -13,11 +13,13 @@ MonoBehaviour:
   m_Name: gold_giant_cleave
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MeleeRange-50
-  displayName: Giant Cleave
-  description: Melee attacks have 50% more range.
+  displayName: Heavy Cleave
+  description: Melee attacks have 50% more range at the cost of attack speed
   cost: 0
   icon: {fileID: 0}
   qualityTier: 2
   statBoosts:
   - kind: 8
     value: 50
+  - kind: 9
+    value: -25

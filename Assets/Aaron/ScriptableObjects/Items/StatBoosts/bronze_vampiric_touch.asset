@@ -13,11 +13,11 @@ MonoBehaviour:
   m_Name: bronze_vampiric_touch
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-Lifesteal-10
-  displayName: Vampiric Touch
-  description: Heal for 10% of damage dealt.
+  displayName: Extra Reach
+  description: Increase melee range and size by 5%
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
-  - kind: 6
-    value: 10
+  - kind: 8
+    value: 5

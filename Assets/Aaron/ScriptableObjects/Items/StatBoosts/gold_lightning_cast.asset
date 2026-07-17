@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: gold_lightning_cast
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-ProjectileSpeed-50
-  displayName: Lightning Cast
+  displayName: Supersonic
   description: +50% projectile speed.
   cost: 0
   icon: {fileID: 0}
