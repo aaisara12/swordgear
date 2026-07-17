@@ -232,57 +232,34 @@ public class PlayerController : PlayerGameplayPawn
         return _lastFacingDir.sqrMagnitude > 0.001f ? _lastFacingDir.normalized : Vector2.up;
     }
 
-    // Thunderstep augment: instead of dashing, blink to the thrown sword and immediately catch it — which
-    // fires the element's cleave (FinishRecall -> ElementManager.Cleave) and returns the sword to the player.
-    // Returns true if the teleport happened (so the caller skips the normal dash).
-    private bool TryThunderstepToSword()
+    // Instant reposition primitive for element dash-overrides (e.g. Thunderstep's blink-to-sword): teleport,
+    // kill momentum, leave a ghost at the launch point, and put the dash on cooldown with brief i-frames.
+    public void BlinkTo(Vector2 position)
     {
-        if (playerState != PlayerState.SwordThrown)
-        {
-            return false;
-        }
-
-        if (ElementManager.Instance == null || !ElementManager.Instance.HasUpgrade(UpgradeType.Lightning_Thunderstep))
-        {
-            return false;
-        }
-
-        // Only while Lightning is the active imbue — it's a lightning power, not an always-on dash replacement.
-        if (ElementManager.Instance.ActiveElement != Element.Lightning)
-        {
-            return false;
-        }
-
-        SwordProjectile? sword = SwordProjectile.Instance;
-        if (sword == null || !sword.gameObject.activeSelf)
-        {
-            return false;
-        }
-
-        // A hold-recall already resolves the catch on arrival; don't fight it (would double-cleave).
-        CancelRecallChannel();
-        if (sword.IsRecalling)
-        {
-            return false;
-        }
-
-        _dashCooldownRemaining = dashCooldown;                 // parity with the dash it replaces
+        _dashCooldownRemaining = dashCooldown;
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
-        SpawnAfterimage();                                     // ghost left at the launch point reads as a blink
-
-        transform.position = sword.transform.position;
+        SpawnAfterimage();
+        transform.position = position;
         if (rb != null)
         {
             rb.linearVelocity = Vector2.zero;
         }
 
-        // Brief i-frames so blinking into a pack isn't an instant hit (the cleave clears most of it anyway).
         _iFrameRemaining = Mathf.Max(_iFrameRemaining, 0.3f);
+    }
 
-        // Guarantee the auto-catch gate passes even on a throw-then-instant-blink, then catch now (cleave + pickup).
+    // Force-catch the thrown sword now (used by dash-overrides that blink to it): cancel any in-progress
+    // recall channel, guarantee the auto-catch gate passes, then run the normal catch (cleave + pickup).
+    public void CatchThrownSword()
+    {
+        if (playerState != PlayerState.SwordThrown)
+        {
+            return;
+        }
+
+        CancelRecallChannel();
         _swordHasLeftCatchRadius = true;
         CatchSword();
-        return true;
     }
 
     // Fading ghost silhouette of the player body, tinted to the live element — the dash's motion echo.
@@ -638,7 +615,8 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            if (!TryThunderstepToSword())
+            // Let the active element override the dash (e.g. Lightning's Thunderstep blink); else normal dash.
+            if (!(ElementManager.Instance != null && ElementManager.Instance.TryOverrideDash(this)))
             {
                 _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
             }
@@ -738,7 +716,7 @@ public class PlayerController : PlayerGameplayPawn
         {
             // Aimed dash (right-stick hold-drag): honour the explicit aim direction. GetDashDirection() is
             // only for the no-aim tap-dash — here the player is actively steering the dash.
-            if (!TryThunderstepToSword())
+            if (!(ElementManager.Instance != null && ElementManager.Instance.TryOverrideDash(this)))
             {
                 _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
             }

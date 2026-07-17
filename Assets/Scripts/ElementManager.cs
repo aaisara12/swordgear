@@ -32,6 +32,14 @@ public interface IElementalWeapon
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades);
 
+    /// <summary>
+    /// Per-element dash override. Called (via ElementManager) when the player dashes with the sword out.
+    /// Return true if this element handled the dash with a custom behaviour (e.g. Lightning's blink-to-sword),
+    /// false to fall through to the normal directional dash. Only the ACTIVE element's weapon is consulted,
+    /// so an override is automatically gated to that imbue. Default: no override.
+    /// </summary>
+    public bool TryOverrideDash(PlayerController player, HashSet<UpgradeType> upgrades) => false;
+
     // Ranged
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
     public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades);
@@ -203,6 +211,13 @@ public class ElementManager : InitializeableGameComponent
     {
         if (activeWeapon == null) return;
         activeWeapon.Cleave(player, currentUpgrades);
+    }
+
+    /// <summary>Asks the ACTIVE element's weapon to override the dash; returns true if it did.</summary>
+    public bool TryOverrideDash(PlayerController player)
+    {
+        if (activeWeapon == null) return false;
+        return activeWeapon.TryOverrideDash(player, currentUpgrades);
     }
 
     public void OnRangedFlight(Transform player, SwordProjectile sword)
