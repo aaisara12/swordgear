@@ -169,7 +169,9 @@ public class SwordProjectile : MonoBehaviour
         transform.up = direction;
         rb.linearVelocity = direction * recallSpeed;
 
-        PlayRecallTrail();
+        // Reuse the throw's ribbon streak for the recall too, instead of the old RecallTrailFX whose particle
+        // material has no base texture and renders as untextured (purple) quads.
+        StartSwingTrail();
     }
 
     public void StopFlight()
@@ -491,8 +493,11 @@ public class SwordProjectile : MonoBehaviour
         if (!isRecalling)
         {
             ElementManager.Instance.OnRangedFlight(GameManager.Instance.player.transform, this);
-            UpdateFlightVisuals();
         }
+
+        // Re-tint blade + ribbon every frame during BOTH throw and recall, so the recall shows the same
+        // element-coloured ribbon streak the throw does (only the ranged-hit logic above is throw-only).
+        UpdateFlightVisuals();
     }
 
     /// <summary>

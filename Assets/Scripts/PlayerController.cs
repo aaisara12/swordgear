@@ -644,9 +644,14 @@ public class PlayerController : PlayerGameplayPawn
         recallParticles.ThrowIfNull(nameof(recallParticles));
         if (playerState == PlayerState.SwordThrown && !SwordProjectile.Instance.IsRecalling)
         {
+            // Tint the charge VFX to the live imbue so it matches the sword's element colour (trails inherit it).
+            var recallMain = recallParticles.main;
+            recallMain.startColor = ElementVisuals.GetColor(
+                ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical);
             recallParticles.Play();
             recallSwordCoroutine = StartCoroutine(RecallSwordAfterDelayCoroutine(recallTime));
         }
+
         else if (playerState == PlayerState.MeleeReady)
         {
             //MeleeCharge();
