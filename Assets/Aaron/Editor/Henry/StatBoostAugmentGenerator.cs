@@ -132,6 +132,7 @@ public static class StatBoostAugmentGenerator
         defs.Add(Def("silver_fury_accumulation", "Fury Accumulation", "+30% ultimate charge rate.", AugmentQualityTier.Medium, E(StatBoostKind.UltimateCharge, 30)));
         defs.Add(Def("silver_blood_pact", "Blood Pact", "30% of damage dealt returns as HP.", AugmentQualityTier.Medium, E(StatBoostKind.Lifesteal, 30)));        defs.Add(Def("silver_wide_arc", "Wide Arc", "Melee attacks have 30% more range.", AugmentQualityTier.Medium, E(StatBoostKind.MeleeRange, 30)));
         defs.Add(Def("silver_flurry", "Flurry", "Melee attacks are 30% faster.", AugmentQualityTier.Medium, E(StatBoostKind.AttackSpeed, 30)));
+        defs.Add(Def("silver_quickstep", "Quickstep", "Dash cooldown reduced by 20%.", AugmentQualityTier.Medium, E(StatBoostKind.DashCooldown, 20)));
 
         // Gold (~50%)
         defs.Add(Def("gold_featherweight", "Featherweight", "+50% move speed.", AugmentQualityTier.High, E(StatBoostKind.MoveSpeed, 50)));

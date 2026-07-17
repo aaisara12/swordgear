@@ -947,6 +947,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   forceMultiplier: 1.2
   onHitActivationDuration: 0.2
+  comboTimerBonus: 1
   activatedState: {fileID: 0}
   inactiveState: {fileID: 0}
 --- !u!61 &625269204
@@ -1865,9 +1866,12 @@ MonoBehaviour:
   dashDuration: 0.2
   dashCooldown: 1
   enemyPhysicsLayer: Enemies
+  afterimageFadeTime: 0.2
+  afterimageStartAlpha: 0.5
   speed: 3
   sword: {fileID: 0}
   gear: {fileID: 0}
+  dashLight: {fileID: 0}
   elementWeaponDict:
     _serializedList: []
   recallParticles: {fileID: 2123436793}
@@ -2749,6 +2753,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   forceMultiplier: 1.2
   onHitActivationDuration: 0.2
+  comboTimerBonus: 1
   activatedState: {fileID: 0}
   inactiveState: {fileID: 0}
 --- !u!61 &1500599662
@@ -3438,6 +3443,7 @@ MonoBehaviour:
   buffPower: 0
   swingTrail: {fileID: 0}
   recallTrailPrefab: {fileID: 6410427000160513466, guid: 4c379dd30c484434294f43dbe2c8f04e, type: 3}
+  swingRibbon: {fileID: 0}
   maxSpeed: 10
   decelerationRate: 2
   spriteObject: {fileID: 0}
@@ -3447,6 +3453,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 0
   gearPhysicsLayer: Gear
+  wallEmbedDepth: 0.28
   lightningPrefab: {fileID: 0}
   lodgedIndicator: {fileID: 0}
 --- !u!212 &2072818668
@@ -8852,6 +8859,63 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
+--- !u!1001 &1281251662090834496
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: 1023693171408723973, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_Name
+      value: windcleave
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 13.4
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -3.68208
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3349227482130878651, guid: 34c30bec73fba9449a6840979f517938, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 34c30bec73fba9449a6840979f517938, type: 3}
 --- !u!1001 &1424619937703725348
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -10143,3 +10207,4 @@ SceneRoots:
   - {fileID: 2131546222}
   - {fileID: 336266138}
   - {fileID: 5600984143933538659}
+  - {fileID: 1281251662090834496}

@@ -18,5 +18,5 @@ MonoBehaviour:
     element, and theirs can''t hurt you.'
   cost: 150
   icon: {fileID: 0}
-  qualityTier: 2
+  qualityTier: 3
   elementUpgrade: 8

@@ -27,6 +27,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
     public float RegenPercentPerSecond { get; private set; }
     public float MeleeRangeMultiplier { get; private set; } = 1f;
     public float AttackSpeedMultiplier { get; private set; } = 1f;
+    public float DashCooldownMultiplier { get; private set; } = 1f;
 
     private PlayerBlob? _mutablePlayerBlob;
     private IReadOnlyPlayerBlob? _playerBlob;
@@ -167,6 +168,7 @@ public class PlayerStatModifiers : InitializeableGameComponent
         RegenPercentPerSecond = 0f;
         MeleeRangeMultiplier = 1f;
         AttackSpeedMultiplier = 1f;
+        DashCooldownMultiplier = 1f;
     }
 
     private void ApplyStatBoost(StatBoostKind kind, float value, int stacks)
@@ -203,6 +205,9 @@ public class PlayerStatModifiers : InitializeableGameComponent
                 break;
             case StatBoostKind.AttackSpeed:
                 AttackSpeedMultiplier += total / 100f;
+                break;
+            case StatBoostKind.DashCooldown:
+                DashCooldownMultiplier -= total / 100f;
                 break;
         }
     }

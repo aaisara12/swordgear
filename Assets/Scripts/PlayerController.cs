@@ -14,6 +14,8 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private SpriteRenderer? playerRenderer;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
     public float DashDistance => dashSpeed * dashDuration;
+    private float EffectiveDashCooldown => dashCooldown *
+        (PlayerStatModifiers.Instance != null ? Mathf.Max(0.05f, PlayerStatModifiers.Instance.DashCooldownMultiplier) : 1f);
     
     [Header("Combat")]
     [SerializeField] private float projectileSpeed = 5f;
@@ -190,7 +192,7 @@ public class PlayerController : PlayerGameplayPawn
     private IEnumerator DashCoroutine(Vector2 direction)
     {
         _isDashing = true;
-        _dashCooldownRemaining = dashCooldown;
+        _dashCooldownRemaining = EffectiveDashCooldown;
 
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
         dashLight?.Flash();
@@ -242,7 +244,7 @@ public class PlayerController : PlayerGameplayPawn
     // kill momentum, leave a ghost at the launch point, and put the dash on cooldown with brief i-frames.
     public void BlinkTo(Vector2 position)
     {
-        _dashCooldownRemaining = dashCooldown;
+        _dashCooldownRemaining = EffectiveDashCooldown;
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
         dashLight?.Flash();
         SpawnAfterimage();

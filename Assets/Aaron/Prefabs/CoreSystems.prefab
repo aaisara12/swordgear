@@ -318,7 +318,7 @@ MonoBehaviour:
   attackRadius: 3
   dashFactor: 0.2
   meleeCooldown: 0.25
-  cleaveEffectObject: {fileID: 7437199953995764964, guid: 26e73632f695dd648a525f4867928509, type: 3}
+  cleaveEffectObject: {fileID: 1023693171408723973, guid: 34c30bec73fba9449a6840979f517938, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
   maxWindCharges: 2

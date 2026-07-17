@@ -20,6 +20,7 @@ namespace Shop
         Regen,               // value = percent max HP per second (e.g. 0.5)
         MeleeRange,          // value = percent larger melee hitbox/reach (e.g. 10 = +10%)
         AttackSpeed,         // value = percent faster melee attacks (e.g. 10 = +10%)
+        DashCooldown,        // value = percent reduction to dash cooldown (e.g. 20 = -20% cooldown)
     }
 
     /// <summary>
