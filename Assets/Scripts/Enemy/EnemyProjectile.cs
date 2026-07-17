@@ -32,8 +32,16 @@ public class EnemyProjectile : MonoBehaviour
             pooled.ReleaseAfter(lifetime);
     }
 
+    // Cached "Arena" (solid wall) layer -- enemy projectiles are destroyed by walls, not only tagged blockers.
+    private static int _arenaLayer = -1;
+
     private void OnTriggerEnter2D(Collider2D other)
     {
+        if (_arenaLayer < 0)
+        {
+            _arenaLayer = LayerMask.NameToLayer("Arena");
+        }
+
         if (other.CompareTag("Player"))
         {
             PlayerController player = other.GetComponent<PlayerController>();
@@ -52,7 +60,7 @@ public class EnemyProjectile : MonoBehaviour
 
             PrefabPool.Instance?.Release(gameObject);
         }
-        if (other.CompareTag("ProjectileBlocking"))
+        if (other.CompareTag("ProjectileBlocking") || other.gameObject.layer == _arenaLayer)
         {
             if (destroyEffect != null)
             {

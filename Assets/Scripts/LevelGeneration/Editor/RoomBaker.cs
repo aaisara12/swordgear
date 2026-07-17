@@ -298,9 +298,10 @@ public static class RoomBaker
             var lowWallGO = new GameObject("LowWallTilemap");
             lowWallGO.transform.SetParent(gridGO.transform);
             lowWallGO.transform.localPosition = Vector3.zero;
-            // aisara => LowWall cells sit on their own "LowWall" layer, deliberately left out of
-            // SwordProjectile.terrainLayers, so they block the player (normal solid collider) but the
-            // thrown sword's trigger flies straight through instead of lodging.
+            // aisara => LowWall cells sit on their own "LowWall" layer: solid to the Player (blocks them),
+            // but the Physics2D layer matrix has LowWall ignore collision with the Gear (thrown sword) and
+            // Projectiles layers, so those pass straight through. (Being left out of
+            // SwordProjectile.terrainLayers additionally stops the sword lodging even if it does overlap.)
             int lowWallLayer = LayerMask.NameToLayer("LowWall");
             if (lowWallLayer < 0)
             {

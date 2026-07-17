@@ -255,7 +255,10 @@ public class LinearMapController : MonoBehaviour
     {
         if (snapPositions && railContainer != null)
         {
-            float scroll = currentIndex * nodeSpacing;
+            // Nodes/token are children of the rail, so their local positions are multiplied by the rail's
+            // localScale. The scroll lives in the rail's PARENT space, so it must match that scale to keep
+            // the current node anchored at railOffsetX.
+            float scroll = currentIndex * nodeSpacing * railContainer.localScale.x;
             railContainer.anchoredPosition = new Vector2(railOffsetX - scroll, railContainer.anchoredPosition.y);
         }
 
@@ -352,8 +355,9 @@ public class LinearMapController : MonoBehaviour
     {
         if (railContainer != null)
         {
-            float startScroll = previousIndex * nodeSpacing;
-            float endScroll = currentIndex * nodeSpacing;
+            float railScale = railContainer.localScale.x; // scroll must match the rail's scale (see ApplyStaticPresentation)
+            float startScroll = previousIndex * nodeSpacing * railScale;
+            float endScroll = currentIndex * nodeSpacing * railScale;
             railContainer.anchoredPosition = new Vector2(railOffsetX - startScroll, railContainer.anchoredPosition.y);
 
             DOTween.To(
