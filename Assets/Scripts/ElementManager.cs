@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public enum UpgradeType
 {
     // Every upgrade should be named in the format <element-name>_<upgrade-name>
+    // NOTE: serialized by integer index in store-item assets — APPEND new values, never insert.
     Nonelemental_DemoUpgrade,
     Ice_EmpowerMelee,
     Ice_RangedChill,
@@ -17,6 +18,8 @@ public enum UpgradeType
     Lightning_ApplyStatic,
     Wind_Windstorm,
     Wind_RendingGale,
+    Lightning_Thunderstep,        // dash while sword is out -> blink to the sword, cleave + pick it up
+    Nonelemental_Attunement,      // same-element attacks deal 0 damage (both player and enemy side)
 }
 
 public interface IElementalWeapon
@@ -30,6 +33,14 @@ public interface IElementalWeapon
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades);
+
+    /// <summary>
+    /// Per-element dash override. Called (via ElementManager) when the player dashes with the sword out.
+    /// Return true if this element handled the dash with a custom behaviour (e.g. Lightning's blink-to-sword),
+    /// false to fall through to the normal directional dash. Only the ACTIVE element's weapon is consulted,
+    /// so an override is automatically gated to that imbue. Default: no override.
+    /// </summary>
+    public bool TryOverrideDash(PlayerController player, HashSet<UpgradeType> upgrades) => false;
 
     // Ranged
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
@@ -202,6 +213,13 @@ public class ElementManager : InitializeableGameComponent
     {
         if (activeWeapon == null) return;
         activeWeapon.Cleave(player, currentUpgrades);
+    }
+
+    /// <summary>Asks the ACTIVE element's weapon to override the dash; returns true if it did.</summary>
+    public bool TryOverrideDash(PlayerController player)
+    {
+        if (activeWeapon == null) return false;
+        return activeWeapon.TryOverrideDash(player, currentUpgrades);
     }
 
     public void OnRangedFlight(Transform player, SwordProjectile sword)

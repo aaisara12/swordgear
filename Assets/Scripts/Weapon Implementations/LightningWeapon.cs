@@ -184,6 +184,26 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         StartCoroutine(PlayCleave(player, upgrades));
     }
 
+    // Thunderstep: while Lightning is imbued (this weapon only runs when it's active), dashing blinks the
+    // player straight to the thrown sword and catches it — firing the cleave + returning the sword.
+    public bool TryOverrideDash(PlayerController player, HashSet<UpgradeType> upgrades)
+    {
+        if (player == null || !upgrades.Contains(UpgradeType.Lightning_Thunderstep))
+        {
+            return false;
+        }
+
+        SwordProjectile sword = SwordProjectile.Instance;
+        if (sword == null || !sword.gameObject.activeSelf || sword.IsRecalling)
+        {
+            return false;
+        }
+
+        player.BlinkTo(sword.transform.position);   // teleport + dash cooldown + i-frames + blink ghost
+        player.CatchThrownSword();                  // -> cleave + pickup
+        return true;
+    }
+
     private IEnumerator PlayCleave(Transform player, HashSet<UpgradeType> upgrades)
     {
         bool applyCleaveStatic = upgrades.Contains(UpgradeType.Lightning_ApplyStatic);

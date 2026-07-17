@@ -29,6 +29,12 @@ public class GearManager : InitializeableGameComponent
     [Header("Spin Settings")]
     public float spinSpeed = 0f; // degrees per second
 
+    [Header("Follow Settings")]
+    [Tooltip("How fast the gear eases toward the player (lower = more trailing slide / more 'alive', higher = tighter).")]
+    [SerializeField] private float followLagDecay = 8f;
+
+    public static GearManager Instance;
+
     private List<Transform> slots = new List<Transform>();
 
     // runtime gear state
@@ -47,6 +53,8 @@ public class GearManager : InitializeableGameComponent
 
     private void Awake()
     {
+        Instance = this;
+
         // Build dictionary
         tilePrefabs = new Dictionary<GearTile, GameObject>();
         foreach (TilePrefabPair pair in tilePrefabPairs)
@@ -144,8 +152,14 @@ public class GearManager : InitializeableGameComponent
         
         if (gameManager.player != null)
         {
-            // Follow player position
-            transform.position = GameManager.Instance.player.transform.position;
+            // Smoothed follow: the gear eases toward the player each frame, so any sudden move (dash, blink,
+            // ...) leaves a brief trailing slide. Frame-rate independent.
+            Vector3 target = gameManager.player.transform.position;
+            float t = 1f - Mathf.Exp(-followLagDecay * Time.deltaTime);
+            transform.position = new Vector3(
+                Mathf.Lerp(transform.position.x, target.x, t),
+                Mathf.Lerp(transform.position.y, target.y, t),
+                target.z);
         }
 
         // bool swordInFlight = SwordProjectile.Instance != null && SwordProjectile.Instance.IsInFlight;

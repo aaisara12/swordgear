@@ -141,6 +141,7 @@ MonoBehaviour:
   radius: 10
   slotPrefab: {fileID: 0}
   spinSpeed: 0
+  followLagDecay: 8
   tilePrefabPairs:
   - gearTile: 0
     prefab: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}

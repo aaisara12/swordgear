@@ -89,8 +89,26 @@ public class GameManager : MonoBehaviour
         ui.GetComponent<DamageUI>().ShowNumber(amt, sourceElement ?? currentElement);
     }
 
+    /// <summary>
+    /// Attunement augment: an attack whose element matches the target's element is fully nullified. Callers
+    /// should skip the whole hit (no damage, no VFX/SFX/hit-reaction, projectile phases through) when true —
+    /// checking this instead of relying on 0 damage, so a matching hit reads as "passed through", not "hit".
+    /// </summary>
+    public bool IsAttunementBlocked(Element attackerElement, Element defenderElement)
+    {
+        return attackerElement == defenderElement
+            && ElementManager.Instance != null
+            && ElementManager.Instance.HasUpgrade(UpgradeType.Nonelemental_Attunement);
+    }
+
     public float CalculateDamage(Element defenderElement, Element attackerElement, float baseDamage)
     {
+        // Safety net: even if a caller forgets the IsAttunementBlocked pre-check, a matching hit deals 0.
+        if (IsAttunementBlocked(attackerElement, defenderElement))
+        {
+            return 0f;
+        }
+
         // add multipliers in the future
         float finalDamage = baseDamage;
         //// Apply all embue multipliers

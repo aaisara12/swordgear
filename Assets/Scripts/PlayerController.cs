@@ -45,6 +45,8 @@ public class PlayerController : PlayerGameplayPawn
     [Header("Weapon Management")]
     [SerializeField] private SwordController? sword;
     [SerializeField] private GearController? gear;
+    [Tooltip("Optional Light2D flash popped on dash/blink for a bit of motion juice.")]
+    [SerializeField] private LightFlash? dashLight;
     [SerializedDictionary("Element Type", "Weapon Prefab")]
     [SerializeField] private SerializedDictionary<Element, GameObject>? elementWeaponDict;
     Dictionary<Element, IMeleeWeapon> elementToWeapon = new Dictionary<Element, IMeleeWeapon>();
@@ -191,6 +193,7 @@ public class PlayerController : PlayerGameplayPawn
         _dashCooldownRemaining = dashCooldown;
 
         AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+        dashLight?.Flash();
 
         int playerLayer = gameObject.layer;
         int enemyLayer = LayerMask.NameToLayer(enemyPhysicsLayer);
@@ -233,6 +236,37 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         return _lastFacingDir.sqrMagnitude > 0.001f ? _lastFacingDir.normalized : Vector2.up;
+    }
+
+    // Instant reposition primitive for element dash-overrides (e.g. Thunderstep's blink-to-sword): teleport,
+    // kill momentum, leave a ghost at the launch point, and put the dash on cooldown with brief i-frames.
+    public void BlinkTo(Vector2 position)
+    {
+        _dashCooldownRemaining = dashCooldown;
+        AudioSystem.Play(AudioSystem.Sound.Player_Dash);
+        dashLight?.Flash();
+        SpawnAfterimage();
+        transform.position = position;
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        _iFrameRemaining = Mathf.Max(_iFrameRemaining, 0.3f);
+    }
+
+    // Force-catch the thrown sword now (used by dash-overrides that blink to it): cancel any in-progress
+    // recall channel, guarantee the auto-catch gate passes, then run the normal catch (cleave + pickup).
+    public void CatchThrownSword()
+    {
+        if (playerState != PlayerState.SwordThrown)
+        {
+            return;
+        }
+
+        CancelRecallChannel();
+        _swordHasLeftCatchRadius = true;
+        CatchSword();
     }
 
     // Fading ghost silhouette of the player body, tinted to the live element — the dash's motion echo.
@@ -590,7 +624,11 @@ public class PlayerController : PlayerGameplayPawn
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
-            _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
+            // Let the active element override the dash (e.g. Lightning's Thunderstep blink); else normal dash.
+            if (!(ElementManager.Instance != null && ElementManager.Instance.TryOverrideDash(this)))
+            {
+                _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
+            }
         }
     }
 
@@ -688,7 +726,10 @@ public class PlayerController : PlayerGameplayPawn
         {
             // Aimed dash (right-stick hold-drag): honour the explicit aim direction. GetDashDirection() is
             // only for the no-aim tap-dash — here the player is actively steering the dash.
-            _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
+            if (!(ElementManager.Instance != null && ElementManager.Instance.TryOverrideDash(this)))
+            {
+                _dashCoroutine = StartCoroutine(DashCoroutine(direction.normalized));
+            }
         }
     }
 
