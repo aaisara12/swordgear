@@ -16,6 +16,8 @@ public enum UpgradeType
     Fire_RangedBurn,
     Lightning_DashStrike,
     Lightning_ApplyStatic,
+    Wind_Windstorm,
+    Wind_RendingGale,
     Lightning_Thunderstep,        // dash while sword is out -> blink to the sword, cleave + pick it up
     Nonelemental_Attunement,      // same-element attacks deal 0 damage (both player and enemy side)
 }

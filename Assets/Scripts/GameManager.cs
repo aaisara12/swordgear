@@ -169,7 +169,8 @@ public class GameManager : MonoBehaviour
     {
         Burn,
         Static,
-        Chill
+        Chill,
+        Buffetted
     }
 
     public interface IEnemyEffect

@@ -189,6 +189,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         if (flightTime < Time.deltaTime && upgrades.Contains(UpgradeType.Ice_RangedChill))
         {
             IceChillField field = PrefabPool.Instance!.Spawn(chillFieldObject, sword.transform.position, Quaternion.identity).GetComponent<IceChillField>();
+            field.transform.up = sword.transform.up; // align so the frost drifts backward along the blade's path, reading as a trail rather than a static pool
             field.lingerDuration = fieldDuration;
             field.BeginEffect();
         }

@@ -49,6 +49,9 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float tornadoDuration = 4f;
     [SerializeField] private float tornadoPullForce = 4.5f;
 
+    [Header("Rending Gale (Buffetted debuff)")]
+    [SerializeField] private int buffettedDuration = 3;
+
     private int windCharges = 0;
     private int _lastFlightFrame = -1;
 
@@ -167,7 +170,10 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Wind, GameManager.Instance.GetEffectiveBaseDamage()),
             new MoveType(Element.Wind, AttackKind.MeleeStrike));
 
-        windCharges = Mathf.Min(windCharges + 1, maxWindCharges);
+        if (upgrades.Contains(UpgradeType.Wind_Windstorm))
+        {
+            windCharges = Mathf.Min(windCharges + 1, maxWindCharges);
+        }
     }
 
     public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
@@ -177,7 +183,7 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
         bool isNewThrow = Time.frameCount != _lastFlightFrame + 1;
         _lastFlightFrame = Time.frameCount;
 
-        if (isNewThrow)
+        if (isNewThrow && upgrades.Contains(UpgradeType.Wind_Windstorm))
         {
             BeginEmpoweredThrow(sword);
         }
@@ -254,5 +260,10 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
     {
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Wind, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
             new MoveType(Element.Wind, AttackKind.Ranged));
+
+        if (upgrades.Contains(UpgradeType.Wind_RendingGale))
+        {
+            GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Buffetted, buffettedDuration);
+        }
     }
 }
