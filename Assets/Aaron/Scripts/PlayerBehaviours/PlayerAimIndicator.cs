@@ -333,8 +333,23 @@ public class PlayerAimIndicator : MonoBehaviour
         return AimBlockKind.None;
     }
 
+    private static int _lowWallLayer = -1;
+
     private bool IsWallCollider(Collider2D collider)
     {
+        // The thrown sword passes straight through LowWall tiles (low walls / prop_box2) -- Physics2D ignores
+        // Sword<->LowWall -- so the aim indicator must not treat them as blocking, even though their
+        // TilemapCollider2D would otherwise be clipped below.
+        if (_lowWallLayer < 0)
+        {
+            _lowWallLayer = LayerMask.NameToLayer("LowWall");
+        }
+
+        if (collider.gameObject.layer == _lowWallLayer)
+        {
+            return false;
+        }
+
         // Arena wall tilemaps use TilemapCollider2D (often on Default); always clip those.
         if (collider is TilemapCollider2D || collider is CompositeCollider2D)
         {
