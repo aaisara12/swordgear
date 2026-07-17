@@ -16,7 +16,7 @@ MonoBehaviour:
   displayName: Triangle Impact
   description: Tons of everything :)
   cost: 0
-  icon: {fileID: 0}
+  icon: {fileID: -2262147669037142634, guid: 877a5aadf09911c43bf6580d9379670d, type: 3}
   qualityTier: 3
   statBoosts:
   - kind: 0

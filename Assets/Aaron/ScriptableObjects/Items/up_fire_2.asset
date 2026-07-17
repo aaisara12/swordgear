@@ -16,6 +16,6 @@ MonoBehaviour:
   displayName: Sear
   description: Weapon throw applies burn
   cost: 100
-  icon: {fileID: 4559546834057775049, guid: 93442a30944f0874a871bbcf7d273f30, type: 3}
+  icon: {fileID: -6685466616860816496, guid: fda8ea0e8d4f1f040b7d7c3db3657a2f, type: 3}
   qualityTier: 3
   elementUpgrade: 4

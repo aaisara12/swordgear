@@ -17,6 +17,6 @@ MonoBehaviour:
   description: 'Melee hits build wind charges. Throwing the sword consumes them:
     partial charges summon a wisp swirl, full charges summon a tornado.'
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: 789516746691853742, guid: 06a4eb3e5d82a7a429daa5f31bed5ac6, type: 3}
   qualityTier: 3
   elementUpgrade: 7

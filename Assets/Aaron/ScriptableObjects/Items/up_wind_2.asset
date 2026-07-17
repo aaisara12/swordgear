@@ -17,6 +17,6 @@ MonoBehaviour:
   description: 'Weapon throw applies Buffetted: enemies take an extra instance of
     wind damage every time they''re hit for a short time.'
   cost: 100
-  icon: {fileID: 0}
+  icon: {fileID: 7690923006896646247, guid: 3721770ecdc7c2a458fe2354b046d402, type: 3}
   qualityTier: 3
   elementUpgrade: 8
