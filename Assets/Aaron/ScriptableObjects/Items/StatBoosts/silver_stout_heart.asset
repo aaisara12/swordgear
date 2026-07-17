@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MaxHp-30
   displayName: Stout Heart
-  description: +30% max health.
+  description: +10% max health.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 2
-    value: 30
+    value: 10

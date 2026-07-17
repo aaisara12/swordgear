@@ -17,9 +17,9 @@ MonoBehaviour:
   description: Ranged damage and projectile speed.
   cost: 0
   icon: {fileID: 0}
-  qualityTier: 3
+  qualityTier: 2
   statBoosts:
   - kind: 3
-    value: 30
+    value: 15
   - kind: 4
-    value: 40
+    value: 15

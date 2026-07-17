@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MeleeRange-30,AttackSpeed-30
   displayName: Whirlwind
-  description: Bigger melee reach and faster swings.
+  description: Faster movement and faster swings.
   cost: 0
   icon: {fileID: 0}
-  qualityTier: 3
+  qualityTier: 2
   statBoosts:
-  - kind: 8
-    value: 30
+  - kind: 0
+    value: 15
   - kind: 9
-    value: 30
+    value: 15

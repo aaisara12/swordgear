@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-AttackSpeed-30
   displayName: Flurry
-  description: Melee attacks are 30% faster.
+  description: Melee attacks are faster.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 9
-    value: 30
+    value: 10

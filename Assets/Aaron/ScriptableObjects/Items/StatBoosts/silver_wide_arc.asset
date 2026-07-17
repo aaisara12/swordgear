@@ -14,10 +14,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MeleeRange-30
   displayName: Wide Arc
-  description: Melee attacks have 30% more range.
+  description: Melee attacks have 15% more range.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 8
-    value: 30
+    value: 15

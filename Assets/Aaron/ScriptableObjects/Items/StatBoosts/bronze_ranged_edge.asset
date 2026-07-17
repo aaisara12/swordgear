@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: bronze_ranged_edge
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-RangedDamage-10
-  displayName: Ranged Edge
+  displayName: Ballistic Throw
   description: Ranged attacks deal 10% more damage.
   cost: 0
   icon: {fileID: 0}

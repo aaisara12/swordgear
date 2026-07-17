@@ -10,6 +10,7 @@ namespace Shop
         [SerializeField] private TMPro.TMP_Text? itemNameText;
         [SerializeField] private TMPro.TMP_Text? itemDescText;
         [SerializeField] private Image? itemIcon;
+        [SerializeField] private Sprite? defaultIcon;
         [SerializeField] private Image? cardBackground;
         [SerializeField] private Image? cardBorder;
         [SerializeField] private Image? cardInnerFlare;
@@ -72,7 +73,7 @@ namespace Shop
 
             itemNameText.text = model.DisplayName;
             itemDescText.text = model.Description;
-            itemIcon.sprite = model.Icon;
+            itemIcon.sprite = model.Icon != null ? model.Icon : defaultIcon;
             this.model = model;
 
             if (cardBackground != null)

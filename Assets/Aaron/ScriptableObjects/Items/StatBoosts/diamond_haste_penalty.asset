@@ -13,13 +13,13 @@ MonoBehaviour:
   m_Name: diamond_haste_penalty
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MoveSpeed-50,DamageMultiplier--15
-  displayName: Haste Penalty
+  displayName: Evasive Tactics
   description: Very fast, less damage.
   cost: 0
   icon: {fileID: 0}
-  qualityTier: 3
+  qualityTier: 2
   statBoosts:
   - kind: 0
-    value: 50
+    value: 30
   - kind: 1
-    value: -15
+    value: -10

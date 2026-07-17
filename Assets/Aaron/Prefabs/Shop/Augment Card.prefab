@@ -428,6 +428,7 @@ MonoBehaviour:
   itemNameText: {fileID: 181595647810316269}
   itemDescText: {fileID: 7306020095659098980}
   itemIcon: {fileID: 2104424573951240064}
+  defaultIcon: {fileID: -343651076876750352, guid: 9e9771508852bff49b2506b78d2aee7d, type: 3}
   cardBackground: {fileID: 7429950735798544316}
   cardBorder: {fileID: 700807164752368150}
   cardInnerFlare: {fileID: 2937711246608519523}
