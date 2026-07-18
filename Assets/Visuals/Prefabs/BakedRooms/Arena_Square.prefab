@@ -2147,7 +2147,7 @@ MonoBehaviour:
   m_InstanceId: 0
   m_ShadowShape2DComponent: {fileID: 8790716016370013653}
   m_ShadowShape2DProvider:
-    rid: 6338525527851401372
+    rid: 6338525527851401592
   m_ShadowCastingSource: 2
   m_ShadowMesh:
     m_Mesh: {fileID: 0}
@@ -2167,7 +2167,7 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: 6338525527851401372
+    - rid: 6338525527851401592
       type: {class: ShadowShape2DProvider_Collider2D, ns: UnityEngine.Rendering.Universal, asm: Unity.RenderPipelines.Universal.2D.Runtime}
       data: 
 --- !u!1 &1223444101981605096
