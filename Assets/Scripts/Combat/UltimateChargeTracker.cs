@@ -6,7 +6,7 @@ using UnityEngine;
 /// <summary>
 /// Tracks per-element hit charges accumulated during an active combo and makes the
 /// current ultimate ability available when its element requirements are met.
-/// Charges are discarded when the combo ends without the ult being activated.
+/// Unspent charges are discarded when the combo ends; a granted ult persists until used.
 /// </summary>
 public class UltimateChargeTracker : MonoBehaviour
 {
@@ -97,14 +97,14 @@ public class UltimateChargeTracker : MonoBehaviour
 
     private void HandleComboBroken()
     {
-        _comboCharges.Clear();
-
+        // Once earned, the ult is the player's until they spend it — keep the charges too so the
+        // meter keeps reading full rather than emptying under a still-usable ability.
         if (_isUltimateAvailable)
         {
-            _isUltimateAvailable = false;
-            OnUltimateUnavailable?.Invoke();
+            return;
         }
 
+        _comboCharges.Clear();
         OnProgressChanged?.Invoke(0f);
     }
 

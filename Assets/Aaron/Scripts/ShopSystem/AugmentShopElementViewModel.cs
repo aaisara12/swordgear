@@ -37,14 +37,23 @@ namespace Shop
             }
 
             float effectTime = animationTimeOffset + Time.unscaledTime;
-            if (tierCardMaterialInstance != null)
+            SetEffectTime(cardBackground, tierCardMaterialInstance, effectTime);
+            SetEffectTime(cardInnerFlare, tierFlareMaterialInstance, effectTime);
+        }
+
+        private static void SetEffectTime(Image? graphic, Material? instance, float effectTime)
+        {
+            if (instance != null)
             {
-                tierCardMaterialInstance.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
+                instance.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
             }
 
-            if (tierFlareMaterialInstance != null)
+            // Under a Mask the graphic draws through a stencil copy, so writing only the base
+            // instance leaves the rendered material frozen.
+            Material? rendered = graphic != null ? graphic.materialForRendering : null;
+            if (rendered != null && rendered != instance)
             {
-                tierFlareMaterialInstance.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
+                rendered.SetFloat(AugmentTierVisuals.EffectTimeId, effectTime);
             }
         }
 
