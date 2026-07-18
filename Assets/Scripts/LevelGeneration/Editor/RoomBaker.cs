@@ -379,6 +379,13 @@ public static class RoomBaker
                 CreateFloor(rootGO, config.FloorSprite, w * cs, h * cs, config.FloorTileScale <= 0f ? DefaultFloorScale : config.FloorTileScale, floorTint);
             }
 
+            // The floor quad spans the whole grid, so unpainted cells outside the arena would still show
+            // floor. Black them out instead of making the designer fill every one with wall.
+            if (config.BlackBackdrop && config.WallTile != null)
+            {
+                CreateVoidTilemap(rootGO, room, config.WallTile, gridOffset, cs);
+            }
+
             // Optional black void quad behind everything (unused when the arena camera clears to black).
             if (config.BlackBackdrop && config.WallBackdropSprite != null)
             {
@@ -456,6 +463,57 @@ public static class RoomBaker
         sr.drawMode = SpriteDrawMode.Tiled;
         sr.size = new Vector2(worldW / scale, worldH / scale);
         sr.sortingOrder = -10; // behind the walls, in front of the black void
+    }
+
+    private static void CreateVoidTilemap(GameObject root, RoomDefinition room, TileBase wallTile, Vector3 gridOffset, float cellSize)
+    {
+        bool[] reachable = FloodFillFromPlayer(room);
+
+        var cells = new List<Vector3Int>();
+        for (int y = 0; y < room.Height; y++)
+        {
+            for (int x = 0; x < room.Width; x++)
+            {
+                // Only unpainted cells the player can never reach; anything authored stays as authored.
+                if (room.GetCell(x, y) == RoomCellType.Empty && !reachable[y * room.Width + x])
+                {
+                    cells.Add(new Vector3Int(x, y, 0));
+                }
+            }
+        }
+
+        if (cells.Count == 0)
+        {
+            return;
+        }
+
+        var gridGO = new GameObject("VoidGrid");
+        gridGO.transform.SetParent(root.transform);
+        gridGO.transform.localPosition = gridOffset;
+        Grid grid = gridGO.AddComponent<Grid>();
+        grid.cellSize = new Vector3(cellSize, cellSize, 0f);
+
+        var voidGO = new GameObject("VoidTilemap");
+        voidGO.transform.SetParent(gridGO.transform);
+        voidGO.transform.localPosition = Vector3.zero;
+        int arenaLayer = LayerMask.NameToLayer("Arena");
+        if (arenaLayer >= 0)
+        {
+            voidGO.layer = arenaLayer;
+        }
+
+        Tilemap voidTilemap = voidGO.AddComponent<Tilemap>();
+        var renderer = voidGO.AddComponent<TilemapRenderer>();
+        voidGO.AddComponent<TilemapCollider2D>();
+
+        foreach (Vector3Int cell in cells)
+        {
+            voidTilemap.SetTile(cell, wallTile);
+        }
+
+        voidTilemap.color = Color.black;
+        // Between the floor (-10) and the walls (0), so it hides floor without covering wall art.
+        renderer.sortingOrder = -5;
     }
 
     private static void CreateBlackBackdrop(GameObject root, Sprite sprite)

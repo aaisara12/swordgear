@@ -18,6 +18,7 @@ public class EnemyFlowField : MonoBehaviour
 
     private Tilemap wallTilemap;
     private Tilemap lowWallTilemap;
+    private Tilemap voidTilemap;
     private BoundsInt bounds;
     private bool[] walkable;
     private int[] distance;
@@ -48,6 +49,7 @@ public class EnemyFlowField : MonoBehaviour
         hasField = false;
         wallTilemap = null;
         lowWallTilemap = null;
+        voidTilemap = null;
 
         if (room == null)
         {
@@ -63,6 +65,10 @@ public class EnemyFlowField : MonoBehaviour
             else if (tilemap.gameObject.name == "LowWallTilemap")
             {
                 lowWallTilemap = tilemap;
+            }
+            else if (tilemap.gameObject.name == "VoidTilemap")
+            {
+                voidTilemap = tilemap;
             }
         }
 
@@ -93,7 +99,8 @@ public class EnemyFlowField : MonoBehaviour
             {
                 Vector3Int cell = new Vector3Int(bounds.min.x + x, bounds.min.y + y, 0);
                 bool blocked = wallTilemap.HasTile(cell)
-                    || (lowWallTilemap != null && lowWallTilemap.HasTile(cell));
+                    || (lowWallTilemap != null && lowWallTilemap.HasTile(cell))
+                    || (voidTilemap != null && voidTilemap.HasTile(cell));
                 walkable[y * bounds.size.x + x] = !blocked;
             }
         }
