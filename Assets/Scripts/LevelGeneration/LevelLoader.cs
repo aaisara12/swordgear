@@ -63,6 +63,7 @@ public class LevelLoader : MonoBehaviour
         // Instantiate room geometry
         currentRoom = Instantiate(blueprint.Layout.LevelPrefab);
         MinimapController.Instance?.Refresh(currentRoom);
+        EnsureFlowField().Build(currentRoom);
 
         SpawnPlayerFromRoomMarker();
 
@@ -73,6 +74,17 @@ public class LevelLoader : MonoBehaviour
         }
 
         StartNextWave();
+    }
+
+    private EnemyFlowField EnsureFlowField()
+    {
+        EnemyFlowField field = EnemyFlowField.Instance;
+        if (field == null)
+        {
+            field = gameObject.GetComponent<EnemyFlowField>();
+        }
+
+        return field != null ? field : gameObject.AddComponent<EnemyFlowField>();
     }
 
     private void SpawnPlayerFromRoomMarker()
