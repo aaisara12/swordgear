@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-MoveSpeed-30
   displayName: Wind Runner
-  description: +30% movement speed.
+  description: +25% movement speed.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1

@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_quick_release
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-ProjectileSpeed-10
+  id: stat-ProjectileSpeed-20
   displayName: Quick Release
-  description: Projectiles fly 10% faster.
+  description: Projectiles fly 20% faster.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
   - kind: 4
-    value: 10
+    value: 20

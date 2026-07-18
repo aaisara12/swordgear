@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: silver_wide_arc
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MeleeRange-30
+  id: stat-MeleeRange-25
   displayName: Wide Arc
-  description: Melee attacks have 15% more range.
+  description: Melee attacks have 25% more range.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 8
-    value: 15
+    value: 25

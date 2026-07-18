@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: diamond_tank
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MaxHp-50,MoveSpeed--15,DamageMultiplier--10
+  id: stat-MaxHp-200,MoveSpeed--15,DamageMultiplier--10
   displayName: Tank
   description: Much more HP, slower and less damage.
   cost: 0
@@ -20,7 +20,7 @@ MonoBehaviour:
   qualityTier: 2
   statBoosts:
   - kind: 2
-    value: 50
+    value: 200
   - kind: 0
     value: -15
   - kind: 1

@@ -128,6 +128,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::BeamSniperAttackStrategy
   beamLaserPrefab: {fileID: 3293419488978979621, guid: 4cffa5bbfb61e5b46b482e00156d3f2d, type: 3}
   attackFrequency: 0.3
-  attackRange: 12
-  damage: 14
-  chargeUpTime: 1.35
+  attackRange: 15
+  damage: 20
+  chargeUpTime: 0.75

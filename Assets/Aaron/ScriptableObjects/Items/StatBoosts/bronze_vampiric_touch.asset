@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_vampiric_touch
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-Lifesteal-10
+  id: stat-MeleeRange-10
   displayName: Extra Reach
-  description: Increase melee range and size by 5%
+  description: Increase melee attack size by 10%
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0
   statBoosts:
   - kind: 8
-    value: 5
+    value: 10

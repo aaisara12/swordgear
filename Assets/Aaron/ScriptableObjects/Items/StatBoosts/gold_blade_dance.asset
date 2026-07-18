@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: gold_blade_dance
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-AttackSpeed-50
+  id: stat-AttackSpeed-50,DamageMultiplier--25
   displayName: Blade Dance
   description: Melee attacks are much faster, but overall damage is reduced
   cost: 0

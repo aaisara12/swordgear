@@ -106,6 +106,7 @@ MonoBehaviour:
     - {fileID: 11400000, guid: 327e59df64cd51a43b122b979bfbc9e3, type: 2}
     - {fileID: 11400000, guid: 59bcd77541f882f449ef19b836d87a23, type: 2}
     - {fileID: 11400000, guid: fb05d9c06f959204f9f7c9a4ecf07b30, type: 2}
+    - {fileID: 11400000, guid: df177be84dd334495819a4bf72b204d8, type: 2}
     combatWaves:
     - {fileID: 11400000, guid: b00514f919aaf91448c3cd43eb0c0029, type: 2}
     - {fileID: 11400000, guid: c56f9b6ae7e601e4bbdfa74f91003499, type: 2}

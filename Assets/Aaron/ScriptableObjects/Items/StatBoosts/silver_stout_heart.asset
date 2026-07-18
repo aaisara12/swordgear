@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: silver_stout_heart
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MaxHp-30
+  id: stat-MaxHp-50
   displayName: Stout Heart
-  description: +10% max health.
+  description: +50% max health.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 2
-    value: 10
+    value: 50

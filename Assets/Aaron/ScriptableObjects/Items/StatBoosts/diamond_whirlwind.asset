@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: diamond_whirlwind
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MeleeRange-30,AttackSpeed-30
+  id: stat-MoveSpeed-30,AttackSpeed-30
   displayName: Whirlwind
   description: Faster movement and faster swings.
   cost: 0
@@ -20,6 +20,6 @@ MonoBehaviour:
   qualityTier: 2
   statBoosts:
   - kind: 0
-    value: 15
+    value: 30
   - kind: 9
-    value: 15
+    value: 30

@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
   id: stat-RangedDamage-10
   displayName: Ballistic Throw
-  description: Ranged attacks deal 10% more damage.
+  description: Thrown sword deal 10% more damage.
   cost: 0
   icon: {fileID: 0}
   qualityTier: 0

@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: bronze_vitality
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-MaxHp-10
+  id: stat-Regen-1
   displayName: Vitality
   description: Slight passive regeneration
   cost: 0

@@ -516,7 +516,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3457207750712895610, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
       propertyPath: hp
-      value: 24
+      value: 30
       objectReference: {fileID: 0}
     - target: {fileID: 3457207750712895610, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
       propertyPath: speed
@@ -675,6 +675,7 @@ MonoBehaviour:
   damage: 4
   burstSize: 6
   reloadDuration: 2
+  chargeUpTime: 0.5
 --- !u!4 &3480466597294546983 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 557463099670980507, guid: 45a8231008ffcc94da7bdd3cafd178e8, type: 3}
