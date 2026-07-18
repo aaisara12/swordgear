@@ -12,12 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: silver_blood_pact
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-Lifesteal-5
+  id: stat-Lifesteal-2
   displayName: Soul Leech
-  description: 3% lifesteal
+  description: 2% lifesteal
   cost: 0
   icon: {fileID: 0}
   qualityTier: 1
   statBoosts:
   - kind: 6
-    value: 3
+    value: 2

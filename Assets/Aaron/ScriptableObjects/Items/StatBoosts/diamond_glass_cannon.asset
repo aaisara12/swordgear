@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1793e0d137f9149008ba42de9a18aedd, type: 3}
   m_Name: diamond_glass_cannon
   m_EditorClassIdentifier: Main::StatBoostLoadableStoreItem
-  id: stat-DamageMultiplier-50,MaxHp--25
+  id: stat-DamageMultiplier-50,MaxHp--50
   displayName: Glass Cannon
   description: Significant damage boost, significant Max HP loss
   cost: 0

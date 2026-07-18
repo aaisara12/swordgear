@@ -32,8 +32,8 @@ MonoBehaviour:
     damageMultiplier: 1.1
     guaranteeElite: 1
   blockThreatScale: 0.3
-  blockHpScale: 0.25
-  blockDamageScale: 0.1
+  blockHpScale: 0.5
+  blockDamageScale: 0.25
   themeWeightsCombat0:
   - 30
   - 40
@@ -73,7 +73,7 @@ MonoBehaviour:
   - 20
   - 20
   - 20
-  maxEnemiesPerWave: 12
+  maxEnemiesPerWave: 20
   minEnemiesPerWave: 4
   delayAfterClear: 1.5
   themedElementBias: 0.8

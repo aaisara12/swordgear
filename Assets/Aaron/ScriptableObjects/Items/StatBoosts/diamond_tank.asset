@@ -20,8 +20,8 @@ MonoBehaviour:
   qualityTier: 2
   statBoosts:
   - kind: 2
-    value: 200
+    value: 100
   - kind: 0
     value: -15
   - kind: 1
-    value: -10
+    value: -30
