@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 344cabec511c69c428b2c72d7cfdd904
+guid: b0f9a398f377f42b4b67df332a9563e2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 2985150497616394641
-    second: rangedenemy_0
+      213: 6781961541493939235
+    second: SG_melee_guy_1_greyscale_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -51,7 +51,7 @@ TextureImporter:
   spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
-  spritePixelsToUnits: 800
+  spritePixelsToUnits: 1500
   spriteBorder: {x: 0, y: 0, z: 0, w: 0}
   spriteGenerateFallbackPhysicsShape: 1
   alphaUsage: 1
@@ -97,7 +97,7 @@ TextureImporter:
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
-    buildTarget: WebGL
+    buildTarget: iOS
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
@@ -113,23 +113,23 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: rangedenemy_0
+      name: SG_melee_guy_1_greyscale_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 552
-        height: 552
+        width: 1096
+        height: 1096
       alignment: 9
-      pivot: {x: 0.528080, y: 0.517210}
+      pivot: {x: 0.506843, y: 0.494982}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1997183cf826d6920800000000000000
-      internalID: 2985150497616394641
+      spriteID: 32c5b11f61e5e1e50800000000000000
+      internalID: 6781961541493939235
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      rangedenemy_0: 2985150497616394641
+      SG_melee_guy_1_greyscale_0: 6781961541493939235
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

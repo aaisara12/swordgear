@@ -48,7 +48,7 @@ TextureImporter:
   compressionQuality: 50
   spriteMode: 2
   spriteExtrude: 1
-  spriteMeshType: 1
+  spriteMeshType: 0
   alignment: 0
   spritePivot: {x: 0.5, y: 0.5}
   spritePixelsToUnits: 1500
@@ -103,12 +103,12 @@ TextureImporter:
       name: swordgear_meleeenemy_0
       rect:
         serializedVersion: 2
-        x: 177
-        y: 50
-        width: 661
-        height: 877
-      alignment: 0
-      pivot: {x: 0, y: 0}
+        x: 0
+        y: 0
+        width: 1096
+        height: 1096
+      alignment: 9
+      pivot: {x: 0.506843, y: 0.489507}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []

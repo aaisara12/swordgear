@@ -31,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -0.25194624, y: 3.32483, z: 0}
-  m_LocalScale: {x: 0.17, y: 0.36, z: 1}
+  m_LocalScale: {x: 0.272, y: 0.576, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 641036440950319211}
@@ -159,7 +159,7 @@ CircleCollider2D:
   m_CompositeOperation: 0
   m_CompositeOrder: 0
   m_Offset: {x: 0, y: 0}
-  m_Radius: 0.5
+  m_Radius: 0.3125
 --- !u!114 &-276169292875015146
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -572,7 +572,7 @@ ParticleSystem:
     startSize:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.14
+      scalar: 0.224
       minScalar: 1
       maxCurve:
         serializedVersion: 2
@@ -1036,7 +1036,7 @@ ParticleSystem:
     sphericalDirectionAmount: 0
     randomPositionAmount: 0
     radius:
-      value: 0.06
+      value: 0.096
       mode: 0
       spread: 0
       speed:

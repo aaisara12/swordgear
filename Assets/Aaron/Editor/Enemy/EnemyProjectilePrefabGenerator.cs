@@ -12,6 +12,12 @@ public static class EnemyProjectilePrefabGenerator
 {
     private const string ArrowPrefabPath = "Assets/Visuals/Prefabs/Arrow.prefab";
 
+    // Bullets read bigger without hitting harder: the transform scales up by VisualScale while the
+    // collider radius divides by it, holding the effective world radius at 0.18.
+    private const float VisualScale = 1.6f;
+    private const float BaseColliderRadius = 0.5f;
+    private static readonly Vector2 BaseScale = new Vector2(0.17f, 0.36f);
+
     [MenuItem("Henry/Enhance Enemy Projectile Visuals")]
     public static void EnhanceFromMenu()
     {
@@ -32,7 +38,13 @@ public static class EnemyProjectilePrefabGenerator
             }
 
             // Original prefab used tiny root scale (0.008, 0.02) for the circle sprite — reset so visuals are visible.
-            prefabRoot.transform.localScale = new Vector3(0.17f, 0.36f, 1f);
+            prefabRoot.transform.localScale = new Vector3(BaseScale.x * VisualScale, BaseScale.y * VisualScale, 1f);
+
+            CircleCollider2D? projectileCollider = prefabRoot.GetComponent<CircleCollider2D>();
+            if (projectileCollider != null)
+            {
+                projectileCollider.radius = BaseColliderRadius / VisualScale;
+            }
 
             SpriteRenderer? coreRenderer = prefabRoot.GetComponent<SpriteRenderer>();
             if (coreRenderer != null)

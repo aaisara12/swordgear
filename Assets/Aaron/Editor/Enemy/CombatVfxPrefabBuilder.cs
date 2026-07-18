@@ -247,7 +247,8 @@ public static class CombatVfxPrefabBuilder
         main.playOnAwake = false;
         main.startLifetime = 0.2f;
         main.startSpeed = 0.1f;
-        main.startSize = 0.14f;
+        // Trail scales Local in World space, so it cannot inherit the projectile's enlarged root scale.
+        main.startSize = 0.224f;
         main.startColor = color;
         main.simulationSpace = ParticleSystemSimulationSpace.World;
         main.maxParticles = 64;
@@ -257,7 +258,7 @@ public static class CombatVfxPrefabBuilder
 
         ParticleSystem.ShapeModule shape = particles.shape;
         shape.shapeType = ParticleSystemShapeType.Circle;
-        shape.radius = 0.06f;
+        shape.radius = 0.096f;
 
         ParticleSystem.ColorOverLifetimeModule colorOverLifetime = particles.colorOverLifetime;
         colorOverLifetime.enabled = true;

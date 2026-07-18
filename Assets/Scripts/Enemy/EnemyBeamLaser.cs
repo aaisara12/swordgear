@@ -212,7 +212,7 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
                 float glowWidth = Mathf.Lerp(1f, 1.45f, pulse);
                 LayoutSpriteRect(
                     telegraphGlowRenderer,
-                    new Vector2(beamWidth * 2.1f * glowWidth, beamLength),
+                    new Vector2(beamWidth * 2.9f * glowWidth, beamLength),
                     beamCenter,
                     sortingOrder);
             }
@@ -231,7 +231,7 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
                 float edgeWidth = Mathf.Lerp(1f, 1.28f, pulse);
                 LayoutSpriteRect(
                     telegraphEdgeRenderer,
-                    new Vector2(beamWidth * 1.35f * edgeWidth, beamLength),
+                    new Vector2(beamWidth * 1.95f * edgeWidth, beamLength),
                     beamCenter,
                     sortingOrder);
             }
@@ -251,7 +251,7 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
                 float fillWidth = Mathf.Lerp(0.92f, 1.12f, fillPulse);
                 LayoutSpriteRect(
                     telegraphFillRenderer,
-                    new Vector2(beamWidth * 0.7f * fillWidth, beamLength * 0.96f),
+                    new Vector2(beamWidth * 1.0f * fillWidth, beamLength * 0.96f),
                     beamCenter,
                     sortingOrder);
             }
@@ -324,15 +324,15 @@ public class EnemyBeamLaser : MonoBehaviour, IPoolReset
         Vector3 beamCenter = new Vector3(0f, beamLength * 0.5f, 0f);
 
         // All layers share the same order (between floor=0 and enemy=2); child order controls overlap.
-        LayoutSpriteRect(telegraphGlowRenderer, new Vector2(beamWidth * 2.1f, beamLength), beamCenter, sortingOrder);
-        LayoutSpriteRect(telegraphEdgeRenderer, new Vector2(beamWidth * 1.35f, beamLength), beamCenter, sortingOrder);
-        LayoutSpriteRect(telegraphFillRenderer, new Vector2(beamWidth * 0.7f, beamLength * 0.96f), beamCenter, sortingOrder);
+        LayoutSpriteRect(telegraphGlowRenderer, new Vector2(beamWidth * 2.9f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(telegraphEdgeRenderer, new Vector2(beamWidth * 1.95f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(telegraphFillRenderer, new Vector2(beamWidth * 1.0f, beamLength * 0.96f), beamCenter, sortingOrder);
 
         // Wide soft glow -> narrow saturated core -> thin bright center line.
-        LayoutSpriteRect(beamOuterGlowRenderer, new Vector2(beamWidth * 2.2f, beamLength), beamCenter, sortingOrder);
-        LayoutSpriteRect(beamMidGlowRenderer, new Vector2(beamWidth * 1.3f, beamLength), beamCenter, sortingOrder);
-        LayoutSpriteRect(beamCoreRenderer, new Vector2(beamWidth * 0.58f, beamLength), beamCenter, sortingOrder);
-        LayoutSpriteRect(beamHotCoreRenderer, new Vector2(beamWidth * 0.2f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(beamOuterGlowRenderer, new Vector2(beamWidth * 3.0f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(beamMidGlowRenderer, new Vector2(beamWidth * 1.9f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(beamCoreRenderer, new Vector2(beamWidth * 1.0f, beamLength), beamCenter, sortingOrder);
+        LayoutSpriteRect(beamHotCoreRenderer, new Vector2(beamWidth * 0.42f, beamLength), beamCenter, sortingOrder);
 
         LayoutParticleShape(telegraphParticles, new Vector2(beamWidth * 1.18f, beamLength), beamCenter);
         LayoutParticleShape(beamParticles, new Vector2(beamWidth, beamLength), beamCenter);
