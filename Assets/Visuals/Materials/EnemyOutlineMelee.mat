@@ -43,10 +43,11 @@ Material:
     m_Floats:
     - _EnableExternalAlpha: 0
     - _OutlineWidth: 17
+    - _RimBrightness: 0.5
     - _TintAmount: 0.7
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
-    - _OutlineColor: {r: 0.58, g: 0.57, b: 0.52, a: 1}
+    - _OutlineColor: {r: 0.42, g: 0.42, b: 0.44, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

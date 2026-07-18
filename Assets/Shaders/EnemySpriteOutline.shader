@@ -14,6 +14,7 @@ Shader "SwordGear/EnemySpriteOutline"
         _OutlineColor("Outline Color", Color) = (0.58, 0.57, 0.52, 1)
         _OutlineWidth("Outline Width (texels)", Float) = 17
         _TintAmount("Tint Toward Enemy Color", Range(0, 1)) = 0.35
+        _RimBrightness("Rim Brightness", Range(0, 2)) = 0.7
 
         [HideInInspector] _Color("Tint", Color) = (1,1,1,1)
         [HideInInspector] _RendererColor("RendererColor", Color) = (1,1,1,1)
@@ -67,6 +68,7 @@ Shader "SwordGear/EnemySpriteOutline"
                 half4 _OutlineColor;
                 float _OutlineWidth;
                 float _TintAmount;
+                float _RimBrightness;
             CBUFFER_END
 
             // 16 taps around a circle — enough that the dilated rim reads round rather than polygonal.
@@ -100,7 +102,8 @@ Shader "SwordGear/EnemySpriteOutline"
                     dilated = max(dilated, SAMPLE_TEXTURE2D(_MainTex, sampler_MainTex, input.uv + kTaps[i] * offset).a);
                 }
 
-                half3 rim = lerp(_OutlineColor.rgb, input.color.rgb, _TintAmount);
+                // Applied after the blend so bright element colours dim too, not just the base.
+                half3 rim = lerp(_OutlineColor.rgb, input.color.rgb, _TintAmount) * _RimBrightness;
                 half alpha = dilated * _OutlineColor.a * input.color.a;
 
                 const half4 mask = SAMPLE_TEXTURE2D(_MaskTex, sampler_MaskTex, input.uv);
