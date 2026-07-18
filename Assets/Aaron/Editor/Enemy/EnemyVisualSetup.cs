@@ -88,13 +88,17 @@ public static class EnemyVisualSetup
             outline.sortingOrder = OutlineOrder;
             outline.color = elementColor;
 
+            bool lightsExisted = visualRoot.Find(LightsChildName) != null;
             SpriteRenderer lights = EnsureChild(visualRoot, LightsChildName);
             lights.sprite = lightsSprite;
             lights.sharedMaterial = body.sharedMaterial;
             lights.sortingLayerID = body.sortingLayerID;
             lights.sortingOrder = LightsOrder;
-            // Lights are emissive highlights, so they stay untinted while the body takes the element colour.
-            lights.color = Color.white;
+            // Lights colour is hand-authored per element, so only seed it when creating the layer.
+            if (!lightsExisted)
+            {
+                lights.color = Color.white;
+            }
 
             PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
             return true;
