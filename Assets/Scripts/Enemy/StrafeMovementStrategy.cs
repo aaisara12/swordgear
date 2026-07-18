@@ -13,6 +13,9 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
     [Tooltip("How far ahead to probe before committing to a strafe or retreat direction.")]
     [SerializeField] private float clearanceProbeDistance = 1.5f;
 
+    [Tooltip("Uncheck for attackers that fire through cover, so they hold the ring instead of closing in.")]
+    [SerializeField] private bool requiresLineOfSight = true;
+
     private float nextDirectionChangeTime;
     private int strafeDirectionMultiplier = 1; // 1 for right, -1 for left
     private IChargingAttackStrategy? chargingAttack;
@@ -50,7 +53,7 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
         Vector2 direction = currentDistance > Mathf.Epsilon ? toTarget / currentDistance : Vector2.right;
 
         // Holding the ring is pointless behind cover, so close in until the shot opens up.
-        if (!EnemyVision.CanShoot(self, target))
+        if (requiresLineOfSight && !EnemyVision.CanShoot(self, target))
         {
             rb.linearVelocity = SeekSight(self, direction) * speed;
             return;

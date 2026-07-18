@@ -923,6 +923,8 @@ MonoBehaviour:
   strafeSpeed: 1.2
   strafeDistanceTolerance: 1
   directionChangeTimeRange: {x: 1, y: 3}
+  clearanceProbeDistance: 1.5
+  requiresLineOfSight: 0
 --- !u!114 &3133790846939909975
 MonoBehaviour:
   m_ObjectHideFlags: 0
