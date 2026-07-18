@@ -70,7 +70,9 @@ public class BeamSniperAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         }
 
         float distance = Vector2.Distance(transform.position, playerTransform.position);
-        if (distance <= attackRange)
+        // Beam sits on Default, which unlike Projectiles is stopped by LowWall too.
+        bool beamPathClear = EnemyVision.IsClear(transform.position, playerTransform.position, 0f, EnemyVision.MovementMask);
+        if (distance <= attackRange && beamPathClear)
         {
             BeginChargedBeam();
         }

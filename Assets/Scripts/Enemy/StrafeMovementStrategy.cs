@@ -10,9 +10,13 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
 
     // A range for the random time to switch directions
     [SerializeField] private Vector2 directionChangeTimeRange = new Vector2(1f, 3f);
+    [Tooltip("How far ahead to probe before committing to a strafe or retreat direction.")]
+    [SerializeField] private float clearanceProbeDistance = 1.5f;
+
     private float nextDirectionChangeTime;
     private int strafeDirectionMultiplier = 1; // 1 for right, -1 for left
     private IChargingAttackStrategy? chargingAttack;
+    private float bodyRadius = 0.25f;
 
     private void Start()
     {
@@ -22,6 +26,12 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
         nextDirectionChangeTime = Time.time + Random.Range(directionChangeTimeRange.x, directionChangeTimeRange.y);
 
         chargingAttack = GetComponent<IChargingAttackStrategy>();
+
+        CircleCollider2D body = GetComponent<CircleCollider2D>();
+        if (body != null)
+        {
+            bodyRadius = body.radius * Mathf.Max(Mathf.Abs(transform.localScale.x), Mathf.Abs(transform.localScale.y));
+        }
     }
 
     public void Move(Rigidbody2D rb, Transform targetTransform, float speed)
@@ -33,32 +43,57 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
             return;
         }
 
-        Vector2 direction = (targetTransform.position - rb.transform.position).normalized;
-        float currentDistance = Vector2.Distance(rb.transform.position, targetTransform.position);
+        Vector2 self = rb.position;
+        Vector2 target = targetTransform.position;
+        Vector2 toTarget = target - self;
+        float currentDistance = toTarget.magnitude;
+        Vector2 direction = currentDistance > Mathf.Epsilon ? toTarget / currentDistance : Vector2.right;
+
+        // Holding the ring is pointless behind cover, so close in until the shot opens up.
+        if (!EnemyVision.CanShoot(self, target))
+        {
+            rb.linearVelocity = SeekSight(self, direction) * speed;
+            return;
+        }
 
         if (Time.time >= nextDirectionChangeTime)
         {
-            // Flip the strafe direction
             strafeDirectionMultiplier *= -1;
-            // Set the next time to change direction to a new random value
             nextDirectionChangeTime = Time.time + Random.Range(directionChangeTimeRange.x, directionChangeTimeRange.y);
         }
 
         if (currentDistance > strafeDistance)
         {
-            // Move closer if too far away
             rb.linearVelocity = direction * speed;
+            return;
         }
-        else if (currentDistance < strafeDistance - strafeDistanceTolerance)
+
+        if (currentDistance < strafeDistance - strafeDistanceTolerance && IsClearAhead(self, -direction))
         {
-            // Move away if too close, using the new tolerance field
             rb.linearVelocity = -direction * speed;
+            return;
         }
-        else
+
+        Vector2 strafeDirection = Vector2.Perpendicular(direction).normalized * strafeDirectionMultiplier;
+        if (!IsClearAhead(self, strafeDirection))
         {
-            // Use the multiplier to change strafing direction
-            Vector2 strafeDirection = Vector2.Perpendicular(direction).normalized * strafeDirectionMultiplier;
-            rb.linearVelocity = strafeDirection * strafeSpeed;
+            strafeDirectionMultiplier *= -1;
+            strafeDirection = -strafeDirection;
         }
+
+        rb.linearVelocity = IsClearAhead(self, strafeDirection) ? strafeDirection * strafeSpeed : Vector2.zero;
+    }
+
+    private Vector2 SeekSight(Vector2 self, Vector2 fallbackDirection)
+    {
+        EnemyFlowField field = EnemyFlowField.Instance;
+        return field != null && field.TryGetDirection(self, out Vector2 flowDirection)
+            ? flowDirection
+            : fallbackDirection;
+    }
+
+    private bool IsClearAhead(Vector2 self, Vector2 direction)
+    {
+        return EnemyVision.CanWalk(self, self + direction * clearanceProbeDistance, bodyRadius);
     }
 }

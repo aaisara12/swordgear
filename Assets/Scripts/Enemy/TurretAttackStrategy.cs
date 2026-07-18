@@ -82,6 +82,11 @@ public class TurretAttackStrategy : MonoBehaviour, IChargingAttackStrategy
             return;
         }
 
+        if (!EnemyVision.CanShoot(transform.position, playerTransform.position))
+        {
+            return;
+        }
+
         // Start of a fresh burst → play a wind-up telegraph before the first shot (the rest fire rapidly).
         if (shotsFiredInBurst == 0)
         {

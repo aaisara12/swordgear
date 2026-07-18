@@ -6,14 +6,11 @@ public class PathfindingFollowStrategy : MonoBehaviour, IMovementStrategy
 {
     [SerializeField] private float steeringSharpness = 12f;
 
-    private int obstacleMask;
     private float bodyRadius = 0.25f;
     private Vector2 smoothedDirection;
 
     private void Awake()
     {
-        obstacleMask = LayerMask.GetMask("Arena", "LowWall");
-
         CircleCollider2D body = GetComponent<CircleCollider2D>();
         if (body != null)
         {
@@ -27,7 +24,7 @@ public class PathfindingFollowStrategy : MonoBehaviour, IMovementStrategy
         Vector2 target = targetTransform.position;
         Vector2 desired = (target - self).normalized;
 
-        if (!HasClearPath(self, target))
+        if (!EnemyVision.CanWalk(self, target, bodyRadius))
         {
             EnemyFlowField field = EnemyFlowField.Instance;
             if (field != null && field.TryGetDirection(self, out Vector2 flowDirection))
@@ -44,17 +41,5 @@ public class PathfindingFollowStrategy : MonoBehaviour, IMovementStrategy
             : Vector2.Lerp(smoothedDirection, desired, 1f - Mathf.Exp(-steeringSharpness * Time.fixedDeltaTime));
 
         rb.linearVelocity = smoothedDirection.normalized * speed;
-    }
-
-    private bool HasClearPath(Vector2 from, Vector2 to)
-    {
-        Vector2 delta = to - from;
-        float distance = delta.magnitude;
-        if (distance <= Mathf.Epsilon)
-        {
-            return true;
-        }
-
-        return Physics2D.CircleCast(from, bodyRadius, delta / distance, distance, obstacleMask).collider == null;
     }
 }

@@ -50,7 +50,7 @@ public class RangedAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         if (Time.time >= nextAttackTime)
         {
             float distanceToTarget = Vector2.Distance(transform.position, playerTransform.position);
-            if (distanceToTarget <= attackRange)
+            if (distanceToTarget <= attackRange && EnemyVision.CanShoot(transform.position, playerTransform.position))
             {
                 // Set the state to "isAttacking" and set the attack time for the charge-up
                 isAttacking = true;

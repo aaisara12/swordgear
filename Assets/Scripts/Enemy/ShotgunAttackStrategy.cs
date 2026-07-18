@@ -64,7 +64,7 @@ public class ShotgunAttackStrategy : MonoBehaviour, IChargingAttackStrategy
         }
 
         float distance = Vector2.Distance(transform.position, playerTransform.position);
-        if (distance <= attackRange)
+        if (distance <= attackRange && EnemyVision.CanShoot(transform.position, playerTransform.position))
         {
             isCharging = true;
             float charge = chargeUpTime * (attackDamage != null ? attackDamage.ChargeTimeMultiplier : 1f);
