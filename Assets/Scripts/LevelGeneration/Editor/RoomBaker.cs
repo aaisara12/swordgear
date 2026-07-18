@@ -381,7 +381,7 @@ public static class RoomBaker
 
             // The floor quad spans the whole grid, so unpainted cells outside the arena would still show
             // floor. Black them out instead of making the designer fill every one with wall.
-            if (config.BlackBackdrop && config.WallTile != null)
+            if (config.WallTile != null)
             {
                 CreateVoidTilemap(rootGO, room, config.WallTile, gridOffset, cs);
             }
