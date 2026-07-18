@@ -271,6 +271,21 @@ public class EnemyFlowField : MonoBehaviour
         return true;
     }
 
+    // Cells are 2 units but bodies are ~1.5 wide, so following raw flow scrapes walls whenever an agent
+    // drifts off the centre line. Bias toward the next cell's centre to keep a body-width corridor.
+    public bool TryGetSteeredDirection(Vector2 worldPosition, float centeringBias, out Vector2 direction)
+    {
+        if (!TryGetDirection(worldPosition, out Vector2 flowDirection))
+        {
+            direction = Vector2.zero;
+            return false;
+        }
+
+        Vector2 cellCentre = GetCellCenterWorld(worldPosition + flowDirection * 0.01f);
+        direction = (flowDirection + (cellCentre - worldPosition) * centeringBias).normalized;
+        return true;
+    }
+
     public Vector3 GetCellCenterWorld(Vector2 worldPosition)
     {
         return wallTilemap.GetCellCenterWorld(wallTilemap.WorldToCell(worldPosition));

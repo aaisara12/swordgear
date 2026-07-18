@@ -6,6 +6,8 @@ public class PathfindingFollowStrategy : MonoBehaviour, IMovementStrategy
 {
     [SerializeField] private float steeringSharpness = 12f;
 
+    private const float CenteringBias = 0.35f;
+
     private float bodyRadius = 0.25f;
     private Vector2 smoothedDirection;
 
@@ -27,12 +29,9 @@ public class PathfindingFollowStrategy : MonoBehaviour, IMovementStrategy
         if (!EnemyVision.CanWalk(self, target, bodyRadius))
         {
             EnemyFlowField field = EnemyFlowField.Instance;
-            if (field != null && field.TryGetDirection(self, out Vector2 flowDirection))
+            if (field != null && field.TryGetSteeredDirection(self, CenteringBias, out Vector2 flowDirection))
             {
-                // Steer toward the centre line of the next cell so bodies do not scrape wall corners.
-                Vector3 cellCentre = field.GetCellCenterWorld(self + flowDirection * 0.01f);
-                Vector2 toCentre = ((Vector2)cellCentre - self);
-                desired = (flowDirection + toCentre * 0.35f).normalized;
+                desired = flowDirection;
             }
         }
 

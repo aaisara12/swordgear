@@ -16,6 +16,8 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
     [Tooltip("Uncheck for attackers that fire through cover, so they hold the ring instead of closing in.")]
     [SerializeField] private bool requiresLineOfSight = true;
 
+    private const float CenteringBias = 0.35f;
+
     private float nextDirectionChangeTime;
     private int strafeDirectionMultiplier = 1; // 1 for right, -1 for left
     private IChargingAttackStrategy? chargingAttack;
@@ -55,7 +57,7 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
         // Holding the ring is pointless behind cover, so close in until the shot opens up.
         if (requiresLineOfSight && !EnemyVision.CanShoot(self, target))
         {
-            rb.linearVelocity = SeekSight(self, direction) * speed;
+            rb.linearVelocity = Steer(self, SeekSight(self, direction)) * speed;
             return;
         }
 
@@ -67,13 +69,15 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
 
         if (currentDistance > strafeDistance)
         {
-            rb.linearVelocity = direction * speed;
+            // A clear shot is a hairline ray; the body still needs a corridor it actually fits through.
+            Vector2 approach = EnemyVision.CanWalk(self, target, bodyRadius) ? direction : SeekSight(self, direction);
+            rb.linearVelocity = Steer(self, approach) * speed;
             return;
         }
 
-        if (currentDistance < strafeDistance - strafeDistanceTolerance && IsClearAhead(self, -direction))
+        if (currentDistance < strafeDistance - strafeDistanceTolerance)
         {
-            rb.linearVelocity = -direction * speed;
+            rb.linearVelocity = Steer(self, -direction) * speed;
             return;
         }
 
@@ -84,15 +88,45 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
             strafeDirection = -strafeDirection;
         }
 
-        rb.linearVelocity = IsClearAhead(self, strafeDirection) ? strafeDirection * strafeSpeed : Vector2.zero;
+        rb.linearVelocity = Steer(self, strafeDirection) * strafeSpeed;
     }
 
     private Vector2 SeekSight(Vector2 self, Vector2 fallbackDirection)
     {
         EnemyFlowField field = EnemyFlowField.Instance;
-        return field != null && field.TryGetDirection(self, out Vector2 flowDirection)
+        return field != null && field.TryGetSteeredDirection(self, CenteringBias, out Vector2 flowDirection)
             ? flowDirection
             : fallbackDirection;
+    }
+
+    private Vector2 Steer(Vector2 self, Vector2 desired)
+    {
+        if (desired.sqrMagnitude < 0.0001f)
+        {
+            return desired;
+        }
+
+        desired = desired.normalized;
+        float probeRadius = bodyRadius * 0.95f;
+        RaycastHit2D hit = Physics2D.CircleCast(self, probeRadius, desired, clearanceProbeDistance, EnemyVision.MovementMask);
+        if (hit.collider == null)
+        {
+            return desired;
+        }
+
+        Vector2 tangent = Vector2.Perpendicular(hit.normal);
+        if (Vector2.Dot(tangent, desired) < 0f)
+        {
+            tangent = -tangent;
+        }
+
+        if (Physics2D.CircleCast(self, probeRadius, tangent, clearanceProbeDistance, EnemyVision.MovementMask).collider == null)
+        {
+            return tangent;
+        }
+
+        // Boxed in on both axes — push off the surface rather than grinding into it.
+        return hit.normal;
     }
 
     private bool IsClearAhead(Vector2 self, Vector2 direction)
