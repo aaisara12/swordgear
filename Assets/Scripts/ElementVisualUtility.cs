@@ -28,6 +28,7 @@ public static class ElementVisualUtility
             Element.Fire => new Color(1f, 1f, 1f, 1f),
             Element.Ice => new Color(0.92f, 1f, 1f, 1f),
             Element.Lightning => new Color(1f, 1f, 0.95f, 1f),
+            Element.Wind => new Color(0.96f, 1f, 0.96f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -36,6 +37,7 @@ public static class ElementVisualUtility
             Element.Fire => new Color(0.95f, 0.9f, 0.85f, 1f),
             Element.Ice => new Color(0.72f, 0.94f, 1f, 1f),
             Element.Lightning => new Color(0.95f, 0.96f, 0.88f, 1f),
+            Element.Wind => new Color(0.84f, 0.97f, 0.84f, 1f),
             _ => new Color(0.95f, 0.95f, 0.95f, 1f),
         };
 
@@ -49,6 +51,7 @@ public static class ElementVisualUtility
             Element.Fire => new Color(1f, 0.42f, 0.32f, 1f),
             Element.Ice => new Color(0.45f, 0.78f, 1f, 1f),
             Element.Lightning => new Color(1f, 0.92f, 0.35f, 1f),
+            Element.Wind => new Color(0.62f, 0.96f, 0.62f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -62,6 +65,7 @@ public static class ElementVisualUtility
             Element.Fire => new Color(1f, 0.5f, 0.15f, 1f),
             Element.Ice => new Color(0.5f, 0.88f, 1f, 1f),
             Element.Lightning => new Color(1f, 0.98f, 0.4f, 1f),
+            Element.Wind => new Color(0.55f, 0.95f, 0.6f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -70,6 +74,7 @@ public static class ElementVisualUtility
             Element.Fire => new Color(1f, 0.88f, 0.45f, 1f),
             Element.Ice => new Color(0.82f, 1f, 1f, 1f),
             Element.Lightning => new Color(1f, 1f, 0.75f, 1f),
+            Element.Wind => new Color(0.86f, 1f, 0.88f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 

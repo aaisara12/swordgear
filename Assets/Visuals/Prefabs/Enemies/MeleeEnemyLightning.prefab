@@ -131,7 +131,6 @@ GameObject:
   - component: {fileID: 6908658003919645349}
   - component: {fileID: 3030213629378047486}
   - component: {fileID: 3239566695407575123}
-  - component: {fileID: 3690023069366871206}
   - component: {fileID: 6805735088059896547}
   - component: {fileID: 8582758891212896671}
   m_Layer: 8
@@ -314,24 +313,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseDamage: 5
   attackFrequency: 2
---- !u!114 &3690023069366871206
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4519183777221867105}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b190068685001d94a938e89502aeec8a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
-  attackFrequency: 0.2
-  attackRange: 10
-  projectileSpeed: 5
-  damage: 10
-  chargeUpTime: 1
 --- !u!114 &6805735088059896547
 MonoBehaviour:
   m_ObjectHideFlags: 0

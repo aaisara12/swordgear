@@ -18,6 +18,7 @@ public class MinimapController : MonoBehaviour
     private static readonly Color FireColor = new(1f, 0.333f, 0.2f, 1f);
     private static readonly Color IceColor = new(0.267f, 0.8f, 1f, 1f);
     private static readonly Color LightningColor = new(1f, 0.839f, 0.2f, 1f);
+    private static readonly Color WindColor = new(0.56f, 0.93f, 0.56f, 1f);
     private static readonly Color PortalColor = new(0.2f, 0.75f, 1f, 1f); // matches the portal's halo ring
 
     [Header("UI")]
@@ -581,6 +582,7 @@ public class MinimapController : MonoBehaviour
             Element.Fire => FireColor,
             Element.Ice => IceColor,
             Element.Lightning => LightningColor,
+            Element.Wind => WindColor,
             _ => PhysicalColor
         };
     }

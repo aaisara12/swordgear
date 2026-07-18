@@ -192,3 +192,10 @@ MonoBehaviour:
     attackRateMultiplier: 2
     chargeTimeMultiplier: 0.25
     projectileSpeedMultiplier: 2
+  - element: 4
+    hpMultiplier: 0.6
+    damageMultiplier: 1
+    speedMultiplier: 2.2
+    attackRateMultiplier: 1.25
+    chargeTimeMultiplier: 0.6
+    projectileSpeedMultiplier: 1.7
