@@ -273,6 +273,8 @@ MonoBehaviour:
   strafeSpeed: 2.5
   strafeDistanceTolerance: 1
   directionChangeTimeRange: {x: 1, y: 3}
+  clearanceProbeDistance: 1.5
+  requiresLineOfSight: 1
 --- !u!114 &7058162632199181513
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -287,7 +289,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::ShotgunAttackStrategy
   projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
   attackFrequency: 0.35
-  attackRange: 6
+  attackRange: 18
   projectileSpeed: 9
   damagePerPellet: 4
   pelletCount: 5

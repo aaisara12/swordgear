@@ -409,6 +409,7 @@ MonoBehaviour:
   strafeDistanceTolerance: 1
   directionChangeTimeRange: {x: 3, y: 6}
   clearanceProbeDistance: 1.5
+  requiresLineOfSight: 1
 --- !u!114 &3690023069366871206
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -423,7 +424,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
   attackFrequency: 0.5
-  attackRange: 15
+  attackRange: 18
   projectileSpeed: 20
   damage: 5
   chargeUpTime: 0.25
