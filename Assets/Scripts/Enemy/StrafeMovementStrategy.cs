@@ -41,18 +41,19 @@ public class StrafeMovementStrategy : MonoBehaviour, IMovementStrategy
 
     public void Move(Rigidbody2D rb, Transform targetTransform, float speed)
     {
-        // If the enemy is in the middle of a charge-up, stand still
-        if (chargingAttack != null && chargingAttack.IsCharging)
-        {
-            rb.linearVelocity = Vector2.zero;
-            return;
-        }
-
         Vector2 self = rb.position;
         Vector2 target = targetTransform.position;
         Vector2 toTarget = target - self;
         float currentDistance = toTarget.magnitude;
         Vector2 direction = currentDistance > Mathf.Epsilon ? toTarget / currentDistance : Vector2.right;
+
+        // Standing still telegraphs the shot, but doing it while still closing in reads as stutter-stepping,
+        // so only hold once the enemy has reached the distance it wants to fight from.
+        if (chargingAttack != null && chargingAttack.IsCharging && currentDistance <= strafeDistance)
+        {
+            rb.linearVelocity = Vector2.zero;
+            return;
+        }
 
         // Holding the ring is pointless behind cover, so close in until the shot opens up.
         if (requiresLineOfSight && !EnemyVision.CanShoot(self, target))

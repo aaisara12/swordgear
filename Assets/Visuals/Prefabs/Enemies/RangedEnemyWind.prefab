@@ -313,7 +313,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e43d6de336471e442b0f66e22d0fcc74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  strafeDistance: 5
+  strafeDistance: 8
   strafeSpeed: 3
   strafeDistanceTolerance: 1
   directionChangeTimeRange: {x: 3, y: 6}
