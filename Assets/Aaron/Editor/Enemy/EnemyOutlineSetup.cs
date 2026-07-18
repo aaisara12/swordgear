@@ -84,8 +84,8 @@ public static class EnemyOutlineSetup
             outline.sortingLayerID = source.sortingLayerID;
             // One below the body so only the dilated rim shows; floor sits at 0.
             outline.sortingOrder = source.sortingOrder - 1;
-            // Element tint stays on the body — the shader takes only alpha from the renderer.
-            outline.color = Color.white;
+            // Shader lerps the rim toward this by _TintAmount, so it picks up the element colour.
+            outline.color = source.color;
 
             PrefabUtility.SaveAsPrefabAsset(prefabRoot, prefabPath);
             return true;
