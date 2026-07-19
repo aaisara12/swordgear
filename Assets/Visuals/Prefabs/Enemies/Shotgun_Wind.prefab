@@ -106,7 +106,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e43d6de336471e442b0f66e22d0fcc74, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::StrafeMovementStrategy
-  strafeDistance: 4.5
+  strafeDistance: 9
   strafeSpeed: 2.5
   strafeDistanceTolerance: 1
   directionChangeTimeRange: {x: 1, y: 3}
@@ -126,7 +126,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Main::ShotgunAttackStrategy
   projectilePrefab: {fileID: 3031177681007989194, guid: 12b1879effb6ca744b78903d8ec9dcb5, type: 3}
   attackFrequency: 0.35
-  attackRange: 6
+  attackRange: 12
   projectileSpeed: 9
   damagePerPellet: 4
   pelletCount: 5
