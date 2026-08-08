@@ -38,6 +38,12 @@ namespace Tutorial
                 renderer.enabled = visible;
             }
 
+            // The arc wedges are procedural meshes, not sprites, so they need toggling separately.
+            foreach (MeshRenderer renderer in gearManager.GetComponentsInChildren<MeshRenderer>(true))
+            {
+                renderer.enabled = visible;
+            }
+
             foreach (Collider2D collider in gearManager.GetComponentsInChildren<Collider2D>(true))
             {
                 collider.enabled = visible;

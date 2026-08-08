@@ -1,3 +1,5 @@
+#nullable enable
+
 using UnityEngine;
 using System.Collections.Generic;
 
@@ -11,118 +13,220 @@ public enum GearTile
     Wind,
 }
 
-[System.Serializable]
-class TilePrefabPair
+public static class GearTileElements
 {
-    public GearTile gearTile;
-    public GameObject prefab;
-
+    /// <summary> Maps a tile to the element it grants; false for tiles that aren't elemental. </summary>
+    public static bool TryGetElement(GearTile tile, out Element element)
+    {
+        switch (tile)
+        {
+            case GearTile.Fire: element = Element.Fire; return true;
+            case GearTile.Ice: element = Element.Ice; return true;
+            case GearTile.Lightning: element = Element.Lightning; return true;
+            case GearTile.Wind: element = Element.Wind; return true;
+            default: element = Element.Physical; return false;
+        }
+    }
 }
 
+/// <summary>
+/// The ring that orbits the player. It is divided into <see cref="arcCount"/> evenly distributed arcs,
+/// each holding a tile; flicking the attack stick toward an arc grants that arc's element.
+/// The gear does not rotate — arc angles are fixed so the flick direction is a stable, learnable target.
+/// </summary>
 public class GearManager : InitializeableGameComponent
 {
-    [Header("Slot Settings")]
-    public int slotCount = 8;
-    public float radius = 2f;
-    public GameObject slotPrefab; // Optional: for visualizing slots
+    [Header("Arc Layout")]
+    [Tooltip("How many arcs the gear is divided into. They always split the full 360 degrees evenly.")]
+    [SerializeField, Min(1)] private int arcCount = 4;
+    [Tooltip("Distance from the gear centre to the middle of the arc band.")]
+    [SerializeField] private float radius = 10f;
+    [Tooltip("Radial thickness of the arc band, centred on 'radius'.")]
+    [SerializeField] private float arcThickness = 3f;
+    [Tooltip("Empty degrees left between neighbouring arcs so they read as separate targets.")]
+    [SerializeField] private float arcGapDegrees = 4f;
+    [Tooltip("Rotates the whole layout. At 0 the first arc is centred on the +X axis.")]
+    [SerializeField] private float arcOffsetDegrees = 0f;
+    [Tooltip("Mesh subdivisions per arc. Higher = smoother curve.")]
+    [SerializeField, Min(2)] private int segmentsPerArc = 12;
 
-    [Header("Spin Settings")]
-    public float spinSpeed = 0f; // degrees per second
+    [Header("Arc Rendering")]
+    [Tooltip("Optional. Leave empty to build an unlit vertex-coloured material at runtime.")]
+    [SerializeField] private Material? arcMaterial;
+    [SerializeField] private string arcSortingLayer = "Default";
+    [SerializeField] private int arcSortingOrder = 4;
+    [SerializeField, Range(0f, 1f)] private float filledArcAlpha = 0.7f;
+    [SerializeField, Range(0f, 1f)] private float emptyArcAlpha = 0.2f;
+    [SerializeField] private Color emptyArcColor = new(0.5f, 0.5f, 0.5f, 1f);
+
+    [Header("Imbue Grant")]
+    [Tooltip("How long the element granted by a flick lasts.")]
+    [SerializeField] private float imbueDuration = 5f;
+    [SerializeField] private float imbueDamageMultiplier = 1.2f;
 
     [Header("Follow Settings")]
     [Tooltip("How fast the gear eases toward the player (lower = more trailing slide / more 'alive', higher = tighter).")]
     [SerializeField] private float followLagDecay = 8f;
 
-    public static GearManager Instance;
+    public static GearManager? Instance;
 
-    private List<Transform> slots = new List<Transform>();
+    private readonly List<GearArcVisual> arcVisuals = new();
 
-    // runtime gear state
-    private List<GearTile?> slotTiles = new List<GearTile?>();
+    // runtime gear state — one entry per arc
+    private List<GearTile?> slotTiles = new();
 
     // inventory
-    private List<GearTile> inventoryTiles = new List<GearTile>();
+    private readonly List<GearTile> inventoryTiles = new();
 
+    private Material? runtimeArcMaterial;
+    private int highlightedArc = -1;
+
+    public int ArcCount => arcCount;
     public IReadOnlyList<GearTile?> GetSlots() => slotTiles;
     public IReadOnlyList<GearTile> GetInventory() => inventoryTiles;
 
-    [Header("Tile Prefabs")]
-    [SerializeField] List<TilePrefabPair> tilePrefabPairs = new();
- 
-    private Dictionary<GearTile, GameObject> tilePrefabs;
+    private float ArcStepDegrees => 360f / Mathf.Max(1, arcCount);
 
     private void Awake()
     {
         Instance = this;
-
-        // Build dictionary
-        tilePrefabs = new Dictionary<GearTile, GameObject>();
-        foreach (TilePrefabPair pair in tilePrefabPairs)
-        {
-            tilePrefabs[pair.gearTile] = pair.prefab;
-        }
     }
 
     private void Start()
     {
-        SpawnSlots();
+        slotTiles = new List<GearTile?>(new GearTile?[arcCount]);
 
-        // Initialize slots
-        slotTiles = new List<GearTile?>(new GearTile?[slotCount]);
+        ApplyDefaultLoadout();
 
-        // Debug setup
-        // SetTile(0, GearTile.Bumper);
-        // SetTile(1, GearTile.Lightning);
-        // SetTile(2, GearTile.Fire);
-        // SetTile(3, GearTile.Ice);
-        SpawnEachTileOnce();
-
-        // Give some inventory
         inventoryTiles.Add(GearTile.Fire);
         inventoryTiles.Add(GearTile.Fire);
         inventoryTiles.Add(GearTile.Ice);
 
+        BuildArcs();
         RefreshVisuals();
     }
 
-    void SpawnEachTileOnce()
+    private void OnDestroy()
     {
-        if (slots.Count < 4) return;
-
-        SetTile(0, GearTile.Wind);
-        SetTile(1, GearTile.Fire);
-        SetTile(2, GearTile.Ice);
-        SetTile(3, GearTile.Lightning);
-    }
-
-    void SpawnFullRing(GearTile tile)
-    {
-        for (int i = 0; i < slots.Count; ++i)
+        if (Instance == this)
         {
-            SpawnTileAt(i, tile);
+            Instance = null;
+        }
+
+        if (runtimeArcMaterial != null)
+        {
+            Destroy(runtimeArcMaterial);
+            runtimeArcMaterial = null;
         }
     }
 
-    public void RefreshVisuals()
+    private static readonly GearTile[] DefaultLoadout =
     {
-        // Clear existing children
-        foreach (Transform slot in slots)
-        {
-            foreach (Transform child in slot)
-            {
-                Destroy(child.gameObject);
-            }
-        }
+        GearTile.Wind,
+        GearTile.Fire,
+        GearTile.Ice,
+        GearTile.Lightning,
+    };
 
-        // Rebuild
+    // Cycles the elemental tiles so every arc is a live target whatever arcCount is set to — an empty arc
+    // is a flick that silently does nothing, which reads as a bug rather than a miss.
+    private void ApplyDefaultLoadout()
+    {
         for (int i = 0; i < slotTiles.Count; i++)
         {
-            if (slotTiles[i].HasValue)
-            {
-                SpawnTileAt(i, slotTiles[i].Value);
-            }
+            SetTile(i, DefaultLoadout[i % DefaultLoadout.Length]);
         }
     }
+
+    // ---------- Arc geometry ----------
+
+    /// <summary> Centre angle of an arc in gear-local degrees (0 = +X axis, counter-clockwise). </summary>
+    public float GetArcLocalAngle(int index) => arcOffsetDegrees + index * ArcStepDegrees;
+
+    /// <summary>
+    /// Which arc a world-space direction points at. Arcs tile the full circle with no dead zones, so any
+    /// non-zero direction resolves to exactly one arc (the visual gap is cosmetic, not a miss window).
+    /// </summary>
+    public bool TryGetArcIndex(Vector2 worldDirection, out int index)
+    {
+        index = -1;
+
+        if (arcCount <= 0 || worldDirection.sqrMagnitude < 0.0001f)
+        {
+            return false;
+        }
+
+        float step = ArcStepDegrees;
+        float worldAngle = Mathf.Atan2(worldDirection.y, worldDirection.x) * Mathf.Rad2Deg;
+        float localAngle = worldAngle - transform.eulerAngles.z - arcOffsetDegrees;
+
+        // Shift by half a step so arc i owns [i*step, (i+1)*step) after the floor.
+        float shifted = Mathf.Repeat(localAngle + step * 0.5f, 360f);
+        index = Mathf.Clamp(Mathf.FloorToInt(shifted / step), 0, arcCount - 1);
+        return true;
+    }
+
+    public bool TryGetArcElement(int index, out Element element)
+    {
+        element = Element.Physical;
+
+        if (index < 0 || index >= slotTiles.Count || !slotTiles[index].HasValue)
+        {
+            return false;
+        }
+
+        return GearTileElements.TryGetElement(slotTiles[index]!.Value, out element);
+    }
+
+    // ---------- Flick interaction ----------
+
+    /// <summary>
+    /// Resolves a flick direction to an arc and grants that arc's element. Returns false when the arc is
+    /// empty or holds a non-elemental tile, so the caller can treat the flick as a whiff.
+    /// </summary>
+    public bool TryGrantElementFromDirection(Vector2 worldDirection, out Element granted)
+    {
+        granted = Element.Physical;
+
+        if (!TryGetArcIndex(worldDirection, out int index) || !TryGetArcElement(index, out granted))
+        {
+            return false;
+        }
+
+        if (GameManager.Instance == null)
+        {
+            return false;
+        }
+
+        GameManager.Instance.ApplyEmpowerment(granted, imbueDamageMultiplier, imbueDuration);
+        return true;
+    }
+
+    public bool TryGrantElementFromDirection(Vector2 worldDirection) =>
+        TryGrantElementFromDirection(worldDirection, out _);
+
+    /// <summary> Lights up the arc a flick in this direction would grab. Pass a zero direction to clear. </summary>
+    public void HighlightArcForDirection(Vector2 worldDirection)
+    {
+        SetHighlightedArc(TryGetArcIndex(worldDirection, out int index) ? index : -1);
+    }
+
+    public void ClearArcHighlight() => SetHighlightedArc(-1);
+
+    private void SetHighlightedArc(int index)
+    {
+        if (highlightedArc == index)
+        {
+            return;
+        }
+
+        int previous = highlightedArc;
+        highlightedArc = index;
+        ApplyArcColor(previous);
+        ApplyArcColor(highlightedArc);
+    }
+
+    // ---------- Tile / inventory state ----------
 
     public void SetTile(int index, GearTile? tile)
     {
@@ -141,100 +245,117 @@ public class GearManager : InitializeableGameComponent
         inventoryTiles.Remove(tile);
     }
 
-    private void Update()
+    // ---------- Visuals ----------
+
+    /// <summary> Rebuilds the arc wedges from scratch. Safe to call after changing the arc count or radii. </summary>
+    public void BuildArcs()
     {
-        var gameManager = GameManager.Instance;
-        
-        if (gameManager == null)
+        foreach (GearArcVisual arc in arcVisuals)
+        {
+            if (arc != null) Destroy(arc.gameObject);
+        }
+
+        arcVisuals.Clear();
+
+        float sweep = Mathf.Max(1f, ArcStepDegrees - arcGapDegrees);
+        float inner = Mathf.Max(0f, radius - arcThickness * 0.5f);
+        float outer = radius + arcThickness * 0.5f;
+        int sortingLayerId = SortingLayer.NameToID(arcSortingLayer);
+        Material material = ResolveArcMaterial();
+
+        for (int i = 0; i < arcCount; i++)
+        {
+            var go = new GameObject($"Arc_{i}");
+            go.transform.SetParent(transform, false);
+
+            var arc = go.AddComponent<GearArcVisual>();
+            arc.SetMaterial(material);
+            arc.SetSorting(sortingLayerId, arcSortingOrder);
+            arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc);
+
+            arcVisuals.Add(arc);
+        }
+
+        highlightedArc = -1;
+    }
+
+    public void RefreshVisuals()
+    {
+        for (int i = 0; i < arcVisuals.Count; i++)
+        {
+            ApplyArcColor(i);
+        }
+    }
+
+    private void ApplyArcColor(int index)
+    {
+        if (index < 0 || index >= arcVisuals.Count)
         {
             return;
         }
-        
-        if (gameManager.player != null)
+
+        bool highlighted = index == highlightedArc;
+        Color color;
+
+        if (TryGetArcElement(index, out Element element))
         {
-            // Smoothed follow: the gear eases toward the player each frame, so any sudden move (dash, blink,
-            // ...) leaves a brief trailing slide. Frame-rate independent.
-            Vector3 target = gameManager.player.transform.position;
-            float t = 1f - Mathf.Exp(-followLagDecay * Time.deltaTime);
-            transform.position = new Vector3(
-                Mathf.Lerp(transform.position.x, target.x, t),
-                Mathf.Lerp(transform.position.y, target.y, t),
-                target.z);
+            color = highlighted ? ElementVisuals.GetGlowColor(element) : ElementVisuals.GetColor(element);
+            color.a = highlighted ? 1f : filledArcAlpha;
+        }
+        else
+        {
+            color = emptyArcColor;
+            color.a = highlighted ? Mathf.Min(1f, emptyArcAlpha * 2f) : emptyArcAlpha;
         }
 
-        // bool swordInFlight = SwordProjectile.Instance != null && SwordProjectile.Instance.IsInFlight;
-
-        if (spinSpeed != 0f)
-        {
-            transform.Rotate(0f, 0f, spinSpeed * Time.deltaTime);
-        }
+        arcVisuals[index].SetColor(color);
     }
 
-    /// <summary>
-    /// Creates slot transforms arranged in a circle, and orients them so their
-    /// transform.up points toward the center.
-    /// </summary>
-    public void SpawnSlots()
+    private Material ResolveArcMaterial()
     {
-        // Clear existing slots if this is called again
-        foreach (Transform t in slots)
-            if (t != null) Destroy(t.gameObject);
-
-        slots.Clear();
-
-        for (int i = 0; i < slotCount; i++)
+        if (arcMaterial != null)
         {
-            float angle = i * Mathf.PI * 2f / slotCount;
-            Vector2 pos = new Vector2(Mathf.Cos(angle), Mathf.Sin(angle)) * radius;
-
-            Transform slot;
-
-            // If a slot prefab is provided, instantiate it
-            if (slotPrefab != null)
-            {
-                GameObject obj = Instantiate(slotPrefab, transform);
-                obj.transform.localPosition = pos;
-                slot = obj.transform;
-            }
-            else
-            {
-                // Otherwise create an empty GameObject
-                GameObject obj = new GameObject("Slot_" + i);
-                obj.transform.parent = transform;
-                obj.transform.localPosition = pos;
-                slot = obj.transform;
-            }
-
-            // Make slot.up point toward the center
-            Vector2 dirToCenter = (Vector2)transform.position - (Vector2)slot.position;
-            slot.up = dirToCenter.normalized;
-
-            slots.Add(slot);
+            return arcMaterial;
         }
+
+        if (runtimeArcMaterial != null)
+        {
+            return runtimeArcMaterial;
+        }
+
+        // Both of these are Cull Off / vertex-colour-multiplying, so wedge winding order doesn't matter.
+        Shader? shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default")
+                         ?? Shader.Find("Sprites/Default");
+
+        if (shader == null)
+        {
+            Debug.LogError("GearManager: no sprite shader found for the arc material; assign one in the inspector.");
+            shader = Shader.Find("Unlit/Color");
+        }
+
+        runtimeArcMaterial = new Material(shader) { name = "GearArc (runtime)" };
+        return runtimeArcMaterial;
     }
 
-    /// <summary>
-    /// Spawns a tile prefab at the slot with index i.
-    /// </summary>
-    public GameObject SpawnTileAt(int i, GearTile tile)
+    // ---------- Follow ----------
+
+    private void Update()
     {
-        if (i < 0 || i >= slots.Count)
+        GameManager? gameManager = GameManager.Instance;
+
+        if (gameManager == null || gameManager.player == null)
         {
-            Debug.LogError($"GearManager: Slot index {i} out of range.");
-            return null;
+            return;
         }
 
-        if (!tilePrefabs.ContainsKey(tile) || tilePrefabs[tile] == null)
-        {
-            Debug.LogError($"GearManager: No prefab registered for {tile}.");
-            return null;
-        }
-
-        GameObject prefab = tilePrefabs[tile];
-        Transform slot = slots[i];
-
-        GameObject instance = Instantiate(prefab, slot.position, slot.rotation, slot);
-        return instance;
+        // Smoothed follow: the gear eases toward the player each frame, so any sudden move (dash, blink,
+        // ...) leaves a brief trailing slide. Frame-rate independent.
+        Vector3 target = gameManager.player.transform.position;
+        float t = 1f - Mathf.Exp(-followLagDecay * Time.deltaTime);
+        transform.position = new Vector3(
+            Mathf.Lerp(transform.position.x, target.x, t),
+            Mathf.Lerp(transform.position.y, target.y, t),
+            target.z);
     }
 
     public override void InitializeOnGameStart(IReadOnlyPlayerBlob playerBlob)

@@ -18,15 +18,11 @@ public class PlayerController : PlayerGameplayPawn
         (PlayerStatModifiers.Instance != null ? Mathf.Max(0.05f, PlayerStatModifiers.Instance.DashCooldownMultiplier) : 1f);
     
     [Header("Combat")]
-    [SerializeField] private float projectileSpeed = 5f;
     [SerializeField] private float swordCatchRadius = 1f;
     [SerializeField] private float iFrameDuration = 1f;
     [SerializeField] private float iFrameBlinkInterval = 0.1f;
     [SerializeField] private GameObject? playerDamageFX;
     [SerializeField] private GameObject? catchExplosionFX;
-
-    [Header("Attack Cooldowns")]
-    [SerializeField] private float swordThrowCooldown = 0.5f;
 
     [Header("Dash")]
     [SerializeField] private float dashSpeed = 10f;
@@ -445,29 +441,23 @@ public class PlayerController : PlayerGameplayPawn
 
     int swordFlightSound = -1;
 
-    void SwordThrow(Vector2 direction)
+    // The aimed flick no longer throws the sword — it picks an arc off the gear ring. Cancels any melee
+    // charge so the flick can't double as a charged strike, and gives no-ops (empty arc) a silent whiff.
+    void GrabElementFromGear(Vector2 direction)
     {
-        if (direction.sqrMagnitude < 0.001f && weaponIndicator != null)
-        {
-            direction = weaponIndicator.GetFacingDirection();
-        }
-
-        if (direction.sqrMagnitude < 0.001f)
+        GearManager? gear = GearManager.Instance;
+        if (gear == null || direction.sqrMagnitude < 0.001f)
         {
             return;
         }
 
-        direction = direction.normalized;
+        if (!gear.TryGrantElementFromDirection(direction))
+        {
+            return;
+        }
 
-        AudioSystem.Play(AudioSystem.Sound.Throw);
         ElementManager.Instance.MeleeCharge(transform, true);
-        float effectiveProjectileSpeed = projectileSpeed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.ProjectileSpeedMultiplier : 1f);
-        Vector3 throwOrigin = weaponIndicator != null ? weaponIndicator.GetThrowOrigin() : transform.position;
-        weaponIndicator?.SetEquippedVisible(false);
-        SwordProjectile.Instance.StartFlight(throwOrigin, direction * effectiveProjectileSpeed);
-        playerState = PlayerState.SwordThrown;
-        _swordHasLeftCatchRadius = false;
-        swordFlightSound = AudioSystem.PlayLoop(AudioSystem.Sound.Basic_Flight);
+        AudioSystem.Play(AudioSystem.Sound.Bounce);
     }
 
     void SyncMeleeFacingFromIndicator(Vector2 attackDirection = default)
@@ -702,13 +692,22 @@ public class PlayerController : PlayerGameplayPawn
 
         weaponIndicator?.UpdateThrowAim(direction);
 
-        if (direction.sqrMagnitude > 0.001f && aimIndicator != null)
+        if (IsSwordOut)
         {
-            PlayerAimIndicator.AimMode mode = IsSwordOut
-                ? PlayerAimIndicator.AimMode.Dash
-                : PlayerAimIndicator.AimMode.SwordThrow;
-            aimIndicator.SetAim(direction, mode);
+            GearManager.Instance?.ClearArcHighlight();
+
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                aimIndicator?.SetAim(direction, PlayerAimIndicator.AimMode.Dash);
+            }
+
+            return;
         }
+
+        // Sword stays equipped, so the aimed flick is a gear grab, not a throw: preview it by lighting up
+        // the arc it would land on instead of drawing the (now meaningless) throw trajectory.
+        aimIndicator?.Clear();
+        GearManager.Instance?.HighlightArcForDirection(direction);
     }
 
     public override void DoAimedAttackInDirection(Vector2 direction)
@@ -719,15 +718,9 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         // RETROFIT: From OnReleaseInMove
-        if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
+        if (playerState == PlayerState.MeleeReady)
         {
-            if (direction.sqrMagnitude < 0.001f && weaponIndicator != null)
-            {
-                direction = weaponIndicator.GetFacingDirection();
-            }
-
-            SwordThrow(direction);
-            ApplyAttackCooldown(swordThrowCooldown);
+            GrabElementFromGear(direction);
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown && direction.sqrMagnitude > 0.001f)
         {
@@ -744,6 +737,7 @@ public class PlayerController : PlayerGameplayPawn
     {
         weaponIndicator?.EndThrowAim();
         aimIndicator?.Clear();
+        GearManager.Instance?.ClearArcHighlight();
     }
 
     int walkSoundLoop = -1;
@@ -913,6 +907,7 @@ public class PlayerController : PlayerGameplayPawn
         // Reset facing/aim to a default.
         weaponIndicator?.EndThrowAim();
         aimIndicator?.Clear();
+        GearManager.Instance?.ClearArcHighlight();
         transform.up = Vector2.up;
 
         SetAnimationState(AnimIdleHash);

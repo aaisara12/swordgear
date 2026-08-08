@@ -137,24 +137,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d396b0214866d3e448410e5d6be58f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  slotCount: 10
+  arcCount: 4
   radius: 10
-  slotPrefab: {fileID: 0}
-  spinSpeed: 0
+  arcThickness: 3
+  arcGapDegrees: 4
+  arcOffsetDegrees: 0
+  segmentsPerArc: 12
+  arcMaterial: {fileID: 2100000, guid: 7ec28e59fc350ee4a996f15236d85cf7, type: 2}
+  arcSortingLayer: Default
+  arcSortingOrder: 4
+  filledArcAlpha: 0.7
+  emptyArcAlpha: 0.2
+  emptyArcColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
+  imbueDuration: 5
+  imbueDamageMultiplier: 1.2
   followLagDecay: 8
-  tilePrefabPairs:
-  - gearTile: 0
-    prefab: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}
-  - gearTile: 1
-    prefab: {fileID: 3169902641910634516, guid: a660b5824babf75409aafaaa5def4fef, type: 3}
-  - gearTile: 2
-    prefab: {fileID: 1035372564311983114, guid: fb4ce7201f85ec64a8b4fcc4fb41d9c9, type: 3}
-  - gearTile: 3
-    prefab: {fileID: 584159102277339285, guid: a0cfd25c185fbff469967a339ab2fd3d, type: 3}
-  - gearTile: 4
-    prefab: {fileID: 2783300026856143536, guid: bbd6df23e509dbc42b37f9081c282ed1, type: 3}
-  - gearTile: 5
-    prefab: {fileID: 2229257891975254500, guid: 6e40782d925c0f24f81a2ba1c0f1100f, type: 3}
 --- !u!212 &3377753912994020425
 SpriteRenderer:
   serializedVersion: 2
