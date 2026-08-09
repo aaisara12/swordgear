@@ -2,6 +2,10 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Fire is the gun of the set — a spellblade. Every strike is a deliberately weak melee sweep that also
+/// launches a burst of homing fireballs, so the damage lives in the projectiles, not the blade.
+/// </summary>
 public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 {
     [SerializeField] private GameObject weaponCollider;
@@ -14,6 +18,21 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [SerializeField] private string[] chargeAnimNames;
     [SerializeField] private GameObject weakEffectObject;
     [SerializeField] private GameObject strongEffectObject;
+
+    [Header("Spellblade Burst")]
+    [Tooltip("Scales the melee sweep's damage. Fire's blade is a delivery system, not the damage source.")]
+    [SerializeField] private float meleeDamageMultiplier = 0.35f;
+    [SerializeField] private GameObject fireballPrefab;
+    [SerializeField] private int fireballsPerBurst = 3;
+    [Tooltip("Delay between fireballs in a burst, so it reads as a burst rather than a shotgun.")]
+    [SerializeField] private float fireballInterval = 0.07f;
+    [Tooltip("Total spread of the burst, in degrees, centred on the player's facing.")]
+    [SerializeField] private float fireballSpreadAngle = 22f;
+    [SerializeField] private float fireballSpeed = 9f;
+    [SerializeField] private float fireballSpawnOffset = 0.6f;
+    [SerializeField] private float fireballDamageMultiplier = 0.55f;
+    [Tooltip("Degrees per second the fireball can turn toward its target. Lower = wider, lazier arcs.")]
+    [SerializeField] private float fireballHomingTurnRate = 240f;
 
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
@@ -178,8 +197,58 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         transform.position = MeleeAugmentUtility.ForwardOffset(player, distanceFromPlayer);
         transform.up = player.up;
         StartCoroutine(Swing(player));
+        StartCoroutine(FireballBurst(player));
         ResetCharge();
         return meleeCooldown;
+    }
+
+    /// <summary>
+    /// The spellblade's real payload: a short burst of homing fireballs fanned around the player's facing.
+    /// Direction is snapshotted per-shot so the burst tracks the player if they turn mid-burst.
+    /// </summary>
+    private IEnumerator FireballBurst(Transform player)
+    {
+        if (fireballPrefab == null || fireballsPerBurst <= 0)
+        {
+            yield break;
+        }
+
+        float step = fireballsPerBurst > 1 ? fireballSpreadAngle / (fireballsPerBurst - 1) : 0f;
+        float startAngle = -fireballSpreadAngle * 0.5f;
+
+        for (int i = 0; i < fireballsPerBurst; i++)
+        {
+            if (player == null)
+            {
+                yield break;
+            }
+
+            float angle = fireballsPerBurst > 1 ? startAngle + step * i : 0f;
+            LaunchFireball(player, angle);
+
+            if (fireballInterval > 0f)
+            {
+                yield return new WaitForSeconds(fireballInterval);
+            }
+        }
+    }
+
+    private void LaunchFireball(Transform player, float angleDegrees)
+    {
+        Vector2 direction = Quaternion.Euler(0f, 0f, angleDegrees) * player.up;
+        Vector3 spawnPos = player.position + (Vector3)(direction.normalized * fireballSpawnOffset);
+
+        GameObject obj = PrefabPool.Instance!.Spawn(fireballPrefab, spawnPos, Quaternion.identity);
+        PlayerProjectile projectile = obj.GetComponent<PlayerProjectile>();
+        if (projectile == null)
+        {
+            PrefabPool.Instance!.Release(obj);
+            return;
+        }
+
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * fireballDamageMultiplier;
+        projectile.Launch(Element.Fire, damage, direction, fireballSpeed);
+        projectile.EnableHoming(fireballHomingTurnRate);
     }
 
     private void ResetCharge()
@@ -250,7 +319,8 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
         AttackKind kind = chargeTier > 0 ? AttackKind.MeleeCharge : AttackKind.MeleeStrike;
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, GameManager.Instance.GetEffectiveBaseDamage() * (1f + 0.2f * chargeTier)),
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * meleeDamageMultiplier * (1f + 0.2f * chargeTier);
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Fire, damage),
             new MoveType(Element.Fire, kind));
         if (applyBurn)
         {

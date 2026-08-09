@@ -193,6 +193,15 @@ MonoBehaviour:
   - FireStrongSwipe
   weakEffectObject: {fileID: 4924145055515192846, guid: 3e31b181a52490041b62a9c198263531, type: 3}
   strongEffectObject: {fileID: 3295937853743057273, guid: c35302333a29d214782dce3eb8004a92, type: 3}
+  meleeDamageMultiplier: 0.35
+  fireballPrefab: {fileID: 6782047527808389717, guid: 5ac91ee3efea5b247a514c74298694f0, type: 3}
+  fireballsPerBurst: 3
+  fireballInterval: 0.07
+  fireballSpreadAngle: 22
+  fireballSpeed: 9
+  fireballSpawnOffset: 0.6
+  fireballDamageMultiplier: 0.55
+  fireballHomingTurnRate: 240
   cleaveEffectObject: {fileID: 1768101877311086085, guid: 4c4245b12e70af749b34b50ca8dc1c85, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -324,6 +333,16 @@ MonoBehaviour:
   cleaveEffectObject: {fileID: 1023693171408723973, guid: 34c30bec73fba9449a6840979f517938, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
+  windDartPrefab: {fileID: 4850645359652780074, guid: a946ea7b02f9d024b9c8b004d74ec519, type: 3}
+  reflectRadius: 2.2
+  reflectLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  dartSpeed: 13
+  dartDamageMultiplier: 0.9
+  dartSpreadAngle: 40
+  dartSpreadStep: 12
+  dartSpawnOffset: 0.4
   maxWindCharges: 2
   wispEffectPrefab: {fileID: 5943037512361198043, guid: abe8edd0a5ccac14885160cd4de1d301, type: 3}
   wispBaseRadius: 1.5
@@ -396,7 +415,18 @@ MonoBehaviour:
   attackRadius: 3.5
   dashFactor: 0.2
   thrustDistance: 1.5
-  meleeCooldown: 0.15
+  meleeCooldown: 0.2
+  iaidoDashDistance: 4.5
+  iaidoDashDuration: 0.18
+  iaidoCooldown: 0.45
+  iaidoDamageMultiplier: 1.5
+  iaidoIFrameDuration: 0.3
+  dodgeDetectRadius: 0.9
+  dodgeDetectLayers:
+    serializedVersion: 2
+    m_Bits: 512
+  empoweredDuration: 5
+  empoweredAttackSpeedMultiplier: 2
   cleaveEffectObject: {fileID: 7629752438906148674, guid: 2fb956f3d9d854547882cdf227068efd, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -627,19 +657,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   weakCollider: {fileID: 3317733405805591048, guid: 1713d0b6c3eace546a75eb17eded4fb8, type: 3}
-  strongCollider: {fileID: 3317733405805591048, guid: 1713d0b6c3eace546a75eb17eded4fb8, type: 3}
-  swingDuration: 0.3
+  swingDuration: 0.45
   distanceFromPlayer: 0.5
-  strongHitScaling: 1.2
   animName: EnergySwipe
   effectObject: {fileID: 4925662194938975265, guid: c0f3d83f88dbc3643b3a5d66aefd6807, type: 3}
+  reachScale: 1.9
+  meleeDamageMultiplier: 1.8
   chillFieldObject: {fileID: 8092953990564353765, guid: c141323742f6d4c44961232906a9e351, type: 3}
   fieldSpawnInterval: 0.2
   fieldDuration: 3
-  attackRadius: 3
-  dashFactor: 0.2
-  meleeCooldown: 0.3
-  strongHitBonusDmg: 10
+  attackRadius: 4.5
+  dashFactor: 0.1
+  meleeCooldown: 0.75
   chillDuration: 5
   cleaveEffectObject: {fileID: 6798840966112144939, guid: bc77e84f4ff291147b7aa7dc91398ffa, type: 3}
   cleaveRadius: 5

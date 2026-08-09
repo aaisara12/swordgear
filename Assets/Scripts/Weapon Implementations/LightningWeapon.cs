@@ -2,9 +2,14 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
-public class LightningWeapon : MonoBehaviour, IElementalWeapon
+/// <summary>
+/// Lightning is the katana. Holding attack sheathes the blade; releasing it fires an iaido dash-slash that
+/// carries the player forward with i-frames. Dashing through an enemy attack during that window empowers the
+/// blade, unlocking a faster slash combo for a short duration.
+/// </summary>
+public class LightningWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 {
-    [SerializeField] private GameObject weaponCollider;  // TODO: Add separate, larger collider for weapon thrust 
+    [SerializeField] private GameObject weaponCollider;  // TODO: Add separate, larger collider for weapon thrust
     [SerializeField] private GameObject strongCollider;
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
@@ -21,6 +26,24 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float thrustDistance = 1.5f;
     [SerializeField] private float meleeCooldown = 0.3f;
 
+    [Header("Katana - Iaido Dash")]
+    [Tooltip("How far the dash-slash carries the player on release.")]
+    [SerializeField] private float iaidoDashDistance = 4.5f;
+    [SerializeField] private float iaidoDashDuration = 0.18f;
+    [SerializeField] private float iaidoCooldown = 0.45f;
+    [SerializeField] private float iaidoDamageMultiplier = 1.5f;
+    [Tooltip("I-frames granted for the dash, so dodging through an attack is actually survivable.")]
+    [SerializeField] private float iaidoIFrameDuration = 0.3f;
+
+    [Header("Katana - Dodge Empower")]
+    [Tooltip("Radius around the player scanned for enemy attacks to dodge through during the dash.")]
+    [SerializeField] private float dodgeDetectRadius = 0.9f;
+    [Tooltip("Layers holding enemy attacks. Projectiles at minimum; beams are found by component.")]
+    [SerializeField] private LayerMask dodgeDetectLayers = 1 << 9; // Projectiles
+    [SerializeField] private float empoweredDuration = 5f;
+    [Tooltip("Attack-speed multiplier while empowered. Shortens both the swing and the cooldown.")]
+    [SerializeField] private float empoweredAttackSpeedMultiplier = 2f;
+
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
@@ -29,13 +52,40 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
     int combo = 0;
     bool lightningActive = false;
 
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
-    {}
+    private bool isSheathed;
+    private bool iaidoDashActive;
+    private float empoweredUntil = -1f;
+    private readonly Collider2D[] _dodgeScanBuffer = new Collider2D[12];
 
-    private IEnumerator Swing(Transform player)
+    public bool IsEmpowered => Time.time < empoweredUntil;
+
+    // IMeleeChargeProvider — the sheathe is binary rather than a ramp, so it reports a full ring the moment
+    // it engages. That gives the existing charge indicators a "blade is sheathed, release to strike" tell.
+    public bool IsCharging => isSheathed;
+    public float ChargeProgress => isSheathed ? 1f : 0f;
+    public bool IsMaxCharge => isSheathed;
+    public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) => player.IsMeleeReady;
+
+    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
+    {
+        SetSheathed(player, !cancel);
+    }
+
+    private void SetSheathed(Transform player, bool sheathed)
+    {
+        if (isSheathed == sheathed)
+        {
+            return;
+        }
+
+        isSheathed = sheathed;
+        player.GetComponent<PlayerController>()?.SetWeaponVisible(!sheathed);
+    }
+
+    private IEnumerator Swing(Transform player, float speedMultiplier = 1f)
     {
         float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
-        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration) / Mathf.Max(0.05f, speedMultiplier);
         Vector3 spawnPos = player.position + player.up * reach;
 
         GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weaponCollider, spawnPos, Quaternion.identity);
@@ -131,7 +181,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         lightningActive = false;
     }
 
-    public void Strike(Transform player, HashSet<UpgradeType> upgrades)
+    public void Strike(Transform player, HashSet<UpgradeType> upgrades, float speedMultiplier = 1f)
     {
         //transform.position = player.position + player.up * distanceFromPlayer;
         //transform.up = player.up;
@@ -140,7 +190,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
         {
             case 0:
             case 1:
-                StartCoroutine(Swing(player));
+                StartCoroutine(Swing(player, speedMultiplier));
                 break;
             case 2:
 
@@ -153,30 +203,153 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
-        if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        // Released from a sheathe: the iaido dash takes priority over everything else.
+        if (isSheathed)
         {
-            Strike(player, upgrades);
-            return meleeCooldown;
+            SetSheathed(player, false);
+            StartCoroutine(IaidoDash(player));
+            return iaidoCooldown;
         }
 
-        Vector2 direction = ((Vector2)nearestEnemy.transform.position - (Vector2)player.position).normalized;
-        player.up = direction;
+        if (IsEmpowered)
+        {
+            return EmpoweredSlash(player, upgrades);
+        }
 
-        Vector2 dashPosition = (Vector2)player.position + direction * (shortestDistance * dashFactor);
-        player.position = dashPosition;
+        SeekAndStepToward(player);
         Strike(player, upgrades);
         return meleeCooldown;
     }
 
+    /// <summary>
+    /// The reward for a successful dodge-dash: a faster slash combo. Deliberately kept as its own entry
+    /// point so the empowered form can diverge from the normal swing later (different anim, extra hits,
+    /// chain lightning, ...). For now it is the normal slash run at an increased attack speed.
+    /// </summary>
+    private float EmpoweredSlash(Transform player, HashSet<UpgradeType> upgrades)
+    {
+        float speed = Mathf.Max(0.05f, empoweredAttackSpeedMultiplier);
+
+        SeekAndStepToward(player);
+        Strike(player, upgrades, speed);
+
+        return meleeCooldown / speed;
+    }
+
+    // Shared approach step: face the nearest enemy in range and close a fraction of the gap.
+    private void SeekAndStepToward(Transform player)
+    {
+        float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
+        if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
+        {
+            return;
+        }
+
+        Vector2 direction = ((Vector2)nearestEnemy.transform.position - (Vector2)player.position).normalized;
+        player.up = direction;
+        player.position = (Vector2)player.position + direction * (shortestDistance * dashFactor);
+    }
+
+    /// <summary>
+    /// Iaido: carry the player forward behind a persistent hitbox, with i-frames for the whole ride. Each
+    /// frame we look for an enemy attack overlapping the player — passing through one empowers the blade.
+    /// </summary>
+    private IEnumerator IaidoDash(Transform player)
+    {
+        float duration = MeleeAugmentUtility.ScaleSwingDuration(iaidoDashDuration);
+        float distance = MeleeAugmentUtility.ScaleDistance(iaidoDashDistance);
+
+        PlayerController controller = player.GetComponent<PlayerController>();
+        controller?.GrantIFrames(Mathf.Max(iaidoIFrameDuration, duration));
+
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, player.position, Quaternion.identity);
+        weaponHitbox.transform.up = player.up;
+        MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
+
+        GameObject effect = null;
+        if (strongEffectObject != null)
+        {
+            effect = PrefabPool.Instance!.Spawn(strongEffectObject, player.position, Quaternion.identity, player);
+            effect.transform.up = player.up;
+            MeleeAugmentUtility.ApplyRangeScale(effect.transform);
+            effect.GetComponent<IAttackAnimator>()?.PlayAnimation();
+        }
+
+        AudioSystem.Play(AudioSystem.Sound.Slash_LightningEmpowered);
+
+        iaidoDashActive = true;
+        lightningActive = true;
+
+        Vector2 startPos = player.position;
+        Vector2 dest = startPos + (Vector2)player.up * distance;
+
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            float t = duration > 0f ? Mathf.Clamp01(elapsed / duration) : 1f;
+            player.position = Vector2.Lerp(startPos, dest, t);
+            weaponHitbox.transform.position = player.position;
+
+            if (!IsEmpowered && HasDodgedEnemyAttack(player.position))
+            {
+                GrantEmpowered();
+            }
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        player.position = dest;
+
+        iaidoDashActive = false;
+        lightningActive = false;
+
+        PrefabPool.Instance!.Release(weaponHitbox);
+        if (effect != null)
+        {
+            PrefabPool.Instance!.Release(effect);
+        }
+    }
+
+    /// <summary>
+    /// True when an active enemy attack overlaps the given point. Covers enemy projectiles (by layer) and
+    /// beam lasers (by component); enemy melee has no discrete hitbox to dodge, so it isn't detected.
+    /// </summary>
+    private bool HasDodgedEnemyAttack(Vector2 position)
+    {
+        int count = Physics2D.OverlapCircleNonAlloc(position, dodgeDetectRadius, _dodgeScanBuffer, dodgeDetectLayers);
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = _dodgeScanBuffer[i];
+            if (hit == null) continue;
+
+            if (hit.GetComponentInParent<EnemyProjectile>() != null || hit.GetComponentInParent<EnemyBeamLaser>() != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private void GrantEmpowered()
+    {
+        empoweredUntil = Time.time + empoweredDuration;
+        AudioSystem.Play(AudioSystem.Sound.Slash_LightningEmpowered);
+        Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake();
+    }
+
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        
+        // Swapping off Lightning must never leave the blade hidden or the empower running.
+        SetSheathed(player, false);
+        empoweredUntil = -1f;
     }
 
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-
+        isSheathed = false;
+        empoweredUntil = -1f;
     }
 
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades)
@@ -238,7 +411,8 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, GameManager.Instance.GetEffectiveBaseDamage()),
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * (iaidoDashActive ? iaidoDamageMultiplier : 1f);
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Lightning, damage),
             new MoveType(Element.Lightning, AttackKind.MeleeStrike));
         if (lightningActive && upgrades.Contains(UpgradeType.Lightning_ApplyStatic))
         {

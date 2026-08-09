@@ -253,6 +253,19 @@ public class PlayerController : PlayerGameplayPawn
         _iFrameRemaining = Mathf.Max(_iFrameRemaining, 0.3f);
     }
 
+    // Grants i-frames without a dash (used by weapon-driven repositions like Lightning's iaido dash, which
+    // moves the player itself rather than going through DashCoroutine). Never shortens an active window.
+    public void GrantIFrames(float seconds)
+    {
+        _iFrameRemaining = Mathf.Max(_iFrameRemaining, seconds);
+    }
+
+    /// <summary>Shows/hides the equipped blade — Lightning sheathes it while the attack is held.</summary>
+    public void SetWeaponVisible(bool visible)
+    {
+        weaponIndicator?.SetEquippedVisible(visible);
+    }
+
     // Force-catch the thrown sword now (used by dash-overrides that blink to it): cancel any in-progress
     // recall channel, guarantee the auto-catch gate passes, then run the normal catch (cleave + pickup).
     public void CatchThrownSword()
@@ -870,6 +883,13 @@ public class PlayerController : PlayerGameplayPawn
         // Cancel an in-progress attack animation so it doesn't keep blocking movement anims after reset.
         CancelAttackAnimation();
 
+        // Clear any held melee charge. Without this a weapon holding charge state across the reset (e.g.
+        // Lightning's sheathed katana) would fire its release attack on the next tap in the new node.
+        if (ElementManager.Instance != null)
+        {
+            ElementManager.Instance.MeleeCharge(transform, cancel: true);
+        }
+
         // Stop the looping walk SFX if it was playing.
         if (walkSoundLoop != -1)
         {
@@ -938,6 +958,11 @@ public class PlayerController : PlayerGameplayPawn
         ForceResetThrownSword();
         CancelDash();
         CancelAttackAnimation();
+
+        if (ElementManager.Instance != null)
+        {
+            ElementManager.Instance.MeleeCharge(transform, cancel: true);
+        }
 
         if (walkSoundLoop != -1)
         {

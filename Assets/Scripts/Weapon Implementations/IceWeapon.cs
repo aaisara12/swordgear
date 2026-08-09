@@ -2,20 +2,24 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Ice is the spear: a single committed thrust with long reach and heavy damage, paid for with a slow
+/// attack rate. The hitbox is stretched along its local forward axis only — the spear pokes, it doesn't sweep.
+/// </summary>
 public class IceWeapon : MonoBehaviour, IElementalWeapon
 {
-    /*
-     * This weapon applies AoE slows as its main effect. The melee attack is a two hit sweeping combo where the second hit slows briefly, and the ranged attack spawns a lingering trail that slows enemies 
-     */
-
     [Header("Hitbox Spawning")]
-    [SerializeField] private GameObject weakCollider;  // First hit of combo
-    [SerializeField] private GameObject strongCollider;  // Second hit of combo
+    [SerializeField] private GameObject weakCollider;  // the spear thrust hitbox
     [SerializeField] private float swingDuration = 0.5f;
     [SerializeField] private float distanceFromPlayer = 0.5f;
-    [SerializeField] private float strongHitScaling = 1.2f;
     [SerializeField] private string animName;
     [SerializeField] private GameObject effectObject;
+
+    [Header("Spear")]
+    [Tooltip("Stretches the thrust along its forward axis only, so reach grows without the hitbox widening.")]
+    [SerializeField] private float reachScale = 1.9f;
+    [Tooltip("The spear hits hard to pay for its slow cadence.")]
+    [SerializeField] private float meleeDamageMultiplier = 1.8f;
     [Header("Ranged")]
     [SerializeField] private GameObject chillFieldObject;
     [SerializeField] private float fieldSpawnInterval = 0.2f;
@@ -24,7 +28,6 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float attackRadius = ActiveEnemyRegistry.AutoTargetRadius;
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float meleeCooldown = 0.3f;
-    [SerializeField] private float strongHitBonusDmg = 10f;
     [SerializeField] private int chillDuration = 5;
 
     [Header("Cleave")]
@@ -37,22 +40,19 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     }
 
-    int combo = 1;
-
     private IEnumerator Swing(Transform player)
     {
         float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
         float duration = MeleeAugmentUtility.ScaleSwingDuration(swingDuration);
         Vector3 spawnPos = player.position + player.up * reach;
 
-        GameObject weaponHitbox;
-        if (combo == 0)
-            weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, spawnPos, Quaternion.identity);
-        else
-            weaponHitbox = PrefabPool.Instance!.Spawn(strongCollider, spawnPos, Quaternion.identity);
-
+        GameObject weaponHitbox = PrefabPool.Instance!.Spawn(weakCollider, spawnPos, Quaternion.identity);
         Animator anim = weaponHitbox.GetComponentInChildren<Animator>();
         weaponHitbox.transform.up = player.up;
+
+        // Stretch forward only: scaling local Y lengthens the thrust, X is left alone so it never widens.
+        StretchForward(weaponHitbox.transform, player);
+        MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
 
         float elapsedTime = 0f;
 
@@ -61,30 +61,19 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         {
             effect = PrefabPool.Instance!.Spawn(effectObject, spawnPos, Quaternion.identity, player);
             effect.transform.up = player.up;
-            if (combo > 0)
-            {
-                effect.transform.localScale += Vector3.left * 2; // x = -1 scale
-                effect.transform.localScale *= strongHitScaling;
-                weaponHitbox.transform.localScale *= strongHitScaling;
-                AudioSystem.Play(AudioSystem.Sound.Slash_IceEmpowered);
-            }
-            else
-            {
-                AudioSystem.Play(AudioSystem.Sound.Slash_IceBasic);
-            }
+            effect.transform.localScale = Vector3.Scale(effect.transform.localScale, new Vector3(1f, reachScale, 1f));
             MeleeAugmentUtility.ApplyRangeScale(effect.transform);
-            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
+            AudioSystem.Play(AudioSystem.Sound.Slash_IceEmpowered);
             IAttackAnimator attackAnimator = effect.GetComponent<IAttackAnimator>();
             attackAnimator.PlayAnimation();
         }
         else
         {
-            MeleeAugmentUtility.ApplyRangeScale(weaponHitbox.transform);
             anim.Play(animName);
         }
+
         while (elapsedTime < duration)
         {
-
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -96,6 +85,25 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         }
     }
 
+    /// <summary>
+    /// Lengthens a hitbox along its local forward (+Y) axis, then slides it forward so the near edge stays
+    /// where it was. Without the slide, scaling a box whose offset is forward of its origin also grows it
+    /// backwards through the player.
+    /// </summary>
+    private void StretchForward(Transform hitbox, Transform player)
+    {
+        hitbox.localScale = Vector3.Scale(hitbox.localScale, new Vector3(1f, reachScale, 1f));
+
+        BoxCollider2D box = hitbox.GetComponent<BoxCollider2D>();
+        if (box == null)
+        {
+            return;
+        }
+
+        float nearEdge = box.offset.y - box.size.y * 0.5f;
+        hitbox.position += player.up * (-nearEdge * (reachScale - 1f));
+    }
+
     public void Strike(Transform player)
     {
         Debug.Log("Attack physical");
@@ -104,11 +112,6 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
     {
-        if (upgrades.Contains(UpgradeType.Ice_EmpowerMelee))
-            combo = (combo + 1) % 2;
-        else
-            combo = 0;
-
         float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
         if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
         {
@@ -132,7 +135,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
-        combo = 1;
+
     }
 
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades)
@@ -172,13 +175,11 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
 
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
-        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, GameManager.Instance.GetEffectiveBaseDamage() + strongHitBonusDmg * combo),
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * meleeDamageMultiplier;
+        enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Ice, damage),
             new MoveType(Element.Ice, AttackKind.MeleeStrike));
 
-        if (combo == 1)
-        {
-            GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Chill, chillDuration);
-        }
+        GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Chill, chillDuration);
     }
 
     float flightTime = 0f;

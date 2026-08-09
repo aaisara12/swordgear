@@ -2,16 +2,13 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 
+/// <summary>
+/// Wind is the fan. Its defining trick is defensive: enemy projectiles caught inside the fan while it is
+/// swinging are batted away and reborn as wind darts flying along the direction the player swung. The
+/// reflect window is exactly the swing, so it reads as a parry rather than a passive aura.
+/// </summary>
 public class WindWeapon : MonoBehaviour, IElementalWeapon
 {
-    /*
-     * Melee hits accumulate wind charges (like ult charge generation, 1 per enemy hit).
-     * Ranged throws consume all charges to empower the sword: partial charges summon wind wisps
-     * that periodically damage an AoE around the sword's trajectory (no direct contact damage),
-     * while max charges summon a tornado that also pulls enemies toward its center and destroys
-     * enemy projectiles that enter it. Slash/cleave visuals reuse the Physical weapon's for now.
-     */
-
     [Header("Hitbox Spawning")]
     [SerializeField] private GameObject weaponCollider;
     [SerializeField] private float swingDuration = 0.5f;
@@ -27,6 +24,18 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
     [SerializeField] private float cleaveDuration = 0.4f;
+
+    [Header("Fan Reflect")]
+    [SerializeField] private GameObject windDartPrefab;
+    [Tooltip("Radius around the fan hitbox that catches enemy projectiles while the swing is live.")]
+    [SerializeField] private float reflectRadius = 2.2f;
+    [SerializeField] private LayerMask reflectLayers = 1 << 9; // Projectiles
+    [SerializeField] private float dartSpeed = 13f;
+    [SerializeField] private float dartDamageMultiplier = 0.9f;
+    [Tooltip("Total cone the darts fan out over, centred on the direction the player swung.")]
+    [SerializeField] private float dartSpreadAngle = 40f;
+    [SerializeField] private float dartSpreadStep = 12f;
+    [SerializeField] private float dartSpawnOffset = 0.4f;
 
     [Header("Wind Charges")]
     [SerializeField] private int maxWindCharges = 5;
@@ -88,8 +97,15 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
             anim.Play(animName);
         }
 
+        // Snapshot the swing direction: the darts fly where the fan was aimed, even if the player turns
+        // while the swing is still resolving.
+        Vector2 swingFacing = player.up;
+        int reflectedThisSwing = 0;
+
         while (elapsedTime < duration)
         {
+            reflectedThisSwing += ReflectProjectiles(weaponHitbox.transform.position, swingFacing, reflectedThisSwing);
+
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -99,6 +115,72 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
         {
             PrefabPool.Instance!.Release(effect);
         }
+    }
+
+    private readonly Collider2D[] _reflectScanBuffer = new Collider2D[16];
+
+    /// <summary>
+    /// Consumes every enemy projectile inside the fan and replaces each with a wind dart launched along the
+    /// swing direction. Returns how many were reflected so the caller can keep fanning subsequent darts out.
+    /// </summary>
+    private int ReflectProjectiles(Vector2 center, Vector2 facing, int alreadyReflected)
+    {
+        if (windDartPrefab == null)
+        {
+            return 0;
+        }
+
+        int count = Physics2D.OverlapCircleNonAlloc(center, reflectRadius, _reflectScanBuffer, reflectLayers);
+        int reflected = 0;
+
+        for (int i = 0; i < count; i++)
+        {
+            Collider2D hit = _reflectScanBuffer[i];
+            if (hit == null) continue;
+
+            EnemyProjectile incoming = hit.GetComponentInParent<EnemyProjectile>();
+            if (incoming == null) continue;
+
+            SpawnWindDart(incoming.transform.position, facing, alreadyReflected + reflected);
+            PrefabPool.Instance!.Release(incoming.gameObject);
+            reflected++;
+        }
+
+        if (reflected > 0)
+        {
+            AudioSystem.Play(AudioSystem.Sound.Bounce);
+        }
+
+        return reflected;
+    }
+
+    private void SpawnWindDart(Vector2 origin, Vector2 facing, int dartIndex)
+    {
+        float angle = SpreadAngleForIndex(dartIndex, dartSpreadStep, dartSpreadAngle * 0.5f);
+        Vector2 direction = ((Vector2)(Quaternion.Euler(0f, 0f, angle) * facing)).normalized;
+        Vector3 spawnPos = (Vector3)(origin + direction * dartSpawnOffset);
+
+        GameObject obj = PrefabPool.Instance!.Spawn(windDartPrefab, spawnPos, Quaternion.identity);
+        PlayerProjectile dart = obj.GetComponent<PlayerProjectile>();
+        if (dart == null)
+        {
+            PrefabPool.Instance!.Release(obj);
+            return;
+        }
+
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * dartDamageMultiplier;
+        dart.Launch(Element.Wind, damage, direction, dartSpeed);
+    }
+
+    /// <summary>
+    /// Fans successive darts out from the centre line: 0, -step, +step, -2*step, +2*step, ... so a single
+    /// reflect flies straight ahead and a caught volley spreads symmetrically.
+    /// </summary>
+    private static float SpreadAngleForIndex(int index, float step, float maxHalfAngle)
+    {
+        int rank = (index + 1) / 2;
+        float sign = index % 2 == 0 ? 1f : -1f;
+        return Mathf.Clamp(rank * step * sign, -maxHalfAngle, maxHalfAngle);
     }
 
     public void Strike(Transform player)
