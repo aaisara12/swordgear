@@ -149,7 +149,7 @@ MonoBehaviour:
   filledArcAlpha: 0.7
   emptyArcAlpha: 0.2
   emptyArcColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
-  imbueDuration: 5
+  imbueDuration: 20
   imbueDamageMultiplier: 1.2
   followLagDecay: 8
 --- !u!212 &3377753912994020425
