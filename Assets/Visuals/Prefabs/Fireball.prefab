@@ -175,3 +175,5 @@ MonoBehaviour:
   faceTravelDirection: 1
   seekRadius: 9
   retargetInterval: 0.2
+  weaveAmplitudeDegrees: 20
+  weaveFrequency: 1.5

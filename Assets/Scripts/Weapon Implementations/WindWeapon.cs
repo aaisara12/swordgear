@@ -5,7 +5,8 @@ using UnityEngine;
 /// <summary>
 /// Wind is the fan. Its defining trick is defensive: enemy projectiles caught inside the fan while it is
 /// swinging are batted away and reborn as wind darts flying along the direction the player swung. The
-/// reflect window is exactly the swing, so it reads as a parry rather than a passive aura.
+/// reflect window is the swing plus a short grace period — long enough to forgive late input, short enough
+/// that it still reads as a parry rather than a passive aura.
 /// </summary>
 public class WindWeapon : MonoBehaviour, IElementalWeapon
 {
@@ -29,6 +30,8 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private GameObject windDartPrefab;
     [Tooltip("Radius around the fan hitbox that catches enemy projectiles while the swing is live.")]
     [SerializeField] private float reflectRadius = 2.2f;
+    [Tooltip("Extra seconds after the swing's hitbox ends during which the fan still deflects. Input leniency, so the parry isn't frame-tight.")]
+    [SerializeField] private float reflectGraceDuration = 0.18f;
     [SerializeField] private LayerMask reflectLayers = 1 << 9; // Projectiles
     [SerializeField] private float dartSpeed = 13f;
     [SerializeField] private float dartDamageMultiplier = 0.9f;
@@ -102,14 +105,39 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
         Vector2 swingFacing = player.up;
         int reflectedThisSwing = 0;
 
-        while (elapsedTime < duration)
+        // The reflect window outlives the damage hitbox by a flat grace period, so a shot that arrives a
+        // few frames late still gets batted away. Deliberately NOT scaled by attack speed: this is input
+        // leniency, and it shouldn't shrink just because the player stacked haste.
+        float reflectWindow = duration + Mathf.Max(0f, reflectGraceDuration);
+        bool swingVisualsReleased = false;
+
+        while (elapsedTime < reflectWindow)
         {
-            reflectedThisSwing += ReflectProjectiles(weaponHitbox.transform.position, swingFacing, reflectedThisSwing);
+            // Recomputed rather than read off the hitbox: the hitbox is gone during the grace window, and
+            // anchoring to the player keeps the fan held out in front of them if they walk after swinging.
+            Vector2 reflectCenter = (Vector2)player.position + swingFacing * reach;
+            reflectedThisSwing += ReflectProjectiles(reflectCenter, swingFacing, reflectedThisSwing);
 
             elapsedTime += Time.deltaTime;
+
+            // Damage hitbox and VFX still end on the swing's own schedule; only the parry lingers.
+            if (!swingVisualsReleased && elapsedTime >= duration)
+            {
+                ReleaseSwingVisuals(weaponHitbox, effect);
+                swingVisualsReleased = true;
+            }
+
             yield return null;
         }
 
+        if (!swingVisualsReleased)
+        {
+            ReleaseSwingVisuals(weaponHitbox, effect);
+        }
+    }
+
+    private static void ReleaseSwingVisuals(GameObject weaponHitbox, GameObject effect)
+    {
         PrefabPool.Instance!.Release(weaponHitbox);
         if (effect != null)
         {
