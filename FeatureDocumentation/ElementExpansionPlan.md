@@ -14,8 +14,9 @@
 3. **Regression check every commit** — the existing four elements must still play correctly. New content
    is worthless if it quietly breaks Fire.
 4. **One weapon capability per commit** — split if the playtest description needs "and also…".
-5. **Don't touch `IElementalWeapon`** — the sword throw returns as the ultimate, so its ranged hooks are
-   dormant, not dead. Refactor pass later if it's still awkward.
+5. ~~**Don't touch `IElementalWeapon`**~~ — **lifted 2026-08-23, see commit 02.** The sword throw still
+   returns as the ultimate and its ranged hooks stay dormant-not-dead; the rename and default members
+   deliberately leave them in place. What the rule was guarding is still guarded.
 6. **EditMode tests are bonus** — allowed alongside a playtest, never instead of one.
 
 ---
@@ -24,13 +25,16 @@
 
 ```text
 M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven   [landed, editor-verified]
-M1  Earth / Ballista Turret — charge-only, movement-locks to aim, piercing bolt
+R   Interface tidy — tap/charge naming + defaults, so weapons implement only what they use
+M1  Earth / Ballista Turret — grounds you, plants a ballista, piercing bolt
 M2  Light / Harp — marking projectile + angel that detonates the marks
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
 ```
 
 Earth is first because it's the smallest and proves the movement-lock aim mode. Dark is last because
-minion conversion is the only genuinely new *system* in the batch.
+minion conversion is the only genuinely new *system* in the batch. **R sits before all element work** so
+every weapon — Earth, Light and Dark — is written against the tidied interface rather than retrofitted
+afterwards.
 
 ---
 
@@ -39,14 +43,25 @@ minion conversion is the only genuinely new *system* in the batch.
 | Commit | Title | Committed | Editor pass | Verified in play |
 |---|---|---|---|---|
 | 01 | Foundation — elements + loadout-driven gear | ✅ `a3e6770` | ✅ 2026-08-23 | ⏳ flick check pending |
-| 02 | Earth selectable, fires a basic bolt | ✅ landed | ✅ 2026-08-23 | ⏳ not yet |
-| 03 | Earth charge locks movement and aims | ☐ | ☐ | ☐ |
-| 04 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
-| 05 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
-| 06 | Light charge summons the angel | ☐ | ☐ | ☐ |
-| 07 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
-| 08 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
-| 09 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+| 02 | Interface tidy — tap/charge naming + defaults | ✅ landed | ✅ 2026-08-23 | n/a (refactor) |
+| 03 | Earth selectable, tap fires a bolt | ✅ landed | ✅ 2026-08-23 | ⏳ not yet |
+| 04 | Earth grounds you and aims | ☐ | ☐ | ☐ |
+| 05 | The ballista appears at your feet | ☐ | ☐ | ☐ |
+| 06 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
+| 07 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
+| 08 | Light charge summons the angel | ☐ | ☐ | ☐ |
+| 09 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
+| 10 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
+| 11 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+
+> **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
+> into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
+> unchanged.
+>
+> **Reordered 2026-08-23.** The interface tidy moved ahead of the Earth work — it's now commit 02 and
+> Earth is 03. History was rewritten (nothing was pushed) so the tidy genuinely lands first. This wasn't
+> cosmetic: `EarthWeapon` was rewritten against the clean interface and dropped from eight implemented
+> methods to four, which is the shape every later element inherits.
 
 ### Commit 01 editor pass — 2026-08-23
 
@@ -79,20 +94,20 @@ So to reach a new element, edit **`startingLoadout` on `Gear.prefab`** (Inspecto
 
 ```text
 Commit 01 (ship default) →  Wind, Fire, Ice, Lightning          4 arcs, 90°
-Commit 02 (+ Earth)      →  Wind, Fire, Ice, Lightning, Earth   5 arcs, 72°
-Commit 05 (+ Light)      →  … , Light                           6 arcs, 60°
-Commit 07 (+ Dark)       →  … , Dark                            7 arcs, ~51°
+Commit 03 (+ Earth)      →  Wind, Fire, Ice, Lightning, Earth   5 arcs, 72°
+Commit 07 (+ Light)      →  … , Light                           6 arcs, 60°
+Commit 09 (+ Dark)       →  … , Dark                            7 arcs, ~51°
 ```
 
 > **Superseded 2026-08-23.** This section previously said to *swap* rather than append, on the theory
 > that 7 arcs would recreate the "hitting the desired colour feels random" complaint. Reverted by
 > decision: keeping every element equipped is what the ring is for, and swapping meant no playtest ever
-> exercised more than four. **Arc size is now the thing to watch** — if flicking starts feeling
-> imprecise as the count climbs, that's real feedback about the ring, not a reason to shrink the loadout.
+> exercised more than four. **Arc size is explicitly not a concern** — shrinking to ~51° at 7 arcs is
+> accepted, and is not a reason to revisit the loadout.
 
 Arc order follows list order starting at +X counter-clockwise, so an appended element takes the next
 arc round and every previously-learned flick direction shifts. Expect the existing four to feel
-different the first time the count changes.
+different each time the count changes.
 
 ---
 
@@ -116,20 +131,61 @@ different the first time the count changes.
 
 ---
 
+## R — Interface tidy
+
+> *Not a feature. `IElementalWeapon` is named as if every element is a melee weapon, and forces each
+> weapon to implement hooks it has no use for. Both are cheap to fix, and get more expensive with each
+> new element that inherits the problem.*
+
+*R is its own section because the refactor is cross-cutting, not part of Earth. It lands **before** any
+element work so every weapon after it is written against the clean interface.*
+
+### Commit 02 — Tap/charge naming and default members ✅
+
+| | |
+|---|---|
+| **Changes** | `IElementalWeapon` — `MeleeStrike` → `OnTap`, `MeleeCharge` → `OnCharge`; call sites in `ElementManager` and `PlayerController` follow |
+| **Adds** | Default no-op implementations for everything except `OnTap`: `OnCharge`, `OnMeleeHit`, `Cleave`, `OnRangedFlight`, `OnRangedHit`, `OnBuffStart`, `OnBuffEnd` |
+| **Removes** | Seven now-redundant overrides — Physical and Ice each had an empty `OnCharge` plus empty `OnBuffStart`/`OnBuffEnd`; Wind had an empty `OnCharge`. Also a stray `Debug.Log` that fired on every tap |
+| **Mechanism** | C# default interface members — **already used in this codebase** by `TryOverrideDash`, so this is an established pattern, not a new one. `ElementManager` dispatches through the interface reference, which is what makes the defaults reachable |
+| **Why not split into melee/ranged interfaces** | Considered and rejected. Every element — melee or ranged — is driven by the same input shape: **tap, hold, release**. A split would put a type-test at every call site and an "implements neither" fallback in the dispatcher, while both branches still called the same two methods. The names were wrong, not the structure |
+| **Careful** | `AttackKind.MeleeStrike`/`MeleeCharge` is a **different enum**, used for damage attribution. It is deliberately untouched — a blind find-and-replace breaks it |
+| **Risk** | `OnMeleeHit` now defaults to a no-op, i.e. **no damage**. Any weapon that spawns a melee hitbox must override it. A weapon that forgets deals zero damage, which is loud in playtest rather than silent in production |
+| **Playtest** | ⚠️ **None — pure refactor.** The second commit in this plan that can't meet the playtest gate, and for the same reason as commit 01: it's plumbing |
+| **Regression check** | Every one of the five existing elements still taps and charges **identically**. This is the whole test — a rename that changes behaviour has failed |
+| **Not in commit** | Any behaviour change; any new element |
+
+**Editor pass 2026-08-23:** compiles clean, EditMode 73/73. Verified by reflection that `OnTap` is the
+only required member and all eight others carry defaults, and that `AttackKind` still reads
+`MeleeStrike, MeleeCharge, Ranged`.
+
+> Rule 5 said don't touch `IElementalWeapon`. **Lifted 2026-08-23** — the rule existed to stop a
+> speculative refactor around the dormant sword-throw hooks, which this doesn't touch. Renaming and
+> adding defaults leaves the ranged hooks exactly where they are.
+
+---
+
 ## M1 — Earth / Ballista Turret
 
-> *Fantasy: immovable firepower. Charge: disable movement (movement aims instead), charge a single
-> piercing projectile, launch on release. Tap: N/A, weak charge attack.*
+> *Fantasy: immovable firepower. Charging plants you, a ballista rises at your feet, and the left stick
+> aims it. Tap is a weak uncharged shot; the charge is the real attack.*
 
 ### Scope boundary
 
 | In M1 | Out of scope |
 |---|---|
 | `EarthWeapon`, charge ramp, movement-lock aim mode | Light/Dark weapons |
+| The ballista actor (transient, lasts the charge) | A **placed** turret that persists and fires on its own |
 | Pierce support on `PlayerProjectile` | Earth enemies (player-only, by decision) |
-| Earth entries in the damage matrix | Ultimate / sword throw |
+| | Earth entries in the damage matrix — Earth is 1× by decision |
+| | Ultimate / sword throw |
 
-### Commit 02 — Earth is selectable and shoots ✅
+> **The ballista is transient**, not placed: it appears for the duration of the charge and goes away on
+> release. A turret you plant and walk away from is a summon, not a weapon — it would need its own
+> lifetime, targeting and threat handling, and it would collide with Dark's minions. Recorded here
+> because "spawn the turret" reads both ways.
+
+### Commit 03 — Earth is selectable and shoots ✅
 
 | | |
 |---|---|
@@ -141,19 +197,31 @@ different the first time the count changes.
 | **Regression check** | Wind, Fire, Ice and Lightning all still selectable and behave as before. ⚠️ **Every flick direction has moved** — arcs are 72° not 90°, so all five sit in new places. Judge the elements by which arc lights up, not by muscle memory |
 | **Not in commit** | Movement lock, pierce, charge scaling |
 
-### Commit 03 — Charging plants you and aims
+### Commit 04 — Earth grounds you and aims
 
 | | |
 |---|---|
-| **Adds** | `IMeleeChargeProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController` |
+| **Adds** | `IMeleeChargeProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController`; an aim indicator so the direction is readable before you commit |
 | **Changes** | `PlayerController.MoveInDirection` — while Earth is charging, the left stick aims instead of moving |
-| **Mechanism** | Charge start sets the lock; release/cancel clears it. Bolt launches along the aim direction, not the facing direction |
-| **Playtest** | Hold to charge → **you stop moving**; the left stick now swings the aim. Release → the bolt fires where you aimed. This is the whole "immovable firepower" fantasy — it should feel like a tradeoff |
+| **Mechanism** | Charge start sets the lock; release/cancel clears it. The bolt launches along the aim direction, not the facing direction |
+| **Playtest** | Hold to charge → **you stop moving**; the left stick now swings the aim. Release → the bolt fires where you aimed. This is the whole "immovable firepower" fantasy, and the first commit where Earth stops being "Fire but straight" |
 | **Regression check** | Movement is normal for every other element, and normal for Earth when *not* charging. Getting hit or dying mid-charge must not leave you stuck |
-| **Risk** | Movement lock is the one change reaching outside the weapon into `PlayerController`. Every exit path (cancel, damage, death, node change) must clear it |
-| **Not in commit** | Pierce, charge tiers |
+| **Risk** | Movement lock is the one change reaching outside the weapon into `PlayerController`. Every exit path — cancel, damage, death, node change, **and a future dash** — must clear it |
+| **Decision** | **A dash cancels the root.** The dash is currently dead code (see Known adjacent issues), so this can't be tested yet — but the rule is fixed now so reviving the dash doesn't silently strand Earth players. Whoever restores `DashCoroutine` must clear the lock |
+| **Not in commit** | The ballista visual, pierce, charge tiers |
 
-### Commit 04 — The bolt pierces and rewards a full charge
+### Commit 05 — The ballista appears at your feet
+
+| | |
+|---|---|
+| **Adds** | Ballista actor prefab + a small controller — spawns on charge start, rotates to the aim direction, despawns on release or cancel |
+| **Changes** | `EarthWeapon` — the bolt launches **from the ballista's muzzle** rather than from the player |
+| **Mechanism** | Transient and purely presentational: it owns no targeting, no lifetime beyond the charge, and no collision. Its whole job is to make the root legible from across the screen |
+| **Playtest** | Hold → a **ballista rises at your feet** and swings as you aim. Release → the bolt launches from it and it drops away. The root should now *look* like what it is, rather than the player mysteriously freezing |
+| **Regression check** | Cancelling a charge (or dying mid-charge) despawns the ballista — it must not be possible to strand one in the arena |
+| **Not in commit** | Pierce, charge tiers, any autonomous firing |
+
+### Commit 06 — The bolt pierces and rewards a full charge
 
 | | |
 |---|---|
@@ -161,14 +229,14 @@ different the first time the count changes.
 | **Changes** | `EarthWeapon` — charge tiers scale damage, size and pierce count |
 | **Playtest** | Line up 3 enemies → full charge → **one bolt kills the whole line**. A tap-level charge only chips the first |
 | **Regression check** | Fire's fireballs and Wind's darts still consume on hit — pierce must be opt-in, since they share `PlayerProjectile` |
-| **EditMode (optional)** | Pierce decrement / once-per-enemy |
 
 ### Acceptance criteria (M1 done)
 
 - Earth is selectable from the ring and visually reads as amber everywhere (joystick, charge VFX, damage numbers).
-- Holding charge visibly roots the player and repurposes the left stick as aim.
+- Holding charge visibly roots the player, raises a ballista, and repurposes the left stick as aim.
 - A full-charge bolt pierces a line of enemies; a short charge doesn't.
 - No other element's movement, damage or projectiles changed.
+- Every exit path from the root clears both the lock and the ballista.
 
 ---
 
@@ -184,18 +252,18 @@ different the first time the count changes.
 2. **The angel is an actor with a lifetime**, not a weapon mode. It fires and expires on its own.
 3. **Beams mirror the enemy Beam Sniper.** `EnemyBeamLaser` is the reference; don't invent a second beam.
 
-### Commit 05 — Tap marks enemies
+### Commit 07 — Tap marks enemies
 
 | | |
 |---|---|
 | **Adds** | `LightWeapon.cs`; `EnemyEffect.Marked` + its visual; an enumerate-marked query on `ActiveEnemyRegistry` (it only does `TryGetNearest` today) |
-| **Changes** | `CoreSystems.prefab` — register `LightWeapon`; `Gear.prefab` — loadout swaps in Light |
+| **Changes** | `CoreSystems.prefab` — register `LightWeapon`; `Gear.prefab` — loadout appends Light (6 arcs) |
 | **How to reach it** | Flick toward the Light arc |
 | **Playtest** | Flick to Light → tap → a projectile flies out and the enemy it hits **visibly carries a mark**. Mark expires on its own after a few seconds |
 | **Regression check** | Existing status effects still apply and expire — Fire's burn, Ice's chill, Lightning's static |
 | **Not in commit** | The angel; anything that consumes marks |
 
-### Commit 06 — Charge summons the angel
+### Commit 08 — Charge summons the angel
 
 | | |
 |---|---|
@@ -220,19 +288,19 @@ different the first time the count changes.
 > *Fantasy: summoner. Tap: swing scythe in an arc. Charge: blink and swing in a circle. Execution with
 > dark melee resummons the enemy as a minion.*
 
-Split because the combat and the necromancy are very different sizes — 07/08 are assembly from existing
-parts, 09 is a new system. Dark should be playable long before minions land.
+Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
+parts, 11 is a new system. Dark should be playable long before minions land.
 
-### Commit 07 — Dark is selectable, tap swings
+### Commit 09 — Dark is selectable, tap swings
 
 | | |
 |---|---|
 | **Adds** | `DarkWeapon.cs` — arc swing modelled on `PhysicalWeapon` (seek nearest, step in, static hitbox) |
-| **Changes** | `CoreSystems.prefab` — register; `Gear.prefab` — loadout swaps in Dark |
+| **Changes** | `CoreSystems.prefab` — register; `Gear.prefab` — loadout appends Dark (7 arcs) |
 | **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
 | **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
 
-### Commit 08 — Charge blinks and cuts a circle
+### Commit 10 — Charge blinks and cuts a circle
 
 | | |
 |---|---|
@@ -242,7 +310,7 @@ parts, 09 is a new system. Dark should be playable long before minions land.
 | **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
 | **Not in commit** | Minions |
 
-### Commit 09 — Execution raises a minion
+### Commit 11 — Execution raises a minion
 
 | | |
 |---|---|
@@ -256,7 +324,7 @@ parts, 09 is a new system. Dark should be playable long before minions land.
 
 ### Acceptance criteria (M3 done)
 
-- Dark plays as a full melee element without minions (commits 07–08 alone are shippable).
+- Dark plays as a full melee element without minions (commits 09–10 alone are shippable).
 - Dark executions raise minions that fight for you and expire cleanly.
 - Waves still clear with minions alive; combo and ultimate charge behave sanely.
 
@@ -266,15 +334,17 @@ parts, 09 is a new system. Dark should be playable long before minions land.
 
 | After commit | Play this |
 |---|---|
-| **01** | Nothing new — verify the ring still draws 4 arcs and flicks are unchanged |
-| **02** | Flick to Earth → tap → amber bolt |
-| **03** | Hold Earth charge → you're rooted, left stick aims |
-| **04** | Full-charge Earth bolt pierces a line of 3 |
-| **05** | Flick to Light → tap → enemies visibly marked |
-| **06** | Mark 3 → charge → angel beams them all |
-| **07** | Flick to Dark → tap → purple arc swing |
-| **08** | Dark charge → blink + circle cut |
-| **09** | Dark execution → the corpse fights for you |
+| **01** | Nothing new — verify the ring still draws its arcs and flicks are unchanged |
+| **02** | Nothing new — every element must tap and charge exactly as before |
+| **03** | Flick to Earth → tap → amber bolt |
+| **04** | Hold Earth charge → you're rooted, left stick aims |
+| **05** | Hold Earth charge → a ballista rises at your feet and swings with your aim |
+| **06** | Full-charge Earth bolt pierces a line of 3 |
+| **07** | Flick to Light → tap → enemies visibly marked |
+| **08** | Mark 3 → charge → angel beams them all |
+| **09** | Flick to Dark → tap → purple arc swing |
+| **10** | Dark charge → blink + circle cut |
+| **11** | Dark execution → the corpse fights for you |
 
 ---
 
@@ -293,20 +363,30 @@ parts, 09 is a new system. Dark should be playable long before minions land.
   `PlayerState.SwordThrown`, and both dash triggers are gated behind it — so `DashCoroutine` is dead code
   and the player has no dodge. The doc's unresolved "dash dilemma" is about a build that no longer
   exists. Confirm this is a deliberate step toward throw-as-ultimate and not a regression.
-- **Element grants are timed, not persistent.** A flick calls `ApplyEmpowerment` with `imbueDuration`
-  and expires back to `Physical`. The doc's model reads as a persistent mode, and playtesters asked for
-  longer buffs. Resolve with Elemental Affinities, since it decides whether `Physical` stays a real state.
+  **Decided 2026-08-23:** whenever it returns, **a dash cancels the Earth root** — see commit 04.
+- ~~**Element grants are timed, not persistent.**~~ **Resolved 2026-08-23** — timed is the intended
+  model and this is no longer an open question. See Decision 5.
 
 ---
 
 ## Decisions already taken
 
-1. **New elements are matrix-neutral** — 1× both directions, pending Elemental Affinities. Avoids
-   building a 7-element rock-paper-scissors that rework may delete.
+1. **New elements are matrix-neutral** — 1× both directions. **Confirmed 2026-08-23**: this is the
+   settled answer, not a placeholder. Earth/Dark/Light differ by *weapon behaviour*, not by damage
+   multipliers. Supersedes the old M1 scope line that listed "Earth entries in the damage matrix" as
+   in-scope — the two contradicted each other, and this is the survivor.
 2. **Player-only elements** — no Earth/Dark/Light enemies; enemy prefabs, catalog knobs and wave
    composition stay at five elements.
-3. **Dynamic gear arcs** — the ring shows equipped elements only.
-4. **`IElementalWeapon` untouched** — see Rule 5.
+3. **Dynamic gear arcs** — the ring shows equipped elements only, appended as they land. Arc size
+   shrinking toward ~51° is accepted and not a concern.
+4. **`IElementalWeapon` gets tidied, not split** — rename to tap/charge + default members (commit 02).
+   A melee/ranged interface split was considered and rejected: every element shares one input shape.
+5. **Element grants stay timed** — `ApplyEmpowerment` with `imbueDuration`, expiring back to `Physical`,
+   is the intended model. **Confirmed 2026-08-23**; no longer an open question.
+6. **A dash cancels the Earth root** — fixed now even though the dash is unreachable, so reviving it
+   can't silently strand a rooted player.
+7. **The ballista is transient** — it exists for the duration of the charge. A placed, persistent turret
+   is explicitly out of scope for M1.
 
 ### Already done before this plan (do not redo)
 
@@ -323,6 +403,8 @@ parts, 09 is a new system. Dark should be playable long before minions land.
 
 ---
 
-*Last updated: 2026-08-23 — commit 01 landed and passed its editor pass (compile + 73/73 EditMode);
-play-mode flick check still outstanding. Say **"start commit 02"** (or a later number) and we apply only
-that slice and give you the exact play steps.*
+*Last updated: 2026-08-23 — commits 01, 02 and 03 landed and editor-verified; 01 and 03 await the
+play-mode feel check. Plan revised in discussion: matrix-neutral confirmed, timed grants confirmed, arc
+size accepted, interface tidied rather than split and reordered ahead of all element work, M1 re-sliced
+into four beats around a transient ballista. Say **"start commit 04"** (or a later number) and we apply
+only that slice and give you the exact play steps.*
