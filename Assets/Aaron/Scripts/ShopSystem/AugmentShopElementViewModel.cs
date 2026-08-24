@@ -14,6 +14,8 @@ namespace Shop
         [SerializeField] private Image? cardBackground;
         [SerializeField] private Image? cardBorder;
         [SerializeField] private Image? cardInnerFlare;
+        [Tooltip("Optional. Tinted with the augment's element colour. Leave unassigned to skip.")]
+        [SerializeField] private Image? elementBadge;
         [SerializeField] private Material? tierCardMaterialTemplate;
         [SerializeField] private Material? tierFlareMaterialTemplate;
 
@@ -85,9 +87,28 @@ namespace Shop
             itemIcon.sprite = model.Icon != null ? model.Icon : defaultIcon;
             this.model = model;
 
+            ApplyElementVisuals(model.Element);
+
             if (cardBackground != null)
             {
                 ApplyTierVisuals(model.QualityTier);
+            }
+        }
+
+        // The rolled element decides which ultimate this augment advances, so it has to read off the card. The name
+        // is tinted unconditionally; the badge is optional so existing card prefabs need no rewiring.
+        private void ApplyElementVisuals(Element element)
+        {
+            Color accent = ElementVisualUtility.GetAccentColor(element);
+
+            if (itemNameText != null)
+            {
+                itemNameText.color = accent;
+            }
+
+            if (elementBadge != null)
+            {
+                elementBadge.color = accent;
             }
         }
 

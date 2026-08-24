@@ -42,6 +42,22 @@ public static class UpgradeTypeSerializer
     }
 
     /// <summary>
+    /// Resolves the element an upgrade belongs to from its name, which is always
+    /// &lt;element-name&gt;_&lt;upgrade-name&gt;. Returns false for the Nonelemental_ prefix, which maps to no element.
+    /// </summary>
+    public static bool TryGetElement(UpgradeType upgrade, out Element element)
+    {
+        element = default;
+
+        string name = upgrade.ToString();
+        int separator = name.IndexOf('_');
+        if (separator <= 0)
+            return false;
+
+        return Enum.TryParse(name.Substring(0, separator), ignoreCase: true, result: out element);
+    }
+
+    /// <summary>
     /// Parse a string into an UpgradeType or throw ArgumentException on failure.
     /// </summary>
     public static UpgradeType Deserialize(string? value)

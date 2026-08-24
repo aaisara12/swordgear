@@ -69,6 +69,7 @@ namespace Shop
                     storeItemData.Description,
                     storeItemData.Icon,
                     AugmentTierVisuals.ResolveTier(storeItemData),
+                    storeItemData is IAugmentStoreItem augment ? augment.Element : Element.Physical,
                     this);
                 augmentsCollectionController.AddElement(augmentItemModel);
             }

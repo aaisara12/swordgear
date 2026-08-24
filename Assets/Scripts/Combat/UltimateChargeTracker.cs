@@ -4,19 +4,19 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Tracks per-element hit charges accumulated during an active combo and makes the
-/// current ultimate ability available when its element requirements are met.
-/// Unspent charges are discarded when the combo ends; a granted ult persists until used.
+/// Owns the player's ultimate. The active ability unlocks only while the player's augment collection covers its
+/// element requirements (see <see cref="AugmentElementLedger"/>); stacking extra full sets overcharges it to a
+/// higher level, which is handed to the effect. While unlocked, the meter fills from damage the player deals —
+/// any element counts. While locked it holds at empty and cannot be activated.
 /// </summary>
 public class UltimateChargeTracker : MonoBehaviour
 {
     public static UltimateChargeTracker? Instance { get; private set; }
 
     [SerializeField] private UltimateAbilitySO? _activeUltimate;
-    [SerializeField] private float _ultAvailableTimerBonus = 2f;
 
-    // Fractional charges so UltimateChargeMultiplier can speed fill rate (e.g. 1.1 per hit).
-    private readonly Dictionary<Element, float> _comboCharges = new();
+    private float _charge;
+    private int _level;
     private bool _isUltimateAvailable;
     private bool _isExecuting;
     private bool _subscribed;
@@ -24,10 +24,19 @@ public class UltimateChargeTracker : MonoBehaviour
     public bool IsUltimateAvailable => _isUltimateAvailable;
     public UltimateAbilitySO? ActiveUltimate => _activeUltimate;
 
-    // (normalizedProgress 0-1 toward satisfying all requirements)
+    /// <summary> 0 while the augment requirements are unmet. 1 is the base ultimate; each extra set adds a level. </summary>
+    public int CurrentLevel => _level;
+
+    public float ChargeProgress =>
+        _activeUltimate != null ? Mathf.Clamp01(_charge / _activeUltimate.ChargeRequired) : 0f;
+
+    // (normalized meter progress 0-1)
     public event Action<float>? OnProgressChanged;
     public event Action? OnUltimateAvailable;
     public event Action? OnUltimateUnavailable;
+
+    /// <summary> Fired when the overcharge level changes, including to and from 0 (locked). </summary>
+    public event Action<int>? OnLevelChanged;
 
     #region Lifecycle
 
@@ -44,26 +53,28 @@ public class UltimateChargeTracker : MonoBehaviour
     private void Start()
     {
         TrySubscribe();
+        RefreshLevel();
     }
 
     private void OnEnable()
     {
         TrySubscribe();
+        RefreshLevel();
     }
 
     private void OnDisable()
     {
-        if (!_subscribed || ComboSystem.Instance == null) return;
-        ComboSystem.Instance.OnComboHit -= HandleComboHit;
-        ComboSystem.Instance.OnComboBroken -= HandleComboBroken;
+        if (!_subscribed) return;
+        EnemyController.OnAnyEnemyHit -= HandleEnemyHit;
+        AugmentElementLedger.OnCountsChanged -= RefreshLevel;
         _subscribed = false;
     }
 
     private void TrySubscribe()
     {
-        if (_subscribed || ComboSystem.Instance == null) return;
-        ComboSystem.Instance.OnComboHit += HandleComboHit;
-        ComboSystem.Instance.OnComboBroken += HandleComboBroken;
+        if (_subscribed) return;
+        EnemyController.OnAnyEnemyHit += HandleEnemyHit;
+        AugmentElementLedger.OnCountsChanged += RefreshLevel;
         _subscribed = true;
     }
 
@@ -71,41 +82,63 @@ public class UltimateChargeTracker : MonoBehaviour
 
     #region Event Handlers
 
-    private void HandleComboHit(MoveType moveType)
+    // Damage-over-time ticks pass feedsCombo:false and never reach this event, so a burning enemy can't charge
+    // the ult while the player does nothing.
+    private void HandleEnemyHit(EnemyController enemy, float damage, MoveType moveType)
     {
-        if (_isExecuting) return;
+        if (_isExecuting || _isUltimateAvailable || _level <= 0 || _activeUltimate == null)
+            return;
 
-        Element element = moveType.Element;
-        // UltimateChargeMultiplier is 1.0 base; +10% spark => 1.1 charges per hit.
-        float chargeGain = PlayerStatModifiers.Instance != null
+        if (damage <= 0f)
+            return;
+
+        // UltimateChargeMultiplier is 1.0 base; +10% spark => 1.1x charge per point of damage.
+        float chargeMultiplier = PlayerStatModifiers.Instance != null
             ? Mathf.Max(0.01f, PlayerStatModifiers.Instance.UltimateChargeMultiplier)
             : 1f;
 
-        float previous = _comboCharges.TryGetValue(element, out float existing) ? existing : 0f;
-        _comboCharges[element] = previous + chargeGain;
+        _charge += damage * chargeMultiplier;
 
-        float progress = ComputeProgress();
-        OnProgressChanged?.Invoke(progress);
-
-        if (!_isUltimateAvailable && _activeUltimate != null && IsRequirementsSatisfied())
+        float required = _activeUltimate.ChargeRequired;
+        if (_charge >= required)
         {
+            _charge = required;
             _isUltimateAvailable = true;
+            OnProgressChanged?.Invoke(ChargeProgress);
             OnUltimateAvailable?.Invoke();
-            ComboSystem.Instance?.ExtendTimer(_ultAvailableTimerBonus);
-        }
-    }
-
-    private void HandleComboBroken()
-    {
-        // Once earned, the ult is the player's until they spend it — keep the charges too so the
-        // meter keeps reading full rather than emptying under a still-usable ability.
-        if (_isUltimateAvailable)
-        {
             return;
         }
 
-        _comboCharges.Clear();
-        OnProgressChanged?.Invoke(0f);
+        OnProgressChanged?.Invoke(ChargeProgress);
+    }
+
+    /// <summary>
+    /// Recomputes the overcharge level from the player's augments. A level drop to 0 (e.g. a run reset wiping the
+    /// inventory) revokes an unspent ult, since the ability is no longer unlocked at all.
+    /// </summary>
+    private void RefreshLevel()
+    {
+        int previousLevel = _level;
+        _level = _activeUltimate != null ? _activeUltimate.GetLevel(AugmentElementLedger.Counts) : 0;
+
+        if (_level <= 0 && _charge > 0f)
+        {
+            _charge = 0f;
+        }
+
+        if (_level <= 0 && _isUltimateAvailable)
+        {
+            _isUltimateAvailable = false;
+            OnUltimateUnavailable?.Invoke();
+        }
+
+        if (_level != previousLevel)
+        {
+            OnLevelChanged?.Invoke(_level);
+        }
+
+        // Requirement fills move even when the level doesn't, so the readout always refreshes.
+        OnProgressChanged?.Invoke(ChargeProgress);
     }
 
     #endregion
@@ -113,25 +146,26 @@ public class UltimateChargeTracker : MonoBehaviour
     #region Public API
 
     /// <summary>
-    /// Called by player input. Executes the ult and clears the charge state.
-    /// Returns false if the ult is not currently available.
+    /// Called by player input. Executes the ult at its current level and empties the meter.
+    /// Returns false if the ult is locked, still charging, or has nothing to run.
     /// </summary>
     public bool TryActivate()
     {
-        Debug.Log("Trying ultimate");
-        if (!_isUltimateAvailable || _activeUltimate == null)
+        if (!_isUltimateAvailable || _level <= 0 || _activeUltimate?.Effect == null)
+            return false;
+
+        Transform? player = GameManager.Instance?.player?.transform;
+        if (player == null)
             return false;
 
         _isExecuting = true;
-
-        Transform? player = GameManager.Instance?.player?.transform;
-        if (player != null)
-            _activeUltimate.Effect?.Execute(player);
-
         _isUltimateAvailable = false;
-        _comboCharges.Clear();
+        _charge = 0f;
+
         OnUltimateUnavailable?.Invoke();
         OnProgressChanged?.Invoke(0f);
+
+        _activeUltimate.Effect.ExecuteUlt(_level, player);
         return true;
     }
 
@@ -140,80 +174,60 @@ public class UltimateChargeTracker : MonoBehaviour
     public void SetActiveUltimate(UltimateAbilitySO? ultimate)
     {
         _activeUltimate = ultimate;
-        _comboCharges.Clear();
+        _charge = 0f;
+
         if (_isUltimateAvailable)
         {
             _isUltimateAvailable = false;
             OnUltimateUnavailable?.Invoke();
         }
-        OnProgressChanged?.Invoke(0f);
+
+        RefreshLevel();
     }
 
     public void ResetForNewRun()
     {
-        _comboCharges.Clear();
+        _charge = 0f;
+
         if (_isUltimateAvailable)
         {
             _isUltimateAvailable = false;
             OnUltimateUnavailable?.Invoke();
         }
-        OnProgressChanged?.Invoke(0f);
+
+        RefreshLevel();
     }
 
     /// <summary>
-    /// Fills <paramref name="results"/> with one entry per element requirement,
-    /// each carrying the element and its fill progress (0–1).
+    /// Fills <paramref name="results"/> with one entry per element requirement of the active ultimate.
+    /// While the ult is locked each entry reports how far that element's augments have come toward unlocking the
+    /// next level, so the readout shows what the player still needs. Once unlocked every entry mirrors the shared
+    /// damage charge, so the ring reads as a single meter.
     /// </summary>
-    public void GetChargeFills(List<(Element element, float fill)> results)
+    public void GetMeterSegments(List<(Element element, float fill)> results)
     {
         results.Clear();
         if (_activeUltimate == null) return;
 
-        foreach (var req in _activeUltimate.Requirements)
-        {
-            float held = _comboCharges.TryGetValue(req.element, out float c) ? c : 0f;
-            float fill = req.count > 0 ? Mathf.Clamp01(held / req.count) : 0f;
-            results.Add((req.element, fill));
-        }
-    }
+        float charge = ChargeProgress;
 
-    /// <summary>
-    /// Returns a 0-1 value representing how close the player is to satisfying all
-    /// element charge requirements for the active ultimate.
-    /// </summary>
-    public float ComputeProgress()
-    {
-        if (_activeUltimate == null || _activeUltimate.Requirements.Count == 0)
-            return 0f;
-
-        float total = 0f;
-        float met = 0f;
-        foreach (var req in _activeUltimate.Requirements)
+        // An ultimate with no element requirements (e.g. the tutorial's) is always unlocked and has no slots to
+        // show, so it gets a single ring carrying the charge instead of rendering nothing at all.
+        if (_activeUltimate.Requirements.Count == 0)
         {
-            total += req.count;
-            float held = _comboCharges.TryGetValue(req.element, out float c) ? c : 0f;
-            met += Mathf.Min(held, req.count);
+            results.Add((ElementVisuals.GetCurrentElement(), charge));
+            return;
         }
 
-        return total > 0f ? met / total : 0f;
+        foreach (UltimateAbilitySO.ElementRequirement requirement in _activeUltimate.Requirements)
+        {
+            float fill = _level > 0
+                ? charge
+                : _activeUltimate.GetRequirementFill(requirement, _level, AugmentElementLedger.Counts);
+
+            results.Add((requirement.element, fill));
+        }
     }
 
     #endregion
-
-    private bool IsRequirementsSatisfied()
-    {
-        if (_activeUltimate == null)
-        {
-            return false;
-        }
-
-        // Floor fractional charges for the int-based requirement API.
-        var intCharges = new Dictionary<Element, int>(_comboCharges.Count);
-        foreach (KeyValuePair<Element, float> kvp in _comboCharges)
-        {
-            intCharges[kvp.Key] = Mathf.FloorToInt(kvp.Value);
-        }
-
-        return _activeUltimate.IsSatisfiedBy(intCharges);
-    }
 }

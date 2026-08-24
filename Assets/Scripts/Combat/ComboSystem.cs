@@ -66,7 +66,7 @@ public class ComboSystem : MonoBehaviour
     public event Action<int>? OnMultiplierChanged;
     public event Action? OnComboBroken;
     public event Action<int>? OnLevelPointsChanged;
-    // Fired on every hit while a combo is active. UltimateChargeTracker listens to this.
+    // Fired on every hit while a combo is active.
     public event Action<MoveType>? OnComboHit;
     // Kept for scoring consumers (shop quality etc.)
     public event Action<int, Element>? OnPointsAwarded;
@@ -199,7 +199,6 @@ public class ComboSystem : MonoBehaviour
 
     /// <summary>
     /// Adds time to the combo timer, capped at comboDuration. No-op if no combo is active.
-    /// Called by UltimateChargeTracker when the ult becomes available.
     /// </summary>
     public void ExtendTimer(float amount)
     {

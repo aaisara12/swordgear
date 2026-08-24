@@ -6,5 +6,7 @@ namespace Shop
     public class ElementUpgradeLoadableStoreItem : LoadableStoreItem
     {
         [SerializeField] private UpgradeType elementUpgrade;
+
+        public UpgradeType ElementUpgrade => elementUpgrade;
     }
 }

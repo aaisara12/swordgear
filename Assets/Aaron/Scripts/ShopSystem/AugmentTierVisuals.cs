@@ -107,8 +107,16 @@ namespace Shop
         private static readonly int RimInnerId = Shader.PropertyToID("_RimInner");
         private static readonly int RimPowerId = Shader.PropertyToID("_RimPower");
 
-        public static AugmentQualityTier ResolveTier(IStoreItem item) =>
-            item is LoadableStoreItem loadable ? loadable.QualityTier : AugmentQualityTier.Low;
+        public static AugmentQualityTier ResolveTier(IStoreItem item)
+        {
+            // An offered augment is wrapped to carry its rolled element; the tier lives on the catalog asset.
+            if (item is IAugmentStoreItem augment)
+            {
+                item = augment.Source;
+            }
+
+            return item is LoadableStoreItem loadable ? loadable.QualityTier : AugmentQualityTier.Low;
+        }
 
         public static Color GetCardBackgroundColor(AugmentQualityTier tier) =>
             GetCardStyle(tier).BaseColor;

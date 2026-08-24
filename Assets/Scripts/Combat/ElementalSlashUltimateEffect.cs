@@ -6,7 +6,7 @@ public class ElementalSlashUltimateEffect : UltimateEffect
 {
     [SerializeField] private GameObject? _controllerPrefab;
 
-    public override void Execute(Transform player)
+    public override void ExecuteUlt(int level, Transform player)
     {
         if (_controllerPrefab == null)
         {
@@ -24,6 +24,6 @@ public class ElementalSlashUltimateEffect : UltimateEffect
             return;
         }
 
-        controller.Begin(player);
+        controller.Begin(player, level);
     }
 }

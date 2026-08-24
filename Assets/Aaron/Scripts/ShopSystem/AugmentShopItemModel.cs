@@ -11,6 +11,7 @@ namespace Shop
         
         public Sprite? Icon { get; }
         public AugmentQualityTier QualityTier { get; }
+        public Element Element { get; }
         
         private int augmentIndex;
         private AugmentShopViewModel parent;
@@ -21,12 +22,14 @@ namespace Shop
             string description,
             Sprite? icon,
             AugmentQualityTier qualityTier,
+            Element element,
             AugmentShopViewModel parent)
         {
             DisplayName = displayName;
             Description = description;
             Icon = icon;
             QualityTier = qualityTier;
+            Element = element;
             
             this.augmentIndex = augmentIndex;
             this.parent = parent;

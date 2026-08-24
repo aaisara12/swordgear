@@ -52,6 +52,9 @@ public class GameInitializer : MonoBehaviour
 
         playerBlob.ThrowIfNull(nameof(playerBlob));
 
+        // Bound before any component initialises so an ultimate can read its augment requirements immediately.
+        AugmentElementLedger.Bind(playerBlob);
+
         foreach (var gameComponent in gameComponents)
             gameComponent.InitializeOnGameStart(playerBlob);
 

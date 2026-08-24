@@ -82,16 +82,19 @@ public class InGameAugmentsManager : InitializeableUnrestrictedGameComponent
 
         AugmentQualityTier tier = ResolveOfferTier();
         var offerItems = augmentsCatalog.GetRandomItemsForExactTier(3, tier);
-        Debug.Log($"[InGameAugmentsManager] Offering {offerItems.Count} augment(s), all at tier {tier}.");
 
-        var storeStock = new Dictionary<string, int>();
+        // Each offer is stamped with an element: element upgrades keep their own, stat buffs roll one. The element
+        // rides along into the player's inventory, where AugmentElementLedger counts it toward ultimate unlocks.
+        var offers = new List<IStoreItem>(offerItems.Count);
         foreach (IStoreItem offerItem in offerItems)
         {
-            storeStock[offerItem.Id] = 1;
+            offers.Add(AugmentElementRoller.Tag(offerItem));
         }
 
+        Debug.Log($"[InGameAugmentsManager] Offering {offers.Count} augment(s), all at tier {tier}.");
+
         itemStorefront.ClearItems();
-        itemStorefront.TryStockItems(storeStock);
+        itemStorefront.StockItems(offers);
         var availableAugments = itemStorefront.GetPurchasableItems();
 
         var model = new ItemShopModel(availableAugments, itemPurchaser);

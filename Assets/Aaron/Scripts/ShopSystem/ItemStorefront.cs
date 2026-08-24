@@ -56,6 +56,33 @@ namespace Shop
                 _availableItemStock[newItem.ItemData.Id] += newItem.Quantity;
             }
 
+            RebuildPurchasableItems();
+
+            return true;
+        }
+
+        /// <summary>
+        /// Stocks concrete item instances rather than catalog IDs, for items that only exist at runtime: an augment
+        /// offer stamps a rolled element onto a catalog asset, producing an item the catalog can't resolve by ID.
+        /// Repeats of the same ID collapse into a single entry, matching the ID-keyed overload.
+        /// </summary>
+        public void StockItems(IReadOnlyList<IStoreItem> items, int quantityEach = 1)
+        {
+            foreach (IStoreItem item in items)
+            {
+                if (_cachedItemData.TryAdd(item.Id, item) == false)
+                {
+                    continue;
+                }
+
+                _availableItemStock[item.Id] = quantityEach;
+            }
+
+            RebuildPurchasableItems();
+        }
+
+        private void RebuildPurchasableItems()
+        {
             _cachedPurchasableItems.Clear();
 
             foreach (var itemIdAndData in _cachedItemData)
@@ -63,10 +90,8 @@ namespace Shop
                 var purchasableItem = new PurchasableItem(itemIdAndData.Value, this);
                 _cachedPurchasableItems.Add(purchasableItem);
             }
-            
-            OnPurchasableItemsUpdated?.Invoke();
 
-            return true;
+            OnPurchasableItemsUpdated?.Invoke();
         }
 
         public void ClearItems()

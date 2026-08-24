@@ -5,11 +5,11 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Renders a pie-chart ring showing per-element ultimate charge.
-/// Each slice corresponds to one element requirement of the active ultimate.
+/// Renders a pie-chart ring for the active ultimate. Each slice corresponds to one element requirement.
+/// While the ult is locked, a slice shows how far that element's augments have come toward unlocking it; once
+/// unlocked, every slice mirrors the shared damage charge so the ring reads as one meter.
 /// Filled portions are opaque; the unfilled track runs at low alpha.
-/// When an element is partially charged its fill arc uses _partialAlpha;
-/// when fully charged it snaps to full alpha.
+/// A partially filled slice uses _partialAlpha and snaps to full alpha when complete.
 /// </summary>
 public class UltimateChargeCircleUI : MaskableGraphic
 {
@@ -28,6 +28,8 @@ public class UltimateChargeCircleUI : MaskableGraphic
     [SerializeField] private float _partialAlpha = 0.5f;
     [SerializeField] private List<ElementColorEntry> _elementColors = new();
     [SerializeField] private GameObject? _ultimateReadyIndicator;
+    [Tooltip("Optional. Shows \"Lv N\" while the ult is overcharged past level 1. Leave unassigned to skip.")]
+    [SerializeField] private TMPro.TMP_Text? _levelLabel;
     [SerializeField] private Transform? _halo;
     [SerializeField] private float _haloSpinSpeed = 90f;
     [SerializeField] private float _haloPulseDelta = 0.08f;
@@ -51,6 +53,7 @@ public class UltimateChargeCircleUI : MaskableGraphic
         UltimateChargeTracker.Instance.OnProgressChanged -= HandleProgressChanged;
         UltimateChargeTracker.Instance.OnUltimateAvailable -= HandleUltimateAvailable;
         UltimateChargeTracker.Instance.OnUltimateUnavailable -= HandleUltimateUnavailable;
+        UltimateChargeTracker.Instance.OnLevelChanged -= HandleLevelChanged;
         _subscribed = false;
     }
 
@@ -71,8 +74,10 @@ public class UltimateChargeCircleUI : MaskableGraphic
         UltimateChargeTracker.Instance.OnProgressChanged += HandleProgressChanged;
         UltimateChargeTracker.Instance.OnUltimateAvailable += HandleUltimateAvailable;
         UltimateChargeTracker.Instance.OnUltimateUnavailable += HandleUltimateUnavailable;
+        UltimateChargeTracker.Instance.OnLevelChanged += HandleLevelChanged;
         _subscribed = true;
         SetUltimateIndicator(UltimateChargeTracker.Instance.IsUltimateAvailable);
+        HandleLevelChanged(UltimateChargeTracker.Instance.CurrentLevel);
         RefreshFills();
     }
 
@@ -81,6 +86,13 @@ public class UltimateChargeCircleUI : MaskableGraphic
     private void HandleUltimateAvailable() => SetUltimateIndicator(true);
 
     private void HandleUltimateUnavailable() => SetUltimateIndicator(false);
+
+    private void HandleLevelChanged(int level)
+    {
+        if (_levelLabel == null) return;
+        _levelLabel.gameObject.SetActive(level > 1);
+        _levelLabel.text = $"Lv {level}";
+    }
 
     private void SetUltimateIndicator(bool active)
     {
@@ -102,7 +114,7 @@ public class UltimateChargeCircleUI : MaskableGraphic
     private void RefreshFills()
     {
         _currentFills.Clear();
-        UltimateChargeTracker.Instance?.GetChargeFills(_currentFills);
+        UltimateChargeTracker.Instance?.GetMeterSegments(_currentFills);
         SetVerticesDirty();
     }
 

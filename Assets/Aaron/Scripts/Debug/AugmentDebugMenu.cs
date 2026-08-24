@@ -19,6 +19,7 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
     private PlayerBlob? _playerBlob;
     private readonly List<IStoreItem> _augments = new List<IStoreItem>();
     private bool _isVisible;
+    private Element _grantElement = Element.Fire;
     private Vector2 _scrollPosition;
     private Rect _windowRect = new Rect(16f, 16f, 360f, 480f);
 
@@ -117,6 +118,7 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
 
         GUILayout.EndHorizontal();
 
+        DrawUltimateDebugSection();
         DrawCombatDebugSection();
         DrawLoadingDebugSection();
 
@@ -140,20 +142,75 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
 
     private void DrawAugmentRow(IStoreItem augment)
     {
-        int owned = _playerBlob!.GetItemCount(augment.Id);
+        // Grants go through the same element tagging the real offer flow uses, so the ledger counts them.
+        IAugmentStoreItem granted = ResolveGrant(augment);
+        int owned = _playerBlob!.GetItemCount(granted.Id);
+
         GUILayout.BeginHorizontal();
-        GUILayout.Label($"{augment.DisplayName} (x{owned})", GUILayout.Width(220f));
+        GUILayout.Label($"{augment.DisplayName} [{granted.Element}] (x{owned})", GUILayout.Width(220f));
         if (GUILayout.Button("Grant", GUILayout.Width(60f)))
         {
-            _playerBlob.ReceiveItem(augment.Id, 1);
+            _playerBlob.ReceiveItem(granted.Id, 1);
         }
 
         if (GUILayout.Button("+5", GUILayout.Width(40f)))
         {
-            _playerBlob.ReceiveItem(augment.Id, 5);
+            _playerBlob.ReceiveItem(granted.Id, 5);
         }
 
         GUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// Element upgrades always come as their own element; everything else is granted as the element selected in
+    /// the ultimate section, so a specific ult level can be dialled in deliberately rather than rolled for.
+    /// </summary>
+    private IAugmentStoreItem ResolveGrant(IStoreItem augment)
+    {
+        if (augment is ElementUpgradeLoadableStoreItem upgradeItem
+            && UpgradeTypeSerializer.TryGetElement(upgradeItem.ElementUpgrade, out Element upgradeElement))
+        {
+            return new ElementTaggedStoreItem(augment, upgradeElement);
+        }
+
+        return new ElementTaggedStoreItem(augment, _grantElement);
+    }
+
+    private void DrawUltimateDebugSection()
+    {
+        GUILayout.Space(6f);
+
+        UltimateChargeTracker? tracker = UltimateChargeTracker.Instance;
+        string levelText = tracker != null
+            ? (tracker.CurrentLevel > 0 ? $"Lv {tracker.CurrentLevel} ({tracker.ChargeProgress:P0} charged)" : "locked")
+            : "no tracker";
+        GUILayout.Label($"Ultimate: {levelText}");
+
+        GUILayout.Label($"Augments — {DescribeLedger()}");
+
+        GUILayout.Label("Grant stat augments as:");
+        GUILayout.BeginHorizontal();
+        foreach (Element element in AugmentElementSerializer.RollableElements)
+        {
+            bool selected = _grantElement == element;
+            if (GUILayout.Toggle(selected, element.ToString(), GUI.skin.button) && !selected)
+            {
+                _grantElement = element;
+            }
+        }
+
+        GUILayout.EndHorizontal();
+    }
+
+    private static string DescribeLedger()
+    {
+        var parts = new List<string>();
+        foreach (Element element in AugmentElementSerializer.RollableElements)
+        {
+            parts.Add($"{element} {AugmentElementLedger.GetCount(element)}");
+        }
+
+        return string.Join("  ", parts);
     }
 
     private void DrawCombatDebugSection()

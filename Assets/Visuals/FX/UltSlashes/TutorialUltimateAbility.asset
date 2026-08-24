@@ -12,13 +12,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70952a2327144dc41bf55888a3fe7381, type: 3}
   m_Name: TutorialUltimateAbility
   m_EditorClassIdentifier: Main::UltimateAbilitySO
-  _requirements:
-  - element: 1
-    count: 1
-  - element: 2
-    count: 1
-  - element: 3
-    count: 1
-  - element: 4
-    count: 1
+  _requirements: []
+  _chargeRequired: 100
   _effect: {fileID: 11400000, guid: 589899daa36435f44b5d5b58e3bb7847, type: 2}
