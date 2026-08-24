@@ -36,20 +36,33 @@ minion conversion is the only genuinely new *system* in the batch.
 
 ## Status
 
-| Commit | Title | Committed | Verified in play |
-|---|---|---|---|
-| 01 | Foundation — elements + loadout-driven gear | ✅ `c33b436` | ❌ **not yet** |
-| 02 | Earth selectable, fires a basic bolt | ☐ | ☐ |
-| 03 | Earth charge locks movement and aims | ☐ | ☐ |
-| 04 | Earth bolt pierces + scales with charge | ☐ | ☐ |
-| 05 | Light selectable, tap marks enemies | ☐ | ☐ |
-| 06 | Light charge summons the angel | ☐ | ☐ |
-| 07 | Dark selectable, tap arc swing | ☐ | ☐ |
-| 08 | Dark charge blinks + circle swing | ☐ | ☐ |
-| 09 | Dark execution raises a minion | ☐ | ☐ |
+| Commit | Title | Committed | Editor pass | Verified in play |
+|---|---|---|---|---|
+| 01 | Foundation — elements + loadout-driven gear | ✅ `a3e6770` | ✅ 2026-08-23 | ⏳ flick check pending |
+| 02 | Earth selectable, fires a basic bolt | ☐ | ☐ | ☐ |
+| 03 | Earth charge locks movement and aims | ☐ | ☐ | ☐ |
+| 04 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
+| 05 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
+| 06 | Light charge summons the angel | ☐ | ☐ | ☐ |
+| 07 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
+| 08 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
+| 09 | Dark execution raises a minion | ☐ | ☐ | ☐ |
 
-Nothing has compiled — Unity MCP wasn't connected when commit 01 was written. **Commit 01 needs an
-editor pass before commit 02 builds on it.**
+### Commit 01 editor pass — 2026-08-23
+
+Done with Unity MCP attached. `a3e6770` and the `6ec660a` follow-up both compile:
+
+- **Compiles clean.** No errors; the only warnings are pre-existing CS8632 nullable-annotation
+  warnings in the `Enemy` attack strategies, unrelated to this work.
+- **The enum grew as intended** — `Element` is `Physical, Fire, Ice, Lightning, Wind, Earth, Dark, Light`
+  in the loaded assembly. `GearManager.arcCount` is gone and `SetEquippedLoadout` is present.
+- **The raw-YAML risk did not fire.** `Gear.prefab.startingLoadout` deserializes to exactly
+  `Wind, Fire, Ice, Lightning` (size 4), confirmed both through `SerializedObject` and in the Inspector.
+  `ArcCount` therefore still derives 4 arcs.
+- **EditMode tests: 73/73 pass** — the existing suite is unaffected.
+
+Still open: the **play-mode flick check** — the ring drawing 4 arcs and each flick direction granting the
+same element as before. That's a feel check, not something the editor pass can settle.
 
 ---
 
@@ -77,7 +90,7 @@ Lightning used to be — a known flick direction.
 
 ## M0 — Foundation
 
-### Commit 01 — Elements exist; gear ring becomes loadout-driven ✅ `c33b436`
+### Commit 01 — Elements exist; gear ring becomes loadout-driven ✅ `a3e6770`
 
 | | |
 |---|---|
@@ -86,8 +99,8 @@ Lightning used to be — a known flick direction.
 | **Removes** | `GearManager.arcCount`, `DefaultLoadout`, `ApplyDefaultLoadout` |
 | **Mechanism** | `ArcCount` derives from `slotTiles.Count`. New elements are absent from the damage matrix and resolve to a neutral 1× via the `GetMultiplier` fallback, so they're neutral without 39 hand-written entries |
 | **Playtest** | ⚠️ **None — this commit deliberately fails the playtest gate.** No weapons are registered and the loadout is unchanged, so the new elements are unreachable by design |
-| **Regression check** | Ring still draws **4 arcs**; flicks grant the same elements in the same directions; `startingLoadout` reads Wind/Fire/Ice/Lightning in the Inspector; damage numbers unchanged for the existing elements |
-| **Risk** | `Gear.prefab` was edited as raw YAML. Prefab deserialization fails *quietly* — if `startingLoadout` shows empty, that's the failure mode, and the ring will draw zero arcs with a console warning |
+| **Regression check** | Ring still draws **4 arcs**; flicks grant the same elements in the same directions; `startingLoadout` reads Wind/Fire/Ice/Lightning in the Inspector ✅; damage numbers unchanged for the existing elements |
+| **Risk** | ~~`Gear.prefab` was edited as raw YAML. Prefab deserialization fails *quietly*~~ — **cleared 2026-08-23**: the loadout deserializes correctly, confirmed in the Inspector |
 | **Not in commit** | Any weapon; any loadout change |
 
 > A pure-foundation commit is the one case where the playtest gate can't be met — there's nothing to
@@ -302,5 +315,6 @@ parts, 09 is a new system. Dark should be playable long before minions land.
 
 ---
 
-*Last updated: 2026-08-23 — commit 01 landed (unverified in editor). Say **"start commit 02"** (or a
-later number) and we apply only that slice and give you the exact play steps.*
+*Last updated: 2026-08-23 — commit 01 landed and passed its editor pass (compile + 73/73 EditMode);
+play-mode flick check still outstanding. Say **"start commit 02"** (or a later number) and we apply only
+that slice and give you the exact play steps.*
