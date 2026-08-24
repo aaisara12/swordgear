@@ -23,7 +23,7 @@
 ## Milestone overview (play order)
 
 ```text
-M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven   [landed, unverified]
+M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven   [landed, editor-verified]
 M1  Earth / Ballista Turret — charge-only, movement-locks to aim, piercing bolt
 M2  Light / Harp — marking projectile + angel that detonates the marks
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
@@ -39,7 +39,7 @@ minion conversion is the only genuinely new *system* in the batch.
 | Commit | Title | Committed | Editor pass | Verified in play |
 |---|---|---|---|---|
 | 01 | Foundation — elements + loadout-driven gear | ✅ `a3e6770` | ✅ 2026-08-23 | ⏳ flick check pending |
-| 02 | Earth selectable, fires a basic bolt | ☐ | ☐ | ☐ |
+| 02 | Earth selectable, fires a basic bolt | ✅ landed | ✅ 2026-08-23 | ⏳ not yet |
 | 03 | Earth charge locks movement and aims | ☐ | ☐ | ☐ |
 | 04 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
 | 05 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
@@ -72,19 +72,27 @@ Unlike the level-gen work, these features are gated behind the gear ring. The ri
 only *equipped* elements — that's the whole point of the loadout-driven arc count, since flick target
 size is 360/count degrees.
 
-So for playtesting, edit **`startingLoadout` on `Gear.prefab`** (Inspector, `Assets/Prototype3/Prefabs/`).
-**Swap**, don't append — going to 7 arcs recreates the "hitting the desired colour feels random"
-complaint and makes every playtest harder than it needs to be.
+So to reach a new element, edit **`startingLoadout` on `Gear.prefab`** (Inspector,
+`Assets/Prototype3/Prefabs/`).
+
+**Each new element is appended, not swapped in** — the loadout grows as the elements land:
 
 ```text
-Testing Earth   →  Wind, Fire, Ice, Earth        (Lightning out)
-Testing Light   →  Wind, Fire, Ice, Light        (Lightning out)
-Testing Dark    →  Wind, Fire, Ice, Dark         (Lightning out)
-Ship default    →  Wind, Fire, Ice, Lightning    (restore before the final commit)
+Commit 01 (ship default) →  Wind, Fire, Ice, Lightning          4 arcs, 90°
+Commit 02 (+ Earth)      →  Wind, Fire, Ice, Lightning, Earth   5 arcs, 72°
+Commit 05 (+ Light)      →  … , Light                           6 arcs, 60°
+Commit 07 (+ Dark)       →  … , Dark                            7 arcs, ~51°
 ```
 
-Arc order follows list order starting at +X counter-clockwise, so the swapped element sits where
-Lightning used to be — a known flick direction.
+> **Superseded 2026-08-23.** This section previously said to *swap* rather than append, on the theory
+> that 7 arcs would recreate the "hitting the desired colour feels random" complaint. Reverted by
+> decision: keeping every element equipped is what the ring is for, and swapping meant no playtest ever
+> exercised more than four. **Arc size is now the thing to watch** — if flicking starts feeling
+> imprecise as the count climbs, that's real feedback about the ring, not a reason to shrink the loadout.
+
+Arc order follows list order starting at +X counter-clockwise, so an appended element takes the next
+arc round and every previously-learned flick direction shifts. Expect the existing four to feel
+different the first time the count changes.
 
 ---
 
@@ -121,16 +129,16 @@ Lightning used to be — a known flick direction.
 | Pierce support on `PlayerProjectile` | Earth enemies (player-only, by decision) |
 | Earth entries in the damage matrix | Ultimate / sword throw |
 
-### Commit 02 — Earth is selectable and shoots
+### Commit 02 — Earth is selectable and shoots ✅
 
 | | |
 |---|---|
-| **Adds** | `Assets/Scripts/Weapon Implementations/EarthWeapon.cs` — implements `IElementalWeapon`; charge-and-release fires one bolt via `PlayerProjectile` |
-| **Changes** | `CoreSystems.prefab` — `EarthWeapon` component + `elementalWeapons` entry for `Element.Earth`; `Gear.prefab` — `startingLoadout` swaps Lightning → Earth |
-| **Mechanism** | `MeleeStrike` fires the bolt and returns the cooldown. No charge ramp yet — press and release, fixed damage |
-| **How to reach it** | Flick the right stick toward the Earth arc (where Lightning was) |
+| **Adds** | `Assets/Scripts/Weapon Implementations/EarthWeapon.cs` — implements `IElementalWeapon`; tap fires one bolt via `PlayerProjectile`. `EarthBolt.prefab` (copied from `WindDart`; `Launch` tints it amber automatically, so no hand-authored colour) |
+| **Changes** | `CoreSystems.prefab` — `Element Manager/Earth` node with `EarthWeapon` + an appended `elementalWeapons` entry; `Gear.prefab` + `GearManager`'s C# default — `startingLoadout` **appends** Earth, 4 arcs → 5 |
+| **Mechanism** | `MeleeStrike` fires the bolt and returns the cooldown. No charge ramp yet — press and release, fixed damage. The bolt flies dead straight: no homing, since aiming is what commits 03–04 are built on |
+| **How to reach it** | Flick the right stick toward the Earth arc — the new 5th arc, last in ring order |
 | **Playtest** | Flick to Earth → the joystick ring and charge VFX turn **amber**. Tap → a bolt fires forward and damages the first enemy it hits |
-| **Regression check** | Wind, Fire and Ice still selectable and behave as before |
+| **Regression check** | Wind, Fire, Ice and Lightning all still selectable and behave as before. ⚠️ **Every flick direction has moved** — arcs are 72° not 90°, so all five sit in new places. Judge the elements by which arc lights up, not by muscle memory |
 | **Not in commit** | Movement lock, pierce, charge scaling |
 
 ### Commit 03 — Charging plants you and aims

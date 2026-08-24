@@ -335,6 +335,7 @@ MonoBehaviour:
   cleaveDuration: 0.6
   windDartPrefab: {fileID: 4850645359652780074, guid: a946ea7b02f9d024b9c8b004d74ec519, type: 3}
   reflectRadius: 2.2
+  reflectGraceDuration: 0.18
   reflectLayers:
     serializedVersion: 2
     m_Bits: 512
@@ -359,6 +360,58 @@ MonoBehaviour:
   tornadoDuration: 4
   tornadoPullForce: 8
   buffettedDuration: 3
+--- !u!1 &3472039058363920340
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7910383872393107254}
+  - component: {fileID: 5176617156627460161}
+  m_Layer: 0
+  m_Name: Earth
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7910383872393107254
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3472039058363920340}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4815673249366981286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5176617156627460161
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3472039058363920340}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1fa90199a500fe842965bff68bff900a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::EarthWeapon
+  boltPrefab: {fileID: 4850645359652780074, guid: 7a7f560f11b9e2145809703ecf8f07f4, type: 3}
+  boltSpeed: 11
+  boltDamageMultiplier: 1.3
+  boltSpawnOffset: 0.5
+  meleeCooldown: 0.5
+  cleaveEffectObject: {fileID: 0}
+  cleaveRadius: 2.5
+  cleaveDuration: 0.4
 --- !u!1 &3535113181673445424
 GameObject:
   m_ObjectHideFlags: 0
@@ -1119,6 +1172,7 @@ Transform:
   - {fileID: 8649689702465357832}
   - {fileID: 1851117990950764812}
   - {fileID: 3188503388509383987}
+  - {fileID: 7910383872393107254}
   m_Father: {fileID: 4848120501802802916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8073755906317011575
@@ -1144,6 +1198,8 @@ MonoBehaviour:
     weapon: {fileID: 7744698468929616165}
   - element: 4
     weapon: {fileID: 6824312504684377404}
+  - element: 5
+    weapon: {fileID: 5176617156627460161}
 --- !u!1 &8056026369581769779
 GameObject:
   m_ObjectHideFlags: 0

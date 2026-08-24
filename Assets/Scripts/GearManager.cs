@@ -56,6 +56,7 @@ public class GearManager : InitializeableGameComponent
         GearTile.Fire,
         GearTile.Ice,
         GearTile.Lightning,
+        GearTile.Earth,
     };
     [Tooltip("Distance from the gear centre to the middle of the arc band.")]
     [SerializeField] private float radius = 10f;
