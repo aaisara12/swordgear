@@ -10,10 +10,25 @@ using UnityEngine;
 /// </summary>
 public static class WaveComposer
 {
-    // Driven off the enum sizes so adding the next element (Element + EncounterTheme entry + catalog rows) needs
-    // no edits here — the composer will roll and theme it automatically.
-    private static readonly int ElementCount = System.Enum.GetValues(typeof(Element)).Length;
+    // The elements enemies can actually spawn as — deliberately NOT Enum.GetValues(typeof(Element)).
+    // Earth, Dark and Light are player-only: no catalog rows, no element knobs, no tinted prefabs.
+    // Rolling one here doesn't throw, it silently drops the spawn onto PickArchetype's role-only
+    // fallback, so the wave quietly stops being themed. Add an element here only once it has catalog
+    // rows and an EncounterTheme entry to match.
+    private static readonly Element[] EnemyElements =
+    {
+        Element.Physical,
+        Element.Fire,
+        Element.Ice,
+        Element.Lightning,
+        Element.Wind,
+    };
+
+    // Themes stay enum-driven — EncounterTheme only ever grows alongside the enemy element set above.
     private static readonly int ThemeCount = System.Enum.GetValues(typeof(EncounterTheme)).Length;
+
+    /// <summary> The elements enemies can spawn as. A strict subset of <see cref="Element"/>. </summary>
+    public static IReadOnlyList<Element> SpawnableEnemyElements => EnemyElements;
 
     public static CombatEncounter Compose(
         in EncounterContext context,
@@ -184,7 +199,7 @@ public static class WaveComposer
     {
         if (theme == EncounterTheme.Mixed)
         {
-            return (Element)rng.Next(0, ElementCount);
+            return RollAnyEnemyElement(rng);
         }
 
         Element themed = theme switch
@@ -202,8 +217,11 @@ public static class WaveComposer
             return themed;
         }
 
-        return (Element)rng.Next(0, ElementCount);
+        return RollAnyEnemyElement(rng);
     }
+
+    private static Element RollAnyEnemyElement(System.Random rng) =>
+        EnemyElements[rng.Next(0, EnemyElements.Length)];
 
     private static EnemyArchetype? PickArchetype(
         System.Random rng,

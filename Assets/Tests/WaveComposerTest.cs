@@ -162,6 +162,38 @@ public class WaveComposerTest
         Assert.IsTrue(sawSpecial, "Expected turret/shotgun/beam sniper in combat-2 compositions.");
     }
 
+    // Earth, Dark and Light are player-only (Element gained them in c33b436). The composer used to roll
+    // over Enum.GetValues(typeof(Element)), so growing the enum silently started spawning elements with
+    // no catalog rows — which doesn't throw, it just drops the spawn onto the role-only fallback and
+    // quietly de-themes the wave. These two pin the roster to the enemy-supported set.
+    [Test]
+    public void SpawnableEnemyElements_ExcludesPlayerOnlyElements()
+    {
+        CollectionAssert.DoesNotContain(WaveComposer.SpawnableEnemyElements, Element.Earth);
+        CollectionAssert.DoesNotContain(WaveComposer.SpawnableEnemyElements, Element.Dark);
+        CollectionAssert.DoesNotContain(WaveComposer.SpawnableEnemyElements, Element.Light);
+    }
+
+    [Test]
+    public void SpawnableEnemyElements_MatchesElementalThemesOneForOne()
+    {
+        var themed = new List<Element>();
+        foreach (EncounterTheme theme in System.Enum.GetValues(typeof(EncounterTheme)))
+        {
+            if (theme == EncounterTheme.Mixed)
+            {
+                continue;
+            }
+
+            // Every elemental theme must name an element enemies can actually spawn as, or that theme
+            // produces waves it can't populate.
+            Element element = (Element)System.Enum.Parse(typeof(Element), theme.ToString());
+            themed.Add(element);
+        }
+
+        CollectionAssert.AreEquivalent(themed, WaveComposer.SpawnableEnemyElements);
+    }
+
     private static void AssertEncountersEqual(CombatEncounter a, CombatEncounter b)
     {
         Assert.AreEqual(a.Theme, b.Theme);
