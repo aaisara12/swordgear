@@ -2,16 +2,37 @@ using System.Collections.Generic;
 
 public enum Element
 {
+    // Serialized as ints in prefabs and .assets — only ever APPEND. Inserting a value
+    // silently remaps every existing reference to the elements after it.
     Physical,
     Fire,
     Ice,
     Lightning,
-    Wind
+    Wind,
+    Earth,
+    Dark,
+    Light
 }
 public class ElementalInteractions
 {
+    /// <summary> Multiplier for any pair with no explicit entry below. </summary>
+    public const float NeutralMultiplier = 1f;
 
+    /// <summary>
+    /// Look up [attacker][defender], falling back to <see cref="NeutralMultiplier"/> for any pair the
+    /// table doesn't cover. Callers must use this rather than indexing the matrix directly — a missing
+    /// pair would otherwise throw KeyNotFoundException mid-combat.
+    /// </summary>
+    public static float GetMultiplier(Element attacker, Element defender)
+    {
+        return interactionMatrix.TryGetValue(attacker, out var row) && row.TryGetValue(defender, out float multiplier)
+            ? multiplier
+            : NeutralMultiplier;
+    }
 
+    // Earth, Dark and Light are deliberately absent: they are neutral (1x) in both directions until the
+    // Elemental Affinities rework decides whether the counter-cycle survives at all. Adding a row here
+    // is how you opt an element into the matrix.
     public static Dictionary<Element, Dictionary<Element, float>> interactionMatrix =
         new Dictionary<Element, Dictionary<Element, float>>()
         {

@@ -24,8 +24,14 @@ Tracks the player's active damage element and computes elemental interaction mul
 ## Element Enum
 
 ```csharp
-public enum Element { Physical, Fire, Ice, Lightning }
+public enum Element { Physical, Fire, Ice, Lightning, Wind, Earth, Dark, Light }
 ```
+
+Values are serialized as ints into prefabs and `.asset` files — **only ever append**. Inserting a value
+silently remaps every existing reference to the elements after it.
+
+Earth, Dark and Light are **player-only** (no enemy variants) and currently neutral in the damage matrix.
+See [ElementExpansionPlan.md](ElementExpansionPlan.md).
 
 ---
 
@@ -45,6 +51,10 @@ public void SetActiveElement(Element element);
 ## Elemental Interactions
 
 `ElementalInteractions.interactionMatrix` is a `Dictionary<Element, Dictionary<Element, float>>` where `[attacker][defender]` returns a damage multiplier. This is used in `GameManager.CalculateDamage`.
+
+Read it through `ElementalInteractions.GetMultiplier(attacker, defender)`, never by indexing the matrix
+directly — the table is sparse, and a missing pair resolves to `NeutralMultiplier` (1×) instead of
+throwing `KeyNotFoundException` mid-combat. Adding a row is how an element opts into the matrix.
 
 ---
 

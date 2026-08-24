@@ -14,6 +14,12 @@ public static class ElementVisualUtility
                 return new Color(1f, 0.92f, 0.2f, 1f);
             case Element.Wind:
                 return new Color(0.56f, 0.93f, 0.56f, 1f);
+            case Element.Earth:
+                return new Color(0.82f, 0.58f, 0.28f, 1f);
+            case Element.Dark:
+                return new Color(0.58f, 0.30f, 0.80f, 1f);
+            case Element.Light:
+                return new Color(1f, 0.98f, 0.82f, 1f);
             default:
                 return new Color(0.92f, 0.92f, 0.92f, 1f);
         }
@@ -29,6 +35,9 @@ public static class ElementVisualUtility
             Element.Ice => new Color(0.92f, 1f, 1f, 1f),
             Element.Lightning => new Color(1f, 1f, 0.95f, 1f),
             Element.Wind => new Color(0.96f, 1f, 0.96f, 1f),
+            Element.Earth => new Color(1f, 0.98f, 0.93f, 1f),
+            Element.Dark => new Color(0.96f, 0.93f, 1f, 1f),
+            Element.Light => new Color(1f, 1f, 0.96f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -38,6 +47,9 @@ public static class ElementVisualUtility
             Element.Ice => new Color(0.72f, 0.94f, 1f, 1f),
             Element.Lightning => new Color(0.95f, 0.96f, 0.88f, 1f),
             Element.Wind => new Color(0.84f, 0.97f, 0.84f, 1f),
+            Element.Earth => new Color(0.95f, 0.87f, 0.76f, 1f),
+            Element.Dark => new Color(0.86f, 0.80f, 0.95f, 1f),
+            Element.Light => new Color(1f, 0.99f, 0.85f, 1f),
             _ => new Color(0.95f, 0.95f, 0.95f, 1f),
         };
 
@@ -52,6 +64,9 @@ public static class ElementVisualUtility
             Element.Ice => new Color(0.45f, 0.78f, 1f, 1f),
             Element.Lightning => new Color(1f, 0.92f, 0.35f, 1f),
             Element.Wind => new Color(0.62f, 0.96f, 0.62f, 1f),
+            Element.Earth => new Color(0.95f, 0.68f, 0.35f, 1f),
+            Element.Dark => new Color(0.68f, 0.40f, 0.92f, 1f),
+            Element.Light => new Color(1f, 0.99f, 0.75f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -66,6 +81,9 @@ public static class ElementVisualUtility
             Element.Ice => new Color(0.5f, 0.88f, 1f, 1f),
             Element.Lightning => new Color(1f, 0.98f, 0.4f, 1f),
             Element.Wind => new Color(0.55f, 0.95f, 0.6f, 1f),
+            Element.Earth => new Color(0.85f, 0.55f, 0.22f, 1f),
+            Element.Dark => new Color(0.55f, 0.25f, 0.85f, 1f),
+            Element.Light => new Color(1f, 0.96f, 0.65f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 
@@ -75,6 +93,9 @@ public static class ElementVisualUtility
             Element.Ice => new Color(0.82f, 1f, 1f, 1f),
             Element.Lightning => new Color(1f, 1f, 0.75f, 1f),
             Element.Wind => new Color(0.86f, 1f, 0.88f, 1f),
+            Element.Earth => new Color(1f, 0.85f, 0.60f, 1f),
+            Element.Dark => new Color(0.85f, 0.68f, 1f, 1f),
+            Element.Light => new Color(1f, 1f, 0.90f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
 

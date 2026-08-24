@@ -45,7 +45,7 @@ public class SwordController : MonoBehaviour
         }
 
         // apply elemental multiplier
-        finalDamage *= ElementalInteractions.interactionMatrix[mostRecentElement][enemyElement];
+        finalDamage *= ElementalInteractions.GetMultiplier(mostRecentElement, enemyElement);
         return finalDamage;
     }
     

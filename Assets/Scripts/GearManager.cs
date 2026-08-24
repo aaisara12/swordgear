@@ -11,6 +11,9 @@ public enum GearTile
     Fire,
     Ice,
     Wind,
+    Earth,
+    Dark,
+    Light,
 }
 
 public static class GearTileElements
@@ -24,21 +27,36 @@ public static class GearTileElements
             case GearTile.Ice: element = Element.Ice; return true;
             case GearTile.Lightning: element = Element.Lightning; return true;
             case GearTile.Wind: element = Element.Wind; return true;
+            case GearTile.Earth: element = Element.Earth; return true;
+            case GearTile.Dark: element = Element.Dark; return true;
+            case GearTile.Light: element = Element.Light; return true;
             default: element = Element.Physical; return false;
         }
     }
 }
 
 /// <summary>
-/// The ring that orbits the player. It is divided into <see cref="arcCount"/> evenly distributed arcs,
-/// each holding a tile; flicking the attack stick toward an arc grants that arc's element.
+/// The ring that orbits the player. It holds one arc per <em>equipped</em> element, evenly distributed;
+/// flicking the attack stick toward an arc grants that arc's element.
 /// The gear does not rotate — arc angles are fixed so the flick direction is a stable, learnable target.
+///
+/// The arc count is derived from the loadout rather than authored, because the flick target size is
+/// 360/count degrees: showing all elements at once would shrink every target and make selection feel
+/// random. Equipping fewer elements is what keeps them hittable.
 /// </summary>
 public class GearManager : InitializeableGameComponent
 {
     [Header("Arc Layout")]
-    [Tooltip("How many arcs the gear is divided into. They always split the full 360 degrees evenly.")]
-    [SerializeField, Min(1)] private int arcCount = 4;
+    [Tooltip("Elements equipped at run start, one arc each. The slot-purchase system grows this at " +
+             "runtime via SetEquippedLoadout.")]
+    [SerializeField]
+    private List<GearTile> startingLoadout = new()
+    {
+        GearTile.Wind,
+        GearTile.Fire,
+        GearTile.Ice,
+        GearTile.Lightning,
+    };
     [Tooltip("Distance from the gear centre to the middle of the arc band.")]
     [SerializeField] private float radius = 10f;
     [Tooltip("Radial thickness of the arc band, centred on 'radius'.")]
@@ -81,11 +99,12 @@ public class GearManager : InitializeableGameComponent
     private Material? runtimeArcMaterial;
     private int highlightedArc = -1;
 
-    public int ArcCount => arcCount;
+    /// <summary> One arc per equipped element — derived from the loadout, never authored directly. </summary>
+    public int ArcCount => slotTiles.Count;
     public IReadOnlyList<GearTile?> GetSlots() => slotTiles;
     public IReadOnlyList<GearTile> GetInventory() => inventoryTiles;
 
-    private float ArcStepDegrees => 360f / Mathf.Max(1, arcCount);
+    private float ArcStepDegrees => 360f / Mathf.Max(1, ArcCount);
 
     private void Awake()
     {
@@ -94,16 +113,11 @@ public class GearManager : InitializeableGameComponent
 
     private void Start()
     {
-        slotTiles = new List<GearTile?>(new GearTile?[arcCount]);
-
-        ApplyDefaultLoadout();
+        SetEquippedLoadout(startingLoadout);
 
         inventoryTiles.Add(GearTile.Fire);
         inventoryTiles.Add(GearTile.Fire);
         inventoryTiles.Add(GearTile.Ice);
-
-        BuildArcs();
-        RefreshVisuals();
     }
 
     private void OnDestroy()
@@ -120,22 +134,34 @@ public class GearManager : InitializeableGameComponent
         }
     }
 
-    private static readonly GearTile[] DefaultLoadout =
+    /// <summary>
+    /// Replaces the equipped elements and resizes the ring to match — one arc per element. Call this
+    /// whenever the loadout changes (run start, buying an element slot).
+    /// </summary>
+    /// <remarks>
+    /// Every arc must map to an element: an empty arc is a flick that silently does nothing, which reads
+    /// as a bug rather than a miss. Taking the loadout wholesale rather than exposing an arc count is
+    /// what keeps that guaranteed.
+    /// </remarks>
+    public void SetEquippedLoadout(IReadOnlyList<GearTile>? loadout)
     {
-        GearTile.Wind,
-        GearTile.Fire,
-        GearTile.Ice,
-        GearTile.Lightning,
-    };
+        slotTiles = new List<GearTile?>();
 
-    // Cycles the elemental tiles so every arc is a live target whatever arcCount is set to — an empty arc
-    // is a flick that silently does nothing, which reads as a bug rather than a miss.
-    private void ApplyDefaultLoadout()
-    {
-        for (int i = 0; i < slotTiles.Count; i++)
+        if (loadout == null || loadout.Count == 0)
         {
-            SetTile(i, DefaultLoadout[i % DefaultLoadout.Length]);
+            // No arcs means every flick whiffs. Survivable, but it's always a config error.
+            Debug.LogWarning("GearManager: empty loadout — the gear ring has no arcs, so element flicks will do nothing.", this);
         }
+        else
+        {
+            for (int i = 0; i < loadout.Count; i++)
+            {
+                slotTiles.Add(loadout[i]);
+            }
+        }
+
+        BuildArcs();
+        RefreshVisuals();
     }
 
     // ---------- Arc geometry ----------
@@ -151,7 +177,7 @@ public class GearManager : InitializeableGameComponent
     {
         index = -1;
 
-        if (arcCount <= 0 || worldDirection.sqrMagnitude < 0.0001f)
+        if (ArcCount <= 0 || worldDirection.sqrMagnitude < 0.0001f)
         {
             return false;
         }
@@ -162,7 +188,7 @@ public class GearManager : InitializeableGameComponent
 
         // Shift by half a step so arc i owns [i*step, (i+1)*step) after the floor.
         float shifted = Mathf.Repeat(localAngle + step * 0.5f, 360f);
-        index = Mathf.Clamp(Mathf.FloorToInt(shifted / step), 0, arcCount - 1);
+        index = Mathf.Clamp(Mathf.FloorToInt(shifted / step), 0, ArcCount - 1);
         return true;
     }
 
@@ -263,7 +289,7 @@ public class GearManager : InitializeableGameComponent
         int sortingLayerId = SortingLayer.NameToID(arcSortingLayer);
         Material material = ResolveArcMaterial();
 
-        for (int i = 0; i < arcCount; i++)
+        for (int i = 0; i < ArcCount; i++)
         {
             var go = new GameObject($"Arc_{i}");
             go.transform.SetParent(transform, false);

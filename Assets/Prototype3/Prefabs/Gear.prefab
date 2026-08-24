@@ -137,7 +137,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d396b0214866d3e448410e5d6be58f95, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  arcCount: 4
+  startingLoadout:
+  - 5
+  - 3
+  - 4
+  - 2
   radius: 10
   arcThickness: 3
   arcGapDegrees: 4

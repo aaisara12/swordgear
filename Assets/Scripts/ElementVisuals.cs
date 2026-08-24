@@ -10,6 +10,10 @@ public static class ElementVisuals
             Element.Lightning => Color.yellow,
             Element.Ice => Color.cyan,
             Element.Wind => new Color(0.56f, 0.93f, 0.56f, 1f), // light green
+            Element.Earth => new Color(0.76f, 0.52f, 0.24f, 1f), // amber / brown
+            Element.Dark => new Color(0.45f, 0.22f, 0.62f, 1f), // dark purple
+            // Warm white — must stay readable against Physical's cool white-cyan below.
+            Element.Light => new Color(1f, 0.99f, 0.88f, 1f),
             _ => new Color(0.85f, 1f, 1f, 1f), // bright white-cyan for Physical
         };
     }

@@ -114,8 +114,9 @@ public class GameManager : MonoBehaviour
         //// Apply all embue multipliers
         //finalDamage *= embue.damageMultiplier;
         // apply elemental multiplier
-        // interactionMatrix[attackerElement][defenderElement] returns the damage multiplier
-        finalDamage *= ElementalInteractions.interactionMatrix[attackerElement][defenderElement];
+        // GetMultiplier(attacker, defender) returns the damage multiplier, defaulting to neutral for
+        // any pair the matrix doesn't cover (Earth/Dark/Light are all neutral for now).
+        finalDamage *= ElementalInteractions.GetMultiplier(attackerElement, defenderElement);
         return finalDamage;
     }
 
