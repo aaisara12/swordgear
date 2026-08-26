@@ -22,17 +22,47 @@ public enum UpgradeType
     Nonelemental_Attunement,      // same-element attacks deal 0 damage (both player and enemy side)
 }
 
+/// <summary>
+/// One element's weapon behaviour. Every element — melee, ranged or summoner — is driven by the same
+/// input shape: <b>tap, hold, release</b>. That's why there is no melee/ranged split; the difference
+/// between elements is what those inputs <em>do</em>, not how they're delivered.
+/// <para>
+/// Only <see cref="OnTap"/> is required — every element must do something when tapped. Everything else
+/// has a no-op default so a weapon implements only the hooks it actually uses; see the note on each.
+/// </para>
+/// </summary>
 public interface IElementalWeapon
 {
-    // Melee
-    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades);
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false);
-    public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades);
+    // ---- Required ----
 
-    // Universal
-    public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
-    public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
-    public void Cleave(Transform player, HashSet<UpgradeType> upgrades);
+    /// <summary>Tap. Returns the cooldown in seconds before the next attack is allowed.</summary>
+    public float OnTap(Transform player, HashSet<UpgradeType> upgrades);
+
+    // ---- Optional: default no-ops, override only if the element uses them ----
+
+    /// <summary>
+    /// Hold-to-charge. Called repeatedly while charging, and once with <paramref name="cancel"/> true when
+    /// the charge is aborted. Elements without a charge attack (Physical, Wind) leave this alone.
+    /// </summary>
+    public void OnCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false) { }
+
+    /// <summary>
+    /// A melee hitbox spawned by this weapon connected with an enemy — apply damage and any on-hit effect.
+    /// <para>
+    /// ⚠️ Defaults to doing nothing, which means <b>no damage</b>. Any weapon that spawns a melee hitbox
+    /// must override this. Elements that never spawn one (Earth's turret, Light's harp) correctly leave it.
+    /// </para>
+    /// </summary>
+    public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades) { }
+
+    /// <summary>Called when this element's imbue starts / ends. Override to reset cross-swing state.</summary>
+    public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades) { }
+
+    /// <inheritdoc cref="OnBuffStart"/>
+    public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades) { }
+
+    /// <summary>Triggered when the player catches the thrown sword. Override for a bespoke cleave.</summary>
+    public void Cleave(Transform player, HashSet<UpgradeType> upgrades) { }
 
     /// <summary>
     /// Per-element dash override. Called (via ElementManager) when the player dashes with the sword out.
@@ -42,9 +72,10 @@ public interface IElementalWeapon
     /// </summary>
     public bool TryOverrideDash(PlayerController player, HashSet<UpgradeType> upgrades) => false;
 
-    // Ranged
-    public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades);
-    public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades);
+    // ---- Ranged: dormant while the sword throw is the ultimate, deliberately kept ----
+
+    public void OnRangedFlight(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades) { }
+    public void OnRangedHit(Transform player, SwordProjectile sword, Transform hitSource, EnemyController enemy, HashSet<UpgradeType> upgrades) { }
 }
 
 [System.Serializable]
@@ -110,7 +141,7 @@ public class ElementManager : InitializeableGameComponent
         {
             if (activeWeapon != null)
             {
-                MeleeCharge(GameManager.Instance.player.transform, cancel: true);
+                OnCharge(GameManager.Instance.player.transform, cancel: true);
                 OnBuffEnd(GameManager.Instance.player.transform, SwordProjectile.Instance);
             }
 
@@ -176,18 +207,17 @@ public class ElementManager : InitializeableGameComponent
 
     // ----------- IElementalWeapon Forwards -----------
 
-    public float MeleeStrike(Transform player)
+    public float OnTap(Transform player)
     {
         if (activeWeapon == null) return 0f;
-        Debug.Log(activeWeapon);
-        float baseCooldown = activeWeapon.MeleeStrike(player, currentUpgrades);
+        float baseCooldown = activeWeapon.OnTap(player, currentUpgrades);
         return MeleeAugmentUtility.ScaleCooldown(baseCooldown);
     }
 
-    public void MeleeCharge(Transform player, bool cancel = false)
+    public void OnCharge(Transform player, bool cancel = false)
     {
         if (activeWeapon == null) return;
-        activeWeapon.MeleeCharge(player, currentUpgrades, cancel);
+        activeWeapon.OnCharge(player, currentUpgrades, cancel);
     }
 
     public void OnMeleeHit(Transform player, EnemyController enemy)

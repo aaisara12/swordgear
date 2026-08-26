@@ -67,11 +67,6 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
     private int windCharges = 0;
     private int _lastFlightFrame = -1;
 
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
-    {
-        return; // Wind does not have hold-to-charge melee
-    }
-
     private IEnumerator Swing(Transform player)
     {
         float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
@@ -216,7 +211,7 @@ public class WindWeapon : MonoBehaviour, IElementalWeapon
         StartCoroutine(Swing(player));
     }
 
-    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
         float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
         if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))

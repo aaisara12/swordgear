@@ -66,7 +66,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProv
     public bool IsMaxCharge => isSheathed;
     public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) => player.IsMeleeReady;
 
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
+    public void OnCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
         SetSheathed(player, !cancel);
     }
@@ -201,7 +201,7 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProv
     }
 
 
-    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
         // Released from a sheathe: the iaido dash takes priority over everything else.
         if (isSheathed)

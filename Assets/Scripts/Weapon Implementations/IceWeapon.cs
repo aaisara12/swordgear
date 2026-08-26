@@ -35,11 +35,6 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float cleaveRadius = 2.5f;
     [SerializeField] private float cleaveDuration = 0.4f;
 
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
-    {
-
-    }
-
     private IEnumerator Swing(Transform player)
     {
         float reach = MeleeAugmentUtility.ScaleDistance(distanceFromPlayer);
@@ -110,7 +105,7 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         StartCoroutine(Swing(player));
     }
 
-    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
         float seekRadius = MeleeAugmentUtility.ScaleSeekRadius(attackRadius);
         if (!ActiveEnemyRegistry.TryGetNearest(player.position, seekRadius, out EnemyController nearestEnemy, out float shortestDistance))
@@ -126,16 +121,6 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
         player.position = dashPosition;
         Strike(player);
         return meleeCooldown;
-    }
-
-    public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
-    {
-        
-    }
-
-    public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
-    {
-
     }
 
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades)

@@ -469,7 +469,7 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
-        ElementManager.Instance.MeleeCharge(transform, true);
+        ElementManager.Instance.OnCharge(transform, true);
         AudioSystem.Play(AudioSystem.Sound.Bounce);
     }
 
@@ -624,7 +624,7 @@ public class PlayerController : PlayerGameplayPawn
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             SyncMeleeFacingFromIndicator(direction);
-            ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
+            ApplyAttackCooldown(ElementManager.Instance.OnTap(transform));
             PlayAttackAnimation();
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
@@ -659,8 +659,8 @@ public class PlayerController : PlayerGameplayPawn
 
         else if (playerState == PlayerState.MeleeReady)
         {
-            //MeleeCharge();
-            ElementManager.Instance.MeleeCharge(transform);
+            //OnCharge();
+            ElementManager.Instance.OnCharge(transform);
         }
     }
 
@@ -679,7 +679,7 @@ public class PlayerController : PlayerGameplayPawn
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
                 SyncMeleeFacingFromIndicator();
-                ApplyAttackCooldown(ElementManager.Instance.MeleeStrike(transform));
+                ApplyAttackCooldown(ElementManager.Instance.OnTap(transform));
                 PlayAttackAnimation();
             }
         }
@@ -693,7 +693,7 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         CancelRecallChannel();
-        ElementManager.Instance.MeleeCharge(transform, true);
+        ElementManager.Instance.OnCharge(transform, true);
     }
 
     public override void AimInDirection(Vector2 direction)
@@ -887,7 +887,7 @@ public class PlayerController : PlayerGameplayPawn
         // Lightning's sheathed katana) would fire its release attack on the next tap in the new node.
         if (ElementManager.Instance != null)
         {
-            ElementManager.Instance.MeleeCharge(transform, cancel: true);
+            ElementManager.Instance.OnCharge(transform, cancel: true);
         }
 
         // Stop the looping walk SFX if it was playing.
@@ -961,7 +961,7 @@ public class PlayerController : PlayerGameplayPawn
 
         if (ElementManager.Instance != null)
         {
-            ElementManager.Instance.MeleeCharge(transform, cancel: true);
+            ElementManager.Instance.OnCharge(transform, cancel: true);
         }
 
         if (walkSoundLoop != -1)

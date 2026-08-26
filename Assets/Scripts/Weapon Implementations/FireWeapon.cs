@@ -56,7 +56,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
         player.IsMeleeReady && upgrades.Contains(UpgradeType.Fire_ChargeMelee);
 
-    public void MeleeCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
+    public void OnCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
         if (cancel)
         {
@@ -192,7 +192,7 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         }
     }
 
-    public float MeleeStrike(Transform player, HashSet<UpgradeType> upgrades)
+    public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
         transform.position = MeleeAugmentUtility.ForwardOffset(player, distanceFromPlayer);
         transform.up = player.up;
