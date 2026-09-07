@@ -15,6 +15,10 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float dashFactor = 0.2f;
     [SerializeField] private float meleeCooldown = 0.3f;
 
+    [Header("Aim")]
+    [Tooltip("How far the aim snaps onto an enemy. Matches the shared default: a plain swing has no reach beyond stepping in.")]
+    [SerializeField] private float autoAimRadius = 5f;
+
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
@@ -133,4 +137,6 @@ public class PhysicalWeapon : MonoBehaviour, IElementalWeapon
         enemy.TakeDamage(GameManager.Instance.CalculateDamage(enemy.element, Element.Physical, GameManager.Instance.GetEffectiveBaseDamage() * GameManager.Instance.GetEffectiveRangedMultiplier()),
             new MoveType(Element.Physical, AttackKind.Ranged));
     }
+
+    public float AutoAimRadius => autoAimRadius;
 }

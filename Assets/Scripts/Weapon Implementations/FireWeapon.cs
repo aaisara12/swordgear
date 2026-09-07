@@ -34,6 +34,10 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [Tooltip("Degrees per second the fireball can turn toward its target. Lower = wider, lazier arcs.")]
     [SerializeField] private float fireballHomingTurnRate = 240f;
 
+    [Header("Aim")]
+    [Tooltip("How far the aim snaps onto an enemy. Fireballs home and their own seek radius is 9, so the pointer must not stop short of where the projectile will hunt.")]
+    [SerializeField] private float autoAimRadius = 10f;
+
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
@@ -343,4 +347,6 @@ public class FireWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             GameManager.Instance.AddEffect(enemy, GameManager.EnemyEffect.Burn, 3);
         }
     }
+
+    public float AutoAimRadius => autoAimRadius;
 }

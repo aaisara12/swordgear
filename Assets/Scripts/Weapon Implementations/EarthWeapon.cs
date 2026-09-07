@@ -49,9 +49,10 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     [Header("Combat")]
     [SerializeField] private float meleeCooldown = 0.5f;
-    [Tooltip("How far the aim snaps onto an enemy. Well past the melee elements' 5, because the bolt " +
-             "outranges them and a pointer that stops short would aim Earth at nothing.")]
-    [SerializeField] private float autoAimRadius = 10f;
+    [Tooltip("How far the aim snaps onto an enemy. Far past the melee elements, because the bolt " +
+             "outranges them and a pointer that stops short would aim Earth at nothing. Manual aim " +
+             "with the movement stick overrides this while rooted.")]
+    [SerializeField] private float autoAimRadius = 15f;
 
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;

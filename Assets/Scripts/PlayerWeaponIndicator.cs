@@ -16,6 +16,8 @@ public class PlayerWeaponIndicator : MonoBehaviour
 
     private Vector2 aimDirection;
     private Vector2 moveFallbackDirection = Vector2.up;
+    private Vector2 manualAimDirection;
+    private bool manualAimActive;
     private EnemyController? trackedEnemy;
     private EnemyController? renderedEnemy;
     private bool throwAimActive;
@@ -99,6 +101,38 @@ public class PlayerWeaponIndicator : MonoBehaviour
         ApplyIdleFacing(forceSnap: true);
     }
 
+    /// <summary>
+    /// Takes manual control of the facing, above auto-aim, until <see cref="ClearManualAim"/>.
+    /// </summary>
+    /// <remarks>
+    /// Used while an element roots the player and the movement stick becomes aim. Auto-aim outranks the
+    /// stick normally, which is right when the stick means "move" — but during a rooted charge it would
+    /// mean a nearby enemy silently steals the shot the player is lining up.
+    /// <para>
+    /// Cleared as soon as the stick recentres, so auto-aim takes over again the moment the player stops
+    /// steering. With no enemy in range there is nothing to take over, and facing falls through to
+    /// <see cref="SetMoveFallbackDirection"/> — which the root feeds the same direction — so the aim
+    /// simply stays where it was pointed.
+    /// </para>
+    /// </remarks>
+    public void SetManualAim(Vector2 direction)
+    {
+        if (direction.sqrMagnitude <= 0.001f)
+        {
+            return;
+        }
+
+        manualAimActive = true;
+        manualAimDirection = direction.normalized;
+    }
+
+    /// <summary>Hands facing back to auto-aim. Called when the root ends.</summary>
+    public void ClearManualAim()
+    {
+        manualAimActive = false;
+        manualAimDirection = Vector2.zero;
+    }
+
     public void SetMoveFallbackDirection(Vector2 direction)
     {
         if (throwAimActive || direction.sqrMagnitude <= 0.001f)
@@ -129,6 +163,11 @@ public class PlayerWeaponIndicator : MonoBehaviour
         if (throwAimActive)
         {
             return aimDirection.sqrMagnitude > 0.001f ? aimDirection : (Vector2)pivot!.up;
+        }
+
+        if (manualAimActive)
+        {
+            return manualAimDirection;
         }
 
         if (playerRoot != null
@@ -177,6 +216,12 @@ public class PlayerWeaponIndicator : MonoBehaviour
 
     private bool TryGetIdleDirection(out Vector2 direction)
     {
+        if (manualAimActive)
+        {
+            direction = manualAimDirection;
+            return true;
+        }
+
         if (trackedEnemy != null && playerRoot != null)
         {
             Vector2 offset = (Vector2)trackedEnemy.transform.position - (Vector2)playerRoot.position;

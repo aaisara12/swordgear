@@ -44,6 +44,10 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProv
     [Tooltip("Attack-speed multiplier while empowered. Shortens both the swing and the cooldown.")]
     [SerializeField] private float empoweredAttackSpeedMultiplier = 2f;
 
+    [Header("Aim")]
+    [Tooltip("How far the aim snaps onto an enemy. Covers the 3.5 attack radius plus the 4.5 iaido dash used to close.")]
+    [SerializeField] private float autoAimRadius = 5f;
+
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
@@ -436,4 +440,6 @@ public class LightningWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProv
             lightning.Initialize(transform);
         }
     }
+
+    public float AutoAimRadius => autoAimRadius;
 }

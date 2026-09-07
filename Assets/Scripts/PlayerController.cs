@@ -191,6 +191,9 @@ public class PlayerController : PlayerGameplayPawn
         {
             _isAimLocked = true;
 
+            // Each charge starts on auto-aim; the player takes over the moment they touch the stick.
+            weaponIndicator?.ClearManualAim();
+
             // Stop dead now rather than on the next stick event.
             if (rb != null) rb.linearVelocity = Vector2.zero;
             _lastMoveDirection = Vector2.zero;
@@ -205,6 +208,7 @@ public class PlayerController : PlayerGameplayPawn
         {
             _isAimLocked = false;
             aimIndicator?.Clear();
+            weaponIndicator?.ClearManualAim();
 
             // Replay the stick, the same way DashCoroutine resumes movement when the dash ends.
             MoveInDirection(_stickDirection);
@@ -963,11 +967,20 @@ public class PlayerController : PlayerGameplayPawn
         if (_isAimLocked)
         {
             // Steer the weapon indicator rather than the weapon: the indicator resolves the final facing
-            // (auto-aim included) and the weapon reads it back at release.
+            // and the weapon reads it back at release. Steering counts as MANUAL aim, which outranks
+            // auto-aim — otherwise a nearby enemy would quietly steal the shot the player is lining up,
+            // and the root would exist to enable an aim the player can't actually control.
             if (direction.sqrMagnitude > 0.001f)
             {
                 _lastFacingDir = direction.normalized;
                 weaponIndicator?.SetMoveFallbackDirection(direction);
+                weaponIndicator?.SetManualAim(direction);
+            }
+            else
+            {
+                // Stick released mid-charge: hand the aim back to auto-aim rather than freezing on the
+                // last direction pushed.
+                weaponIndicator?.ClearManualAim();
             }
 
             _lastMoveDirection = Vector2.zero;

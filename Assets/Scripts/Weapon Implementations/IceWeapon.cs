@@ -30,6 +30,10 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private float meleeCooldown = 0.3f;
     [SerializeField] private int chillDuration = 5;
 
+    [Header("Aim")]
+    [Tooltip("How far the aim snaps onto an enemy. Past the 4.5 attack radius, since the spear's reach scale carries it further than a bare swing.")]
+    [SerializeField] private float autoAimRadius = 7f;
+
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
     [SerializeField] private float cleaveRadius = 2.5f;
@@ -187,4 +191,6 @@ public class IceWeapon : MonoBehaviour, IElementalWeapon
             new MoveType(Element.Ice, AttackKind.Ranged));
     }
 
+
+    public float AutoAimRadius => autoAimRadius;
 }
