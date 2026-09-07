@@ -32,44 +32,27 @@ public class DamageUI : MonoBehaviour
         StartCoroutine(Show(amt, element));
     }
 
-    IEnumerator Show(float num, Element element)
+    // Only three elements have authored hit VFX; everything else uses the physical burst. Wind already
+    // did before this was a method.
+    GameObject ResolveHitEffect(Element element)
     {
-        Color color;
-        IAttackAnimator effect;
-        GameObject effectObject;
-
         switch (element)
         {
-            case Element.Fire:
-                color = Color.red;
-                effectObject = PrefabPool.Instance!.Spawn(fireHitEffect, transform.position, Quaternion.identity);
-                effect = effectObject.GetComponent<IAttackAnimator>();
-                break;
-
-            case Element.Lightning:
-                color = Color.yellow;
-                effectObject = PrefabPool.Instance!.Spawn(lightningHitEffect, transform.position, Quaternion.identity);
-                effect = effectObject.GetComponent<IAttackAnimator>();
-                break;
-
-            case Element.Ice:
-                color = Color.cyan;
-                effectObject = PrefabPool.Instance!.Spawn(iceHitEffect, transform.position, Quaternion.identity);
-                effect = effectObject.GetComponent<IAttackAnimator>();
-                break;
-
-            case Element.Wind:
-                color = new Color(0.56f, 0.93f, 0.56f, 1f);
-                effectObject = PrefabPool.Instance!.Spawn(physicalHitEffect, transform.position, Quaternion.identity);
-                effect = effectObject.GetComponent<IAttackAnimator>();
-                break;
-
-            default:
-                color = Color.white;
-                effectObject = PrefabPool.Instance!.Spawn(physicalHitEffect, transform.position, Quaternion.identity);
-                effect = effectObject.GetComponent<IAttackAnimator>();
-                break;
+            case Element.Fire: return fireHitEffect;
+            case Element.Ice: return iceHitEffect;
+            case Element.Lightning: return lightningHitEffect;
+            default: return physicalHitEffect;
         }
+    }
+
+    IEnumerator Show(float num, Element element)
+    {
+        // Colour comes from ElementVisuals so damage numbers can't drift from the ring, charge VFX and
+        // projectiles. This used to be a second hardcoded palette, which left every element it didn't
+        // list — Earth, Dark and Light — rendering white.
+        Color color = ElementVisuals.GetColor(element);
+        GameObject effectObject = PrefabPool.Instance!.Spawn(ResolveHitEffect(element), transform.position, Quaternion.identity);
+        IAttackAnimator effect = effectObject.GetComponent<IAttackAnimator>();
 
 
         display.text = $"{Mathf.RoundToInt(num)}";
