@@ -201,28 +201,6 @@ public class ElementManager : InitializeableGameComponent
     /// </summary>
     public bool ChargesOnPress => activeWeapon is IAimLockProvider aimLock && aimLock.ChargesOnPress;
 
-    /// <summary>Routes the movement stick to the active weapon as aim. No-op unless it is aim-locked.</summary>
-    public void SetAimDirection(Vector2 direction)
-    {
-        if (activeWeapon is IAimLockProvider aimLock && aimLock.IsAimLocked)
-        {
-            aimLock.SetAimDirection(direction);
-        }
-    }
-
-    /// <summary>The active weapon's aim direction, when it is aim-locked and pointing somewhere usable.</summary>
-    public bool TryGetAimDirection(out Vector2 direction)
-    {
-        if (activeWeapon is IAimLockProvider aimLock && aimLock.IsAimLocked)
-        {
-            direction = aimLock.AimDirection;
-            return direction.sqrMagnitude > 0.001f;
-        }
-
-        direction = Vector2.zero;
-        return false;
-    }
-
     private static PlayerController? ResolvePlayer()
     {
         if (GameManager.Instance == null || GameManager.Instance.player == null)

@@ -57,7 +57,6 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     private bool isCharging;
     private float holdDuration;
-    private Vector2 aimDirection = Vector2.up;
 
     /// <summary>Phase 1: the ballista is still being built, and releasing now fires nothing.</summary>
     public bool IsConstructing => isCharging && holdDuration < constructionTime;
@@ -85,21 +84,9 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public bool IsAimLocked => isCharging;
 
-    public Vector2 AimDirection => aimDirection;
-
     // Earth has no tap attack, so there is nothing to disambiguate a press from — waiting out the
     // tap/hold split would just be latency before the root and the ballista start.
     public bool ChargesOnPress => true;
-
-    public void SetAimDirection(Vector2 direction)
-    {
-        // Hold the last aim when the stick returns to centre — snapping back to a default mid-charge would
-        // throw the shot away every time the player lets go to steady their hand.
-        if (direction.sqrMagnitude > 0.001f)
-        {
-            aimDirection = direction.normalized;
-        }
-    }
 
     /// <summary>
     /// Begins the root. The player stops moving and their movement stick becomes aim until release or cancel.
@@ -123,14 +110,6 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
         isCharging = true;
         holdDuration = 0f;
-
-        // Seed from the current facing so the aim indicator has a sane direction on the very first frame,
-        // before PlayerController feeds in the stick. Keeps this weapon correct on its own.
-        Vector2 facing = ((Vector2)player.up).normalized;
-        if (facing.sqrMagnitude > 0.001f)
-        {
-            aimDirection = facing;
-        }
     }
 
     /// <summary>Clears the root whenever the imbue ends, in case something skipped the cancel path.</summary>
@@ -162,8 +141,9 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     /// PlayerController.ReleaseChargeAttack dispatches a charge release to OnTap, so this one entry point
     /// serves both — and <c>isCharging</c> is what tells a real release from a bare press.
     /// <para>
-    /// Unlike the melee elements this deliberately does NOT seek the nearest enemy and step toward it.
-    /// A turret that walks itself into range would undercut the whole fantasy — aim is the player's job.
+    /// It aims by the weapon indicator like every other element, so it inherits the same auto-aim onto a
+    /// nearby enemy. What it deliberately does NOT do is <em>step toward</em> that enemy the way the melee
+    /// elements do — a turret that walks itself into range would undercut the whole fantasy.
     /// </para>
     /// <para>
     /// Damage ramps with hold time and is <b>not capped</b>: the only limit on a bolt is how long the
@@ -186,7 +166,10 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             return 0f;
         }
 
-        Vector2 direction = aimDirection;
+        // Fires along the player's facing, which PlayerController has just synced from the weapon
+        // indicator — the same source every other element aims by, so the shot goes exactly where the
+        // pointer and the aim line say it will, auto-aim included.
+        Vector2 direction = ((Vector2)player.up).normalized;
         float damageMultiplier = boltDamageMultiplier + ChargeDuration * chargeDamagePerSecond;
 
         // Drop the root BEFORE firing, so nothing below can leave the player stuck.

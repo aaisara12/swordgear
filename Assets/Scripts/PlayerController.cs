@@ -200,10 +200,6 @@ public class PlayerController : PlayerGameplayPawn
                 AudioSystem.StopLoop(walkSoundLoop);
                 walkSoundLoop = -1;
             }
-
-            // Seed the aim from the last direction the player actually moved, which is a better guess than
-            // transform.up (only updated on attack).
-            ElementManager.Instance!.SetAimDirection(_lastFacingDir);
         }
         else if (!locked && _isAimLocked)
         {
@@ -220,12 +216,15 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
-        // Hold position and keep the indicator on where the bolt will actually go.
+        // Hold position, and draw the aim line wherever the weapon indicator is pointing. The indicator is
+        // the single source of truth for facing across every element — including its auto-aim onto a
+        // nearby enemy — and SyncMeleeFacingFromIndicator hands that same direction to the weapon on
+        // release, so the line can't disagree with where the shot goes.
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        if (ElementManager.Instance!.TryGetAimDirection(out Vector2 aim))
+        Vector2 aim = weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
+        if (aim.sqrMagnitude > 0.001f)
         {
-            weaponIndicator?.SetMoveFallbackDirection(aim);
             aimIndicator?.SetAim(aim, PlayerAimIndicator.AimMode.Ranged);
         }
     }
@@ -963,7 +962,14 @@ public class PlayerController : PlayerGameplayPawn
         // handed to the weapon rather than discarded.
         if (_isAimLocked)
         {
-            ElementManager.Instance?.SetAimDirection(direction);
+            // Steer the weapon indicator rather than the weapon: the indicator resolves the final facing
+            // (auto-aim included) and the weapon reads it back at release.
+            if (direction.sqrMagnitude > 0.001f)
+            {
+                _lastFacingDir = direction.normalized;
+                weaponIndicator?.SetMoveFallbackDirection(direction);
+            }
+
             _lastMoveDirection = Vector2.zero;
             UpdateMovementAnimation(Vector2.zero);
             if (walkSoundLoop != -1)
