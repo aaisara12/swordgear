@@ -52,7 +52,7 @@ afterwards.
 | 06 | The shot is a rock that bursts on impact | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 08 | Dark selectable, tap arc swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 09 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
+| 09 | Dark charge blinks + circle swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 10 | Dark execution raises a minion | ☐ | ☐ | ☐ |
 | 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
 | 12 | Light — charge, design under review | ☐ | ☐ | ☐ |
@@ -333,12 +333,15 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
 | **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
 
-### Commit 09 — Charge blinks and cuts a circle
+### Commit 09 — Charge blinks and cuts a circle ✅
 
 | | |
 |---|---|
+| **Adds** | `IMeleeChargeProvider` on `DarkWeapon` (charge indicators for free); `darkcleave.prefab`, a pre-tinted copy of `basiccleave` |
 | **Changes** | `DarkWeapon` — charge release calls `PlayerController.BlinkTo` then a radial hit via `MeleeAugmentUtility.DamageEnemiesInRadius` |
-| **Mechanism** | Both primitives already exist — `BlinkTo` from Lightning's Thunderstep, radial damage from cleave |
+| **Mechanism** | Both primitives already exist — `BlinkTo` from Lightning's Thunderstep, radial damage from cleave. `BlinkTo` brings i-frames and the dash cooldown with it, which is what makes landing inside a pack survivable |
+| **Careful** | `BlinkTo` sets position outright with **no collision check**, so the destination is raycast against the Arena layer first and lands short of a wall. LowWall is excluded — shots already pass through it, so the blink should too |
+| **Contrast with Earth** | Dark deliberately does **not** implement `IAimLockProvider`. Its charge is a repositioning tool, so rooting would fight the thing the charge is for |
 | **Playtest** | Hold → release → you **teleport a short distance and everything around the landing point takes a hit**. Blinking into a pack should feel like the reward |
 | **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
 | **Not in commit** | Minions |

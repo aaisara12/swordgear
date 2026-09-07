@@ -188,6 +188,15 @@ MonoBehaviour:
   dashFactor: 0.2
   meleeCooldown: 0.45
   meleeDamageMultiplier: 1.25
+  maxChargeTime: 0.6
+  blinkDistance: 4.5
+  circleRadius: 3
+  circleDamageMultiplier: 1.6
+  circleEffectObject: {fileID: 7437199953995764964, guid: 06e5744280a7bdc41abfbbe20a92acad, type: 3}
+  blinkBlockers:
+    serializedVersion: 2
+    m_Bits: 128
+  blinkWallMargin: 0.5
   autoAimRadius: 6
 --- !u!1 &2095857230064898771
 GameObject:
