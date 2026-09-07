@@ -31,6 +31,10 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [Tooltip("Seconds the ballista takes to build before the shot starts charging. Releasing during " +
              "this window fires nothing — the turret never finished.")]
     [SerializeField] private float constructionTime = 0.5f;
+    [Tooltip("Shown while the ballista is being built, so the dead half-second reads as deliberate.")]
+    [SerializeField] private string buildingLabel = "BUILDING TURRET";
+    [Tooltip("Shown once the ballista is up and the shot is charging.")]
+    [SerializeField] private string chargingLabel = "CHARGING TURRET";
 
     [Header("Charge — phase 2: the shot")]
     [Tooltip("Seconds of SHOT charge (after construction) at which the charge INDICATOR reads full. " +
@@ -86,6 +90,13 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     // Overrides the shared default — Earth is the first element that outranges a sword swing.
     public float AutoAimRadius => autoAimRadius;
+
+    // The two phases are indistinguishable on screen, and releasing in the wrong one fires nothing. Until
+    // the ballista actor exists to show the difference, say it in words.
+    public string ChargePhaseLabel =>
+        !isCharging ? string.Empty
+        : IsConstructing ? buildingLabel
+        : chargingLabel;
 
     // ---- IAimLockProvider ----
 

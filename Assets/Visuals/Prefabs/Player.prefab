@@ -5237,6 +5237,7 @@ GameObject:
   - component: {fileID: 755102423431142018}
   - component: {fileID: 3441591634998238798}
   - component: {fileID: 2145917995920697483}
+  - component: {fileID: 2139784199117783179}
   m_Layer: 6
   m_Name: Player
   m_TagString: Player
@@ -5406,13 +5407,11 @@ MonoBehaviour:
   weaponIndicator: {fileID: 9158325853920699210}
   aimIndicator: {fileID: 2145917995920697483}
   playerRenderer: {fileID: 8489099556410545801}
-  projectileSpeed: 16
   swordCatchRadius: 2
   iFrameDuration: 1
   iFrameBlinkInterval: 0.1
   playerDamageFX: {fileID: 1423386123474127677, guid: 98dd6a95739ccc2468c149032947b604, type: 3}
   catchExplosionFX: {fileID: 5307315877580334196, guid: b5e505e63635c4d13bbf941e618ba1be, type: 3}
-  swordThrowCooldown: 0.5
   dashSpeed: 60
   dashDuration: 0.1
   dashCooldown: 1
@@ -5512,6 +5511,24 @@ MonoBehaviour:
   referenceLength: 5
   indicatorWidth: 2
   dashIndicatorWidth: 8
+  rangedAimLength: 6
+--- !u!114 &2139784199117783179
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2389641053003122235}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f06843e579018bd458964317e3a5e314, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::ChargePhaseLabel
+  font: {fileID: 11400000, guid: b171cc8b6eeb349818653fdc21b0e495, type: 2}
+  fontSize: 5
+  verticalOffset: 1.8
+  sortingLayer: Default
+  sortingOrder: 25
 --- !u!1 &2405011503219170139
 GameObject:
   m_ObjectHideFlags: 0

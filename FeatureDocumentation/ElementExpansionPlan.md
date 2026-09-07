@@ -47,6 +47,7 @@ afterwards.
 | 02 | Interface tidy — tap/charge naming + defaults | ✅ landed | ✅ 2026-08-23 | n/a (refactor) |
 | 03 | Earth selectable, fires a bolt | ✅ landed | ✅ 2026-08-23 | ⏳ superseded by 04 |
 | 04 | Earth grounds you, builds, aims, charges | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
+| 05a | Charge phases are named on screen | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
 | 06 | The shot becomes a beam and pierces | ☐ | ☐ | ☐ |
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
@@ -241,6 +242,19 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 > `playerState == MeleeReady && !IsOnAttackCooldown`. Releasing a charge while on cooldown left the
 > weapon still reporting its charge — with a root attached, that stranded the player permanently. It now
 > cancels the charge on that branch.
+
+### Commit 05a — Charge phases are named on screen ✅
+
+| | |
+|---|---|
+| **Adds** | `IElementalWeapon.ChargePhaseLabel` (empty by default); Earth returns `BUILDING TURRET` then `CHARGING TURRET`; `ChargePhaseLabel` on the player renders it above their head |
+| **Mechanism** | The label is built in code, so it needs no prefab or art. Mirrors `MeleeChargeWorldIndicator`: poll the active weapon in LateUpdate, create the visual on first use, hide when there's nothing to say. Positioned in world space each frame because the player rotates to face attacks |
+| **Why it exists** | Commit 04 made releasing during construction fire nothing, but the two phases look identical, so that rule was invisible and read as a bug. This is the cheapest honest fix — **placeholder art would have been worse than words** |
+| **Playtest** | Hold Earth → **BUILDING TURRET** for half a second, then **CHARGING TURRET**. Release during the first and nothing fires; release during the second and it does |
+| **Regression check** | Every other element shows nothing — verified all five return an empty label |
+| **Superseded by** | Commit 05. Once the ballista actor shows the phases visually, this label is redundant and should be reconsidered |
+
+---
 
 ### Commit 05 — The ballista appears at your feet
 

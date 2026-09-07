@@ -65,6 +65,16 @@ public interface IElementalWeapon
     /// </remarks>
     public float AutoAimRadius => ActiveEnemyRegistry.AutoTargetRadius;
 
+    /// <summary>
+    /// Short label for what the weapon is doing right now, or empty when there is nothing to say.
+    /// </summary>
+    /// <remarks>
+    /// For multi-stage charges whose stages look identical without it. Earth's charge builds a ballista
+    /// before it starts charging a shot, and releasing during the build fires nothing — invisible, and
+    /// therefore unfair, unless the player is told which stage they're in.
+    /// </remarks>
+    public string ChargePhaseLabel => string.Empty;
+
     /// <summary>Called when this element's imbue starts / ends. Override to reset cross-swing state.</summary>
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades) { }
 
@@ -216,6 +226,12 @@ public class ElementManager : InitializeableGameComponent
     /// active. See <see cref="IElementalWeapon.AutoAimRadius"/>.
     /// </summary>
     public float AutoAimRadius => activeWeapon?.AutoAimRadius ?? ActiveEnemyRegistry.AutoTargetRadius;
+
+    /// <summary>
+    /// What the active weapon is doing right now, or empty when there is nothing to show.
+    /// See <see cref="IElementalWeapon.ChargePhaseLabel"/>.
+    /// </summary>
+    public string ChargePhaseLabel => activeWeapon?.ChargePhaseLabel ?? string.Empty;
 
     private static PlayerController? ResolvePlayer()
     {
