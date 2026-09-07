@@ -42,24 +42,32 @@ public class JoystickControlRegion : OnScreenControl, IPointerDownHandler, IPoin
         SendValueToControl(new Vector2(horizontalComponent, verticalComponent) / canvasRegisteringInput.scaleFactor / joystickVisual.KnobRange);
     }
     
+    /// <summary>
+    /// True while a pointer is actually driving this stick, so editor input simulation can stand aside
+    /// rather than fight the drag for the knob.
+    /// </summary>
+    public bool IsBeingDragged { get; private set; }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         joystickVisual.ThrowIfNull(nameof(joystickVisual));
         canvasRegisteringInput.ThrowIfNull(nameof(canvasRegisteringInput));
-        
+
+        IsBeingDragged = true;
         joystickVisual.ResetPositions();
         joystickVisual.Move(eventData.position / canvasRegisteringInput.scaleFactor);
     }
-    
+
     public void OnPointerUp(PointerEventData eventData)
     {
         joystickVisual.ThrowIfNull(nameof(joystickVisual));
         canvasRegisteringInput.ThrowIfNull(nameof(canvasRegisteringInput));
         joystickHome.ThrowIfNull(nameof(joystickHome));
-        
+
+        IsBeingDragged = false;
         joystickVisual.ResetPositions();
         joystickVisual.Move(new Vector2(joystickHome.position.x, joystickHome.position.y) / canvasRegisteringInput.scaleFactor);
-        
+
         SendValueToControl(new Vector2(0, 0));
     }
 

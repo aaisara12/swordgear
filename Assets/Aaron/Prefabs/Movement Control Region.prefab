@@ -238,6 +238,7 @@ GameObject:
   - component: {fileID: 6014906288084267430}
   - component: {fileID: 6170085223921185521}
   - component: {fileID: 1134325654097065212}
+  - component: {fileID: 5349323187432568536}
   m_Layer: 5
   m_Name: Movement Control Region
   m_TagString: Untagged
@@ -338,6 +339,21 @@ MonoBehaviour:
   joystickHome: {fileID: 2811952938158864068}
   joystickVisualProvider: {fileID: 6170085223921185521}
   joystickDragAction: {fileID: 11400000, guid: 4e6e1fcba55444d01bf1d7c4f42cefb0, type: 2}
+--- !u!114 &5349323187432568536
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4581036071413450881}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fae334771c993df479c01f7f38f8d311, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::SimulatedJoystickVisualDriver
+  source: 0
+  controlRegion: {fileID: 1134325654097065212}
+  visualProvider: {fileID: 6170085223921185521}
 --- !u!1 &8736583292291273499
 GameObject:
   m_ObjectHideFlags: 0
