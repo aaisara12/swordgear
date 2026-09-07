@@ -49,7 +49,7 @@ afterwards.
 | 04 | Earth grounds you, builds, aims, charges | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05a | Charge phases are named on screen | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
-| 06 | The shot becomes a beam and pierces | ☐ | ☐ | ☐ |
+| 06 | The shot is a rock that bursts on impact | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 08 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
 | 09 | Light charge summons the angel | ☐ | ☐ | ☐ |
@@ -267,17 +267,20 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 | **Regression check** | Cancelling a charge (or dying mid-charge) despawns the ballista — it must not be possible to strand one in the arena |
 | **Not in commit** | Pierce, any autonomous firing |
 
-### Commit 06 — The shot becomes a beam and pierces
+### Commit 06 — The shot is a rock that bursts on impact ✅
 
 | | |
 |---|---|
-| **Adds** | A player-side **laser beam** fired from the ballista instead of a travelling bolt, mirroring `EnemyBeamLaser` rather than inventing a second beam; pierce falls out of the beam naturally — it hits everything on the line |
-| **Changes** | `EarthWeapon` — beam length and width scale with charge; the bolt prefab path retires |
-| **Playtest** | Line up 3 enemies → long charge → **one beam cuts the whole line**. A short charge is a thin, weak beam |
-| **Regression check** | Fire's fireballs and Wind's darts are untouched — the beam is Earth's own path, not a change to `PlayerProjectile` |
+| **Adds** | Opt-in `explosionRadius` + `EnableExplosion` on `PlayerProjectile`; `EarthRock.prefab` (renamed from `EarthBolt`, so the GUID and every reference survive) using `explosion_normal` for its impact |
+| **Changes** | `EarthWeapon` — bolt fields become rock fields via `FormerlySerializedAs`; speed 11 → **26**; size and blast radius scale with charge and are **capped**, while damage stays uncapped |
+| **Mechanism** | An exploding shot deals *all* its damage through the blast — the direct hit is skipped so it can't double-dip on whatever it struck. `PlayerProjectile` already had a `Detonate()` hook, so this is opt-in and 0 for everything else |
+| **Playtest** | Long charge → a **fast, heavy rock** that bursts and clears a cluster. A short charge is a small rock with a small blast |
+| **Regression check** | Fire's fireballs and Wind's darts have `explosionRadius` 0 and behave exactly as before — they still consume on hit and damage only what they strike |
+| **Known gap** | **No rock sprite exists**, so it's still the placeholder circle, just bigger and round instead of a stretched capsule |
 
-> **Re-sliced 2026-09-06.** Charge *tiers* are gone — 04's uncapped ramp replaced them. What's left here
-> is the shot's form changing from a projectile to a beam, which is also what makes pierce free.
+> **Re-sliced twice, 2026-09-06.** Charge *tiers* went first — 04's uncapped ramp replaced them. Then the
+> beam went: it was tried and cut in favour of a rock that bursts on impact, which gets the "clears a
+> group" payoff from area rather than from a line, and needs no new beam actor.
 
 ### Acceptance criteria (M1 done)
 
@@ -410,7 +413,7 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **03** | Flick to Earth → fires an amber bolt |
 | **04** | Hold Earth → rooted, ballista builds 0.5s, left stick aims, damage ramps uncapped. No tap attack |
 | **05** | Hold Earth → a ballista builds itself at your feet and swings with your aim |
-| **06** | Long Earth charge → a beam cuts a line of 3 |
+| **06** | Long Earth charge → a fast rock bursts and takes out a cluster |
 | **07** | Switch elements at a fixed distance → auto-aim reaches further on long-range elements |
 | **08** | Flick to Light → tap → enemies visibly marked |
 | **09** | Mark 3 → charge → angel beams them all |

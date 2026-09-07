@@ -1,5 +1,6 @@
 #nullable enable
 
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -14,6 +15,14 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
     [SerializeField] private GameObject? hitEffect;
     [Tooltip("Rotate the sprite so its local up faces the direction of travel.")]
     [SerializeField] private bool faceTravelDirection = true;
+
+    [Header("Impact Explosion")]
+    [Tooltip("Blast radius on impact. 0 means the projectile only damages what it directly hits, which " +
+             "is how Fire's fireballs and Wind's darts behave.")]
+    [SerializeField] private float explosionRadius = 0f;
+    [Tooltip("The blast radius the hit effect looks right at unscaled. The effect is scaled by the actual " +
+             "radius over this, so the explosion you see is the area that actually got damaged.")]
+    [SerializeField] private float hitEffectBaseRadius = 1.5f;
 
     [Header("Homing")]
     [SerializeField] private float seekRadius = 9f;
@@ -40,7 +49,14 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
     private float weavePhase;
 
     private Rigidbody2D? body;
+    private float activeExplosionRadius;
+    private readonly HashSet<EnemyController> blastHits = new HashSet<EnemyController>();
     private static int _arenaLayer = -1;
+
+    private bool Explodes => activeExplosionRadius > 0f;
+
+    // Backstop for a hit effect that neither self-destroys nor animates itself, so one can't leak per impact.
+    private const float UnmanagedHitEffectLifetime = 2f;
 
     public void OnSpawned()
     {
@@ -48,6 +64,8 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
         homing = false;
         nextRetargetTime = 0f;
         weaveTime = 0f;
+        activeExplosionRadius = explosionRadius;
+        blastHits.Clear();
     }
 
     public void OnReleased()
@@ -88,6 +106,19 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
         ApplyFacing();
 
         GetComponent<PooledInstance>()?.ReleaseAfter(lifetime);
+    }
+
+    /// <summary>
+    /// Makes this shot burst on impact, damaging everything within <paramref name="radius"/> instead of
+    /// only what it struck. Call after <see cref="Launch"/>, mirroring <see cref="EnableHoming"/>.
+    /// </summary>
+    /// <remarks>
+    /// Lets the caller scale the blast per shot — Earth's rock grows its radius with charge — without
+    /// needing a prefab per size.
+    /// </remarks>
+    public void EnableExplosion(float radius)
+    {
+        activeExplosionRadius = Mathf.Max(0f, radius);
     }
 
     public void EnableHoming(float turnRate)
@@ -190,9 +221,14 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
                     return;
                 }
 
-                enemy.TakeDamage(
-                    GameManager.Instance.CalculateDamage(enemy.element, element, damage),
-                    new MoveType(element, AttackKind.Ranged));
+                // An exploding shot deals all its damage through the blast, which covers this enemy too —
+                // applying both would double-dip on whatever it happened to strike.
+                if (!Explodes)
+                {
+                    enemy.TakeDamage(
+                        GameManager.Instance.CalculateDamage(enemy.element, element, damage),
+                        new MoveType(element, AttackKind.Ranged));
+                }
             }
 
             Detonate();
@@ -207,12 +243,80 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
 
     private void Detonate()
     {
-        if (hitEffect != null && PrefabPool.Instance != null)
+        if (Explodes)
         {
-            GameObject fx = PrefabPool.Instance.Spawn(hitEffect, transform.position, Quaternion.identity);
-            fx.GetComponent<IAttackAnimator>()?.PlayAnimation();
+            ApplyBlastDamage();
         }
 
+        SpawnHitEffect();
+
         PrefabPool.Instance?.Release(gameObject);
+    }
+
+    /// <summary>Plays the impact effect, sized to the blast it represents.</summary>
+    /// <remarks>
+    /// Instantiated rather than pooled because <see cref="CatchExplosionFX"/> destroys itself when it
+    /// finishes, and pooling something that self-destroys hands a destroyed instance back out later. This
+    /// mirrors how PlayerController spawns the same effect for the sword catch.
+    /// </remarks>
+    private void SpawnHitEffect()
+    {
+        if (hitEffect == null)
+        {
+            return;
+        }
+
+        GameObject fx = Instantiate(hitEffect, transform.position, Quaternion.identity);
+
+        // Match the effect to the area that actually took damage. Without this a small blast and a fully
+        // charged one look identical, so the explosion misreports how big the hit was.
+        fx.transform.localScale = Explodes && hitEffectBaseRadius > 0.001f
+            ? Vector3.one * (activeExplosionRadius / hitEffectBaseRadius)
+            : Vector3.one;
+
+        if (fx.TryGetComponent(out CatchExplosionFX explosion))
+        {
+            explosion.Play(ElementVisuals.GetGlowColor(element));
+            return;
+        }
+
+        fx.GetComponent<IAttackAnimator>()?.PlayAnimation();
+        Destroy(fx, UnmanagedHitEffectLifetime);
+    }
+
+    /// <summary>Damages every enemy inside the blast, once each.</summary>
+    private void ApplyBlastDamage()
+    {
+        if (GameManager.Instance == null)
+        {
+            return;
+        }
+
+        blastHits.Clear();
+
+        foreach (Collider2D hit in Physics2D.OverlapCircleAll(transform.position, activeExplosionRadius))
+        {
+            if (hit == null || !hit.CompareTag("Enemy"))
+            {
+                continue;
+            }
+
+            EnemyController? enemy = hit.GetComponent<EnemyController>();
+
+            // One entry per enemy: a multi-collider enemy must not be hit once per collider.
+            if (enemy == null || !blastHits.Add(enemy))
+            {
+                continue;
+            }
+
+            if (GameManager.Instance.IsAttunementBlocked(element, enemy.element))
+            {
+                continue;
+            }
+
+            enemy.TakeDamage(
+                GameManager.Instance.CalculateDamage(enemy.element, element, damage),
+                new MoveType(element, AttackKind.Ranged));
+        }
     }
 }

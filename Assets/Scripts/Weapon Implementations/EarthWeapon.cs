@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// Earth is the ballista turret: immovable firepower traded against mobility. It has <b>no tap attack</b>
@@ -17,8 +18,11 @@ using UnityEngine;
 /// construction phase is what makes the commitment real — you pay half a second before you have a weapon.
 /// </para>
 /// <para>
-/// Deliberately absent, and each landing in its own commit: the ballista actor itself (the construction
-/// phase currently has no visual), the shot becoming a laser beam, then pierce.
+/// The shot itself is a fast, heavy rock that bursts on impact: all of its damage is the blast, so it
+/// rewards a committed shot into a group rather than precision against one target.
+/// <para>
+/// Deliberately absent: the ballista actor itself, so the construction phase currently has no visual.
+/// </para>
 /// </para>
 /// <para>
 /// Note what this class does <em>not</em> implement: <c>OnMeleeHit</c> is left to the interface default
@@ -44,16 +48,37 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
              "hold always hits harder, so the only limit is how long you dare stand still.")]
     [SerializeField] private float chargeDamagePerSecond = 1f;
 
-    [Header("Bolt")]
-    [SerializeField] private GameObject boltPrefab;
-    [SerializeField] private float boltSpeed = 11f;
-    [SerializeField] private float boltDamageMultiplier = 1.3f;
-    [Tooltip("How far in front of the player the bolt spawns, so it clears their own collider.")]
-    [SerializeField] private float boltSpawnOffset = 0.5f;
+    [Header("Rock")]
+    [FormerlySerializedAs("boltPrefab")]
+    [SerializeField] private GameObject rockPrefab;
+    [Tooltip("Fast on purpose — a boulder loosed from a ballista, not a lobbed stone. The shot should " +
+             "land about when you release it, so the aim you committed to is the aim that connects.")]
+    [FormerlySerializedAs("boltSpeed")]
+    [SerializeField] private float rockSpeed = 26f;
+    [FormerlySerializedAs("boltDamageMultiplier")]
+    [SerializeField] private float rockDamageMultiplier = 1.3f;
+    [Tooltip("How far in front of the player the rock spawns, so it clears their own collider.")]
+    [FormerlySerializedAs("boltSpawnOffset")]
+    [SerializeField] private float rockSpawnOffset = 0.7f;
+    [Tooltip("Diameter of the rock at zero charge. Set here rather than on the prefab because it grows " +
+             "with the charge, so the prefab's own scale would only ever be overwritten.")]
+    [SerializeField] private float rockScale = 0.55f;
+    [Tooltip("Extra diameter per second of charge.")]
+    [SerializeField] private float rockScalePerSecond = 0.35f;
+    [SerializeField] private float maxRockScale = 1.6f;
+
+    [Header("Impact Blast")]
+    [Tooltip("Blast radius at zero charge. All the rock's damage comes from this, not from the direct hit.")]
+    [SerializeField] private float blastRadius = 1.5f;
+    [Tooltip("Extra blast radius per second of charge.")]
+    [SerializeField] private float blastRadiusPerSecond = 0.7f;
+    [Tooltip("Ceiling on the blast. Damage keeps climbing past this — only the area stops growing, so a " +
+             "very long hold is a harder hit rather than an ever-wider one.")]
+    [SerializeField] private float maxBlastRadius = 4f;
 
     [Header("Combat")]
     [SerializeField] private float meleeCooldown = 0.5f;
-    [Tooltip("How far the aim snaps onto an enemy. Far past the melee elements, because the bolt " +
+    [Tooltip("How far the aim snaps onto an enemy. Far past the melee elements, because the rock " +
              "outranges them and a pointer that stops short would aim Earth at nothing. Manual aim " +
              "with the movement stick overrides this while rooted.")]
     [SerializeField] private float autoAimRadius = 15f;
@@ -153,7 +178,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     }
 
     /// <summary>
-    /// Fires the charged bolt along the aim and returns the cooldown. Does nothing if there was no charge.
+    /// Fires the charged rock along the aim and returns the cooldown. Does nothing if there was no charge.
     /// </summary>
     /// <remarks>
     /// PlayerController.ReleaseChargeAttack dispatches a charge release to OnTap, so this one entry point
@@ -164,8 +189,9 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     /// elements do — a turret that walks itself into range would undercut the whole fantasy.
     /// </para>
     /// <para>
-    /// Damage ramps with hold time and is <b>not capped</b>: the only limit on a bolt is how long the
-    /// player dares stand rooted for it.
+    /// Damage ramps with hold time and is <b>not capped</b>: the only limit on a shot is how long the
+    /// player dares stand rooted for it. Size and blast radius ramp too, but those <em>are</em> capped, so
+    /// a very long hold reads as a harder hit rather than an ever-widening one.
     /// </para>
     /// </remarks>
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
@@ -185,30 +211,38 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             return 0f;
         }
 
-        float damageMultiplier = boltDamageMultiplier + ChargeDuration * chargeDamagePerSecond;
+        float charge = ChargeDuration;
+        float damageMultiplier = rockDamageMultiplier + charge * chargeDamagePerSecond;
+        float scale = Mathf.Min(rockScale + charge * rockScalePerSecond, maxRockScale);
+        float blast = Mathf.Min(blastRadius + charge * blastRadiusPerSecond, maxBlastRadius);
 
         // Drop the root BEFORE firing, so nothing below can leave the player stuck.
         ResetCharge();
 
         // player.up is the facing PlayerController just synced from the weapon indicator — the same
         // source every other element aims by, so the shot goes where the pointer and the aim line say.
-        LaunchBolt(player, player.up, damageMultiplier);
+        LaunchRock(player, player.up, damageMultiplier, scale, blast);
         return meleeCooldown;
     }
 
-    private void LaunchBolt(Transform player, Vector2 direction, float damageMultiplier)
+    private void LaunchRock(Transform player, Vector2 direction, float damageMultiplier, float scale, float blast)
     {
-        if (boltPrefab == null)
+        if (rockPrefab == null)
         {
             return;
         }
 
         direction = direction.sqrMagnitude > 0.001f ? direction.normalized : Vector2.up;
-        Vector3 spawnPos = player.position + (Vector3)(direction * boltSpawnOffset);
 
-        GameObject obj = PrefabPool.Instance!.Spawn(boltPrefab, spawnPos, Quaternion.identity);
-        PlayerProjectile bolt = obj.GetComponent<PlayerProjectile>();
-        if (bolt == null)
+        // Clear the player's own collider by the rock's own radius, so a bigger rock doesn't spawn inside them.
+        Vector3 spawnPos = player.position + (Vector3)(direction * (rockSpawnOffset + scale * 0.5f));
+
+        GameObject obj = PrefabPool.Instance!.Spawn(rockPrefab, spawnPos, Quaternion.identity);
+
+        // Uniform, and set per shot rather than on the prefab: a rock is round, and its size is charge.
+        obj.transform.localScale = new Vector3(scale, scale, 1f);
+        PlayerProjectile rock = obj.GetComponent<PlayerProjectile>();
+        if (rock == null)
         {
             PrefabPool.Instance!.Release(obj);
             return;
@@ -216,9 +250,13 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
         float damage = GameManager.Instance.GetEffectiveBaseDamage() * damageMultiplier;
 
-        // No EnableHoming: the bolt flies dead straight. Homing would make aiming pointless, and aiming is
+        // No EnableHoming: the rock flies dead straight. Homing would make aiming pointless, and aiming is
         // the mechanic the rest of Earth is built on.
-        bolt.Launch(Element.Earth, damage, direction, boltSpeed);
+        rock.Launch(Element.Earth, damage, direction, rockSpeed);
+
+        // All of the rock's damage lands as the blast, so a near miss still hits — the reward for a long
+        // hold is a wider, harder impact rather than a thinner shot that has to be aimed perfectly.
+        rock.EnableExplosion(blast);
         AudioSystem.Play(AudioSystem.Sound.Slash_Basic);
     }
 

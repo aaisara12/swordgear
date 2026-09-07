@@ -202,6 +202,7 @@ MonoBehaviour:
   fireballSpawnOffset: 0.6
   fireballDamageMultiplier: 0.55
   fireballHomingTurnRate: 240
+  autoAimRadius: 10
   cleaveEffectObject: {fileID: 1768101877311086085, guid: 4c4245b12e70af749b34b50ca8dc1c85, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -330,6 +331,7 @@ MonoBehaviour:
   attackRadius: 3
   dashFactor: 0.2
   meleeCooldown: 0.25
+  autoAimRadius: 5
   cleaveEffectObject: {fileID: 1023693171408723973, guid: 34c30bec73fba9449a6840979f517938, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -404,11 +406,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1fa90199a500fe842965bff68bff900a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::EarthWeapon
-  boltPrefab: {fileID: 4850645359652780074, guid: 7a7f560f11b9e2145809703ecf8f07f4, type: 3}
-  boltSpeed: 11
-  boltDamageMultiplier: 1.3
-  boltSpawnOffset: 0.5
+  constructionTime: 0.5
+  buildingLabel: BUILDING TURRET
+  chargingLabel: CHARGING TURRET
+  maxChargeTime: 0.8
+  chargeDamagePerSecond: 1
+  rockPrefab: {fileID: 4850645359652780074, guid: 7a7f560f11b9e2145809703ecf8f07f4, type: 3}
+  rockSpeed: 26
+  rockDamageMultiplier: 1.3
+  rockSpawnOffset: 0.7
+  rockScale: 0.55
+  rockScalePerSecond: 0.35
+  maxRockScale: 1.6
+  blastRadius: 1.5
+  blastRadiusPerSecond: 0.7
+  maxBlastRadius: 4
   meleeCooldown: 0.5
+  autoAimRadius: 15
   cleaveEffectObject: {fileID: 0}
   cleaveRadius: 2.5
   cleaveDuration: 0.4
@@ -480,6 +494,7 @@ MonoBehaviour:
     m_Bits: 512
   empoweredDuration: 5
   empoweredAttackSpeedMultiplier: 2
+  autoAimRadius: 5
   cleaveEffectObject: {fileID: 7629752438906148674, guid: 2fb956f3d9d854547882cdf227068efd, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -611,6 +626,7 @@ MonoBehaviour:
   attackRadius: 3
   dashFactor: 0.2
   meleeCooldown: 0.25
+  autoAimRadius: 5
   cleaveEffectObject: {fileID: 7437199953995764964, guid: 26e73632f695dd648a525f4867928509, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -723,6 +739,7 @@ MonoBehaviour:
   dashFactor: 0.1
   meleeCooldown: 0.75
   chillDuration: 5
+  autoAimRadius: 7
   cleaveEffectObject: {fileID: 6798840966112144939, guid: bc77e84f4ff291147b7aa7dc91398ffa, type: 3}
   cleaveRadius: 5
   cleaveDuration: 0.6
@@ -860,7 +877,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Main::UltimateChargeTracker
   _activeUltimate: {fileID: 11400000, guid: 43162a27e8652d443b623e9d7573a2f2, type: 2}
-  _ultAvailableTimerBonus: 2
 --- !u!1 &5928453369654428072
 GameObject:
   m_ObjectHideFlags: 0
