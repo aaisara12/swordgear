@@ -10,6 +10,10 @@ public class PlayerGameplayInputManager : MonoBehaviour
 {
     private const int AbandonAimFrameThreshold = 3;
 
+    // How far the aim magnitude may fall below its peak before the gesture counts as retracting. Loose
+    // enough to ignore stick noise, tight enough to catch a real release.
+    private const float AimRetractionTolerance = 0.15f;
+
     private PlayerGameplayPawn? pawn;
     private PlayerControls.GameplayActions gameplayActions;
     private Vector2 lastReadAimDirection;
@@ -221,13 +225,34 @@ public class PlayerGameplayInputManager : MonoBehaviour
 
     private IEnumerator UpdateAimDirectionCoroutine()
     {
+        int peakActuatedControls = 0;
+        float peakMagnitude = 0f;
+
         while (throwAimSessionActive)
         {
             var throwSwordAction = gameplayActions.AimedAttack;
             Vector2 stickDirection = throwSwordAction.ReadValue<Vector2>();
             if (stickDirection.sqrMagnitude > 0.001f)
             {
-                lastReadAimDirection = stickDirection;
+                int actuatedControls = CountActuatedAimedAttackControls();
+                float magnitude = stickDirection.magnitude;
+
+                // The aim is consumed on RELEASE, so only track it while the gesture is still growing.
+                // Letting go of a two-key diagonal frees one key a frame before the other, and that last
+                // single-key sample would otherwise overwrite the diagonal with a cardinal — which is why
+                // the keyboard could never flick at 45°. A digital composite normalises to magnitude 1
+                // either way, so the key COUNT is what catches that; the magnitude check is what catches a
+                // physical stick easing back to centre.
+                bool retracting = actuatedControls < peakActuatedControls
+                                  || magnitude < peakMagnitude - AimRetractionTolerance;
+
+                if (!retracting)
+                {
+                    lastReadAimDirection = stickDirection;
+                    peakActuatedControls = Mathf.Max(peakActuatedControls, actuatedControls);
+                    peakMagnitude = Mathf.Max(peakMagnitude, magnitude);
+                }
+
                 centeredStickFrames = 0;
             }
             else
@@ -251,17 +276,25 @@ public class PlayerGameplayInputManager : MonoBehaviour
         aimedAttackDirectionCoroutine = null;
     }
 
-    private bool IsAimedAttackControlActuated()
+    private bool IsAimedAttackControlActuated() => CountActuatedAimedAttackControls() > 0;
+
+    /// <summary>
+    /// How many of the aim action's controls are currently held. For a keyboard composite that's one per
+    /// key, which is how a two-key diagonal is told apart from the one-key cardinal it decays into.
+    /// </summary>
+    private int CountActuatedAimedAttackControls()
     {
+        int count = 0;
+
         foreach (InputControl control in gameplayActions.AimedAttack.controls)
         {
             if (control.IsActuated())
             {
-                return true;
+                count++;
             }
         }
 
-        return false;
+        return count;
     }
 
     private IEnumerator UpdateAttackDirectionCoroutine()
