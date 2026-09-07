@@ -197,6 +197,10 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 128
   blinkWallMargin: 0.5
+  minionPrefab: {fileID: 8084453072019747188, guid: e9dc55e24a89d6845b018b6838a6d041, type: 3}
+  minionLifetime: 12
+  minionDamageMultiplier: 0.6
+  maxLiveMinions: 4
   autoAimRadius: 6
 --- !u!1 &2095857230064898771
 GameObject:

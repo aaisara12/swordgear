@@ -13,8 +13,8 @@ using UnityEngine;
 /// their own fields, and the hitbox they both spawn routes damage through
 /// <see cref="ElementManager"/> to whichever element is active.
 /// <para>
-/// Deliberately absent, landing in its own commit: execution raising the corpse as a minion — which is
-/// where Dark stops being a recoloured sword.
+/// A Dark melee kill raises a shade that fights for you — see <see cref="DarkMinion"/> for why that is a
+/// new actor rather than the enemy switching sides.
 /// </para>
 /// <para>
 /// ⚠️ <c>OnMeleeHit</c> is overridden rather than defaulted. The interface default is a no-op, so a
@@ -54,6 +54,15 @@ public class DarkWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [Tooltip("How far short of a blocking wall the blink lands.")]
     [SerializeField] private float blinkWallMargin = 0.5f;
 
+    [Header("Execution")]
+    [Tooltip("Raised when a Dark melee blow kills. Leave empty to disable executions entirely.")]
+    [SerializeField] private GameObject minionPrefab;
+    [Tooltip("Shade damage per hit, as a multiple of base.")]
+    [SerializeField] private float minionDamageMultiplier = 0.6f;
+    [Tooltip("Ceiling on live shades. Without one, a good Dark run buries the arena and the player stops " +
+             "having to fight at all.")]
+    [SerializeField] private int maxLiveMinions = 4;
+
     [Header("Aim")]
     [Tooltip("A shade past Physical's 5: the scythe's arc reaches further than a sword swing, but Dark " +
              "is still a melee element that has to close the distance.")]
@@ -63,6 +72,40 @@ public class DarkWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     private bool isCharging;
     private float chargeDuration;
+    private readonly List<DarkMinion> liveMinions = new List<DarkMinion>();
+
+    // The enemy currently being struck, so the death handler knows the kill was ours.
+    private EnemyController executionTarget;
+    private Vector3 executionPosition;
+    private Vector3 executionScale;
+    private Sprite executionSprite;
+
+    private void OnEnable()
+    {
+        EnemyController.OnAnyEnemyDeath += HandleEnemyDeath;
+    }
+
+    private void OnDisable()
+    {
+        EnemyController.OnAnyEnemyDeath -= HandleEnemyDeath;
+    }
+
+    /// <summary>Raises a shade when the enemy that just died is the one this weapon was hitting.</summary>
+    /// <remarks>
+    /// This has to run off the death EVENT rather than a null check after the hit. <c>Destroy</c> is
+    /// deferred to the end of the frame, so the enemy reference is still alive immediately afterwards and
+    /// the obvious "did it die?" test silently never fires. <c>OnAnyEnemyDeath</c> is raised synchronously
+    /// inside <c>Die()</c>, so it lands while the strike is still on the stack.
+    /// </remarks>
+    private void HandleEnemyDeath(EnemyController enemy)
+    {
+        if (enemy == null || enemy != executionTarget)
+        {
+            return;
+        }
+
+        RaiseMinion(executionPosition, executionScale, executionSprite);
+    }
 
     // ---- IMeleeChargeProvider: lights up the existing charge indicators ----
 
@@ -244,11 +287,62 @@ public class DarkWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         return origin + direction * safeDistance;
     }
 
+    /// <summary>
+    /// Damages the enemy, and raises a shade in its place if the blow killed it.
+    /// </summary>
+    /// <remarks>
+    /// The kill is detected through <c>EnemyController.OnAnyEnemyDeath</c>, which fires synchronously
+    /// inside <c>Die()</c>. Checking the reference for null after the hit does <b>not</b> work: <c>Destroy</c>
+    /// is deferred to the end of the frame, so the enemy is still non-null on the next line.
+    /// <para>
+    /// The enemy dies a completely normal death, so wave-clear accounting, the combo and ultimate credit
+    /// all stay correct without this having to special-case any of them.
+    /// </para>
+    /// </remarks>
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades)
     {
+        // Captured BEFORE the hit, because the death handler fires from inside TakeDamage and the enemy
+        // is mid-teardown by then.
+        executionTarget = enemy;
+        executionPosition = enemy.transform.position;
+
+        // Take the renderer's WORLD scale, not the sprite alone: enemies draw through a scaled child, so a
+        // shade built from the bare sprite comes out a fraction of the size the enemy appeared.
+        SpriteRenderer corpseRenderer = enemy.GetComponentInChildren<SpriteRenderer>();
+        executionSprite = corpseRenderer != null ? corpseRenderer.sprite : null;
+        executionScale = corpseRenderer != null ? corpseRenderer.transform.lossyScale : Vector3.one;
+
         enemy.TakeDamage(
             GameManager.Instance.CalculateDamage(enemy.element, Element.Dark, GameManager.Instance.GetEffectiveBaseDamage() * meleeDamageMultiplier),
             new MoveType(Element.Dark, AttackKind.MeleeStrike));
+
+        executionTarget = null;
+    }
+
+    /// <summary>Raises a shade where an enemy died, unless the arena already has its fill.</summary>
+    private void RaiseMinion(Vector3 position, Vector3 corpseScale, Sprite corpseSprite)
+    {
+        if (minionPrefab == null)
+        {
+            return;
+        }
+
+        liveMinions.RemoveAll(m => m == null);
+        if (liveMinions.Count >= maxLiveMinions)
+        {
+            return;
+        }
+
+        GameObject obj = Instantiate(minionPrefab, position, Quaternion.identity);
+        DarkMinion minion = obj.GetComponent<DarkMinion>();
+        if (minion == null)
+        {
+            Destroy(obj);
+            return;
+        }
+
+        minion.Raise(corpseSprite, corpseScale, GameManager.Instance.GetEffectiveBaseDamage() * minionDamageMultiplier);
+        liveMinions.Add(minion);
     }
 
     // Ranged hooks are dormant while the sword throw is the ultimate, but implemented rather than

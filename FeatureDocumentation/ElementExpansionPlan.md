@@ -53,7 +53,7 @@ afterwards.
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 08 | Dark selectable, tap arc swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 09 | Dark charge blinks + circle swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 10 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+| 10 | Dark execution raises a minion | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
 | 12 | Light — charge, design under review | ☐ | ☐ | ☐ |
 
@@ -316,8 +316,9 @@ slightly past the end of the drawn line — the line shows direction, not range.
 
 ## M3 — Dark / Scythe  *(brought forward — see note)*
 
-> *Fantasy: summoner. Tap: swing scythe in an arc. Charge: blink and swing in a circle. Execution with
-> dark melee resummons the enemy as a minion.*
+> *Fantasy: summoner, necromancer theme. Weapon: scythe. Tap: swing scythe in an arc. Charge: blink and
+> swing in a circle. Execution with dark melee resummons the enemy as a minion. Minions have constant
+> health drain.*
 
 Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
 parts, 11 is a new system. Dark should be playable long before minions land.
@@ -346,16 +347,18 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
 | **Not in commit** | Minions |
 
-### Commit 10 — Execution raises a minion
+### Commit 10 — Execution raises a minion ✅
 
 | | |
 |---|---|
-| **Adds** | Minion conversion — friendly AI, target acquisition, ownership, lifetime, death handling |
-| **Changes** | `DarkWeapon.OnMeleeHit` — a killing blow converts instead of killing; `EnemyController` — a converted state that retargets to enemies |
-| **Mechanism** | Reuses the enemy's own prefab and movement/attack strategies with a flipped target set, so minions inherit archetype behaviour for free |
-| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side** and attacks other enemies. It expires (or dies) on its own rather than accumulating forever |
+| **Adds** | `DarkMinion` (a "shade": hunts the nearest enemy, damages on contact, drains away); `DarkShade.prefab` |
+| **Changes** | `DarkWeapon.OnMeleeHit` — a killing blow raises a shade wearing the dead enemy's sprite |
+| **Mechanism** | ⚠️ **Not conversion.** The enemy dies a completely normal death and a *separate* actor is raised in its place. `EnemyController` is untouched |
+| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side**, hunts the nearest enemy, and visibly thins as its health drains, collapsing after **5s**. Enemies ignore it entirely |
+| **Health drain** | The shade's only threat is its own constant drain — enemies never target or damage it. Its health is drained from full to nothing over `drainSeconds` (5), and the sprite thins with it so the time left is readable. At most 4 live at once |
 | **Regression check** | Non-Dark kills still just die. Minions must not count as live enemies for **wave-clear**, or the arena will never complete |
-| **Risk** | The largest item in the plan. Wave-clear accounting, combo/ult credit, and player-collision are all places a converted enemy can leak into systems that assume "enemy = hostile" |
+| **Why not conversion** | Every risk this commit was flagged for came from keeping the enemy alive on the player's side. Killing it for real removes them by construction: wave clear counts `LevelLoader.activeEnemies` until objects are destroyed, so a converted enemy would hold the wave open **forever**; the player's auto-aim reads `ActiveEnemyRegistry`, which a shade never joins; and nothing has to reliably neuter enemy AI across **26 prefabs** with differing strategies. Combo and ult credit stay correct because the kill really is a kill |
+| **Careful** | The shade is deliberately **not tagged `Enemy`** — `PlayerHitbox` reacts to that tag, so a tagged shade would be hit by the player's own swings. Its collider is a trigger so it can't shove anyone. Its damage passes `feedsCombo:false`, matching DoT ticks: a shade acting on its own must not keep the player's combo alive |
 | **EditMode (optional)** | Wave-clear ignores converted enemies |
 
 ### Acceptance criteria (M3 done)

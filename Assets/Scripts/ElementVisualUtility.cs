@@ -17,7 +17,9 @@ public static class ElementVisualUtility
             case Element.Earth:
                 return new Color(0.82f, 0.58f, 0.28f, 1f);
             case Element.Dark:
-                return new Color(0.58f, 0.30f, 0.80f, 1f);
+                // Deep and saturated on purpose: the slash and cleave materials are additive, so a mid
+                // purple blends toward white and stops reading as purple at all.
+                return new Color(0.42f, 0.14f, 0.68f, 1f);
             case Element.Light:
                 return new Color(1f, 0.98f, 0.82f, 1f);
             default:
@@ -65,7 +67,7 @@ public static class ElementVisualUtility
             Element.Lightning => new Color(1f, 0.92f, 0.35f, 1f),
             Element.Wind => new Color(0.62f, 0.96f, 0.62f, 1f),
             Element.Earth => new Color(0.95f, 0.68f, 0.35f, 1f),
-            Element.Dark => new Color(0.68f, 0.40f, 0.92f, 1f),
+            Element.Dark => new Color(0.45f, 0.16f, 0.72f, 1f),
             Element.Light => new Color(1f, 0.99f, 0.75f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
@@ -82,7 +84,7 @@ public static class ElementVisualUtility
             Element.Lightning => new Color(1f, 0.98f, 0.4f, 1f),
             Element.Wind => new Color(0.55f, 0.95f, 0.6f, 1f),
             Element.Earth => new Color(0.85f, 0.55f, 0.22f, 1f),
-            Element.Dark => new Color(0.55f, 0.25f, 0.85f, 1f),
+            Element.Dark => new Color(0.38f, 0.12f, 0.65f, 1f),
             Element.Light => new Color(1f, 0.96f, 0.65f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
@@ -94,7 +96,7 @@ public static class ElementVisualUtility
             Element.Lightning => new Color(1f, 1f, 0.75f, 1f),
             Element.Wind => new Color(0.86f, 1f, 0.88f, 1f),
             Element.Earth => new Color(1f, 0.85f, 0.60f, 1f),
-            Element.Dark => new Color(0.85f, 0.68f, 1f, 1f),
+            Element.Dark => new Color(0.70f, 0.48f, 0.95f, 1f),
             Element.Light => new Color(1f, 1f, 0.90f, 1f),
             _ => new Color(1f, 1f, 1f, 1f),
         };
