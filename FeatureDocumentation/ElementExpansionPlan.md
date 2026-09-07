@@ -51,7 +51,7 @@ afterwards.
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
 | 06 | The shot is a rock that bursts on impact | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 08 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
+| 08 | Dark selectable, tap arc swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 09 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
 | 10 | Dark execution raises a minion | ☐ | ☐ | ☐ |
 | 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
@@ -322,12 +322,14 @@ slightly past the end of the drawn line — the line shows direction, not range.
 Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
 parts, 11 is a new system. Dark should be playable long before minions land.
 
-### Commit 08 — Dark is selectable, tap swings
+### Commit 08 — Dark is selectable, tap swings ✅
 
 | | |
 |---|---|
-| **Adds** | `DarkWeapon.cs` — arc swing modelled on `PhysicalWeapon` (seek nearest, step in, static hitbox) |
-| **Changes** | `CoreSystems.prefab` — register; `Gear.prefab` — loadout appends Dark (7 arcs) |
+| **Adds** | `DarkWeapon.cs` — arc swing modelled on `PhysicalWeapon` (seek nearest, step in, static hitbox); `DarkSlashEffect.prefab`, a pre-tinted purple copy of `BasicSlashEffect` |
+| **Changes** | `CoreSystems.prefab` — `Element Manager/Dark` + register; `Gear.prefab` — loadout appends Dark, 5 arcs → **6** (60°) |
+| **Mechanism** | Reuses Physical's `PhysicalSlash` hitbox, which is safe because its sprites are empty and `PlayerHitbox` routes damage through `ElementManager` to whichever element is active. The slash *effect* is a separate prefab rather than a runtime tint — pools are keyed by prefab, so tinting the shared instance would eventually hand Physical a purple slash |
+| **Careful** | `OnMeleeHit` is overridden, not defaulted. The interface default is a no-op, so a weapon that spawns a hitbox and forgets it deals zero damage |
 | **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
 | **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
 

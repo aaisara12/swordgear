@@ -136,6 +136,59 @@ MonoBehaviour:
   ultimateChargeTracker: {fileID: 3346800436722707166}
   enemyCatalog: {fileID: 11400000, guid: f9f27ed1b4b262949b1a0bc2f6cab060, type: 2}
   waveComposerSettings: {fileID: 11400000, guid: 4319e9c40fb7e4d44837d9f9a9dc8728, type: 2}
+--- !u!1 &1917821950784449323
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4669162264387489195}
+  - component: {fileID: 2797471917670946657}
+  m_Layer: 0
+  m_Name: Dark
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4669162264387489195
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917821950784449323}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4815673249366981286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2797471917670946657
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917821950784449323}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 62ef48d0d8544b04aa52038ccb236b3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::DarkWeapon
+  weaponCollider: {fileID: 408349630184175257, guid: f8d76ed2d8d5aba49bff42a53290a98f, type: 3}
+  swingDuration: 0.6
+  distanceFromPlayer: 0.7
+  effectObject: {fileID: 2325353192704701246, guid: cffbc7ae482583246ad36c8ae8ff716c, type: 3}
+  attackRadius: 3.5
+  dashFactor: 0.2
+  meleeCooldown: 0.45
+  meleeDamageMultiplier: 1.25
+  autoAimRadius: 6
 --- !u!1 &2095857230064898771
 GameObject:
   m_ObjectHideFlags: 0
@@ -1189,6 +1242,7 @@ Transform:
   - {fileID: 1851117990950764812}
   - {fileID: 3188503388509383987}
   - {fileID: 7910383872393107254}
+  - {fileID: 4669162264387489195}
   m_Father: {fileID: 4848120501802802916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8073755906317011575
@@ -1216,6 +1270,8 @@ MonoBehaviour:
     weapon: {fileID: 6824312504684377404}
   - element: 5
     weapon: {fileID: 5176617156627460161}
+  - element: 6
+    weapon: {fileID: 2797471917670946657}
 --- !u!1 &8056026369581769779
 GameObject:
   m_ObjectHideFlags: 0
