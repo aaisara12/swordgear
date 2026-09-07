@@ -28,8 +28,8 @@ M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven 
 R   Interface tidy — tap/charge naming + defaults, so weapons implement only what they use
 M1  Earth / Ballista Turret — grounds you, builds a ballista, charged piercing beam
 M1b Auto-aim range — the pointer's reach becomes per-element
-M2  Light / Harp — marking projectile + angel that detonates the marks
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
+M2  Light / ??? — on hold, see the note under M2
 ```
 
 Earth is first because it's the smallest and proves the movement-lock aim mode. Dark is last because
@@ -51,11 +51,11 @@ afterwards.
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
 | 06 | The shot is a rock that bursts on impact | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 08 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
-| 09 | Light charge summons the angel | ☐ | ☐ | ☐ |
-| 10 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
-| 11 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
-| 12 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+| 08 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
+| 09 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
+| 10 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+| 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
+| 12 | Light — charge, design under review | ☐ | ☐ | ☐ |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -98,8 +98,8 @@ So to reach a new element, edit **`startingLoadout` on `Gear.prefab`** (Inspecto
 ```text
 Commit 01 (ship default) →  Wind, Fire, Ice, Lightning          4 arcs, 90°
 Commit 03 (+ Earth)      →  Wind, Fire, Ice, Lightning, Earth   5 arcs, 72°
-Commit 08 (+ Light)      →  … , Light                           6 arcs, 60°
-Commit 10 (+ Dark)       →  … , Dark                            7 arcs, ~51°
+Commit 08 (+ Dark)       →  … , Dark                            6 arcs, 60°
+Commit 11 (+ Light)      →  … , Light                           7 arcs, ~51°
 ```
 
 > **Superseded 2026-08-23.** This section previously said to *swap* rather than append, on the theory
@@ -314,7 +314,60 @@ slightly past the end of the drawn line — the line shows direction, not range.
 
 ---
 
-## M2 — Light / Harp
+## M3 — Dark / Scythe  *(brought forward — see note)*
+
+> *Fantasy: summoner. Tap: swing scythe in an arc. Charge: blink and swing in a circle. Execution with
+> dark melee resummons the enemy as a minion.*
+
+Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
+parts, 11 is a new system. Dark should be playable long before minions land.
+
+### Commit 08 — Dark is selectable, tap swings
+
+| | |
+|---|---|
+| **Adds** | `DarkWeapon.cs` — arc swing modelled on `PhysicalWeapon` (seek nearest, step in, static hitbox) |
+| **Changes** | `CoreSystems.prefab` — register; `Gear.prefab` — loadout appends Dark (7 arcs) |
+| **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
+| **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
+
+### Commit 09 — Charge blinks and cuts a circle
+
+| | |
+|---|---|
+| **Changes** | `DarkWeapon` — charge release calls `PlayerController.BlinkTo` then a radial hit via `MeleeAugmentUtility.DamageEnemiesInRadius` |
+| **Mechanism** | Both primitives already exist — `BlinkTo` from Lightning's Thunderstep, radial damage from cleave |
+| **Playtest** | Hold → release → you **teleport a short distance and everything around the landing point takes a hit**. Blinking into a pack should feel like the reward |
+| **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
+| **Not in commit** | Minions |
+
+### Commit 10 — Execution raises a minion
+
+| | |
+|---|---|
+| **Adds** | Minion conversion — friendly AI, target acquisition, ownership, lifetime, death handling |
+| **Changes** | `DarkWeapon.OnMeleeHit` — a killing blow converts instead of killing; `EnemyController` — a converted state that retargets to enemies |
+| **Mechanism** | Reuses the enemy's own prefab and movement/attack strategies with a flipped target set, so minions inherit archetype behaviour for free |
+| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side** and attacks other enemies. It expires (or dies) on its own rather than accumulating forever |
+| **Regression check** | Non-Dark kills still just die. Minions must not count as live enemies for **wave-clear**, or the arena will never complete |
+| **Risk** | The largest item in the plan. Wave-clear accounting, combo/ult credit, and player-collision are all places a converted enemy can leak into systems that assume "enemy = hostile" |
+| **EditMode (optional)** | Wave-clear ignores converted enemies |
+
+### Acceptance criteria (M3 done)
+
+- Dark plays as a full melee element without minions (commits 08–09 alone are shippable).
+- Dark executions raise minions that fight for you and expire cleanly.
+- Waves still clear with minions alive; combo and ultimate charge behave sanely.
+
+> **On hold 2026-09-06.** Mark-then-detonate turned out to be *delayed AoE*, which Fire's bomb cascade
+> already covers — it read as "a ranged attack like Fire, with more steps". The implementation reached a
+> working state (tap marks, marks pulse and expire) and is parked on the tag **`light-marks-parked`**;
+> nothing Light-related is on main. Five replacement directions were sketched, the leading two being a
+> **force multiplier** (Light barely damages, but makes every other element hit harder — the only support
+> role in the roster) and a **sweeping beam** (continuous and positional rather than discrete shots).
+> Dark was brought forward while this is settled.
+
+## M2 — Light / Harp  *(ON HOLD — design under review)*
 
 > *Fantasy: mark and detonate, ranged burst. Tap: launch a single marking projectile. Charge: summon an
 > angel at your position that launches piercing beams at each mark.*
@@ -326,7 +379,7 @@ slightly past the end of the drawn line — the line shows direction, not range.
 2. **The angel is an actor with a lifetime**, not a weapon mode. It fires and expires on its own.
 3. **Beams mirror the enemy Beam Sniper.** `EnemyBeamLaser` is the reference; don't invent a second beam.
 
-### Commit 08 — Tap marks enemies
+### Commit 11 — Tap marks enemies  *(on hold)*
 
 | | |
 |---|---|
@@ -337,7 +390,7 @@ slightly past the end of the drawn line — the line shows direction, not range.
 | **Regression check** | Existing status effects still apply and expire — Fire's burn, Ice's chill, Lightning's static |
 | **Not in commit** | The angel; anything that consumes marks |
 
-### Commit 09 — Charge summons the angel
+### Commit 12 — Charge summons the angel  *(on hold)*
 
 | | |
 |---|---|
@@ -357,51 +410,6 @@ slightly past the end of the drawn line — the line shows direction, not range.
 
 ---
 
-## M3 — Dark / Scythe
-
-> *Fantasy: summoner. Tap: swing scythe in an arc. Charge: blink and swing in a circle. Execution with
-> dark melee resummons the enemy as a minion.*
-
-Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
-parts, 11 is a new system. Dark should be playable long before minions land.
-
-### Commit 10 — Dark is selectable, tap swings
-
-| | |
-|---|---|
-| **Adds** | `DarkWeapon.cs` — arc swing modelled on `PhysicalWeapon` (seek nearest, step in, static hitbox) |
-| **Changes** | `CoreSystems.prefab` — register; `Gear.prefab` — loadout appends Dark (7 arcs) |
-| **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
-| **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
-
-### Commit 11 — Charge blinks and cuts a circle
-
-| | |
-|---|---|
-| **Changes** | `DarkWeapon` — charge release calls `PlayerController.BlinkTo` then a radial hit via `MeleeAugmentUtility.DamageEnemiesInRadius` |
-| **Mechanism** | Both primitives already exist — `BlinkTo` from Lightning's Thunderstep, radial damage from cleave |
-| **Playtest** | Hold → release → you **teleport a short distance and everything around the landing point takes a hit**. Blinking into a pack should feel like the reward |
-| **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
-| **Not in commit** | Minions |
-
-### Commit 12 — Execution raises a minion
-
-| | |
-|---|---|
-| **Adds** | Minion conversion — friendly AI, target acquisition, ownership, lifetime, death handling |
-| **Changes** | `DarkWeapon.OnMeleeHit` — a killing blow converts instead of killing; `EnemyController` — a converted state that retargets to enemies |
-| **Mechanism** | Reuses the enemy's own prefab and movement/attack strategies with a flipped target set, so minions inherit archetype behaviour for free |
-| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side** and attacks other enemies. It expires (or dies) on its own rather than accumulating forever |
-| **Regression check** | Non-Dark kills still just die. Minions must not count as live enemies for **wave-clear**, or the arena will never complete |
-| **Risk** | The largest item in the plan. Wave-clear accounting, combo/ult credit, and player-collision are all places a converted enemy can leak into systems that assume "enemy = hostile" |
-| **EditMode (optional)** | Wave-clear ignores converted enemies |
-
-### Acceptance criteria (M3 done)
-
-- Dark plays as a full melee element without minions (commits 09–10 alone are shippable).
-- Dark executions raise minions that fight for you and expire cleanly.
-- Waves still clear with minions alive; combo and ultimate charge behave sanely.
-
 ---
 
 ## Quick reference — what to play after each commit
@@ -415,11 +423,10 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **05** | Hold Earth → a ballista builds itself at your feet and swings with your aim |
 | **06** | Long Earth charge → a fast rock bursts and takes out a cluster |
 | **07** | Switch elements at a fixed distance → auto-aim reaches further on long-range elements |
-| **08** | Flick to Light → tap → enemies visibly marked |
-| **09** | Mark 3 → charge → angel beams them all |
-| **10** | Flick to Dark → tap → purple arc swing |
-| **11** | Dark charge → blink + circle cut |
-| **12** | Dark execution → the corpse fights for you |
+| **08** | Flick to Dark → tap → purple arc swing |
+| **09** | Dark charge → blink + circle cut |
+| **10** | Dark execution → the corpse fights for you |
+| **11–12** | Light — on hold |
 
 ---
 
