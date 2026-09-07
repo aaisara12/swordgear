@@ -471,19 +471,15 @@ public class SwordProjectile : MonoBehaviour
     // Called every frame, think of this as animation loop
     void DisplaySword()
     {
+        // Colour comes from the shared palette rather than a per-element switch. This used to list only
+        // Physical, Fire and Ice, so every element added since — Lightning, Wind, Earth, Dark — left the
+        // blade whatever colour the LAST element had set, and the sword you swung stayed Ice blue.
+        sprite.color = ElementVisuals.GetColor(CurrentBuff);
 
-        switch (CurrentBuff)
+        // Fire is the one element with motion as well as colour: the blade spins while imbued.
+        if (CurrentBuff == Element.Fire)
         {
-            case Element.Physical:
-                sprite.color = Color.white;
-                break;
-            case Element.Fire:
-                sprite.color = Color.red;
-                sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
-                break;
-            case Element.Ice:
-                sprite.color = Color.cyan;
-                break;
+            sprite.transform.localEulerAngles += spinSpeed * Time.deltaTime * Vector3.forward;
         }
     }
 
