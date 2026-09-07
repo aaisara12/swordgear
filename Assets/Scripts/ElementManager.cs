@@ -55,6 +55,16 @@ public interface IElementalWeapon
     /// </summary>
     public void OnMeleeHit(Transform player, EnemyController enemy, HashSet<UpgradeType> upgrades) { }
 
+    /// <summary>
+    /// How far this element's aim snaps onto a nearby enemy.
+    /// </summary>
+    /// <remarks>
+    /// Reach is a property of the weapon, not of the pointer drawing it: a turret should lock onto
+    /// something across the arena where a sword has no business reaching past its own swing. Defaults to
+    /// the shared radius, so a weapon only overrides this when its range genuinely differs.
+    /// </remarks>
+    public float AutoAimRadius => ActiveEnemyRegistry.AutoTargetRadius;
+
     /// <summary>Called when this element's imbue starts / ends. Override to reset cross-swing state.</summary>
     public void OnBuffStart(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades) { }
 
@@ -200,6 +210,12 @@ public class ElementManager : InitializeableGameComponent
     /// rather than waiting out the tap/hold split. See <see cref="IAimLockProvider.ChargesOnPress"/>.
     /// </summary>
     public bool ChargesOnPress => activeWeapon is IAimLockProvider aimLock && aimLock.ChargesOnPress;
+
+    /// <summary>
+    /// The active element's auto-aim reach, falling back to the shared radius before any element is
+    /// active. See <see cref="IElementalWeapon.AutoAimRadius"/>.
+    /// </summary>
+    public float AutoAimRadius => activeWeapon?.AutoAimRadius ?? ActiveEnemyRegistry.AutoTargetRadius;
 
     private static PlayerController? ResolvePlayer()
     {

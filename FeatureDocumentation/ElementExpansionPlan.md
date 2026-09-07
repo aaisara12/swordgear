@@ -49,7 +49,7 @@ afterwards.
 | 04 | Earth grounds you, builds, aims, charges | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
 | 06 | The shot becomes a beam and pierces | ☐ | ☐ | ☐ |
-| 07 | Auto-aim range becomes per-element | ☐ | ☐ | ☐ |
+| 07 | Auto-aim range becomes per-element | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 08 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
 | 09 | Light charge summons the angel | ☐ | ☐ | ☐ |
 | 10 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
@@ -277,18 +277,23 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 
 ## Cross-cutting — Auto-aim range
 
-### Commit 07 — Auto-aim range becomes per-element
+### Commit 07 — Auto-aim range becomes per-element ✅
 
 | | |
 |---|---|
 | **Problem** | `PlayerWeaponIndicator.targetRadius` is **one number for every element**. It decides how far away an enemy can be and still pull the pointer toward them, so a short-range melee element and a long-range turret currently snap to enemies at exactly the same distance |
-| **Adds** | A per-element auto-aim radius, read from the active weapon rather than a single serialized field |
-| **Changes** | `PlayerWeaponIndicator.GetFacingDirection` and `RefreshTrackedEnemy` — both take the radius from the active element; each weapon declares its own |
-| **Mechanism** | Same capability-interface shape as `IMeleeChargeProvider` and `IAimLockProvider`: an optional member on the weapon, with the current global value as the fallback for weapons that don't care. Nothing has to be touched to keep behaving as it does today |
+| **Adds** | `IElementalWeapon.AutoAimRadius`, defaulting to the shared 5; `EarthWeapon.autoAimRadius`, serialized at **10** |
+| **Changes** | All three of `PlayerWeaponIndicator`'s radius reads go through the active element; its serialized field becomes the fallback for before an element is active |
+| **Mechanism** | A default interface member rather than a separate capability interface — reach is something every weapon has, not an optional extra, so there's nothing to type-test. The five melee elements inherit the old value and are provably unchanged |
 | **Playtest** | Stand the same distance from an enemy and switch elements. A long-range element should pull the pointer onto them; a short-range one shouldn't. Today both do |
 | **Regression check** | Every existing element still auto-aims at its current distance — this commit should be invisible until an element opts into a different radius |
 | **Why here** | Earth is the first element whose range differs sharply from the melee four, so it's the first time one shared radius is visibly wrong. Landing it before Light and Dark means both are written against per-element aim rather than retrofitted |
-| **Not in commit** | Tuning each element's radius beyond an obvious first pass; anything about the aim *indicator* visuals |
+| **Not in commit** | Tuning the other five elements away from 5; anything about the aim *indicator* visuals |
+
+**Editor pass 2026-09-06:** compiles clean, EditMode 73/73. Verified by reflection that Physical, Fire,
+Ice, Lightning and Wind all still report 5 while Earth reports 10, and that the prefab picked up the new
+field. Note `PlayerAimIndicator.rangedAimLength` is still 6, so Earth's pointer can snap to an enemy
+slightly past the end of the drawn line — the line shows direction, not range.
 
 ---
 

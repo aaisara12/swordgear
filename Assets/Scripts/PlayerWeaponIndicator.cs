@@ -8,6 +8,8 @@ public class PlayerWeaponIndicator : MonoBehaviour
     [SerializeField] private Transform? swordVisual;
     [SerializeField] private SpriteRenderer? swordRenderer;
     [SerializeField] private Transform? playerRoot;
+    [Tooltip("Fallback auto-aim reach, used only before an element is active. The live value comes from " +
+             "the equipped element — see IElementalWeapon.AutoAimRadius.")]
     [SerializeField] private float targetRadius = ActiveEnemyRegistry.AutoTargetRadius;
     [SerializeField] private float enemyScanInterval = 0.15f;
     [SerializeField] private float idleRotationDegreesPerSecond = 720f;
@@ -19,6 +21,12 @@ public class PlayerWeaponIndicator : MonoBehaviour
     private bool throwAimActive;
     private bool isVisible = true;
     private float nextEnemyScanTime;
+
+    // Reach belongs to the equipped element, not to this component: a turret should lock on from across
+    // the arena where a sword shouldn't. The serialized value only covers the window before an element
+    // is active.
+    private float TargetRadius =>
+        ElementManager.Instance != null ? ElementManager.Instance.AutoAimRadius : targetRadius;
 
     private void Awake()
     {
@@ -124,7 +132,7 @@ public class PlayerWeaponIndicator : MonoBehaviour
         }
 
         if (playerRoot != null
-            && ActiveEnemyRegistry.TryGetNearestDirection(playerRoot.position, targetRadius, out Vector2 enemyDirection))
+            && ActiveEnemyRegistry.TryGetNearestDirection(playerRoot.position, TargetRadius, out Vector2 enemyDirection))
         {
             return enemyDirection;
         }
@@ -147,7 +155,7 @@ public class PlayerWeaponIndicator : MonoBehaviour
         nextEnemyScanTime = Time.time + enemyScanInterval;
 
         if (playerRoot != null
-            && ActiveEnemyRegistry.TryGetNearest(playerRoot.position, targetRadius, out EnemyController nearest, out _))
+            && ActiveEnemyRegistry.TryGetNearest(playerRoot.position, TargetRadius, out EnemyController nearest, out _))
         {
             trackedEnemy = nearest;
             return;
@@ -172,7 +180,7 @@ public class PlayerWeaponIndicator : MonoBehaviour
         if (trackedEnemy != null && playerRoot != null)
         {
             Vector2 offset = (Vector2)trackedEnemy.transform.position - (Vector2)playerRoot.position;
-            float maxRadiusSqr = targetRadius * targetRadius;
+            float maxRadiusSqr = TargetRadius * TargetRadius;
             if (offset.sqrMagnitude <= maxRadiusSqr && offset.sqrMagnitude > 0.001f)
             {
                 direction = offset.normalized;

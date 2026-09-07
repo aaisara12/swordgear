@@ -49,6 +49,9 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     [Header("Combat")]
     [SerializeField] private float meleeCooldown = 0.5f;
+    [Tooltip("How far the aim snaps onto an enemy. Well past the melee elements' 5, because the bolt " +
+             "outranges them and a pointer that stops short would aim Earth at nothing.")]
+    [SerializeField] private float autoAimRadius = 10f;
 
     [Header("Cleave")]
     [SerializeField] private GameObject cleaveEffectObject;
@@ -79,6 +82,9 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     // No upgrade gate, unlike Fire's Fire_ChargeMelee: rooting to aim IS Earth's identity, not a purchase.
     public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
         player.IsMeleeReady;
+
+    // Overrides the shared default — Earth is the first element that outranges a sword swing.
+    public float AutoAimRadius => autoAimRadius;
 
     // ---- IAimLockProvider ----
 
