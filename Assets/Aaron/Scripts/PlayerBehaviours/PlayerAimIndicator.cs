@@ -11,8 +11,8 @@ public class PlayerAimIndicator : MonoBehaviour
         SwordThrow,
         Dash,
         /// <summary>Aim for an element that fires along the movement stick while rooted (Earth's charge).
-        /// Reuses the dash line visual at a fixed length — the shot is not distance-limited the way a
-        /// dash is.</summary>
+        /// Draws the same line as the sword throw, at its own fixed length and without the bounce
+        /// segment.</summary>
         Ranged
     }
 
@@ -43,7 +43,7 @@ public class PlayerAimIndicator : MonoBehaviour
     [SerializeField] private float indicatorWidth = 1f;
     [Tooltip("Multiplier on the authored dash-indicator Visual localScale.x. Defaults to 2x throw width.")]
     [SerializeField] private float dashIndicatorWidth = 2f;
-    [Tooltip("World length of the Ranged aim line (Earth's rooted charge). Reuses the dash visual.")]
+    [Tooltip("World length of the Ranged aim line (Earth's rooted charge). Uses the sword-throw line.")]
     [SerializeField] private float rangedAimLength = 6f;
 
     private Vector2 aimDirection;
@@ -174,13 +174,21 @@ public class PlayerAimIndicator : MonoBehaviour
             return;
         }
 
-        if (aimMode == AimMode.Dash || aimMode == AimMode.Ranged)
+        switch (aimMode)
         {
-            UpdateDashPreview();
-        }
-        else
-        {
-            UpdateSwordThrowPreview();
+            case AimMode.Dash:
+                UpdateDashPreview();
+                break;
+
+            // Shares the sword-throw line, so aiming a shot looks like aiming a throw. No bounce
+            // segment: a bumper doesn't send the shot anywhere, so previewing a ricochet would lie.
+            case AimMode.Ranged:
+                UpdateLinePreview(rangedAimLength, allowBounce: false, originAtPlayer: true);
+                break;
+
+            default:
+                UpdateLinePreview(swordThrowLength, allowBounce: true, originAtPlayer: false);
+                break;
         }
     }
 
@@ -189,9 +197,7 @@ public class PlayerAimIndicator : MonoBehaviour
         SetIndicatorActive(primaryIndicator, false);
         SetIndicatorActive(bounceIndicator, false);
 
-        float dashTipDistance = aimMode == AimMode.Ranged
-            ? rangedAimLength
-            : (playerController != null ? playerController.DashDistance : referenceLength);
+        float dashTipDistance = playerController != null ? playerController.DashDistance : referenceLength;
         float dashLengthParam = LengthParamForTipDistance(dashBaseScale, dashTipDistance);
         PlaceIndicator(
             dashIndicator,
@@ -204,16 +210,25 @@ public class PlayerAimIndicator : MonoBehaviour
             dashIndicatorWidth);
     }
 
-    private void UpdateSwordThrowPreview()
+    /// <summary>
+    /// Draws the aim line, clipped to the first wall or bumper it meets.
+    /// </summary>
+    /// <param name="lineLength">How far the line reaches when nothing blocks it.</param>
+    /// <param name="allowBounce">Whether a bumper hit also previews the ricochet. True for the sword
+    /// throw, which really does bounce; false for a shot that simply stops.</param>
+    /// <param name="originAtPlayer">Draw from the player rather than the held sword. The throw leaves the
+    /// blade, so it starts there; a shot leaves the player, and starting it at the cursor made the line
+    /// look detached from them.</param>
+    private void UpdateLinePreview(float lineLength, bool allowBounce, bool originAtPlayer)
     {
         SetIndicatorActive(dashIndicator, false);
 
-        Vector2 origin = weaponIndicator != null
+        Vector2 origin = !originAtPlayer && weaponIndicator != null
             ? (Vector2)weaponIndicator.GetThrowOrigin()
             : (Vector2)transform.position;
 
         // Cast at least as far as the drawn throw line so length tweaks stay in sync.
-        float castDistance = Mathf.Max(boxCastDistance, swordThrowLength);
+        float castDistance = Mathf.Max(boxCastDistance, lineLength);
         float angle = Mathf.Atan2(aimDirection.y, aimDirection.x) * Mathf.Rad2Deg;
         castHits.Clear();
         int hitCount = Physics2D.BoxCast(
@@ -258,7 +273,7 @@ public class PlayerAimIndicator : MonoBehaviour
 
         if (!blockingHit.HasValue)
         {
-            float freeLengthParam = LengthParamForTipDistance(primaryBaseScale, swordThrowLength);
+            float freeLengthParam = LengthParamForTipDistance(primaryBaseScale, lineLength);
             PlaceIndicator(
                 primaryIndicator,
                 primaryVisual,
@@ -275,7 +290,7 @@ public class PlayerAimIndicator : MonoBehaviour
 
         RaycastHit2D blockHit = blockingHit.Value;
         // Seam on the aim centerline — BoxCast hit.point can sit laterally off-axis inside the cast width.
-        float contactDist = Mathf.Clamp(blockHit.distance, 0.05f, swordThrowLength);
+        float contactDist = Mathf.Clamp(blockHit.distance, 0.05f, lineLength);
         Vector2 contact = origin + aimDirection * contactDist;
         float primaryLengthParam = LengthParamForTipDistance(primaryBaseScale, contactDist);
         PlaceIndicator(
@@ -288,7 +303,7 @@ public class PlayerAimIndicator : MonoBehaviour
             primaryBaseLocalPos,
             indicatorWidth);
 
-        if (blockKind != AimBlockKind.Bumper)
+        if (!allowBounce || blockKind != AimBlockKind.Bumper)
         {
             SetIndicatorActive(bounceIndicator, false);
             return;
