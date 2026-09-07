@@ -27,6 +27,7 @@
 M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven   [landed, editor-verified]
 R   Interface tidy — tap/charge naming + defaults, so weapons implement only what they use
 M1  Earth / Ballista Turret — grounds you, builds a ballista, charged piercing beam
+M1b Auto-aim range — the pointer's reach becomes per-element
 M2  Light / Harp — marking projectile + angel that detonates the marks
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
 ```
@@ -48,11 +49,12 @@ afterwards.
 | 04 | Earth grounds you, builds, aims, charges | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
 | 06 | The shot becomes a beam and pierces | ☐ | ☐ | ☐ |
-| 07 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
-| 08 | Light charge summons the angel | ☐ | ☐ | ☐ |
-| 09 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
-| 10 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
-| 11 | Dark execution raises a minion | ☐ | ☐ | ☐ |
+| 07 | Auto-aim range becomes per-element | ☐ | ☐ | ☐ |
+| 08 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
+| 09 | Light charge summons the angel | ☐ | ☐ | ☐ |
+| 10 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
+| 11 | Dark charge blinks + circle swing | ☐ | ☐ | ☐ |
+| 12 | Dark execution raises a minion | ☐ | ☐ | ☐ |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -95,8 +97,8 @@ So to reach a new element, edit **`startingLoadout` on `Gear.prefab`** (Inspecto
 ```text
 Commit 01 (ship default) →  Wind, Fire, Ice, Lightning          4 arcs, 90°
 Commit 03 (+ Earth)      →  Wind, Fire, Ice, Lightning, Earth   5 arcs, 72°
-Commit 07 (+ Light)      →  … , Light                           6 arcs, 60°
-Commit 09 (+ Dark)       →  … , Dark                            7 arcs, ~51°
+Commit 08 (+ Light)      →  … , Light                           6 arcs, 60°
+Commit 10 (+ Dark)       →  … , Dark                            7 arcs, ~51°
 ```
 
 > **Superseded 2026-08-23.** This section previously said to *swap* rather than append, on the theory
@@ -273,6 +275,23 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 
 ---
 
+## Cross-cutting — Auto-aim range
+
+### Commit 07 — Auto-aim range becomes per-element
+
+| | |
+|---|---|
+| **Problem** | `PlayerWeaponIndicator.targetRadius` is **one number for every element**. It decides how far away an enemy can be and still pull the pointer toward them, so a short-range melee element and a long-range turret currently snap to enemies at exactly the same distance |
+| **Adds** | A per-element auto-aim radius, read from the active weapon rather than a single serialized field |
+| **Changes** | `PlayerWeaponIndicator.GetFacingDirection` and `RefreshTrackedEnemy` — both take the radius from the active element; each weapon declares its own |
+| **Mechanism** | Same capability-interface shape as `IMeleeChargeProvider` and `IAimLockProvider`: an optional member on the weapon, with the current global value as the fallback for weapons that don't care. Nothing has to be touched to keep behaving as it does today |
+| **Playtest** | Stand the same distance from an enemy and switch elements. A long-range element should pull the pointer onto them; a short-range one shouldn't. Today both do |
+| **Regression check** | Every existing element still auto-aims at its current distance — this commit should be invisible until an element opts into a different radius |
+| **Why here** | Earth is the first element whose range differs sharply from the melee four, so it's the first time one shared radius is visibly wrong. Landing it before Light and Dark means both are written against per-element aim rather than retrofitted |
+| **Not in commit** | Tuning each element's radius beyond an obvious first pass; anything about the aim *indicator* visuals |
+
+---
+
 ## M2 — Light / Harp
 
 > *Fantasy: mark and detonate, ranged burst. Tap: launch a single marking projectile. Charge: summon an
@@ -285,7 +304,7 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 2. **The angel is an actor with a lifetime**, not a weapon mode. It fires and expires on its own.
 3. **Beams mirror the enemy Beam Sniper.** `EnemyBeamLaser` is the reference; don't invent a second beam.
 
-### Commit 07 — Tap marks enemies
+### Commit 08 — Tap marks enemies
 
 | | |
 |---|---|
@@ -296,7 +315,7 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 | **Regression check** | Existing status effects still apply and expire — Fire's burn, Ice's chill, Lightning's static |
 | **Not in commit** | The angel; anything that consumes marks |
 
-### Commit 08 — Charge summons the angel
+### Commit 09 — Charge summons the angel
 
 | | |
 |---|---|
@@ -324,7 +343,7 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 Split because the combat and the necromancy are very different sizes — 09/10 are assembly from existing
 parts, 11 is a new system. Dark should be playable long before minions land.
 
-### Commit 09 — Dark is selectable, tap swings
+### Commit 10 — Dark is selectable, tap swings
 
 | | |
 |---|---|
@@ -333,7 +352,7 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **Playtest** | Flick to Dark → tap → a **purple arc swing** that damages enemies in front of you |
 | **Regression check** | Physical's swing is unchanged (Dark borrows its shape, it must not share its state) |
 
-### Commit 10 — Charge blinks and cuts a circle
+### Commit 11 — Charge blinks and cuts a circle
 
 | | |
 |---|---|
@@ -343,7 +362,7 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **Regression check** | Lightning's Thunderstep still blinks correctly — `BlinkTo` is now shared by two elements |
 | **Not in commit** | Minions |
 
-### Commit 11 — Execution raises a minion
+### Commit 12 — Execution raises a minion
 
 | | |
 |---|---|
@@ -369,15 +388,16 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 |---|---|
 | **01** | Nothing new — verify the ring still draws its arcs and flicks are unchanged |
 | **02** | Nothing new — every element must tap and charge exactly as before |
-| **03** | Flick to Earth → tap → amber bolt |
-| **04** | Hold Earth charge → you're rooted, left stick aims |
-| **05** | Hold Earth charge → a ballista rises at your feet and swings with your aim |
-| **06** | Full-charge Earth bolt pierces a line of 3 |
-| **07** | Flick to Light → tap → enemies visibly marked |
-| **08** | Mark 3 → charge → angel beams them all |
-| **09** | Flick to Dark → tap → purple arc swing |
-| **10** | Dark charge → blink + circle cut |
-| **11** | Dark execution → the corpse fights for you |
+| **03** | Flick to Earth → fires an amber bolt |
+| **04** | Hold Earth → rooted, ballista builds 0.5s, left stick aims, damage ramps uncapped. No tap attack |
+| **05** | Hold Earth → a ballista builds itself at your feet and swings with your aim |
+| **06** | Long Earth charge → a beam cuts a line of 3 |
+| **07** | Switch elements at a fixed distance → auto-aim reaches further on long-range elements |
+| **08** | Flick to Light → tap → enemies visibly marked |
+| **09** | Mark 3 → charge → angel beams them all |
+| **10** | Flick to Dark → tap → purple arc swing |
+| **11** | Dark charge → blink + circle cut |
+| **12** | Dark execution → the corpse fights for you |
 
 ---
 
