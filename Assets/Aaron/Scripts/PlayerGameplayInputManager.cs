@@ -223,10 +223,41 @@ public class PlayerGameplayInputManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Holds the aim at the furthest the gesture reached, ignoring its decay on release.
+    /// </summary>
+    /// <remarks>
+    /// The flick is consumed on RELEASE, from the last direction seen. Letting go of a two-key diagonal
+    /// frees one key a frame before the other, so that final single-key sample would overwrite the
+    /// diagonal with a cardinal — which is why the keyboard could not flick at 45°.
+    /// <para>
+    /// A digital composite normalises to magnitude 1 whether one key or two is held, so the COUNT of
+    /// actuated controls is what catches a key being released; the magnitude is what catches a physical
+    /// stick easing back to centre, where the count never changes.
+    /// </para>
+    /// </remarks>
+    private struct AimPeakTracker
+    {
+        private int peakControls;
+        private float peakMagnitude;
+
+        /// <summary>True if the gesture is still growing, and the aim should follow it.</summary>
+        public bool TryAdvance(int actuatedControls, float magnitude)
+        {
+            if (actuatedControls < peakControls || magnitude < peakMagnitude - AimRetractionTolerance)
+            {
+                return false;
+            }
+
+            peakControls = actuatedControls;
+            peakMagnitude = Mathf.Max(peakMagnitude, magnitude);
+            return true;
+        }
+    }
+
     private IEnumerator UpdateAimDirectionCoroutine()
     {
-        int peakActuatedControls = 0;
-        float peakMagnitude = 0f;
+        var peak = new AimPeakTracker();
 
         while (throwAimSessionActive)
         {
@@ -234,23 +265,9 @@ public class PlayerGameplayInputManager : MonoBehaviour
             Vector2 stickDirection = throwSwordAction.ReadValue<Vector2>();
             if (stickDirection.sqrMagnitude > 0.001f)
             {
-                int actuatedControls = CountActuatedAimedAttackControls();
-                float magnitude = stickDirection.magnitude;
-
-                // The aim is consumed on RELEASE, so only track it while the gesture is still growing.
-                // Letting go of a two-key diagonal frees one key a frame before the other, and that last
-                // single-key sample would otherwise overwrite the diagonal with a cardinal — which is why
-                // the keyboard could never flick at 45°. A digital composite normalises to magnitude 1
-                // either way, so the key COUNT is what catches that; the magnitude check is what catches a
-                // physical stick easing back to centre.
-                bool retracting = actuatedControls < peakActuatedControls
-                                  || magnitude < peakMagnitude - AimRetractionTolerance;
-
-                if (!retracting)
+                if (peak.TryAdvance(CountActuatedAimedAttackControls(), stickDirection.magnitude))
                 {
                     lastReadAimDirection = stickDirection;
-                    peakActuatedControls = Mathf.Max(peakActuatedControls, actuatedControls);
-                    peakMagnitude = Mathf.Max(peakMagnitude, magnitude);
                 }
 
                 centeredStickFrames = 0;

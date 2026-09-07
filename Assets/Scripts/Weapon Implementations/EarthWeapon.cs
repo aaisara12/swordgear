@@ -159,30 +159,29 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     /// </remarks>
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
-        // Earth has no tap attack — the charge is the whole weapon. And a release during construction
-        // fires nothing: the ballista never finished, so there is no barrel to shoot from. Both cost no
-        // cooldown, so a mistimed press is a wasted half-second rather than a punishment.
-        if (!isCharging || IsConstructing)
+        // Released before the ballista finished: nothing to shoot from, so nothing fires. Costs no
+        // cooldown, making a mistimed press a wasted half-second rather than a punishment.
+        if (IsConstructing)
         {
-            bool wasConstructing = IsConstructing;
+            AudioSystem.Play(AudioSystem.Sound.Bounce);
             ResetCharge();
-            if (wasConstructing)
-            {
-                AudioSystem.Play(AudioSystem.Sound.Bounce);
-            }
             return 0f;
         }
 
-        // Fires along the player's facing, which PlayerController has just synced from the weapon
-        // indicator — the same source every other element aims by, so the shot goes exactly where the
-        // pointer and the aim line say it will, auto-aim included.
-        Vector2 direction = ((Vector2)player.up).normalized;
+        // Earth has no tap attack, so a press that never became a charge does nothing at all.
+        if (!isCharging)
+        {
+            return 0f;
+        }
+
         float damageMultiplier = boltDamageMultiplier + ChargeDuration * chargeDamagePerSecond;
 
         // Drop the root BEFORE firing, so nothing below can leave the player stuck.
         ResetCharge();
 
-        LaunchBolt(player, direction, damageMultiplier);
+        // player.up is the facing PlayerController just synced from the weapon indicator — the same
+        // source every other element aims by, so the shot goes where the pointer and the aim line say.
+        LaunchBolt(player, player.up, damageMultiplier);
         return meleeCooldown;
     }
 

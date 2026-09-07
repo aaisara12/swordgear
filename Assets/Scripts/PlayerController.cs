@@ -187,32 +187,26 @@ public class PlayerController : PlayerGameplayPawn
     {
         bool locked = ElementManager.Instance != null && ElementManager.Instance.IsAimLocked;
 
-        if (locked && !_isAimLocked)
+        if (locked != _isAimLocked)
         {
-            _isAimLocked = true;
+            _isAimLocked = locked;
 
-            // Each charge starts on auto-aim; the player takes over the moment they touch the stick.
+            // Every charge starts on auto-aim, and normal movement must never inherit a charge's aim.
             weaponIndicator?.ClearManualAim();
 
-            // Stop dead now rather than on the next stick event.
-            if (rb != null) rb.linearVelocity = Vector2.zero;
-            _lastMoveDirection = Vector2.zero;
-            UpdateMovementAnimation(Vector2.zero);
-            if (walkSoundLoop != -1)
+            if (locked)
             {
-                AudioSystem.StopLoop(walkSoundLoop);
-                walkSoundLoop = -1;
+                HaltMovement();
+                UpdateMovementAnimation(Vector2.zero);
             }
-        }
-        else if (!locked && _isAimLocked)
-        {
-            _isAimLocked = false;
-            aimIndicator?.Clear();
-            weaponIndicator?.ClearManualAim();
+            else
+            {
+                aimIndicator?.Clear();
 
-            // Replay the stick, the same way DashCoroutine resumes movement when the dash ends.
-            MoveInDirection(_stickDirection);
-            return;
+                // Replay the stick, the same way DashCoroutine resumes movement when the dash ends.
+                MoveInDirection(_stickDirection);
+                return;
+            }
         }
 
         if (!_isAimLocked)
@@ -868,6 +862,33 @@ public class PlayerController : PlayerGameplayPawn
 
     int walkSoundLoop = -1;
 
+    private void StopWalkSound()
+    {
+        if (walkSoundLoop == -1)
+        {
+            return;
+        }
+
+        AudioSystem.StopLoop(walkSoundLoop);
+        walkSoundLoop = -1;
+    }
+
+    /// <summary>Brings the player to a stop this frame.</summary>
+    /// <remarks>
+    /// Movement is event-driven — HandleMove only fires when the stick CHANGES — so anything that stops
+    /// the player has to zero the velocity itself rather than wait for the next input event.
+    /// </remarks>
+    private void HaltMovement()
+    {
+        _lastMoveDirection = Vector2.zero;
+        StopWalkSound();
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+    }
+
     void SetAnimationState(int stateHash)
     {
         if (animator == null || _currentAnimStateHash == stateHash)
@@ -950,14 +971,7 @@ public class PlayerController : PlayerGameplayPawn
 
         if (_isUltimateFrozen)
         {
-            _lastMoveDirection = Vector2.zero;
-            if (walkSoundLoop != -1)
-            {
-                AudioSystem.StopLoop(walkSoundLoop);
-                walkSoundLoop = -1;
-            }
-            if (rb != null)
-                rb.linearVelocity = Vector2.zero;
+            HaltMovement();
             return;
         }
 
@@ -983,15 +997,8 @@ public class PlayerController : PlayerGameplayPawn
                 weaponIndicator?.ClearManualAim();
             }
 
-            _lastMoveDirection = Vector2.zero;
+            HaltMovement();
             UpdateMovementAnimation(Vector2.zero);
-            if (walkSoundLoop != -1)
-            {
-                AudioSystem.StopLoop(walkSoundLoop);
-                walkSoundLoop = -1;
-            }
-            if (rb != null)
-                rb.linearVelocity = Vector2.zero;
             return;
         }
 
@@ -1013,11 +1020,7 @@ public class PlayerController : PlayerGameplayPawn
         }
         else
         {
-            if (walkSoundLoop != -1)  // Sound playing, so stop sound
-            {
-                AudioSystem.StopLoop(walkSoundLoop);
-                walkSoundLoop = -1;
-            }
+            StopWalkSound();
         }
         float effectiveSpeed = speed * (PlayerStatModifiers.Instance != null ? PlayerStatModifiers.Instance.MoveSpeedMultiplier : 1f);
         rb.linearVelocity = direction * effectiveSpeed;
@@ -1041,12 +1044,7 @@ public class PlayerController : PlayerGameplayPawn
             ElementManager.Instance.OnCharge(transform, cancel: true);
         }
 
-        // Stop the looping walk SFX if it was playing.
-        if (walkSoundLoop != -1)
-        {
-            AudioSystem.StopLoop(walkSoundLoop);
-            walkSoundLoop = -1;
-        }
+        StopWalkSound();
 
         // Clear cooldowns and movement state.
         _attackCooldownRemaining = 0f;
@@ -1115,11 +1113,7 @@ public class PlayerController : PlayerGameplayPawn
             ElementManager.Instance.OnCharge(transform, cancel: true);
         }
 
-        if (walkSoundLoop != -1)
-        {
-            AudioSystem.StopLoop(walkSoundLoop);
-            walkSoundLoop = -1;
-        }
+        StopWalkSound();
 
         if (rb != null)
         {

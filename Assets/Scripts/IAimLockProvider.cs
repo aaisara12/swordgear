@@ -15,12 +15,12 @@ using UnityEngine;
 /// <c>PlayerWeaponIndicator</c> — which every element already treats as the source of truth for facing,
 /// auto-aim included — and the weapon reads it back through <c>player.up</c> at release, exactly like any
 /// other attack.
+/// </para>
 /// <para>
 /// <b>PlayerController pulls <see cref="IsAimLocked"/> every frame rather than being pushed a
 /// lock/unlock event.</b> Whatever ends the charge — release, cancel, node change, death, element switch,
 /// a future dash — makes this report false on the next frame, and movement returns without that path
 /// having to know the root exists. A pushed flag would need every one of those paths to be correct.
-/// </para>
 /// </para>
 /// </remarks>
 public interface IAimLockProvider
