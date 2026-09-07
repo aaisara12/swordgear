@@ -3,26 +3,42 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// Earth is the ballista turret: immovable firepower traded against mobility. A tap fires one straight
-/// bolt along the player's facing; holding roots the player and turns the movement stick into aim, and
-/// releasing fires along that aim.
+/// Earth is the ballista turret: immovable firepower traded against mobility. It has <b>no tap attack</b>
+/// — the charge is the entire weapon, and it runs in two phases:
+/// <list type="number">
+/// <item><b>Construction</b> — pressing roots the player and starts building the ballista. Releasing
+/// here fires nothing; the turret never finished.</item>
+/// <item><b>Charging the shot</b> — once built, damage ramps for as long as the player holds, uncapped.
+/// The movement stick aims throughout.</item>
+/// </list>
 /// <para>
-/// Deliberately absent, and each landing in its own commit: the ballista actor, then pierce and charge
-/// scaling. Damage is flat for now, so the charge buys aim rather than power — the tap-versus-charge
-/// tradeoff isn't real until the charge tiers land.
+/// A weak tap shot was tried and cut: it competed with the charge for the same job at range, so the
+/// strong play was to spam it and never stand still, which is the opposite of the fantasy. The
+/// construction phase is what makes the commitment real — you pay half a second before you have a weapon.
+/// </para>
+/// <para>
+/// Deliberately absent, and each landing in its own commit: the ballista actor itself (the construction
+/// phase currently has no visual), the shot becoming a laser beam, then pierce.
 /// </para>
 /// <para>
 /// Note what this class does <em>not</em> implement: <c>OnMeleeHit</c> is left to the interface default
-/// because Earth never spawns a melee hitbox, so it could never fire. Same for <c>OnCharge</c> until the
-/// charge ramp exists.
+/// because Earth never spawns a melee hitbox, so it could never fire.
 /// </para>
 /// </summary>
 public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider, IAimLockProvider
 {
-    [Header("Charge")]
-    [Tooltip("Seconds of hold to reach full charge. The root and the aim start immediately on hold; " +
-             "this only drives the charge indicator until charge tiers land.")]
+    [Header("Charge — phase 1: construction")]
+    [Tooltip("Seconds the ballista takes to build before the shot starts charging. Releasing during " +
+             "this window fires nothing — the turret never finished.")]
+    [SerializeField] private float constructionTime = 0.5f;
+
+    [Header("Charge — phase 2: the shot")]
+    [Tooltip("Seconds of SHOT charge (after construction) at which the charge INDICATOR reads full. " +
+             "Damage keeps climbing past this — there is no damage cap.")]
     [SerializeField] private float maxChargeTime = 0.8f;
+    [Tooltip("Extra damage per second of shot charge, as a multiple of base damage. Unbounded: a longer " +
+             "hold always hits harder, so the only limit is how long you dare stand still.")]
+    [SerializeField] private float chargeDamagePerSecond = 1f;
 
     [Header("Bolt")]
     [SerializeField] private GameObject boltPrefab;
@@ -40,18 +56,26 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [SerializeField] private float cleaveDuration = 0.4f;
 
     private bool isCharging;
-    private float chargeDuration;
+    private float holdDuration;
     private Vector2 aimDirection = Vector2.up;
+
+    /// <summary>Phase 1: the ballista is still being built, and releasing now fires nothing.</summary>
+    public bool IsConstructing => isCharging && holdDuration < constructionTime;
+
+    /// <summary>Phase 2 elapsed. Zero until construction finishes, so build time is never free damage.</summary>
+    private float ChargeDuration => Mathf.Max(0f, holdDuration - constructionTime);
 
     // ---- IMeleeChargeProvider: the charge indicators come for free once these report honestly ----
 
+    // Reports the SHOT charge only, so the indicator stays empty through construction rather than
+    // implying the player is already banking damage.
     public bool IsCharging => isCharging;
 
     public float ChargeProgress =>
-        isCharging && maxChargeTime > 0f ? Mathf.Clamp01(chargeDuration / maxChargeTime) : 0f;
+        isCharging && maxChargeTime > 0f ? Mathf.Clamp01(ChargeDuration / maxChargeTime) : 0f;
 
     public bool IsMaxCharge =>
-        isCharging && maxChargeTime > 0f && chargeDuration >= maxChargeTime;
+        isCharging && maxChargeTime > 0f && ChargeDuration >= maxChargeTime;
 
     // No upgrade gate, unlike Fire's Fire_ChargeMelee: rooting to aim IS Earth's identity, not a purchase.
     public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
@@ -77,7 +101,8 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     /// Begins the root. The player stops moving and their movement stick becomes aim until release or cancel.
     /// </summary>
     /// <remarks>
-    /// Only reached after the hold interaction validates (0.3s), so a plain tap never roots the player.
+    /// Fires on the press itself, so the root and the ballista's construction start the instant the
+    /// player commits rather than a beat later.
     /// </remarks>
     public void OnCharge(Transform player, HashSet<UpgradeType> upgrades, bool cancel = false)
     {
@@ -93,7 +118,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         }
 
         isCharging = true;
-        chargeDuration = 0f;
+        holdDuration = 0f;
 
         // Seed from the current facing so the aim indicator has a sane direction on the very first frame,
         // before PlayerController feeds in the stick. Keeps this weapon correct on its own.
@@ -112,46 +137,62 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     private void Update()
     {
-        if (isCharging && chargeDuration < maxChargeTime)
+        // Deliberately unclamped — damage ramps for as long as the player holds. maxChargeTime only
+        // saturates the indicator; it is not a cap.
+        if (isCharging)
         {
-            chargeDuration = Mathf.Min(chargeDuration + Time.deltaTime, maxChargeTime);
+            holdDuration += Time.deltaTime;
         }
     }
 
     private void ResetCharge()
     {
         isCharging = false;
-        chargeDuration = 0f;
+        holdDuration = 0f;
     }
 
     /// <summary>
-    /// Fires one bolt and returns the cooldown. A charged release fires along the aim; a bare tap fires
-    /// along the player's facing.
+    /// Fires the charged bolt along the aim and returns the cooldown. Does nothing if there was no charge.
     /// </summary>
     /// <remarks>
-    /// Both arrive here — PlayerController.ReleaseChargeAttack dispatches a charge release to OnTap, so
-    /// <c>isCharging</c> is what tells them apart. Same trick FireWeapon uses with its charge duration.
+    /// PlayerController.ReleaseChargeAttack dispatches a charge release to OnTap, so this one entry point
+    /// serves both — and <c>isCharging</c> is what tells a real release from a bare press.
     /// <para>
     /// Unlike the melee elements this deliberately does NOT seek the nearest enemy and step toward it.
     /// A turret that walks itself into range would undercut the whole fantasy — aim is the player's job.
     /// </para>
     /// <para>
-    /// Damage does not scale with charge yet; that lands with the charge tiers. Today the charge buys
-    /// aim, not power.
+    /// Damage ramps with hold time and is <b>not capped</b>: the only limit on a bolt is how long the
+    /// player dares stand rooted for it.
     /// </para>
     /// </remarks>
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
-        Vector2 direction = isCharging ? aimDirection : ((Vector2)player.up).normalized;
+        // Earth has no tap attack — the charge is the whole weapon. And a release during construction
+        // fires nothing: the ballista never finished, so there is no barrel to shoot from. Both cost no
+        // cooldown, so a mistimed press is a wasted half-second rather than a punishment.
+        if (!isCharging || IsConstructing)
+        {
+            bool wasConstructing = IsConstructing;
+            ResetCharge();
+            if (wasConstructing)
+            {
+                AudioSystem.Play(AudioSystem.Sound.Bounce);
+            }
+            return 0f;
+        }
+
+        Vector2 direction = aimDirection;
+        float damageMultiplier = boltDamageMultiplier + ChargeDuration * chargeDamagePerSecond;
 
         // Drop the root BEFORE firing, so nothing below can leave the player stuck.
         ResetCharge();
 
-        LaunchBolt(player, direction);
+        LaunchBolt(player, direction, damageMultiplier);
         return meleeCooldown;
     }
 
-    private void LaunchBolt(Transform player, Vector2 direction)
+    private void LaunchBolt(Transform player, Vector2 direction, float damageMultiplier)
     {
         if (boltPrefab == null)
         {
@@ -169,7 +210,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             return;
         }
 
-        float damage = GameManager.Instance.GetEffectiveBaseDamage() * boltDamageMultiplier;
+        float damage = GameManager.Instance.GetEffectiveBaseDamage() * damageMultiplier;
 
         // No EnableHoming: the bolt flies dead straight. Homing would make aiming pointless, and aiming is
         // the mechanic the rest of Earth is built on.

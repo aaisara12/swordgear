@@ -26,7 +26,7 @@
 ```text
 M0  Foundation — elements exist in the enum, gear ring becomes loadout-driven   [landed, editor-verified]
 R   Interface tidy — tap/charge naming + defaults, so weapons implement only what they use
-M1  Earth / Ballista Turret — grounds you, plants a ballista, piercing bolt
+M1  Earth / Ballista Turret — grounds you, builds a ballista, charged piercing beam
 M2  Light / Harp — marking projectile + angel that detonates the marks
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
 ```
@@ -44,10 +44,10 @@ afterwards.
 |---|---|---|---|---|
 | 01 | Foundation — elements + loadout-driven gear | ✅ `a3e6770` | ✅ 2026-08-23 | ⏳ flick check pending |
 | 02 | Interface tidy — tap/charge naming + defaults | ✅ landed | ✅ 2026-08-23 | n/a (refactor) |
-| 03 | Earth selectable, tap fires a bolt | ✅ landed | ✅ 2026-08-23 | ⏳ not yet |
-| 04 | Earth grounds you and aims | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 05 | The ballista appears at your feet | ☐ | ☐ | ☐ |
-| 06 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
+| 03 | Earth selectable, fires a bolt | ✅ landed | ✅ 2026-08-23 | ⏳ superseded by 04 |
+| 04 | Earth grounds you, builds, aims, charges | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
+| 05 | The ballista appears and builds itself | ☐ | ☐ | ☐ |
+| 06 | The shot becomes a beam and pierces | ☐ | ☐ | ☐ |
 | 07 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
 | 08 | Light charge summons the angel | ☐ | ☐ | ☐ |
 | 09 | Dark selectable, tap arc swing | ☐ | ☐ | ☐ |
@@ -201,14 +201,28 @@ only required member and all eight others carry defaults, and that `AttackKind` 
 
 | | |
 |---|---|
-| **Adds** | `IAimLockProvider`; `IMeleeChargeProvider` + `IAimLockProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController`; `AimMode.Ranged` on `PlayerAimIndicator` so the direction is readable before you commit |
-| **Changes** | `PlayerController.MoveInDirection` — while Earth is charging, the left stick aims instead of moving; `ReleaseChargeAttack` now cancels the charge when the attack is swallowed |
+| **Adds** | `IAimLockProvider`; `IMeleeChargeProvider` + `IAimLockProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController`; `AimMode.Ranged` on `PlayerAimIndicator` so the direction is readable before you commit; a **two-phase charge** — 0.5s ballista construction, then the shot charges |
+| **Removes** | **Earth's tap attack.** The weak bolt competed with the charge for the same job at range, so the strong play was to spam it and never stand still — the opposite of the fantasy |
+| **Changes** | `PlayerController.MoveInDirection` — while Earth is charging, the left stick aims instead of moving; `ReleaseChargeAttack` now cancels the charge when the attack is swallowed, and discards charges shorter than the tap window; charge damage ramps **uncapped** with hold time; the hold interaction now validates on the **press** rather than 0.3s later |
 | **Mechanism** | **The lock is pulled, not pushed.** `PlayerController` polls `ElementManager.IsAimLocked` every frame instead of being told when to lock and unlock. However the charge ends, the weapon stops reporting the lock and movement returns — no exit path has to know the root exists. The bolt launches along the aim direction, not the facing direction |
 | **Playtest** | Hold to charge → **you stop moving**; the left stick now swings the aim. Release → the bolt fires where you aimed. This is the whole "immovable firepower" fantasy, and the first commit where Earth stops being "Fire but straight" |
 | **Regression check** | Movement is normal for every other element, and normal for Earth when *not* charging. Getting hit or dying mid-charge must not leave you stuck |
 | **Risk** | Movement lock is the one change reaching outside the weapon into `PlayerController`. Every exit path — cancel, damage, death, node change, **and a future dash** — must clear it |
 | **Decision** | **A dash cancels the root.** The dash is currently dead code (see Known adjacent issues), so this can't be tested yet — but the pull model means a revived dash that cancels the charge clears the root for free, without touching this code |
-| **Not in commit** | The ballista visual, pierce, charge tiers. Damage still doesn't scale with charge, so the charge buys **aim, not power** — that tradeoff isn't real until 06 |
+| **Not in commit** | The ballista visual (so construction is currently a blank half-second), the shot becoming a laser beam, pierce |
+
+> **Re-sliced 2026-09-06 after playtest discussion.** Four changes, all driven by the same problem — the
+> weak tap made standing still pointless:
+>
+> 1. **Earth has no tap attack.** The charge is the whole weapon.
+> 2. **The charge runs in two phases** — 0.5s building the ballista, then charging the shot. Releasing
+>    during construction fires nothing, which is what makes the commitment real.
+> 3. **Damage is uncapped**, ramping for as long as you hold. The only limit is how long you dare stand
+>    rooted. This replaces the charge *tiers* that were scheduled for 06.
+> 4. **The root starts on the press**, not 0.3s later. `SecondsBeforeHoldValidated` went to zero, so a
+>    quick press now starts a charge too — `ReleaseChargeAttack` discards charges shorter than the tap
+>    window so the shared button can't fire twice. ⚠️ **This affects every element**: Fire and Lightning
+>    charges also begin on the press now. More responsive, but it is a feel change to them.
 
 **Editor pass 2026-09-06:** compiles clean, EditMode 73/73. Verified by reflection that `EarthWeapon`
 implements all three interfaces, that no other weapon picked up `IAimLockProvider`, and that `AttackKind`
@@ -230,21 +244,24 @@ prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
 
 | | |
 |---|---|
-| **Adds** | Ballista actor prefab + a small controller — spawns on charge start, rotates to the aim direction, despawns on release or cancel |
-| **Changes** | `EarthWeapon` — the bolt launches **from the ballista's muzzle** rather than from the player |
-| **Mechanism** | Transient and purely presentational: it owns no targeting, no lifetime beyond the charge, and no collision. Its whole job is to make the root legible from across the screen |
-| **Playtest** | Hold → a **ballista rises at your feet** and swings as you aim. Release → the bolt launches from it and it drops away. The root should now *look* like what it is, rather than the player mysteriously freezing |
+| **Adds** | Ballista actor prefab + a small controller — spawns on press, plays a **0.5s construction animation** matching the charge's phase 1, then rotates to the aim direction; despawns on release or cancel |
+| **Changes** | `EarthWeapon` — the shot launches **from the ballista's muzzle** rather than from the player |
+| **Mechanism** | Transient and purely presentational: it owns no targeting, no lifetime beyond the charge, and no collision. Its whole job is to make the root legible from across the screen. `EarthWeapon.IsConstructing` already exposes the phase for the animation to read |
+| **Playtest** | Hold → a **ballista builds itself at your feet** over half a second, then swings as you aim. Release → the shot launches from it and it drops away. Construction stops being a blank pause and becomes the reason you're standing still |
 | **Regression check** | Cancelling a charge (or dying mid-charge) despawns the ballista — it must not be possible to strand one in the arena |
-| **Not in commit** | Pierce, charge tiers, any autonomous firing |
+| **Not in commit** | Pierce, any autonomous firing |
 
-### Commit 06 — The bolt pierces and rewards a full charge
+### Commit 06 — The shot becomes a beam and pierces
 
 | | |
 |---|---|
-| **Adds** | Pierce support on `PlayerProjectile` (survives a hit, damages each enemy once) |
-| **Changes** | `EarthWeapon` — charge tiers scale damage, size and pierce count |
-| **Playtest** | Line up 3 enemies → full charge → **one bolt kills the whole line**. A tap-level charge only chips the first |
-| **Regression check** | Fire's fireballs and Wind's darts still consume on hit — pierce must be opt-in, since they share `PlayerProjectile` |
+| **Adds** | A player-side **laser beam** fired from the ballista instead of a travelling bolt, mirroring `EnemyBeamLaser` rather than inventing a second beam; pierce falls out of the beam naturally — it hits everything on the line |
+| **Changes** | `EarthWeapon` — beam length and width scale with charge; the bolt prefab path retires |
+| **Playtest** | Line up 3 enemies → long charge → **one beam cuts the whole line**. A short charge is a thin, weak beam |
+| **Regression check** | Fire's fireballs and Wind's darts are untouched — the beam is Earth's own path, not a change to `PlayerProjectile` |
+
+> **Re-sliced 2026-09-06.** Charge *tiers* are gone — 04's uncapped ramp replaced them. What's left here
+> is the shot's form changing from a projectile to a beam, which is also what makes pierce free.
 
 ### Acceptance criteria (M1 done)
 
@@ -419,7 +436,7 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 
 ---
 
-*Last updated: 2026-08-23 — commits 01, 02 and 03 landed and editor-verified; 01 and 03 await the
+*Last updated: 2026-09-06 — commits 01, 02 and 03 landed and editor-verified; 01 and 03 await the
 play-mode feel check. Plan revised in discussion: matrix-neutral confirmed, timed grants confirmed, arc
 size accepted, interface tidied rather than split and reordered ahead of all element work, M1 re-sliced
 into four beats around a transient ballista. Say **"start commit 04"** (or a later number) and we apply

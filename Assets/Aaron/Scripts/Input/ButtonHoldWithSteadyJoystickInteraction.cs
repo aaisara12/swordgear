@@ -18,7 +18,12 @@ public class ButtonHoldWithSteadyJoystickInteraction : IInputInteraction<Vector3
     // aisara => Represents how much leeway away we give the player when trying to hold down on the joystick at the center
     // Note that this pretty much only applies to mobile controls since the charge button is on top of the joystick
     public float JoystickSafeZone = 0.2f;
-    public float SecondsBeforeHoldValidated = 0.3f;
+
+    // Zero so the hold registers on the PRESS, not 0.3s later. Elements that root while charging (Earth)
+    // otherwise let the player keep running at full speed through the start of their own charge.
+    // A quick press-release now starts a charge too, so PlayerController.ReleaseChargeAttack discards
+    // charges shorter than the tap window and lets the Attack action handle them as taps.
+    public float SecondsBeforeHoldValidated = 0f;
     
     private WaitingSubStateType waitingSubState = WaitingSubStateType.READY_FOR_HOLD;
     
@@ -92,6 +97,13 @@ public class ButtonHoldWithSteadyJoystickInteraction : IInputInteraction<Vector3
                     break;
                 }
                     
+                if (SecondsBeforeHoldValidated <= 0f)
+                {
+                    // Start on the press itself rather than waiting a frame for a zero-length timeout.
+                    context.Started();
+                    break;
+                }
+
                 context.SetTimeout(SecondsBeforeHoldValidated);
                 waitingSubState = WaitingSubStateType.VALIDATING_HOLD;
                 break;
