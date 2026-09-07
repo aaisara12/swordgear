@@ -690,8 +690,7 @@ public class PlayerController : PlayerGameplayPawn
         if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
         {
             SyncMeleeFacingFromIndicator(direction);
-            ApplyAttackCooldown(ElementManager.Instance.OnTap(transform));
-            PlayAttackAnimation();
+            TryAttack();
         }
         else if (playerState == PlayerState.SwordThrown && !IsOnDashCooldown)
         {
@@ -701,6 +700,46 @@ public class PlayerController : PlayerGameplayPawn
                 _dashCoroutine = StartCoroutine(DashCoroutine(GetDashDirection()));
             }
         }
+    }
+
+    /// <summary>
+    /// Runs the active element's attack, and animates only if it actually attacked.
+    /// </summary>
+    /// <remarks>
+    /// A zero cooldown means the weapon declined — Earth returns it for a press released before its
+    /// ballista finished building. Swinging for a shot that never fired would read as a bug.
+    /// </remarks>
+    private void TryAttack()
+    {
+        float cooldown = ElementManager.Instance.OnTap(transform);
+        if (cooldown <= 0f)
+        {
+            return;
+        }
+
+        ApplyAttackCooldown(cooldown);
+        PlayAttackAnimation();
+    }
+
+    public override void BeginPressCharge()
+    {
+        if (IsGameplayBlocked)
+        {
+            return;
+        }
+
+        // Only for elements with no tap attack. Everything else must keep waiting for the tap/hold split,
+        // or a tap would root the player and fire a charge.
+        if (playerState != PlayerState.MeleeReady
+            || ElementManager.Instance == null
+            || !ElementManager.Instance.ChargesOnPress)
+        {
+            return;
+        }
+
+        // Idempotent: BeginChargeAttack still arrives when the hold validates, and the weapon ignores it
+        // because it is already charging — so the ramp keeps counting from the press, not from the split.
+        ElementManager.Instance.OnCharge(transform);
     }
 
     public override void BeginChargeAttack()
@@ -744,8 +783,7 @@ public class PlayerController : PlayerGameplayPawn
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
                 SyncMeleeFacingFromIndicator();
-                ApplyAttackCooldown(ElementManager.Instance.OnTap(transform));
-                PlayAttackAnimation();
+                TryAttack();
             }
             else
             {

@@ -28,4 +28,16 @@ public interface IAimLockProvider
     /// <summary>Feeds the movement stick in as aim while locked. Near-zero input is ignored so releasing
     /// the stick holds the last aim rather than snapping it back to a default.</summary>
     void SetAimDirection(Vector2 direction);
+
+    /// <summary>
+    /// True for a weapon with <b>no tap attack</b>, where every press is a charge.
+    /// </summary>
+    /// <remarks>
+    /// Attack and ChargeAttack share a button and are told apart by holding past
+    /// <see cref="SteadyJoystickInput.TapHoldSplitSeconds"/>. A weapon with no tap has nothing to be told
+    /// apart from, so that wait is pure input latency — the charge begins on the press instead. The
+    /// release still arrives through whichever action claimed the press, and both end at
+    /// <c>OnTap</c>, so the weapon sees one code path either way.
+    /// </remarks>
+    bool ChargesOnPress => false;
 }

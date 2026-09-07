@@ -87,6 +87,10 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
     public Vector2 AimDirection => aimDirection;
 
+    // Earth has no tap attack, so there is nothing to disambiguate a press from — waiting out the
+    // tap/hold split would just be latency before the root and the ballista start.
+    public bool ChargesOnPress => true;
+
     public void SetAimDirection(Vector2 direction)
     {
         // Hold the last aim when the stick returns to centre — snapping back to a default mid-charge would

@@ -195,6 +195,12 @@ public class ElementManager : InitializeableGameComponent
     /// </summary>
     public bool IsAimLocked => activeWeapon is IAimLockProvider aimLock && aimLock.IsAimLocked;
 
+    /// <summary>
+    /// True when the active weapon has no tap attack and wants the charge to begin on the press itself,
+    /// rather than waiting out the tap/hold split. See <see cref="IAimLockProvider.ChargesOnPress"/>.
+    /// </summary>
+    public bool ChargesOnPress => activeWeapon is IAimLockProvider aimLock && aimLock.ChargesOnPress;
+
     /// <summary>Routes the movement stick to the active weapon as aim. No-op unless it is aim-locked.</summary>
     public void SetAimDirection(Vector2 direction)
     {

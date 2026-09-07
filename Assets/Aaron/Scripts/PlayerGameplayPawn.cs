@@ -14,6 +14,13 @@ public abstract class
     
     public abstract void Attack(Vector2 direction);
     
+    /// <summary>
+    /// The attack button went down, before it's known whether this is a tap or a hold. Weapons with no
+    /// tap attack use this to start charging immediately instead of waiting out the split; everything
+    /// else ignores it and waits for <see cref="BeginChargeAttack"/>.
+    /// </summary>
+    public virtual void BeginPressCharge() { }
+
     // TODO: Charge attacks will also need support for directionality (given that basic attack has directionality)
     public abstract void BeginChargeAttack();
     public abstract void ReleaseChargeAttack();

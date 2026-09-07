@@ -80,6 +80,10 @@ public class PlayerGameplayInputManager : MonoBehaviour
     private void HandleAttackStarted(InputAction.CallbackContext obj)
     {
         ToggleAttackDirectionUpdate(true);
+
+        // Fires on the button going down, with the aim stick still centred. The pawn ignores this unless
+        // the active element has no tap attack, in which case the press IS the charge.
+        pawn?.BeginPressCharge();
     }
     
     private void HandleAttackPerformed(InputAction.CallbackContext obj)
