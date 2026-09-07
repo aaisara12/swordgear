@@ -13,6 +13,8 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
     [SerializeField] private float lifetime = 4f;
     [SerializeField] private SpriteRenderer? spriteRenderer;
     [SerializeField] private GameObject? hitEffect;
+    [Tooltip("Optional streak behind the shot. Tinted to the element on launch, like the sprite.")]
+    [SerializeField] private TrailRenderer? trail;
     [Tooltip("Rotate the sprite so its local up faces the direction of travel.")]
     [SerializeField] private bool faceTravelDirection = true;
 
@@ -66,6 +68,7 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
         weaveTime = 0f;
         activeExplosionRadius = explosionRadius;
         blastHits.Clear();
+        trail?.Clear();
     }
 
     public void OnReleased()
@@ -98,14 +101,38 @@ public class PlayerProjectile : MonoBehaviour, IPoolReset
             spriteRenderer = GetComponent<SpriteRenderer>();
         }
 
+        Color glow = ElementVisuals.GetGlowColor(element);
+
         if (spriteRenderer != null)
         {
-            spriteRenderer.color = ElementVisuals.GetGlowColor(element);
+            spriteRenderer.color = glow;
         }
 
+        TintAndResetTrail(glow);
         ApplyFacing();
 
         GetComponent<PooledInstance>()?.ReleaseAfter(lifetime);
+    }
+
+    /// <summary>
+    /// Colours the trail to the element and wipes whatever it drew last time.
+    /// </summary>
+    /// <remarks>
+    /// The clear is the important half: these projectiles are pooled, so a reused instance would otherwise
+    /// draw a streak from wherever it last died to wherever it just spawned.
+    /// </remarks>
+    private void TintAndResetTrail(Color glow)
+    {
+        if (trail == null)
+        {
+            return;
+        }
+
+        Color tail = glow;
+        tail.a = 0f;
+        trail.startColor = glow;
+        trail.endColor = tail;
+        trail.Clear();
     }
 
     /// <summary>
