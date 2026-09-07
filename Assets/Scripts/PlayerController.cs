@@ -80,6 +80,9 @@ public class PlayerController : PlayerGameplayPawn
     private Coroutine? _dashCoroutine;
     private Vector2 _lastMoveDirection = Vector2.zero;
     private Vector2 _lastFacingDir = Vector2.up;   // last non-zero move dir — the dash's fallback when idle
+    private bool _isAimLocked = false;
+    private Vector2 _stickDirection = Vector2.zero; // raw movement stick, kept live through the root so
+                                                    // releasing it can resume movement without new input
     private bool _swordHasLeftCatchRadius = false;
 
     public override Vector2 MoveDirection => _lastMoveDirection;
@@ -161,6 +164,69 @@ public class PlayerController : PlayerGameplayPawn
         if (playerState == PlayerState.SwordThrown)
         {
             UpdateSwordAutoCatch();
+        }
+
+        UpdateAimLock();
+    }
+
+    /// <summary>
+    /// Drives the movement lock for elements that root the player while charging (Earth's ballista).
+    /// </summary>
+    /// <remarks>
+    /// The lock is PULLED from the active weapon every frame rather than pushed by a charge start/end
+    /// event. However the charge ends — release, cancel, node change, death, element switch, a future
+    /// dash — the weapon stops reporting the lock and movement returns here, so none of those paths need
+    /// to know the root exists.
+    /// <para>
+    /// Both edges have to act immediately because movement is event-driven: HandleMove only fires when
+    /// the stick CHANGES. Waiting for the next input event would let the player slide through the root on
+    /// entry, and leave them frozen after it ends until they physically moved the stick again.
+    /// </para>
+    /// </remarks>
+    private void UpdateAimLock()
+    {
+        bool locked = ElementManager.Instance != null && ElementManager.Instance.IsAimLocked;
+
+        if (locked && !_isAimLocked)
+        {
+            _isAimLocked = true;
+
+            // Stop dead now rather than on the next stick event.
+            if (rb != null) rb.linearVelocity = Vector2.zero;
+            _lastMoveDirection = Vector2.zero;
+            UpdateMovementAnimation(Vector2.zero);
+            if (walkSoundLoop != -1)
+            {
+                AudioSystem.StopLoop(walkSoundLoop);
+                walkSoundLoop = -1;
+            }
+
+            // Seed the aim from the last direction the player actually moved, which is a better guess than
+            // transform.up (only updated on attack).
+            ElementManager.Instance!.SetAimDirection(_lastFacingDir);
+        }
+        else if (!locked && _isAimLocked)
+        {
+            _isAimLocked = false;
+            aimIndicator?.Clear();
+
+            // Replay the stick, the same way DashCoroutine resumes movement when the dash ends.
+            MoveInDirection(_stickDirection);
+            return;
+        }
+
+        if (!_isAimLocked)
+        {
+            return;
+        }
+
+        // Hold position and keep the indicator on where the bolt will actually go.
+        if (rb != null) rb.linearVelocity = Vector2.zero;
+
+        if (ElementManager.Instance!.TryGetAimDirection(out Vector2 aim))
+        {
+            weaponIndicator?.SetMoveFallbackDirection(aim);
+            aimIndicator?.SetAim(aim, PlayerAimIndicator.AimMode.Ranged);
         }
     }
 
@@ -682,6 +748,13 @@ public class PlayerController : PlayerGameplayPawn
                 ApplyAttackCooldown(ElementManager.Instance.OnTap(transform));
                 PlayAttackAnimation();
             }
+            else
+            {
+                // The attack was swallowed — on cooldown, or the sword is out — but the charge still
+                // ended. Without this the weapon would keep reporting its charge, and an element that
+                // roots while charging (Earth) would strand the player with no way to move.
+                ElementManager.Instance.OnCharge(transform, cancel: true);
+            }
         }
     }
 
@@ -831,9 +904,31 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
+        // Kept live even while rooted, so ending the root can resume movement from the stick's real
+        // position without waiting for the player to move it again.
+        _stickDirection = direction;
+
         if (_isUltimateFrozen)
         {
             _lastMoveDirection = Vector2.zero;
+            if (walkSoundLoop != -1)
+            {
+                AudioSystem.StopLoop(walkSoundLoop);
+                walkSoundLoop = -1;
+            }
+            if (rb != null)
+                rb.linearVelocity = Vector2.zero;
+            return;
+        }
+
+        // While a charging element roots the player, the movement stick aims instead of moving. Same
+        // shape as the ultimate freeze above — swallow the input and hold still — but the direction is
+        // handed to the weapon rather than discarded.
+        if (_isAimLocked)
+        {
+            ElementManager.Instance?.SetAimDirection(direction);
+            _lastMoveDirection = Vector2.zero;
+            UpdateMovementAnimation(Vector2.zero);
             if (walkSoundLoop != -1)
             {
                 AudioSystem.StopLoop(walkSoundLoop);

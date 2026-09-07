@@ -45,7 +45,7 @@ afterwards.
 | 01 | Foundation — elements + loadout-driven gear | ✅ `a3e6770` | ✅ 2026-08-23 | ⏳ flick check pending |
 | 02 | Interface tidy — tap/charge naming + defaults | ✅ landed | ✅ 2026-08-23 | n/a (refactor) |
 | 03 | Earth selectable, tap fires a bolt | ✅ landed | ✅ 2026-08-23 | ⏳ not yet |
-| 04 | Earth grounds you and aims | ☐ | ☐ | ☐ |
+| 04 | Earth grounds you and aims | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 05 | The ballista appears at your feet | ☐ | ☐ | ☐ |
 | 06 | Earth bolt pierces + scales with charge | ☐ | ☐ | ☐ |
 | 07 | Light selectable, tap marks enemies | ☐ | ☐ | ☐ |
@@ -197,18 +197,34 @@ only required member and all eight others carry defaults, and that `AttackKind` 
 | **Regression check** | Wind, Fire, Ice and Lightning all still selectable and behave as before. ⚠️ **Every flick direction has moved** — arcs are 72° not 90°, so all five sit in new places. Judge the elements by which arc lights up, not by muscle memory |
 | **Not in commit** | Movement lock, pierce, charge scaling |
 
-### Commit 04 — Earth grounds you and aims
+### Commit 04 — Earth grounds you and aims ✅
 
 | | |
 |---|---|
-| **Adds** | `IMeleeChargeProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController`; an aim indicator so the direction is readable before you commit |
-| **Changes** | `PlayerController.MoveInDirection` — while Earth is charging, the left stick aims instead of moving |
-| **Mechanism** | Charge start sets the lock; release/cancel clears it. The bolt launches along the aim direction, not the facing direction |
+| **Adds** | `IAimLockProvider`; `IMeleeChargeProvider` + `IAimLockProvider` on `EarthWeapon` (charge indicators light up for free); a movement-lock aim mode on `PlayerController`; `AimMode.Ranged` on `PlayerAimIndicator` so the direction is readable before you commit |
+| **Changes** | `PlayerController.MoveInDirection` — while Earth is charging, the left stick aims instead of moving; `ReleaseChargeAttack` now cancels the charge when the attack is swallowed |
+| **Mechanism** | **The lock is pulled, not pushed.** `PlayerController` polls `ElementManager.IsAimLocked` every frame instead of being told when to lock and unlock. However the charge ends, the weapon stops reporting the lock and movement returns — no exit path has to know the root exists. The bolt launches along the aim direction, not the facing direction |
 | **Playtest** | Hold to charge → **you stop moving**; the left stick now swings the aim. Release → the bolt fires where you aimed. This is the whole "immovable firepower" fantasy, and the first commit where Earth stops being "Fire but straight" |
 | **Regression check** | Movement is normal for every other element, and normal for Earth when *not* charging. Getting hit or dying mid-charge must not leave you stuck |
 | **Risk** | Movement lock is the one change reaching outside the weapon into `PlayerController`. Every exit path — cancel, damage, death, node change, **and a future dash** — must clear it |
-| **Decision** | **A dash cancels the root.** The dash is currently dead code (see Known adjacent issues), so this can't be tested yet — but the rule is fixed now so reviving the dash doesn't silently strand Earth players. Whoever restores `DashCoroutine` must clear the lock |
-| **Not in commit** | The ballista visual, pierce, charge tiers |
+| **Decision** | **A dash cancels the root.** The dash is currently dead code (see Known adjacent issues), so this can't be tested yet — but the pull model means a revived dash that cancels the charge clears the root for free, without touching this code |
+| **Not in commit** | The ballista visual, pierce, charge tiers. Damage still doesn't scale with charge, so the charge buys **aim, not power** — that tradeoff isn't real until 06 |
+
+**Editor pass 2026-09-06:** compiles clean, EditMode 73/73. Verified by reflection that `EarthWeapon`
+implements all three interfaces, that no other weapon picked up `IAimLockProvider`, and that `AttackKind`
+still reads `MeleeStrike, MeleeCharge, Ranged`. New serialized fields took their C# defaults on the
+prefabs (`maxChargeTime` 0.8, `rangedAimLength` 6).
+
+> **Two things the input layer decided for us.** `ChargeAttack` fires `started` only after the hold
+> interaction validates at 0.3s, so **a plain tap never roots the player** — no flicker on tap. And
+> `MoveInDirection` is event-driven (`HandleMove` fires only when the stick *changes*), so both lock
+> edges act immediately in `Update`: without that the player would slide through the root on entry and
+> stay frozen after it ended until they moved the stick again.
+>
+> **A stranding bug found and fixed here.** `ReleaseChargeAttack` only reached the weapon when
+> `playerState == MeleeReady && !IsOnAttackCooldown`. Releasing a charge while on cooldown left the
+> weapon still reporting its charge — with a root attached, that stranded the player permanently. It now
+> cancels the charge on that branch.
 
 ### Commit 05 — The ballista appears at your feet
 

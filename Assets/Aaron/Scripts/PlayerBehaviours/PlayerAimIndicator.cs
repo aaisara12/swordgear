@@ -9,7 +9,11 @@ public class PlayerAimIndicator : MonoBehaviour
     public enum AimMode
     {
         SwordThrow,
-        Dash
+        Dash,
+        /// <summary>Aim for an element that fires along the movement stick while rooted (Earth's charge).
+        /// Reuses the dash line visual at a fixed length — the shot is not distance-limited the way a
+        /// dash is.</summary>
+        Ranged
     }
 
     [Header("Indicators")]
@@ -39,6 +43,8 @@ public class PlayerAimIndicator : MonoBehaviour
     [SerializeField] private float indicatorWidth = 1f;
     [Tooltip("Multiplier on the authored dash-indicator Visual localScale.x. Defaults to 2x throw width.")]
     [SerializeField] private float dashIndicatorWidth = 2f;
+    [Tooltip("World length of the Ranged aim line (Earth's rooted charge). Reuses the dash visual.")]
+    [SerializeField] private float rangedAimLength = 6f;
 
     private Vector2 aimDirection;
     private AimMode aimMode;
@@ -168,7 +174,7 @@ public class PlayerAimIndicator : MonoBehaviour
             return;
         }
 
-        if (aimMode == AimMode.Dash)
+        if (aimMode == AimMode.Dash || aimMode == AimMode.Ranged)
         {
             UpdateDashPreview();
         }
@@ -183,7 +189,9 @@ public class PlayerAimIndicator : MonoBehaviour
         SetIndicatorActive(primaryIndicator, false);
         SetIndicatorActive(bounceIndicator, false);
 
-        float dashTipDistance = playerController != null ? playerController.DashDistance : referenceLength;
+        float dashTipDistance = aimMode == AimMode.Ranged
+            ? rangedAimLength
+            : (playerController != null ? playerController.DashDistance : referenceLength);
         float dashLengthParam = LengthParamForTipDistance(dashBaseScale, dashTipDistance);
         PlaceIndicator(
             dashIndicator,
