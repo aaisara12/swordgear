@@ -98,7 +98,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                     ""id"": ""c1947ffd-c6ea-4c31-b1d4-f623cd7cacf5"",
                     ""expectedControlType"": ""Vector3"",
                     ""processors"": """",
-                    ""interactions"": ""ButtonTapWithSteadyJoystick(secondsBeforeTapInvalidated=0.2)"",
+                    ""interactions"": ""ButtonTapWithSteadyJoystick"",
                     ""initialStateCheck"": true
                 },
                 {

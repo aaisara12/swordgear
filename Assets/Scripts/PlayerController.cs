@@ -725,16 +725,9 @@ public class PlayerController : PlayerGameplayPawn
 
         else if (playerState == PlayerState.MeleeReady)
         {
-            _chargeStartTime = Time.time;
             ElementManager.Instance.OnCharge(transform);
         }
     }
-
-    // The hold now registers on the press, so a quick press-release starts a charge as well as a tap.
-    // A charge released inside this window is discarded and the Attack action's tap handles it instead.
-    // Matches the tap interaction's own invalidation time.
-    private const float TapReleaseWindow = 0.2f;
-    private float _chargeStartTime = -1f;
 
     public override void ReleaseChargeAttack()
     {
@@ -748,17 +741,6 @@ public class PlayerController : PlayerGameplayPawn
 
         if (!hadRecallChannel)
         {
-            // Too short to be a charge — drop it and let the tap path fire. Both actions share the same
-            // button, so without this a quick press would attack twice.
-            if (_chargeStartTime >= 0f && Time.time - _chargeStartTime < TapReleaseWindow)
-            {
-                _chargeStartTime = -1f;
-                ElementManager.Instance.OnCharge(transform, cancel: true);
-                return;
-            }
-
-            _chargeStartTime = -1f;
-
             if (playerState == PlayerState.MeleeReady && !IsOnAttackCooldown)
             {
                 SyncMeleeFacingFromIndicator();
@@ -783,7 +765,6 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         CancelRecallChannel();
-        _chargeStartTime = -1f;
         ElementManager.Instance.OnCharge(transform, true);
     }
 

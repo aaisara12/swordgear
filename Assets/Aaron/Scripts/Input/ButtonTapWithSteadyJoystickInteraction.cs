@@ -8,8 +8,11 @@ using UnityEngine.InputSystem;
 /// </summary>
 public class ButtonTapWithSteadyJoystickInteraction : IInputInteraction<Vector3>
 {
-    public float JoystickSafeZone = 0.2f;
-    public float SecondsBeforeTapInvalidated = 0.3f;
+    public float JoystickSafeZone = SteadyJoystickInput.JoystickSafeZone;
+
+    // Shared with ButtonHoldWithSteadyJoystick so the tap/hold split can't drift apart again — see
+    // SteadyJoystickInput. Don't override this from the .inputactions asset.
+    public float SecondsBeforeTapInvalidated = SteadyJoystickInput.TapHoldSplitSeconds;
 
     private bool isDisabled = false;
     
