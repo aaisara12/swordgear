@@ -198,7 +198,6 @@ MonoBehaviour:
     m_Bits: 128
   blinkWallMargin: 0.5
   minionPrefab: {fileID: 8084453072019747188, guid: e9dc55e24a89d6845b018b6838a6d041, type: 3}
-  minionLifetime: 12
   minionDamageMultiplier: 0.6
   maxLiveMinions: 4
   autoAimRadius: 6
@@ -428,6 +427,57 @@ MonoBehaviour:
   tornadoDuration: 4
   tornadoPullForce: 8
   buffettedDuration: 3
+--- !u!1 &3184638746537000516
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 29555449687818042}
+  - component: {fileID: 7187729910779021864}
+  m_Layer: 0
+  m_Name: Light
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &29555449687818042
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3184638746537000516}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 4815673249366981286}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7187729910779021864
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3184638746537000516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 614d5c0742a4f294296e5e5803f4edfa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::LightWeapon
+  tunes:
+  - {fileID: 11400000, guid: 46063b490e5896c4fac6b97fe64ce086, type: 2}
+  tapCooldown: 0.45
+  revealPrefab: {fileID: 7718844726232751790, guid: 7c09bb2bf9bb71e41ab35915fab40cf8, type: 3}
+  revealOffset: {x: 0, y: 2.1}
+  revealLifetime: 0.9
+  autoAimRadius: 12
 --- !u!1 &3472039058363920340
 GameObject:
   m_ObjectHideFlags: 0
@@ -1256,6 +1306,7 @@ Transform:
   - {fileID: 3188503388509383987}
   - {fileID: 7910383872393107254}
   - {fileID: 4669162264387489195}
+  - {fileID: 29555449687818042}
   m_Father: {fileID: 4848120501802802916}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &8073755906317011575
@@ -1285,6 +1336,8 @@ MonoBehaviour:
     weapon: {fileID: 5176617156627460161}
   - element: 6
     weapon: {fileID: 2797471917670946657}
+  - element: 7
+    weapon: {fileID: 7187729910779021864}
 --- !u!1 &8056026369581769779
 GameObject:
   m_ObjectHideFlags: 0
@@ -1729,9 +1782,29 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: startingLoadout.Array.size
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: 'startingLoadout.Array.data[6]'
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[2].gearTile
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[0].element
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[0].material
+      value: 
+      objectReference: {fileID: 2100000, guid: 78f15b12cb984f94bb638e19c9f34029, type: 2}
     - target: {fileID: 7126362550526451437, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: m_Name
       value: Gear Manager

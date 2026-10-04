@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 52" width="80" height="52">
+  <!-- Four sixteenth notes beamed together, rising step by step: the Flurry's glyph. It rises because the
+       Flurry's melody is an ascending run, so the picture and the sound say the same thing.
+       Two beams = sixteenths. Drawn white so the Opalite shader supplies all of its colour. -->
+  <g fill="#FFFFFF">
+    <ellipse cx="10" cy="44" rx="6.4" ry="4.5" transform="rotate(-20 10 44)"/>
+    <ellipse cx="28" cy="41" rx="6.4" ry="4.5" transform="rotate(-20 28 41)"/>
+    <ellipse cx="46" cy="38" rx="6.4" ry="4.5" transform="rotate(-20 46 38)"/>
+    <ellipse cx="64" cy="35" rx="6.4" ry="4.5" transform="rotate(-20 64 35)"/>
+    <rect x="15.2" y="8.0" width="1.4" height="36.0"/>
+    <rect x="33.2" y="6.7" width="1.4" height="34.3"/>
+    <rect x="51.2" y="5.4" width="1.4" height="32.6"/>
+    <rect x="69.2" y="4.1" width="1.4" height="30.9"/>
+    <polygon points="15.2,8.0 70.6,4.0 70.6,8.5 15.2,12.5"/>
+    <polygon points="15.2,15.5 70.6,11.5 70.6,16.0 15.2,20.0"/>
+  </g>
+</svg>

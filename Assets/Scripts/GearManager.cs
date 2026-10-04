@@ -35,6 +35,13 @@ public static class GearTileElements
     }
 }
 
+[System.Serializable]
+public struct ElementArcMaterial
+{
+    public Element element;
+    public Material? material;
+}
+
 /// <summary>
 /// The ring that orbits the player. It holds one arc per <em>equipped</em> element, evenly distributed;
 /// flicking the attack stick toward an arc grants that arc's element.
@@ -72,6 +79,9 @@ public class GearManager : InitializeableGameComponent
     [Header("Arc Rendering")]
     [Tooltip("Optional. Leave empty to build an unlit vertex-coloured material at runtime.")]
     [SerializeField] private Material? arcMaterial;
+    [Tooltip("Per-element replacements for arcMaterial, for an element whose colour can't be a flat " +
+             "tint — Light's opal shimmer is a shader, not a colour.")]
+    [SerializeField] private List<ElementArcMaterial> elementArcMaterials = new();
     [SerializeField] private string arcSortingLayer = "Default";
     [SerializeField] private int arcSortingOrder = 4;
     [SerializeField, Range(0f, 1f)] private float filledArcAlpha = 0.7f;
@@ -296,7 +306,7 @@ public class GearManager : InitializeableGameComponent
             go.transform.SetParent(transform, false);
 
             var arc = go.AddComponent<GearArcVisual>();
-            arc.SetMaterial(material);
+            arc.SetMaterial(ResolveElementArcMaterial(i) ?? material);
             arc.SetSorting(sortingLayerId, arcSortingOrder);
             arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc);
 
@@ -336,6 +346,24 @@ public class GearManager : InitializeableGameComponent
         }
 
         arcVisuals[index].SetColor(color);
+    }
+
+    private Material? ResolveElementArcMaterial(int index)
+    {
+        if (!TryGetArcElement(index, out Element element))
+        {
+            return null;
+        }
+
+        foreach (ElementArcMaterial entry in elementArcMaterials)
+        {
+            if (entry.element == element && entry.material != null)
+            {
+                return entry.material;
+            }
+        }
+
+        return null;
     }
 
     private Material ResolveArcMaterial()

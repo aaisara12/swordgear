@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
+  <!-- A single sixteenth note, stem up: tilted oval notehead, stem from its right edge, two flags.
+       Drawn white so the Opalite shader supplies all of its colour. -->
+  <g fill="#FFFFFF">
+    <ellipse cx="11" cy="42" rx="6.4" ry="4.5" transform="rotate(-20 11 42)"/>
+    <rect x="16.2" y="6" width="1.4" height="36"/>
+    <path d="M 17.6 6 C 18.6 13 27.2 16 25.2 27 C 24.4 20.4 20.6 17.2 17.6 16 Z"/>
+    <path d="M 17.6 13 C 18.6 20 27.2 23 25.2 34 C 24.4 27.4 20.6 24.2 17.6 23 Z"/>
+  </g>
+</svg>

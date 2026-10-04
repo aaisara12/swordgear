@@ -29,7 +29,7 @@ R   Interface tidy — tap/charge naming + defaults, so weapons implement only w
 M1  Earth / Ballista Turret — grounds you, builds a ballista, charged piercing beam
 M1b Auto-aim range — the pointer's reach becomes per-element
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
-M2  Light / ??? — on hold, see the note under M2
+M2  Light / Harp — gambling: random tunes, a hot streak, a strummed charge
 ```
 
 Earth is first because it's the smallest and proves the movement-lock aim mode. Dark is last because
@@ -54,8 +54,13 @@ afterwards.
 | 08 | Dark selectable, tap arc swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 09 | Dark charge blinks + circle swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 10 | Dark execution raises a minion | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
-| 12 | Light — charge, design under review | ☐ | ☐ | ☐ |
+| 11 | Light on the ring, in opalite (Flurry) | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 12 | The harp sounds | ☐ | ☐ | ☐ |
+| 13 | Strike & Resonance | ☐ | ☐ | ☐ |
+| 14 | Lullaby & Fermata | ☐ | ☐ | ☐ |
+| 15 | Hot streak — Crescendo & Allegro | ☐ | ☐ | ☐ |
+| 16 | Grand Chord jackpot | ☐ | ☐ | ☐ |
+| 17 | Flourish — the charge | ☐ | ☐ | ☐ |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -367,54 +372,110 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 - Dark executions raise minions that fight for you and expire cleanly.
 - Waves still clear with minions alive; combo and ultimate charge behave sanely.
 
-> **On hold 2026-09-06.** Mark-then-detonate turned out to be *delayed AoE*, which Fire's bomb cascade
-> already covers — it read as "a ranged attack like Fire, with more steps". The implementation reached a
-> working state (tap marks, marks pulse and expire) and is parked on the tag **`light-marks-parked`**;
-> nothing Light-related is on main. Five replacement directions were sketched, the leading two being a
-> **force multiplier** (Light barely damages, but makes every other element hit harder — the only support
-> role in the roster) and a **sweeping beam** (continuous and positional rather than discrete shots).
-> Dark was brought forward while this is settled.
+> **Redesigned 2026-10-03.** Mark-then-detonate was shelved on 2026-09-06 because it read as *delayed AoE*,
+> which Fire's bomb cascade already covers ("a ranged attack like Fire, with more steps"). That version
+> is parked on the tag **`light-marks-parked`**. Light is now the gambling harp below.
 
-## M2 — Light / Harp  *(ON HOLD — design under review)*
+## M2 — Light / Harp  *(Opalite · Gambling)*
 
-> *Fantasy: mark and detonate, ranged burst. Tap: launch a single marking projectile. Charge: summon an
-> angel at your position that launches piercing beams at each mark.*
+> *Fantasy: gambling. Weapon: harp. Tap: play a random tune — an offensive spell, a weak heal, or a buff.
+> Charge: a burst of random tunes.* Light becomes the roster's only **support / sustain** element, and its
+> identity is variance: you don't choose what you get, you choose when to pull the lever, and you nurse
+> a lucky streak.
+
+### The tunes
+
+Every tune **shows its note above the player** as it plays (the "reel reveal"), sounds its own short
+melody, and the note value *means* something: quick notes are many quick hits, long notes are sustained
+effects, dynamic markings are intensity.
+
+| # | Tune | Note | Family | Effect |
+|---|---|---|---|---|
+| 1 | **Flurry** | four beamed 16ths | Offense | 4 small homing notes at the nearest enemies |
+| 2 | **Strike** | quarter note | Offense | one heavy straight note that bursts on impact |
+| 3 | **Resonance** | two beamed 8ths | Offense | a sound-wave ring damaging everything around you |
+| 4 | **Lullaby** | whole note | Sustain | heal ~12% max HP over 3s — the sustained note |
+| 5 | **Fermata** | half note + fermata | Sustain | ~1.5s invulnerability — the note "holds" you |
+| 6 | **Crescendo** | hairpin (<) | Streak | +20% damage per stack |
+| 7 | **Allegro** | eighth note | Streak | +20% attack speed, +15% move speed per stack |
+| ★ | **Grand Chord** | stacked chord | Jackpot | ~3%: Strike + Lullaby + Crescendo + Allegro at once |
+
+- **Odds:** even thirds by *family* (Offense, Sustain, Streak), split evenly inside each; the jackpot is
+  carved off the top. One `weight` per tune asset, so retuning is an Inspector edit.
+- **Hot streak:** Streak tunes stack (max 3) and last **until you take damage** (20s safety cap,
+  refreshed per stack). Getting hit busts the streak; Fermata exists partly to protect it.
+- **Tap** ~0.45s cooldown. **Charge — "Flourish":** stays mobile (Dark's shape, no aim lock); release
+  strums 2 tunes at a short hold up to 5 at full (~0.9s), 0.1s apart.
+- All numbers are first-pass and serialized on the tune assets.
 
 ### Design principles
 
-1. **Marks are a status effect, not a bespoke system.** `EnemyEffect` already carries Burn/Chill/Static/
-   Buffetted on a shared 1s tick — `Marked` is a fifth entry and inherits the expiry plumbing.
-2. **The angel is an actor with a lifetime**, not a weapon mode. It fires and expires on its own.
-3. **Beams mirror the enemy Beam Sniper.** `EnemyBeamLaser` is the reference; don't invent a second beam.
+1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
+   *kind* of effect (`ProjectileTune`, `PulseTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`),
+   one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry and Strike are two assets of one class.
+2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
+   so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
+   sits *on top of* augments, so an augment pickup (`ReapplyFromBlob`) can't wipe it.
+3. **Opal is a shader, not a colour.** `Swordgear/Opalite` — milky base, pastel sheen and twinkling
+   play-of-colour flecks, all driven by world position + time (the gear arc mesh has no UVs). The flat
+   palette entry (lilac pearl `0.95, 0.86, 1.0`) is the stand-in for everything that can only take a colour.
+4. **Notes are real notation.** Hand-authored SVGs in `Assets/Visuals/Light/Notes/`, imported as Textured
+   Sprites at one shared scale (1 SVG unit = 0.012 world units), drawn white so the opal shader colours them.
 
-### Commit 11 — Tap marks enemies  *(on hold)*
-
-| | |
-|---|---|
-| **Adds** | `LightWeapon.cs`; `EnemyEffect.Marked` + its visual; an enumerate-marked query on `ActiveEnemyRegistry` (it only does `TryGetNearest` today) |
-| **Changes** | `CoreSystems.prefab` — register `LightWeapon`; `Gear.prefab` — loadout appends Light (6 arcs) |
-| **How to reach it** | Flick toward the Light arc |
-| **Playtest** | Flick to Light → tap → a projectile flies out and the enemy it hits **visibly carries a mark**. Mark expires on its own after a few seconds |
-| **Regression check** | Existing status effects still apply and expire — Fire's burn, Ice's chill, Lightning's static |
-| **Not in commit** | The angel; anything that consumes marks |
-
-### Commit 12 — Charge summons the angel  *(on hold)*
+### Commit 11 — Light is on the ring, in opalite ✅
 
 | | |
 |---|---|
-| **Adds** | Angel actor prefab + controller (lifetime, beam cadence); player-side piercing beam |
-| **Changes** | `LightWeapon` — charge release summons the angel at the player's position |
-| **Mechanism** | On summon the angel queries all marked enemies and fires one piercing beam per mark, consuming it |
-| **Playtest** | Mark 3 enemies → hold charge → release → an **angel appears and beams every marked enemy**. Marking nobody and charging should whiff harmlessly, not error |
-| **Regression check** | Marks still expire naturally when no angel is summoned |
-| **Risk** | Enemies can die between marking and detonation — the angel must tolerate dead/despawned targets |
+| **Adds** | `Opalite.shader`; `Opalite` / `OpaliteAdditive` / `OpaliteArc` materials; `HarpTune` + `ProjectileTune` + `LightWeapon`; `Flurry.asset`; `FlurryNote` and `HarpReveal` prefabs + `HarpReveal_Pop` clip; 16th and beamed-16ths SVGs |
+| **Changes** | `GearManager` — per-element arc material override (Light → `OpaliteArc`); `ElementVisuals` / `ElementVisualUtility` — Light becomes lilac pearl; `CoreSystems.prefab` — registers `LightWeapon`, loadout appends Light (**7 arcs, ~51°**) |
+| **Playtest** | Flick to Light: the arc shimmers opal. Tap → four beamed sixteenths pop above you and four small sixteenth notes home into the nearest enemies |
+| **Regression check** | Every other arc still draws with its flat colour; every flick direction has shifted (7 arcs) |
+
+### Commit 12 — The harp sounds
+
+| | |
+|---|---|
+| **Adds** | `harp_pluck.wav` (Karplus-Strong, synthesized offline); `Sound.Harp_Pluck` (appended); each tune's melody |
+| **Playtest** | Tap → a quick rising four-note run |
+
+### Commit 13 — Strike & Resonance join the roll
+
+| | |
+|---|---|
+| **Playtest** | Taps vary: a heavy quarter note that bursts, a ring pulse around you |
+
+### Commit 14 — Lullaby & Fermata
+
+| | |
+|---|---|
+| **Playtest** | Some taps heal you (HP bar climbs over 3s), some make you briefly untouchable |
+
+### Commit 15 — Hot streak
+
+| | |
+|---|---|
+| **Adds** | Streak layer in `PlayerStatModifiers` (`AddStreakStack` / `ClearStreaks` / `OnStreakChanged`); `StreakTune`; Crescendo & Allegro; stack indicator |
+| **Playtest** | Hairpins / eighth notes stack over your head; you hit harder and faster until you get hit |
+| **Careful** | Move speed is event-driven — `PlayerController` re-applies movement on `OnStreakChanged`. Streaks clear on node reset, defeat and new run |
+
+### Commit 16 — Grand Chord jackpot
+
+| | |
+|---|---|
+| **Playtest** | Rarely, everything fires at once with a full strummed chord |
+
+### Commit 17 — Flourish (the charge)
+
+| | |
+|---|---|
+| **Playtest** | Hold → release strums 2–5 random tunes in a row; you can move while charging |
 
 ### Acceptance criteria (M2 done)
 
-- Tap marks; marks are readable at a glance and expire.
-- Charge summons an angel that beams every live mark and consumes them.
-- Zero marks, or marks on enemies that died mid-charge, are handled without errors.
-- The play pattern reads as *mark → detonate*, not *shoot → shoot*.
+- Every tap plays something, and you can tell which tune it was from the note alone.
+- Families come up in roughly even thirds over a fight.
+- A streak feels worth protecting, and getting hit visibly ends it.
+- Light reads as support / sustain, not as a fourth ranged damage element.
 
 ---
 
@@ -434,7 +495,13 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **08** | Flick to Dark → tap → purple arc swing |
 | **09** | Dark charge → blink + circle cut |
 | **10** | Dark execution → the corpse fights for you |
-| **11–12** | Light — on hold |
+| **11** | Flick to Light → opal arc; tap → beamed 16ths pop overhead, four notes home in |
+| **12** | Tap → a rising four-note harp run |
+| **13** | Taps vary: a bursting quarter note, a ring pulse |
+| **14** | Some taps heal, some make you untouchable |
+| **15** | Streak notes stack overhead; you hit harder/faster until hit |
+| **16** | Rarely, everything fires at once |
+| **17** | Hold → release strums 2–5 tunes |
 
 ---
 
