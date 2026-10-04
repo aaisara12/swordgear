@@ -12,8 +12,10 @@ public static class ElementVisuals
             Element.Wind => new Color(0.56f, 0.93f, 0.56f, 1f), // light green
             Element.Earth => new Color(0.76f, 0.52f, 0.24f, 1f), // amber / brown
             Element.Dark => new Color(0.34f, 0.11f, 0.52f, 1f), // deep violet
-            // Warm white — must stay readable against Physical's cool white-cyan below.
-            Element.Light => new Color(1f, 0.99f, 0.88f, 1f),
+            // Opal's milky lilac-pearl base. The real opal shimmer is the Opalite shader; this is the flat
+            // stand-in for everything that can only take a colour. Must stay distinct from Physical's
+            // white-cyan below.
+            Element.Light => new Color(0.95f, 0.86f, 1f, 1f),
             _ => new Color(0.85f, 1f, 1f, 1f), // bright white-cyan for Physical
         };
     }

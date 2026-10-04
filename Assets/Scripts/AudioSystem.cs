@@ -36,6 +36,12 @@ public class AudioSystem : MonoBehaviour
         Player_Defeat,
 
         BGM,
+
+        // Light — one pluck sample at C5; melodies re-pitch it. Appended: the library serializes by index.
+        Harp_Pluck,
+
+        // A soft rising bell shimmer: the sound of a heal starting (Light's Lullaby).
+        Heal_Shimmer,
     }
 
     public AudioLibrary library;

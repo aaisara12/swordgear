@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 44 56" width="44" height="56">
+  <!-- Two quarter notes with staccato dots: Staccato's glyph. Staccato means short and detached, and the
+       tune fires short-lived notes off in every direction. Same notehead and stem as the other notes; the
+       dot sits under each head. Drawn white so the Opalite shader supplies all of its colour. -->
+  <g fill="#FFFFFF">
+    <ellipse cx="10" cy="40" rx="6.4" ry="4.5" transform="rotate(-20 10 40)"/>
+    <rect x="15.2" y="4" width="1.4" height="36"/>
+    <circle cx="10" cy="51" r="2.6"/>
+    <ellipse cx="30" cy="40" rx="6.4" ry="4.5" transform="rotate(-20 30 40)"/>
+    <rect x="35.2" y="4" width="1.4" height="36"/>
+    <circle cx="30" cy="51" r="2.6"/>
+  </g>
+</svg>

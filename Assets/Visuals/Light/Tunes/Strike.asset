@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7eb163c1c19e3b478fcdf52e162bc06, type: 3}
+  m_Name: Strike
+  m_EditorClassIdentifier: Main::ProjectileTune
+  family: 0
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: 2e50537382e41ae45bb60007466f1a29, type: 3}
+  melody:
+  - semitones: -12
+    delay: 0
+    volume: 0.9
+  - semitones: -5
+    delay: 0
+    volume: 0.6
+  notePrefab: {fileID: 6709602377765139217, guid: 22a046e3f01e7184899c92ce7db13a30, type: 3}
+  count: 1
+  interval: 0
+  spreadDegrees: 0
+  speed: 14
+  spawnOffset: 0.7
+  damageMultiplier: 1.8
+  homingTurnRate: 0
+  explosionRadius: 2.2
+  aimRadius: 12

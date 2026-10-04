@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 30 50" width="30" height="50">
+  <!-- A single quarter note, stem up: Strike's glyph and its projectile. One beat, one heavy hit, so no
+       flags. Same box and notehead as the sixteenth so the two read at the same size.
+       Drawn white so the Opalite shader supplies all of its colour. -->
+  <g fill="#FFFFFF">
+    <ellipse cx="11" cy="42" rx="6.4" ry="4.5" transform="rotate(-20 11 42)"/>
+    <rect x="16.2" y="6" width="1.4" height="36"/>
+  </g>
+</svg>

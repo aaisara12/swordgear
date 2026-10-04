@@ -1,0 +1,31 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06f3157421f52d40a4c135d11ac437c, type: 3}
+  m_Name: Rest
+  m_EditorClassIdentifier: Main::WaveTune
+  family: 1
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: 35b8d210179a73d42bd278c77c5d8bcb, type: 3}
+  melody:
+  - semitones: -24
+    delay: 0
+    volume: 0.55
+  - semitones: -12
+    delay: 0.25
+    volume: 0.3
+  wavePrefab: {fileID: 923093829015587267, guid: f0a14ce28a3aba04783bad7e775a11e1, type: 3}
+  waves: 1
+  interval: 0
+  radius: 8
+  travelSeconds: 0.8
+  damageMultiplier: 0
+  chillSeconds: 2

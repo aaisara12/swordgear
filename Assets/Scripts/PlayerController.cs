@@ -475,6 +475,16 @@ public class PlayerController : PlayerGameplayPawn
     void OnEnable()
     {
         SwordLodgedIndicator.OnSwordLodged += HandleSwordLodged;
+        PlayerStatModifiers.OnStreakChanged += HandleStreakChanged;
+    }
+
+    // Move speed is applied when the stick moves, not every frame, so a streak gaining or losing Allegro
+    // would otherwise not change your speed until you next touched the stick. Replaying the stick is the
+    // same idiom DashCoroutine uses to resume movement, and MoveInDirection already ignores it mid-dash,
+    // while rooted, frozen or defeated.
+    void HandleStreakChanged(StreakChange change, string streakId)
+    {
+        MoveInDirection(_stickDirection);
     }
 
     void HandleSwordLodged()
@@ -664,6 +674,7 @@ public class PlayerController : PlayerGameplayPawn
     private void OnDisable()
     {
         SwordLodgedIndicator.OnSwordLodged -= HandleSwordLodged;
+        PlayerStatModifiers.OnStreakChanged -= HandleStreakChanged;
         CancelAttackAnimation();
 
         if (playerState == PlayerState.SwordThrown)
@@ -1057,6 +1068,9 @@ public class PlayerController : PlayerGameplayPawn
         }
 
         StopWalkSound();
+
+        // A hot streak belongs to the fight it was earned in.
+        PlayerStatModifiers.Instance?.ClearStreaks();
 
         // Clear cooldowns and movement state.
         _attackCooldownRemaining = 0f;

@@ -1,0 +1,42 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c58757d455588c4459559b118fa3371e, type: 3}
+  m_Name: Lullaby
+  m_EditorClassIdentifier: Main::HealTune
+  family: 1
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: 2d5157e3b1063cd44a8989ea195f8267, type: 3}
+  melody:
+  - semitones: 12
+    delay: 0
+    volume: 0.4
+  - semitones: 7
+    delay: 0.3
+    volume: 0.4
+  - semitones: 4
+    delay: 0.3
+    volume: 0.4
+  - semitones: 0
+    delay: 0.4
+    volume: 0.45
+  maxHpFraction: 0.12
+  durationSeconds: 3
+  ticks: 12
+  auraPrefab: {fileID: 5193434084161082546, guid: 6b08718c7b0debc43969ec19147e91ec, type: 3}
+  healNumberPrefab: {fileID: 9161166652363444249, guid: 4721b5b1abd3ff34f891d52dd03f51b9, type: 3}
+  healNumberSeconds: 0.8
+  healNumberOffset: {x: 0, y: 0.8}
+  healNumberJitter: 0.5
+  healNumberColor: {r: 0.45, g: 1, b: 0.5, a: 1}
+  shimmerVolume: 0.6
+  sparkleSemitones: 180000001a0000001c0000001f000000
+  sparkleVolume: 0.14

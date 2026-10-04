@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d7eb163c1c19e3b478fcdf52e162bc06, type: 3}
+  m_Name: Staccato
+  m_EditorClassIdentifier: Main::ProjectileTune
+  family: 0
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: a1f760f2f97fa3c4789771da85bc9df8, type: 3}
+  melody:
+  - semitones: 0
+    delay: 0
+    volume: 0.5
+  - semitones: 7
+    delay: 0.08
+    volume: 0.5
+  - semitones: 12
+    delay: 0.08
+    volume: 0.55
+  - semitones: 7
+    delay: 0.08
+    volume: 0.5
+  notePrefab: {fileID: 6709602377765139217, guid: be461ea8dd4faf94688166905b365b44, type: 3}
+  count: 8
+  interval: 0
+  spreadDegrees: 0
+  ring: 1
+  speed: 13
+  spawnOffset: 0.6
+  damageMultiplier: 0.4
+  homingTurnRate: 0
+  explosionRadius: 0
+  aimRadius: 12

@@ -43,7 +43,7 @@ public class DarkMinion : MonoBehaviour
     [Tooltip("Scales the size inherited from the corpse. 1 matches the enemy it was raised from.")]
     [SerializeField] private float sizeMultiplier = 1f;
     [Tooltip("Seconds of constant health drain from fully raised to collapsed.")]
-    [SerializeField] private float drainSeconds = 5f;
+    [SerializeField] private float drainSeconds = 8f;
 
     private float damage;
     // Normalised: 1 when raised, 0 when it collapses. Nothing but the drain ever lowers it.

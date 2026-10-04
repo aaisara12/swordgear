@@ -29,7 +29,7 @@ R   Interface tidy — tap/charge naming + defaults, so weapons implement only w
 M1  Earth / Ballista Turret — grounds you, builds a ballista, charged piercing beam
 M1b Auto-aim range — the pointer's reach becomes per-element
 M3  Dark / Scythe — arc swing, blink-circle charge, then minion conversion
-M2  Light / ??? — on hold, see the note under M2
+M2  Light / Harp — gambling: random tunes, a hot streak, a strummed charge
 ```
 
 Earth is first because it's the smallest and proves the movement-lock aim mode. Dark is last because
@@ -54,8 +54,17 @@ afterwards.
 | 08 | Dark selectable, tap arc swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 09 | Dark charge blinks + circle swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 10 | Dark execution raises a minion | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
-| 11 | Light — tap, design under review | ☐ | ☐ | ☐ |
-| 12 | Light — charge, design under review | ☐ | ☐ | ☐ |
+| 11 | Light on the ring, in opalite (Flurry) | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 15 | Hot streak — Fortissimo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 16 | Presto — move-speed streak | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 17 | The arsenal — owned tunes, starters, family-first roll | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 18 | "Learn a tune" — the repeatable augment | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 19 | Staccato & Rest — two more tunes | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 20 | Grand Chord jackpot — every owned tune at once | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 21 | Flourish — the charge | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -354,8 +363,8 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **Adds** | `DarkMinion` (a "shade": hunts the nearest enemy, damages on contact, drains away); `DarkShade.prefab` |
 | **Changes** | `DarkWeapon.OnMeleeHit` — a killing blow raises a shade wearing the dead enemy's sprite |
 | **Mechanism** | ⚠️ **Not conversion.** The enemy dies a completely normal death and a *separate* actor is raised in its place. `EnemyController` is untouched |
-| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side**, hunts the nearest enemy, and visibly thins as its health drains, collapsing after **5s**. Enemies ignore it entirely |
-| **Health drain** | The shade's only threat is its own constant drain — enemies never target or damage it. Its health is drained from full to nothing over `drainSeconds` (5), and the sprite thins with it so the time left is readable. At most 4 live at once |
+| **Playtest** | Kill an enemy with Dark melee → it **gets back up on your side**, hunts the nearest enemy, and visibly thins as its health drains, collapsing after **8s**. Enemies ignore it entirely |
+| **Health drain** | The shade's only threat is its own constant drain — enemies never target or damage it. Its health is drained from full to nothing over `drainSeconds` (8), and the sprite thins with it so the time left is readable. At most 4 live at once |
 | **Regression check** | Non-Dark kills still just die. Minions must not count as live enemies for **wave-clear**, or the arena will never complete |
 | **Why not conversion** | Every risk this commit was flagged for came from keeping the enemy alive on the player's side. Killing it for real removes them by construction: wave clear counts `LevelLoader.activeEnemies` until objects are destroyed, so a converted enemy would hold the wave open **forever**; the player's auto-aim reads `ActiveEnemyRegistry`, which a shade never joins; and nothing has to reliably neuter enemy AI across **26 prefabs** with differing strategies. Combo and ult credit stay correct because the kill really is a kill |
 | **Careful** | The shade is deliberately **not tagged `Enemy`** — `PlayerHitbox` reacts to that tag, so a tagged shade would be hit by the player's own swings. Its collider is a trigger so it can't shove anyone. Its damage passes `feedsCombo:false`, matching DoT ticks: a shade acting on its own must not keep the player's combo alive |
@@ -367,54 +376,194 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 - Dark executions raise minions that fight for you and expire cleanly.
 - Waves still clear with minions alive; combo and ultimate charge behave sanely.
 
-> **On hold 2026-09-06.** Mark-then-detonate turned out to be *delayed AoE*, which Fire's bomb cascade
-> already covers — it read as "a ranged attack like Fire, with more steps". The implementation reached a
-> working state (tap marks, marks pulse and expire) and is parked on the tag **`light-marks-parked`**;
-> nothing Light-related is on main. Five replacement directions were sketched, the leading two being a
-> **force multiplier** (Light barely damages, but makes every other element hit harder — the only support
-> role in the roster) and a **sweeping beam** (continuous and positional rather than discrete shots).
-> Dark was brought forward while this is settled.
+> **Redesigned 2026-10-03.** Mark-then-detonate was shelved on 2026-09-06 because it read as *delayed AoE*,
+> which Fire's bomb cascade already covers ("a ranged attack like Fire, with more steps"). That version
+> is parked on the tag **`light-marks-parked`**. Light is now the gambling harp below.
 
-## M2 — Light / Harp  *(ON HOLD — design under review)*
+## M2 — Light / Harp  *(Opalite · Gambling)*
 
-> *Fantasy: mark and detonate, ranged burst. Tap: launch a single marking projectile. Charge: summon an
-> angel at your position that launches piercing beams at each mark.*
+> *Fantasy: gambling. Weapon: harp. Tap: play a random tune — an offensive spell, a weak heal, or a buff.
+> Charge: a burst of random tunes.* Light becomes the roster's only **support / sustain** element, and its
+> identity is variance: you don't choose what you get, you choose when to pull the lever, and you nurse
+> a lucky streak.
+
+### The tunes
+
+Every tune **shows its note above the player** as it plays (the "reel reveal"), sounds its own short
+melody, and the note value *means* something: quick notes are many quick hits, long notes are sustained
+effects, dynamic markings are intensity.
+
+| # | Tune | Note | Family | Effect | Starter? |
+|---|---|---|---|---|---|
+| 1 | **Flurry** | four beamed 16ths | Offense | 4 small homing notes at the nearest enemies | ✅ |
+| 2 | **Strike** | quarter note | Offense | one heavy straight note that bursts on impact | |
+| 3 | **Resonance** | two beamed 8ths | Offense | two sound waves roll out across the room, hitting each enemy as they pass | |
+| 4 | **Staccato** | two quarter notes with staccato dots | Offense | a ring of short, detached notes bursts outward all around you | |
+| 5 | **Lullaby** | whole note | Sustain | heal ~12% max HP over 3s — the sustained note | ✅ |
+| 6 | **Fermata** | half note + fermata | Sustain | ~1.5s invulnerability — the note "holds" you | |
+| 7 | **Rest** | quarter rest | Sustain | everything around you is stilled — nearby enemies slowed for ~2s | |
+| 8 | **Fortissimo** | ff | Streak | +10% damage per stack · overhead icon: sword | ✅ |
+| 9 | **Allegro** | eighth note | Streak | +10% attack speed per stack · overhead icon: metronome | |
+| 10 | **Presto** | thirty-second note | Streak | +10% move speed per stack · overhead icon: wing | |
+| ★ | **Grand Chord** | stacked chord | Jackpot | ~3%: plays **every tune you own** at once | always |
+
+- **One stat per streak tune**, at +10% per stack (halved from the first pass, which was too strong).
+  Each has its own overhead icon with a chevron per stack, so the icon *is* the stat.
+- **The arsenal.** A run starts with one tune per family (Flurry, Lullaby, Fortissimo). Every other tune
+  is learned through **one repeatable augment, "Learn a tune"**: each purchase teaches a random tune you
+  don't know yet, and it stops being offered once you know them all. The gamble starts in the shop.
+- **Odds:** the roll picks a **family** evenly among the families you own a tune in, then a tune within
+  it. So it's even thirds from the first tap and stays even as the arsenal grows, with no weights to
+  rebalance per tune. The jackpot is its own ~3% roll ahead of that, and gets better as you learn more.
+- **Hot streak:** Streak tunes stack (max 3) and last **until you take damage** (20s safety cap,
+  refreshed per stack). Getting hit busts the streak; Fermata exists partly to protect it.
+- **Tap** ~0.45s cooldown. **Charge — "Flourish":** stays mobile (Dark's shape, no aim lock); release
+  strums 2 tunes at a short hold up to 5 at full (~0.9s), 0.1s apart.
+- All numbers are first-pass and serialized on the tune assets.
 
 ### Design principles
 
-1. **Marks are a status effect, not a bespoke system.** `EnemyEffect` already carries Burn/Chill/Static/
-   Buffetted on a shared 1s tick — `Marked` is a fifth entry and inherits the expiry plumbing.
-2. **The angel is an actor with a lifetime**, not a weapon mode. It fires and expires on its own.
-3. **Beams mirror the enemy Beam Sniper.** `EnemyBeamLaser` is the reference; don't invent a second beam.
+1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
+   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`), one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry, Strike and Staccato are
+   three assets of one class; Resonance and Rest are both `WaveTune`.
+2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
+   so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
+   sits *on top of* augments, so an augment pickup (`ReapplyFromBlob`) can't wipe it.
+3. **Opal is a shader, not a colour.** `Swordgear/Opalite` — milky base, pastel sheen and twinkling
+   play-of-colour flecks, all driven by world position + time (the gear arc mesh has no UVs). The flat
+   palette entry (lilac pearl `0.95, 0.86, 1.0`) is the stand-in for everything that can only take a colour.
+4. **Notes are real notation; stat icons are icons.** The tune reveal is hand-authored notation
+   (`Assets/Visuals/Light/Notes/`); a live streak is shown by a plain stat icon (`Assets/Visuals/Light/Icons/`
+   — sword, metronome, wing, chevron) with its outline baked in. All imported as Textured Sprites at one
+   shared scale (1 SVG unit = 0.012 world units), drawn white so the opal shader colours them.
+5. **Light's feedback lives over the player, not on the HUD.** A HUD panel was tried and dropped as too
+   loud for something one element uses. Over-head icons carry the state; floating callouts carry the
+   exact numbers at the moment you earn them.
+6. **Ownership is inventory.** Learned tunes are inventory items on the player blob, so they persist
+   across nodes and are wiped with everything else on a new run, with no new save path.
 
-### Commit 11 — Tap marks enemies  *(on hold)*
+### Commit 11 — Light is on the ring, in opalite ✅
 
 | | |
 |---|---|
-| **Adds** | `LightWeapon.cs`; `EnemyEffect.Marked` + its visual; an enumerate-marked query on `ActiveEnemyRegistry` (it only does `TryGetNearest` today) |
-| **Changes** | `CoreSystems.prefab` — register `LightWeapon`; `Gear.prefab` — loadout appends Light (6 arcs) |
-| **How to reach it** | Flick toward the Light arc |
-| **Playtest** | Flick to Light → tap → a projectile flies out and the enemy it hits **visibly carries a mark**. Mark expires on its own after a few seconds |
-| **Regression check** | Existing status effects still apply and expire — Fire's burn, Ice's chill, Lightning's static |
-| **Not in commit** | The angel; anything that consumes marks |
+| **Adds** | `Opalite.shader`; `Opalite` / `OpaliteAdditive` / `OpaliteArc` materials; `HarpTune` + `ProjectileTune` + `LightWeapon`; `Flurry.asset`; `FlurryNote` and `HarpReveal` prefabs + `HarpReveal_Pop` clip; 16th and beamed-16ths SVGs |
+| **Changes** | `GearManager` — per-element arc material override (Light → `OpaliteArc`); `ElementVisuals` / `ElementVisualUtility` — Light becomes lilac pearl; `CoreSystems.prefab` — registers `LightWeapon`, loadout appends Light (**7 arcs, ~51°**) |
+| **Playtest** | Flick to Light: the arc shimmers opal. Tap → four beamed sixteenths pop above you and four small sixteenth notes home into the nearest enemies |
+| **Regression check** | Every other arc still draws with its flat colour; every flick direction has shifted (7 arcs) |
 
-### Commit 12 — Charge summons the angel  *(on hold)*
+### Commit 12 — The harp sounds ✅
 
 | | |
 |---|---|
-| **Adds** | Angel actor prefab + controller (lifetime, beam cadence); player-side piercing beam |
-| **Changes** | `LightWeapon` — charge release summons the angel at the player's position |
-| **Mechanism** | On summon the angel queries all marked enemies and fires one piercing beam per mark, consuming it |
-| **Playtest** | Mark 3 enemies → hold charge → release → an **angel appears and beams every marked enemy**. Marking nobody and charging should whiff harmlessly, not error |
-| **Regression check** | Marks still expire naturally when no angel is summoned |
-| **Risk** | Enemies can die between marking and detonation — the angel must tolerate dead/despawned targets |
+| **Adds** | `Assets/Audio/Light/harp_pluck.wav` — one C5 pluck, Karplus-Strong synthesized offline with the Python stdlib (soft fingered excitation, a pick-position comb, a faintly detuned sympathetic string); `Sound.Harp_Pluck` (appended) + its `MainAudioLibrary` entry on the SFX group; `HarpNote` melodies on `HarpTune` |
+| **Changes** | `LightWeapon` — plays the rolled tune's melody alongside its effect; Flurry's melody is C–E–G–C rising, 0.06s apart to match its volley |
+| **Mechanism** | Every pitch is the one sample re-pitched by `2^(semitones/12)`. That also shortens high notes, the way short harp strings die faster |
+| **Playtest** | Tap → a quick rising four-note run, one pluck per note leaving |
+
+### Commit 13 — Strike & Resonance join the roll ✅
+
+| | |
+|---|---|
+| **Adds** | `WaveTune` + `HarpWave`; `Strike.asset` (a `ProjectileTune`) + `StrikeNote.prefab`; `Resonance.asset` + `ResonanceWave.prefab` and its `ResonanceWave_Travel` clip; quarter-note, beamed-eighths and wave-ring SVGs |
+| **Strike** | One straight, non-homing quarter note (1.8× base) that bursts for 2.2 on impact through `PlayerProjectile.EnableExplosion`, Earth's proven burst. It hits harder than Flurry's 4 × 0.35 because it can miss. Sounds a low open fifth, C4 + G4 together |
+| **Resonance** | Two opal sound waves roll out from where you played them, 0.15s apart, each reaching 8 (just inside the gear ring) in 0.5s and dealing 0.5× base to every enemy **as its front passes them**. Needs no target and reaches most of the room, so it pays out whether you're swarmed or not. Sounds C4 then G4, one pluck per wave |
+| **Why a wave** | It began as a point-blank 3.5 burst, but that's melee reach: it only paid when enemies were already on you, and a random tune that rolls a dud in most situations feels like losing the gamble. The burst ring also faded from 55% of its growth, so it read smaller than its damage |
+| **Mechanism** | The expansion is an authored, normalised AnimationClip. `HarpWave.Play` stretches it to `travelSeconds` and sizes it to `radius` (DarkMinion's drain-sync idiom), and `WaveTune` reads the animated front back each frame to decide who's been hit. The ring on screen *is* the hit test, so retiming or re-easing the clip moves the damage with it |
+| **Careful** | `CatchExplosionFX`'s ring tops out at radius ~1.2 at scale 1 (`_MaxRadius` 0.95 of a 2.5-unit quad), so Strike's burst scales from **1.2**, not the 1.5 Earth's rock uses. The ring you see is the area that took damage |
+| **Odds** | Three Offense tunes at weight 1 each: a measured 33.8 / 32.9 / 33.3% over 30k rolls |
+| **Playtest** | Taps vary: a heavy quarter note that bursts; two opal waves rolling out across the room, hitting enemies as they pass |
+
+### Commit 14 — Lullaby & Fermata ✅
+
+| | |
+|---|---|
+| **Adds** | `HealTune`, `WardTune`, `HarpAura` (+ `HarpAuraUtility.Wear`); `Lullaby.asset`, `Fermata.asset`; `LullabyAura.prefab` (particles, `OpaliteEighthNote.mat`), `FermataWard.prefab` + `FermataWard_Hold` clip; whole-note, half-note-with-fermata and single-eighth SVGs |
+| **Lullaby** | Whole note. Heals 12% of max HP over 3s in 12 even ticks through `PlayerGameplayManager.Heal`, so the bar visibly climbs. Opal eighth notes drift up around you while it plays. Sounds a slow falling C6–G5–E5–C5 |
+| **Fermata** | Half note under a fermata. 1.5s invulnerable through `PlayerController.GrantIFrames`, which never shortens a window already running. An opal ward rings you, popping in, breathing and swelling open as it lets go. Sounds an open chord, C4 + G4 + C5, left to ring |
+| **Careful** | `GrantIFrames` also runs the player's hurt-blink, so Fermata blinks the sprite; the ward is what tells it apart from being hit. `HarpAura` stretches its clip and sets its emitters' duration to the tune's, so tune data stays the single source of truth for timing. Emitters must keep stop action `None`: the pool turns `Destroy` into a release callback |
+| **Odds** | Sustain's two tunes at weight 1.5 match Offense's three at 1, so it's 50/50 by family until Streak lands in 15: 16.7% per Offense tune and 25% per Sustain tune over 60k rolls |
+| **Verified** | Lullaby healed exactly 24 of 200 in 2-HP steps every 0.25s. Under Fermata, hits at 0.3s and 1.3s did nothing and one at 1.7s landed |
+| **Heal clarity (follow-up)** | Drifting opal notes alone didn't read as healing. Each tick that actually heals now pops a green "+2" off the player (`HealNumber.prefab`, skipped at full HP) and a quiet high harp sparkle; a synthesized `Sound.Heal_Shimmer` (rising C-major bell chime, appended) marks the start; and `PlayerHealthBarUI` flashes the fill green and swells the bar on **any** heal (lifesteal and rest nodes too) |
+| **Playtest** | Some taps heal you (HP bar climbs over 3s, notes drift up around you), some make you briefly untouchable (an opal ring holds you) |
+
+### Commit 15 — Hot streak: Fortissimo & Allegro ✅
+
+| | |
+|---|---|
+| **Adds** | Streak layer in `PlayerStatModifiers` (`StreakStat`, `StreakBonus`, `StreakState`, `AddStreakStack` / `ClearStreaks` / static `OnStreakChanged(StreakChange, id)`); `StreakTune`; `Fortissimo.asset`, `Allegro.asset`; ff SVG; sword, metronome (+ swinging arm) and chevron icon SVGs; `StreakWorldIndicator` + `StreakIndicator.prefab` (on `CoreSystems`) + `StreakCallout.prefab`; `StreakText`; outlined HUD-font material; `PlayerStreakTest` |
+| **Fortissimo** | ff, "very loud". +10% damage per stack. Sounds two hammered octaves |
+| **Allegro** | Eighth note. +10% attack speed per stack, shortening every element's cooldown through `ElementManager.OnTap` — Light's own taps too, so you pull the lever faster |
+| **Streak rules** | Max 3 stacks per streak; each stack refreshes a 20s safety cap; **any damage busts every streak** (`OnHealthChanged` with `Delta < 0`). Cleared on node reset (`PlayerController.ResetForNode`) and new run (`ClearForNewRun`) |
+| **Visibility** | Over the player's head, never the HUD. Each live streak is a **stat icon with a chevron per stack**: a sword for damage, a metronome for attack speed whose arm swings faster with every stack. Chevrons climb in a loop, a new stack pops the icon, a bust swells and bursts it. **Callouts** carry the numbers: "+10% DMG" per stack (stacking in lanes at tap speed) and a red "STREAK BROKEN" with a sour low harp cluster on a bust |
+| **History** | First pass gave Allegro attack + move speed and used notation glyphs and a HUD panel; reworked on feedback to one stat per tune at half strength, icons instead of text, no HUD. Crescendo's hairpin read as "a sideways pixelated shape" and became Fortissimo's ff |
+| **Careful** | Augment values live in backing fields and `DamageMultiplier` / `AttackSpeedMultiplier` / `MoveSpeedMultiplier` are augment + streak, because `ReapplyFromBlob` rebuilds augments from scratch on every pickup (covered by `PlayerStreakTest`). Move speed is applied on stick input, so `PlayerController` replays the stick on `OnStreakChanged`. The icon row is scaled on its `Bob` node, not the icons, whose own scale belongs to their pop/burst clips. Light's reveal moved up to 3.9 to clear the icons |
+| **Playtest** | A sword (or metronome) with chevrons appears over your head and grows a chevron per stack; you hit harder or attack faster until you get hit, then it bursts with "STREAK BROKEN" |
+
+### Commit 16 — Presto ✅
+
+| | |
+|---|---|
+| **Adds** | `Presto.asset` (`StreakTune`, Streak); thirty-second-note SVG (three flags: the fastest note on the harp); wing icon SVG + its indicator group, whose `Wing_Flap` clip beats faster per stack like the metronome |
+| **Effect** | +10% move speed per stack, max 3. Sounds a blur of a run, G5 up to C7 |
+| **Odds** | Streak tunes now weigh 1 each (three of them = 3, level with Offense and Sustain) until commit 17's family-first roll retires per-family weight balancing. Measured 33.4 / 33.2 / 33.4% |
+| **Art note** | The wing took three drafts: a single swept blade read as a leaf, fanned ellipses as pebbles; the pointed-primaries silhouette reads as a wing at in-game size |
+| **Playtest** | Roll Presto → a wing with a chevron appears over your head and you move faster; it grows per stack and bursts on a hit |
+
+### Commit 17 — The arsenal ✅
+
+| | |
+|---|---|
+| **Adds** | `HarpRepertoire` (an `InitializeableUnrestrictedGameComponent` on the Light node, registered with `GameInitializer` in `BootUp`) — which tunes the player owns: the starters plus every learnable tune with a `light-tune-<name>` item in the player blob's inventory. It keeps no state of its own. `HarpTune.PickByFamily` (family evenly, then weight within family); `HarpRollTest` (6 EditMode tests over the logic, tunes built in-test) |
+| **Changes** | `LightWeapon` rolls `PickByFamily` over `repertoire.Owned`; its own tune list is gone. Every tune's `weight` reset to 1: weights now only rank tunes *within* a family |
+| **Verified** | Fresh run owns exactly Flurry / Lullaby / Fortissimo (33.2 / 33.4 / 33.4%). Learning Strike and Allegro through the live blob adds them, and families stay 32.9 / 33.9 / 33.2% |
+| **Starters** | Flurry, Lullaby, Fortissimo — one per family, so the first tap of a run is already even thirds |
+| **Playtest** | A fresh run rolls only Flurry, Lullaby and Fortissimo |
+
+### Commit 18 — "Learn a tune" ✅
+
+| | |
+|---|---|
+| **Adds** | `UpgradeType.Light_LearnTune` (appended); `LearnTuneStoreItem` (an `ElementUpgradeLoadableStoreItem`) + `up_light_learntune.asset` in `AugmentCatalog` — **Silver** tier, cost 100, harp icon SVG; `LoadableStoreItem.IsOfferable` (virtual, default true) honoured by the tier pickers; `HarpRepertoire.OnTuneLearned`; `StreakWorldIndicator.Announce`; 3 more `HarpRollTest` cases |
+| **How it works** | The purchase is an ordinary element upgrade: each copy lands in the inventory (element-tagged `@Light|elem-upgrade-Light_LearnTune`) and **stays there**, so the element ledger counts it as a Light augment like any other. `HarpRepertoire` counts copies against learned tunes and, on every inventory change, learns random unknown tunes until they match (idempotent; over-buying stops at everything). Each learn pops the tune's note over the player with a gold "NEW TUNE: STRIKE" |
+| **Rules** | `IsOfferable` is false once nothing is left to learn, so it drops out of every offer |
+| **Tier** | Silver rather than the Diamond other element upgrades use, so it shows up in regular post-fight offers: it's meant to be taken many times. ~1 in 11 of the Silver pool. A tuning knob |
+| **Verified** | Bought through `PurchaseUtility` with a real tagged offer: learned Presto, Light ledger 0 → 1; buying out learned all five in random order, then 0 appearances in 300 Silver offer rolls. HP unchanged across a purchase |
+| **Playtest** | Buy it in the shop → next fight, a tune you didn't have starts showing up; keep buying until it disappears from the shop |
+
+### Commit 19 — Staccato & Rest ✅
+
+| | |
+|---|---|
+| **Adds** | `Staccato.asset` (`ProjectileTune`) + `StaccatoNote.prefab` (an eighth note, 0.55s life); `Rest.asset` (`WaveTune`); staccato (two dotted quarters) and quarter-rest SVGs; `ProjectileTune.ring`; `WaveTune.chillSeconds` |
+| **Staccato** | Eight short-lived notes burst out evenly all around you, 0.4× base each. Fired as a `ring` starting straight at the aim: a centred fan of an even count never sends a note at the target or along the axes (the first pass hit only 2 of 4 enemies placed around the player) |
+| **Rest** | One slow wave (0.8s to radius 8) that deals nothing and chills every enemy it passes for 2s: 50% slower, through Ice's existing Chill effect (so it also wears Ice's blue tint). No new class: Rest is a `WaveTune` with damage 0. Sounds a soft low C |
+| **Unlock** | Both are learned through "Learn a tune", never starters |
+| **Playtest** | Staccato sprays notes in every direction; Rest stills the enemies around you |
+
+### Commit 20 — Grand Chord jackpot ✅
+
+| | |
+|---|---|
+| **Adds** | `JackpotTune` + `GrandChord.asset`; stacked-chord SVG (four heads in thirds on one stem, with an arpeggio line); `HarpTune.Roll` (jackpot first, then the family roll) + a `HarpRollTest` case; `HarpContext.Owned`; `LightWeapon.jackpot` / `jackpotChance` (0.03) |
+| **Effect** | ~3% per tap, rolled before and outside the family roll: plays the **effect** of every tune you own at once (each streak gains a stack), with one full strummed chord instead of ten melodies, and a gold "JACKPOT!". Grows with the arsenal: three tunes on a fresh run, ten once everything is learned |
+| **Verified** | Forced with all ten owned: three streaks stacked, invulnerable, 10 projectiles, 3 waves, both auras, "JACKPOT!". Natural rate 2.81% over 20k rolls |
+| **Playtest** | Rarely, everything you own fires at once |
+
+### Commit 21 — Flourish (the charge) ✅
+
+| | |
+|---|---|
+| **Adds** | `LightWeapon` implements `IMeleeChargeProvider` (Dark's shape: mobile, no aim lock); `PlayRolledTune` shared by the tap and the strum |
+| **Effect** | Hold up to 0.9s, release → strums `round(lerp(2, 5, charge))` tunes 0.1s apart, each a full independent roll (jackpot included), with their reveals fanned side by side (1.4 apart) so every note played can be read. 0.9s cooldown |
+| **Verified** | Through the real input path (`BeginChargeAttack` / `ReleaseChargeAttack`): indicators read 0.5 at half hold and max at full; walking at full speed while charging; a full hold put 5 reveals on screen, a 0.12s hold put 2 |
 
 ### Acceptance criteria (M2 done)
 
-- Tap marks; marks are readable at a glance and expire.
-- Charge summons an angel that beams every live mark and consumes them.
-- Zero marks, or marks on enemies that died mid-charge, are handled without errors.
-- The play pattern reads as *mark → detonate*, not *shoot → shoot*.
+- Every tap plays something, and you can tell which tune it was from the note alone.
+- Families come up in roughly even thirds over a fight, however many tunes are owned.
+- A fresh run plays only the three starters; "Learn a tune" grows the arsenal one random tune at a time.
+- A streak feels worth protecting, and getting hit visibly ends it.
+- Light reads as support / sustain, not as a fourth ranged damage element.
 
 ---
 
@@ -434,14 +583,24 @@ parts, 11 is a new system. Dark should be playable long before minions land.
 | **08** | Flick to Dark → tap → purple arc swing |
 | **09** | Dark charge → blink + circle cut |
 | **10** | Dark execution → the corpse fights for you |
-| **11–12** | Light — on hold |
+| **11** | Flick to Light → opal arc; tap → beamed 16ths pop overhead, four notes home in |
+| **12** | Tap → a rising four-note harp run |
+| **13** | Taps vary: a bursting quarter note, two waves rolling across the room |
+| **14** | Some taps heal (notes drift up, HP climbs), some make you untouchable (an opal ring holds you) |
+| **15** | A sword or metronome with chevrons over your head; hit harder / attack faster until hit, then "STREAK BROKEN" |
+| **16** | Presto: a wing over your head and you move faster |
+| **17** | A fresh run only rolls Flurry, Lullaby, Fortissimo |
+| **18** | Buy "Learn a tune" → a new random tune joins the roll; it leaves the shop once you know them all |
+| **19** | Staccato sprays notes all around; Rest stills nearby enemies |
+| **20** | Rarely, every tune you own fires at once |
+| **21** | Hold → release strums 2–5 tunes |
 
 ---
 
 ## Backlog (in this doc's scope, not started)
 
 - ☐ **Element-switch flourish / "gear arts"** — the doc asks for a visual pop on switch; nothing exists.
-  `ElementManager.OnActiveElementChanged` is the hook.
+  `ElementManager.OnActiveElementChanged` is the hook. Folded into the polish pass at the end of this doc.
 - ☐ **Sword sprite changes per element.** The doc says *"sword changes to match that element"* with a
   shared gear crossguard motif. Today only VFX differ — `PlayerWeaponIndicator` just rotates the pivot
   and toggles visibility; there is no element→sprite path. Art-blocked (7 sprites), then a small change.
@@ -498,3 +657,18 @@ play-mode feel check. Plan revised in discussion: matrix-neutral confirmed, time
 size accepted, interface tidied rather than split and reordered ahead of all element work, M1 re-sliced
 into four beats around a transient ballista. Say **"start commit 04"** (or a later number) and we apply
 only that slice and give you the exact play steps.*
+
+---
+
+## ⏰ Reminder — plan the polish pass
+
+**Before calling the expansion done, sit down and `/plan` a dedicated polish pass.** Not started and not
+yet designed. Requested 2026-10-03. Two goals:
+
+1. **Make every element's gear section look cooler.** Today each arc is a flat vertex-coloured wedge.
+   Light's opal arc (`OpaliteArc.mat`, through `GearManager.elementArcMaterials`) shows the route: each
+   element can get its own material — e.g. flowing embers for Fire, frost crystals for Ice, crackling
+   arcs for Lightning, drifting leaves for Wind, stone strata for Earth, smoke for Dark.
+2. **A sick on-screen visual when you switch elements.** A full moment, not just a colour change. This
+   absorbs the backlog's *element-switch flourish / "gear arts"* item; `ElementManager.OnActiveElementChanged`
+   is the hook. Authored in the editor (prefabs, particles, AnimationClips) per AGENTS.md, not built in code.

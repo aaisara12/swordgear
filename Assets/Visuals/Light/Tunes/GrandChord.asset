@@ -1,0 +1,53 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 185fc210640de0c48a36f3e74ac4b987, type: 3}
+  m_Name: GrandChord
+  m_EditorClassIdentifier: Main::JackpotTune
+  family: 3
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: cf9baab9faed8634d893569698daaad1, type: 3}
+  melody:
+  - semitones: -24
+    delay: 0
+    volume: 0.45
+  - semitones: -20
+    delay: 0.03
+    volume: 0.46499997
+  - semitones: -17
+    delay: 0.03
+    volume: 0.48
+  - semitones: -12
+    delay: 0.03
+    volume: 0.49499997
+  - semitones: -8
+    delay: 0.03
+    volume: 0.51
+  - semitones: -5
+    delay: 0.03
+    volume: 0.525
+  - semitones: 0
+    delay: 0.03
+    volume: 0.53999996
+  - semitones: 4
+    delay: 0.03
+    volume: 0.555
+  - semitones: 7
+    delay: 0.03
+    volume: 0.57
+  - semitones: 12
+    delay: 0.03
+    volume: 0.585
+  - semitones: 24
+    delay: 0.15
+    volume: 0.5
+  announcement: JACKPOT!
+  announcementColor: {r: 1, g: 0.85, b: 0.3, a: 1}

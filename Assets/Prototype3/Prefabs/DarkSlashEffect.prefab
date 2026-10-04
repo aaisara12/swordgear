@@ -223,7 +223,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.42, g: 0.14, b: 0.68, a: 1}
+      maxColor: {r: 0.6538462, g: 0.21153846, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -5138,7 +5138,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.42, g: 0.14, b: 0.68, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -9974,7 +9974,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.42, g: 0.14, b: 0.68, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -14308,32 +14308,32 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1.9032178, g: 1.6887461, b: 1.5530975, a: 1}
-        key1: {r: 0.8060923, g: 0.8584906, b: 0.84313726, a: 0}
-        key2: {r: 0.80609226, g: 0.8584906, b: 0.5142844, a: 0}
-        key3: {r: 1, g: 0.21176471, b: 0, a: 0}
-        key4: {r: 1, g: 0.21176471, b: 0, a: 0}
+        key0: {r: 1.2444117, g: 0.40260378, b: 1.9032178, a: 1}
+        key1: {r: 0.5613208, g: 0.18160377, b: 0.8584906, a: 0}
+        key2: {r: 0, g: 0, b: 0, a: 0}
+        key3: {r: 0, g: 0, b: 0, a: 0}
+        key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
         ctime1: 36815
-        ctime2: 40092
-        ctime3: 40959
-        ctime4: 40959
+        ctime2: 0
+        ctime3: 0
+        ctime4: 0
         ctime5: 0
         ctime6: 0
         ctime7: 0
         atime0: 33911
         atime1: 65535
-        atime2: 59114
+        atime2: 0
         atime3: 0
         atime4: 0
         atime5: 0
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
+        m_ColorSpace: -1
         m_NumColorKeys: 2
         m_NumAlphaKeys: 2
       minGradient:
@@ -14887,7 +14887,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.42, g: 0.14, b: 0.68, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -19723,7 +19723,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 0
       minColor: {r: 1, g: 1, b: 1, a: 1}
-      maxColor: {r: 0.42, g: 0.14, b: 0.68, a: 1}
+      maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
@@ -24066,12 +24066,12 @@ ParticleSystem:
       maxColor: {r: 1, g: 1, b: 1, a: 1}
       maxGradient:
         serializedVersion: 2
-        key0: {r: 1, g: 1, b: 1, a: 1}
+        key0: {r: 0.6538462, g: 0.21153846, b: 1, a: 1}
         key1: {r: 2.8048525, g: 2.85081, b: 2.552296, a: 0}
-        key2: {r: 1.4656694, g: 1.5272459, b: 1.0474828, a: 0}
-        key3: {r: 0.97607815, g: 1, b: 0.6650944, a: 0}
-        key4: {r: 0.79510254, g: 0.8018868, b: 0.78297436, a: 0}
-        key5: {r: 0.79510254, g: 0.8018868, b: 0.78297436, a: 0}
+        key2: {r: 0.9985839, g: 0.32307124, b: 1.5272459, a: 0}
+        key3: {r: 0.6538462, g: 0.21153846, b: 1, a: 0}
+        key4: {r: 0.52431065, g: 0.1696299, b: 0.8018868, a: 0}
+        key5: {r: 0, g: 0, b: 0, a: 0}
         key6: {r: 0, g: 0, b: 0, a: 0}
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 3048
@@ -24079,19 +24079,19 @@ ParticleSystem:
         ctime2: 7239
         ctime3: 19275
         ctime4: 33346
-        ctime5: 33346
+        ctime5: 0
         ctime6: 0
         ctime7: 0
         atime0: 33339
         atime1: 65535
-        atime2: 59114
+        atime2: 0
         atime3: 0
         atime4: 0
         atime5: 0
         atime6: 0
         atime7: 0
         m_Mode: 0
-        m_ColorSpace: 0
+        m_ColorSpace: -1
         m_NumColorKeys: 5
         m_NumAlphaKeys: 2
       minGradient:
@@ -24490,15 +24490,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2174043596939286992, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2174043596939286992, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 2174043596939286992, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840100256165, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24506,15 +24506,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840100256165, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840100256165, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840100256165, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840358028553, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24522,15 +24522,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840358028553, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840358028553, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840358028553, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840926994124, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24538,15 +24538,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840926994124, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840926994124, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429840926994124, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841380245910, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24554,15 +24554,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841380245910, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841380245910, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841380245910, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841386395817, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24570,15 +24570,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841386395817, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841386395817, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841386395817, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841919056807, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: playOnAwake
@@ -24586,15 +24586,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841919056807, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841919056807, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6102429841919056807, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6391672581392091418, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: m_LocalPosition.x
@@ -24642,15 +24642,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6415429442876093293, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.b
-      value: 0.68
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6415429442876093293, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.g
-      value: 0.14
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6415429442876093293, guid: f791790f35137b946b82347edb9264f2, type: 3}
       propertyPath: InitialModule.startColor.maxColor.r
-      value: 0.42
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

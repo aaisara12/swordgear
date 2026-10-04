@@ -73,3 +73,9 @@ MonoBehaviour:
   - sound: 20
     clip: {fileID: 8300000, guid: 355f876b9ef6ac74087a5aea7066fefe, type: 3}
     mixerGroup: {fileID: -4087517036398493429, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 21
+    clip: {fileID: 8300000, guid: 197485c68c031cd438680e6b4d50c5a7, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 22
+    clip: {fileID: 8300000, guid: b6cc634cb1d60ab4f93c450fb87602ae, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}

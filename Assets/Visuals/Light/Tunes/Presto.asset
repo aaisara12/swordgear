@@ -1,0 +1,57 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 806c10a81326d2d45b975ab08ddadb7f, type: 3}
+  m_Name: Presto
+  m_EditorClassIdentifier: Main::StreakTune
+  family: 2
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: ec00bcdeee38cd544b9c3cc21c223455, type: 3}
+  melody:
+  - semitones: 7
+    delay: 0
+    volume: 0.4
+  - semitones: 9
+    delay: 0.03
+    volume: 0.42000002
+  - semitones: 11
+    delay: 0.03
+    volume: 0.44
+  - semitones: 12
+    delay: 0.03
+    volume: 0.46
+  - semitones: 14
+    delay: 0.03
+    volume: 0.48000002
+  - semitones: 16
+    delay: 0.03
+    volume: 0.5
+  - semitones: 17
+    delay: 0.03
+    volume: 0.52
+  - semitones: 19
+    delay: 0.03
+    volume: 0.54
+  - semitones: 21
+    delay: 0.03
+    volume: 0.56
+  - semitones: 23
+    delay: 0.03
+    volume: 0.58
+  - semitones: 24
+    delay: 0.03
+    volume: 0.6
+  streakId: Presto
+  bonuses:
+  - stat: 2
+    percentPerStack: 10
+  maxStacks: 3
+  capSeconds: 20
