@@ -175,7 +175,7 @@ MonoBehaviour:
   moveSpeed: 4.5
   attackInterval: 0.6
   sizeMultiplier: 1
-  drainSeconds: 5
+  drainSeconds: 8
 --- !u!95 &5725431803575578371
 Animator:
   serializedVersion: 7
