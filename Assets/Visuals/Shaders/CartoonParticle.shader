@@ -1,18 +1,22 @@
 Shader "Swordgear/Cartoon Particle"
 {
-    // The polish pass's cartoon particles. Each material picks a shape (_SHAPE_*), drawn in the particle's own
-    // UV square as a flat two-tone cartoon — body, a shaded crescent, a highlight, an ink outline — with no
-    // textures, so every element's bursts share one look and stay crisp at any size. The particle's colour is
-    // the body; shade and ink are derived from it, so colour-over-lifetime recolours the whole cartoon.
+    // The polish pass's cartoon particles. Each material picks a shape (_Shape), drawn in the particle's own UV
+    // square as a flat two-tone cartoon — body, a shade, a highlight, an ink outline — with no textures, so
+    // every element's bursts share one look and stay crisp at any size. The particle's colour is the body;
+    // shade and ink are derived from it, so colour-over-lifetime recolours the whole cartoon.
+    //
+    // The shape is a plain enum rather than keywords (there are more shapes than a KeywordEnum allows); every
+    // particle of a material takes the same branch, so the branch costs next to nothing.
     //
     // Renderers using it need custom vertex streams UV, AgePercent and StableRandom.x, which pack into
-    // TEXCOORD0.xyzw: age thins rings, the random seeds each bolt's zig-zag. Shapes that point along their
-    // flight (_ALIGN_VELOCITY: shards, bolts, comets) also need Velocity, in TEXCOORD1: the quad stays facing
-    // the camera and the shape turns inside it. (Unity's own velocity alignment turns the quad edge-on to a
-    // top-down camera.)
+    // TEXCOORD0.xyzw: age thins rings, the random seeds each bolt's zig-zag and each rock's outline. Shapes
+    // that point along their flight (_ALIGN_VELOCITY: shards, bolts, comets, dashes) also need Velocity, in
+    // TEXCOORD1: the quad stays facing the camera and the shape turns inside it. (Unity's own velocity
+    // alignment turns the quad edge-on to a top-down camera.)
     Properties
     {
-        [KeywordEnum(Blob, Star, Shard, Bolt, Ring, Puff, Comet)] _Shape ("Shape", Float) = 0
+        [Enum(Blob, 0, Star, 1, Shard, 2, Bolt, 3, Ring, 4, Puff, 5, Comet, 6, Swirl, 7, Rock, 8, Note, 9, Leaf, 10, Dash, 11)]
+        _Shape ("Shape", Float) = 0
         _Emission ("Emission (HDR)", Range(0.5, 6)) = 1.5
         _InkTone ("Ink (the colour this dark)", Range(0, 1)) = 0.25
         _InkWidth ("Ink Width (of the half-size)", Range(0, 0.3)) = 0.12
@@ -34,13 +38,26 @@ Shader "Swordgear/Cartoon Particle"
             HLSLPROGRAM
             #pragma vertex ParticleVertex
             #pragma fragment ParticleFragment
-            #pragma shader_feature_local _SHAPE_BLOB _SHAPE_STAR _SHAPE_SHARD _SHAPE_BOLT _SHAPE_RING _SHAPE_PUFF _SHAPE_COMET
             #pragma shader_feature_local _ALIGN_VELOCITY
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "ElementFX.hlsl"
 
+            #define SHAPE_BLOB 0
+            #define SHAPE_STAR 1
+            #define SHAPE_SHARD 2
+            #define SHAPE_BOLT 3
+            #define SHAPE_RING 4
+            #define SHAPE_PUFF 5
+            #define SHAPE_COMET 6
+            #define SHAPE_SWIRL 7
+            #define SHAPE_ROCK 8
+            #define SHAPE_NOTE 9
+            #define SHAPE_LEAF 10
+            #define SHAPE_DASH 11
+
             CBUFFER_START(UnityPerMaterial)
+                float _Shape;
                 half _Emission;
                 half _InkTone;
                 half _InkWidth;
@@ -80,6 +97,13 @@ Shader "Swordgear/Cartoon Particle"
                 return o;
             }
 
+            float2 Rotate(float2 p, float angle)
+            {
+                float c = cos(angle);
+                float s = sin(angle);
+                return float2(p.x * c - p.y * s, p.x * s + p.y * c);
+            }
+
             // Uneven capsule: a circle of radius r1 at the origin joined smoothly to one of r2 at (0, h).
             float SdUnevenCapsule(float2 p, float r1, float r2, float h)
             {
@@ -93,42 +117,91 @@ Shader "Swordgear/Cartoon Particle"
             }
 
             // The shape, as a signed distance in the particle's square (-1..1 each way).
-            float Shape(float2 q, float age, float seed)
+            float Shape(int shape, float2 q, float age, float seed)
             {
-            #if defined(_SHAPE_STAR)
-                return EFX_SdStar4(q, 0.95);
-            #elif defined(_SHAPE_SHARD)
-                // A long diamond, point first along +y.
-                return (abs(q.x) * 2.6 + abs(q.y) - 0.95) * rsqrt(2.6 * 2.6 + 1.0);
-            #elif defined(_SHAPE_BOLT)
-                // A zig-zag along y, kinking every 0.38, each particle its own.
-                float kink = (q.y + 0.95) / 0.38;
-                float k = floor(kink);
-                float x0 = (EFX_Hash21(float2(k, seed * 97.0)) - 0.5) * 0.7 * step(0.5, k);
-                float x1 = (EFX_Hash21(float2(k + 1.0, seed * 97.0)) - 0.5) * 0.7;
-                float slope = (x1 - x0) / 0.38;
-                float across = abs(q.x - lerp(x0, x1, frac(kink))) * rsqrt(1.0 + slope * slope);
-                return max(across - 0.2 * (1.0 - 0.5 * abs(q.y)), abs(q.y) - 0.95);
-            #elif defined(_SHAPE_RING)
-                // A ring that thins as the particle ages.
-                float thickness = lerp(0.08, 0.012, age);
-                return abs(length(q) - (0.94 - thickness)) - thickness;
-            #elif defined(_SHAPE_PUFF)
-                // A cartoon cloud: four overlapping bumps.
-                float d = length(q - float2(0.0, 0.18)) - 0.52;
-                d = min(d, length(q - float2(-0.45, -0.12)) - 0.4);
-                d = min(d, length(q - float2(0.45, -0.12)) - 0.4);
-                return min(d, length(q - float2(0.0, -0.32)) - 0.42);
-            #elif defined(_SHAPE_COMET)
-                // A round head leading along +y, a tail tapering away behind it.
-                return SdUnevenCapsule(float2(q.x, 0.5 - q.y), 0.42, 0.06, 1.38);
-            #else
+                [branch] if (shape == SHAPE_STAR)
+                {
+                    return EFX_SdStar4(q, 0.95);
+                }
+                else if (shape == SHAPE_SHARD)
+                {
+                    // A long diamond, point first along +y.
+                    return (abs(q.x) * 2.6 + abs(q.y) - 0.95) * rsqrt(2.6 * 2.6 + 1.0);
+                }
+                else if (shape == SHAPE_BOLT)
+                {
+                    // A zig-zag along y, kinking every 0.38, each particle its own.
+                    float kink = (q.y + 0.95) / 0.38;
+                    float k = floor(kink);
+                    float x0 = (EFX_Hash21(float2(k, seed * 97.0)) - 0.5) * 0.7 * step(0.5, k);
+                    float x1 = (EFX_Hash21(float2(k + 1.0, seed * 97.0)) - 0.5) * 0.7;
+                    float slope = (x1 - x0) / 0.38;
+                    float across = abs(q.x - lerp(x0, x1, frac(kink))) * rsqrt(1.0 + slope * slope);
+                    return max(across - 0.2 * (1.0 - 0.5 * abs(q.y)), abs(q.y) - 0.95);
+                }
+                else if (shape == SHAPE_RING)
+                {
+                    // A ring that thins as the particle ages.
+                    float thickness = lerp(0.08, 0.012, age);
+                    return abs(length(q) - (0.94 - thickness)) - thickness;
+                }
+                else if (shape == SHAPE_PUFF)
+                {
+                    // A cartoon cloud: four overlapping bumps.
+                    float d = length(q - float2(0.0, 0.18)) - 0.52;
+                    d = min(d, length(q - float2(-0.45, -0.12)) - 0.4);
+                    d = min(d, length(q - float2(0.45, -0.12)) - 0.4);
+                    return min(d, length(q - float2(0.0, -0.32)) - 0.42);
+                }
+                else if (shape == SHAPE_COMET)
+                {
+                    // A round head leading along +y, a tail tapering away behind it.
+                    return SdUnevenCapsule(float2(q.x, 0.5 - q.y), 0.42, 0.06, 1.38);
+                }
+                else if (shape == SHAPE_SWIRL)
+                {
+                    // A gust curl: about a turn and a quarter of a spiral stroke, thickening toward its tail.
+                    const float pitch = 0.105;
+                    float theta = atan2(q.y, q.x);
+                    float phi = theta + 6.2831853 * round((length(q) / pitch - theta) / 6.2831853);
+                    phi = clamp(phi, 1.2, 8.6);
+                    float2 onSpiral = pitch * phi * float2(cos(phi), sin(phi));
+                    return length(q - onSpiral) - (0.08 + 0.08 * (phi - 1.2) / 7.4);
+                }
+                else if (shape == SHAPE_ROCK)
+                {
+                    // A chunky rock: a rounded block with two corners knocked off, each its own proportions.
+                    float d = EFX_SdRoundBox(q, float2(0.78, 0.55 + 0.2 * seed), 0.22);
+                    d = max(d, dot(q, float2(0.7071, 0.7071)) - 0.72);
+                    return max(d, dot(q, float2(-0.857, -0.514)) - (0.66 + 0.1 * seed));
+                }
+                else if (shape == SHAPE_NOTE)
+                {
+                    // A cartoon eighth note, centred in the square.
+                    float2 p = q * 1.15 + float2(0.12, 0.45);
+                    float2 h = Rotate(p, 0.35) / float2(0.3, 0.21);
+                    float head = (length(h) - 1.0) * 0.21;
+                    float stem = EFX_SdRoundBox(p - float2(0.24, 0.52), float2(0.06, 0.52), 0.04);
+                    float flag = EFX_SdRoundBox(Rotate(p - float2(0.42, 0.88), 0.6), float2(0.2, 0.08), 0.06);
+                    return min(head, min(stem, flag)) / 1.15;
+                }
+                else if (shape == SHAPE_LEAF)
+                {
+                    // A leaf: the lens between two circles, tips along y.
+                    return max(length(q - float2(0.6, 0.0)), length(q + float2(0.6, 0.0))) - 0.95;
+                }
+                else if (shape == SHAPE_DASH)
+                {
+                    // A speed line: a capsule along y.
+                    return length(float2(q.x, q.y - clamp(q.y, -0.78, 0.78))) - 0.19;
+                }
+
                 return length(q) - 0.8;
-            #endif
             }
 
             half4 ParticleFragment(Varyings input) : SV_Target
             {
+                int shape = (int)round(_Shape);
                 float2 q = (input.uvAgeSeed.xy - 0.5) * 2.0;
             #if defined(_ALIGN_VELOCITY)
                 // Turn the shape so its +y points along the flight. It has to fit the square's inscribed circle.
@@ -138,31 +211,33 @@ Shader "Swordgear/Cartoon Particle"
                 float age = input.uvAgeSeed.z;
                 float seed = input.uvAgeSeed.w;
 
-                float sdf = Shape(q, age, seed);
+                float sdf = Shape(shape, q, age, seed);
                 half3 body = input.color.rgb;
 
-                // Shade: the crescent of the shape not covered by itself nudged up-left, as if lit from there.
-                // Shards shade one face instead, so they read as cut crystal.
-            #if defined(_SHAPE_SHARD)
-                half shade = EFX_Step(0.0, q.x);
-            #elif defined(_SHAPE_RING) || defined(_SHAPE_BOLT)
-                half shade = 0.0;
-            #else
-                half shade = EFX_Step(0.0, Shape(q + float2(0.2, -0.2), age, seed));
-            #endif
+                // Edges are anti-aliased over one pixel of the particle's square, not over the field's own
+                // gradient: a swirl's field jumps where it changes turns, and that would fringe.
+                float px = max(fwidth(q.x), fwidth(q.y));
+
+                // Shade: most shapes shade the crescent not covered by themselves nudged up-left, as if lit from
+                // there; shards and leaves shade one face; strokes (rings, bolts, swirls, dashes) stay flat.
+                bool stroke = shape == SHAPE_RING || shape == SHAPE_BOLT || shape == SHAPE_SWIRL || shape == SHAPE_DASH;
+                bool faceted = shape == SHAPE_SHARD || shape == SHAPE_LEAF;
+                half crescent = 1.0 - EFX_FillPx(Shape(shape, q + float2(0.2, -0.2), age, seed), px);
+                half shade = stroke ? 0.0 : (faceted ? EFX_Step(0.0, q.x) : crescent);
                 half3 rgb = lerp(body, body * _ShadeTone, shade) * _Emission;
 
-            #if defined(_SHAPE_BLOB) || defined(_SHAPE_PUFF) || defined(_SHAPE_COMET)
-                half glint = EFX_Fill(length(q - float2(-0.34, 0.36)) - 0.14) * _HighlightDot;
+                bool glossy = shape == SHAPE_BLOB || shape == SHAPE_PUFF || shape == SHAPE_COMET || shape == SHAPE_ROCK;
+                half glint = EFX_Fill(length(q - float2(-0.34, 0.36)) - 0.14) * _HighlightDot * (glossy ? 1.0 : 0.0);
                 rgb = lerp(rgb, max(rgb, 1.0) * 1.3, glint);
-            #elif defined(_SHAPE_BOLT)
-                rgb = lerp(rgb, max(rgb, 1.0) * 1.4, EFX_Fill(sdf + 0.08));   // a white-hot core
-            #endif
+                half core = shape == SHAPE_BOLT ? EFX_FillPx(sdf + 0.08, px) : 0.0;   // a bolt's white-hot core
+                rgb = lerp(rgb, max(rgb, 1.0) * 1.4, core);
 
                 // Ink in the particle's own units, capped in pixels so a big ring isn't drawn in a fat marker.
-                half ink = min(_InkWidth, _InkMaxPixels * fwidth(q.x));
-                rgb = lerp(rgb, body * _InkTone, EFX_Step(-ink, sdf) * step(1e-4, ink));
-                return half4(rgb, EFX_Fill(sdf) * input.color.a);
+                half ink = min(_InkWidth, _InkMaxPixels * px);
+                half outline = (1.0 - EFX_FillPx(sdf + ink, px)) * step(1e-4, ink);
+                half midrib = shape == SHAPE_LEAF ? (1.0 - EFX_Step(ink * 0.6, abs(q.x))) * step(abs(q.y), 0.6) : 0.0;
+                rgb = lerp(rgb, body * _InkTone, max(outline, midrib));
+                return half4(rgb, EFX_FillPx(sdf, px) * input.color.a);
             }
             ENDHLSL
         }

@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: CartoonFlash
+  m_Name: CartoonRock
   m_Shader: {fileID: 4800000, guid: b5aa3cba8656df6449f9cd86164ca9c9, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -26,13 +26,13 @@ Material:
     m_Ints: []
     m_Floats:
     - _AlignVelocity: 0
-    - _Emission: 3
-    - _HighlightDot: 0
+    - _Emission: 1.5
+    - _HighlightDot: 0.6
     - _InkMaxPixels: 4
     - _InkTone: 0.25
-    - _InkWidth: 0
-    - _ShadeTone: 1
-    - _Shape: 0
+    - _InkWidth: 0.12
+    - _ShadeTone: 0.72
+    - _Shape: 8
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

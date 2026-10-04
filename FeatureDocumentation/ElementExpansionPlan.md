@@ -719,7 +719,7 @@ only that slice and give you the exact play steps.*
 | P5 | Imbue timer on the gear | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P6 | The hub | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P8 | Bursts for Wind/Earth/Dark/Light | ☐ | ☐ | ☐ |
+| P8 | Bursts for Wind/Earth/Dark/Light | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
 | P10 | Switch sounds | ☐ | ☐ | ☐ |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
@@ -786,6 +786,14 @@ only that slice and give you the exact play steps.*
 | **Bursts** | Fire: puffy fireballs, embers, star sparks, a flame ring. Ice: shards flung outward point-first, spinning snowflakes, frost puffs, a frost ring. Lightning: a soft flash, zig-zag bolts flying outward, sparks, a ring |
 | **Authoring** | Every visual is a prefab/material made in the editor; the director only listens, places them from `PrefabPool`, tints the streak and shockwave, and sets the streak's speed |
 | **Gotchas** | Unity's velocity alignment (and Align To Direction) turns a billboard edge-on to a top-down orthographic camera, and stretched billboards misbehave there too: shapes that point along their flight read the Velocity vertex stream and turn inside a camera-facing quad (`_ALIGN_VELOCITY`). Particle ink is capped in pixels so a 30-unit ring isn't drawn in a fat marker. A `[Toggle]` keyword must be saved with its float, or the drawer re-syncs it off |
+
+### P8 — Bursts for Wind, Earth, Dark and Light ✅
+
+| | |
+|---|---|
+| **Adds** | `BurstWind`, `BurstEarth`, `BurstDark`, `BurstLight` (wired into `ElementSwitchFX`); cartoon shapes swirl, rock, note, leaf and dash (+ materials) |
+| **Changes** | `Swordgear/Cartoon Particle`: the shape is now a plain enum with a uniform branch (twelve shapes, past KeywordEnum's nine); edges anti-alias over one pixel of the particle's square (`EFX_FillPx`) rather than the field's gradient, so a swirl doesn't fringe where its field changes turns |
+| **Bursts** | Wind: white gust curls all spinning one way, speed lines flung out point-first, tumbling leaves, a mint ring. Earth: chunky two-tone rocks and pebbles, dust puffs, a dust ring. Dark: wisps sucked inward into a void that swells and collapses inside a glowing rim, then smoke and sparks burst back out. Light: a soft opal flash, pastel notes and sparkles flung out, three chord rings in turn |
 
 ### Quick reference — what to play after each commit
 

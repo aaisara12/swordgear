@@ -53,6 +53,14 @@ MonoBehaviour:
     prefab: {fileID: 6572665331903102572, guid: d01aee367a3d1df44b07a765a69a07de, type: 3}
   - element: 3
     prefab: {fileID: 5837582096777065897, guid: a70cc356c3aba0b499eb5bd013988a78, type: 3}
+  - element: 4
+    prefab: {fileID: 194512776892396027, guid: a092ee5a58fff7848b557c982cc5231c, type: 3}
+  - element: 5
+    prefab: {fileID: 2025812001348989789, guid: 8972f97b4f898d843939acacf0511ace, type: 3}
+  - element: 6
+    prefab: {fileID: 635839251892357341, guid: ae04a2449f8041b49840dd1d64e6f3bd, type: 3}
+  - element: 7
+    prefab: {fileID: 5542174011852469674, guid: 5e2d5e3ec066fd143b4a742841f1418c, type: 3}
   streakSeconds: 0.14
   cameraKick: 0.8
   lightFlash: 1.5
