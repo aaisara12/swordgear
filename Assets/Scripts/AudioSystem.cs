@@ -42,6 +42,15 @@ public class AudioSystem : MonoBehaviour
 
         // A soft rising bell shimmer: the sound of a heal starting (Light's Lullaby).
         Heal_Shimmer,
+
+        // Element switches: each a quick rising zip into its element's impact as the switch lands (~0.14s in).
+        Switch_Fire,
+        Switch_Ice,
+        Switch_Lightning,
+        Switch_Wind,
+        Switch_Earth,
+        Switch_Dark,
+        Switch_Light,
     }
 
     public AudioLibrary library;

@@ -79,3 +79,24 @@ MonoBehaviour:
   - sound: 22
     clip: {fileID: 8300000, guid: b6cc634cb1d60ab4f93c450fb87602ae, type: 3}
     mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 23
+    clip: {fileID: 8300000, guid: 468c470bce7161b4b99975294d01db4e, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 24
+    clip: {fileID: 8300000, guid: 0993dc4b913b25c4fb4c2739bfee60fc, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 25
+    clip: {fileID: 8300000, guid: 05dac2c688fd7694da85df966e05abd0, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 26
+    clip: {fileID: 8300000, guid: 1e3cabdad8c0e7a468de91bb2e90489b, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 27
+    clip: {fileID: 8300000, guid: 1dc9b0ecdac22e041b5bf1b0d883be99, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 28
+    clip: {fileID: 8300000, guid: ea1a67b8a450dfe41bf53626104bfdba, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
+  - sound: 29
+    clip: {fileID: 8300000, guid: 1acc250a490badd4eb8a575d9ad26c7d, type: 3}
+    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}

@@ -542,8 +542,8 @@ public class PlayerController : PlayerGameplayPawn
             return;
         }
 
+        // The switch's sound is the element's own (ElementSwitchFX), so the grab itself stays silent.
         ElementManager.Instance.OnCharge(transform, true);
-        AudioSystem.Play(AudioSystem.Sound.Bounce);
     }
 
     void SyncMeleeFacingFromIndicator(Vector2 attackDirection = default)

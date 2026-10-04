@@ -721,7 +721,7 @@ only that slice and give you the exact play steps.*
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P8 | Bursts for Wind/Earth/Dark/Light | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P9 | Whole screen — element vignette and post-FX pulse | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P10 | Switch sounds | ☐ | ☐ | ☐ |
+| P10 | Switch sounds | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
 
 ### P1 — Glow foundation ✅
@@ -803,6 +803,15 @@ only that slice and give you the exact play steps.*
 | **Changes** | `Main.asmdef` references `Unity.RenderPipelines.Core.Runtime` (for `Volume` / `VolumeProfile`) |
 | **Look** | As a switch lands, the screen's edges flare deep in the element — flame tongues flickering in, icicle teeth, a crackling zig-zag, rolling waves, stepped rock, drippy wobbling blobs, pastel scallops — inked along their inner edge, while the frame takes a bloom spike, a little chromatic aberration and a nudge toward the element's colour. Half a second later only a thin edge in the element remains, held while imbued and thinning away over the imbue's last quarter |
 | **Timing** | The flare and pulse land with the burst (`OnSwitchLanded`), not the flick; the border animates in the shader from a stamped time (globals `_ElementVignette*`), reset when the arena goes |
+
+### P10 — Switch sounds ✅
+
+| | |
+|---|---|
+| **Adds** | Seven synthesized clips in `Assets/Audio/Switch/` (`switch_<element>.wav`, mono, 0.55–0.9s, -3 dBFS); `AudioSystem.Sound.Switch_Fire` … `Switch_Light` appended (23–29) and mapped in `MainAudioLibrary` on the SFX group |
+| **Changes** | `ElementSwitchFX` plays the element's switch sound from the flick; a successful grab in `PlayerController.GrabElementFromGear` no longer plays the generic `Sound.Bounce` |
+| **Sounds** | Each opens with a quick rising zip (the streak) and lands its impact ~0.14s in, with the burst. Fire: a low fwoomp, a dropping thump, crackle. Ice: a crystalline chime over a glassy shatter and tinkles. Lightning: a jittering buzz under a sharp crack and sizzle. Wind: a swelling, sweeping gust with a faint whistle. Earth: a deep thud, low rumble and gravel crunch. Dark: a suck inward into a deep, wavering boom. Light: a strummed C-major harp chord (Karplus-Strong) with a shimmer |
+| **Source** | Python stdlib synthesis (noise through swept one-pole filters, swept sines, Karplus-Strong plucks), like the harp pluck and heal shimmer; only the clips are kept |
 
 ### Quick reference — what to play after each commit
 

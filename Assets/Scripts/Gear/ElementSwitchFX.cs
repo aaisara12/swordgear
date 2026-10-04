@@ -15,7 +15,8 @@ public struct ElementBurstPrefab
 /// The element-switch moment. When a flick grants an element the arc flares (GearManager does that), energy
 /// streaks from the arc into the player, and as it arrives the element's own burst blooms round them, a
 /// tinted shockwave rolls out across the arena, the camera kicks along the streak and the player's light
-/// flashes. Big but fast — under half a second — and it never pauses play.
+/// flashes, all to the element's own switch sound. Big but fast — under half a second — and it never pauses
+/// play.
 /// </summary>
 /// <remarks>
 /// Every visual is an authored prefab under Assets/Visuals/Prefabs/ElementFX; this only listens for
@@ -66,6 +67,13 @@ public class ElementSwitchFX : MonoBehaviour
 
     private void HandleElementGranted(Element element, int arcIndex)
     {
+        // The sound's impact sits ~0.14s in, so it plays from the flick and lands with the burst.
+        AudioSystem.Sound? sound = SwitchSound(element);
+        if (sound.HasValue)
+        {
+            AudioSystem.Play(sound.Value);
+        }
+
         GearManager? gear = GearManager.Instance;
         GameObject? player = GameManager.Instance != null ? GameManager.Instance.player : null;
 
@@ -125,6 +133,18 @@ public class ElementSwitchFX : MonoBehaviour
             flash.Flash(lightFlash);
         }
     }
+
+    private static AudioSystem.Sound? SwitchSound(Element element) => element switch
+    {
+        Element.Fire => AudioSystem.Sound.Switch_Fire,
+        Element.Ice => AudioSystem.Sound.Switch_Ice,
+        Element.Lightning => AudioSystem.Sound.Switch_Lightning,
+        Element.Wind => AudioSystem.Sound.Switch_Wind,
+        Element.Earth => AudioSystem.Sound.Switch_Earth,
+        Element.Dark => AudioSystem.Sound.Switch_Dark,
+        Element.Light => AudioSystem.Sound.Switch_Light,
+        _ => null,
+    };
 
     private GameObject? FindBurst(Element element)
     {
