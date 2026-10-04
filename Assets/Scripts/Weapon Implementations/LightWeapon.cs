@@ -16,6 +16,9 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
     [Header("Tunes")]
     [Tooltip("Which tunes the harp knows this run. The roll only ever plays owned tunes.")]
     [SerializeField] private HarpRepertoire? repertoire;
+    [Tooltip("The Grand Chord: plays every owned tune at once. Rolled before, and outside, the family roll.")]
+    [SerializeField] private HarpTune? jackpot;
+    [SerializeField, Range(0f, 1f)] private float jackpotChance = 0.03f;
     [SerializeField] private float tapCooldown = 0.45f;
 
     [Header("Reveal")]
@@ -83,7 +86,13 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
 
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
-        HarpTune? tune = repertoire != null ? HarpTune.PickByFamily(repertoire.Owned, Random.value, Random.value) : null;
+        if (repertoire == null)
+        {
+            return 0f;
+        }
+
+        IReadOnlyList<HarpTune?> owned = repertoire.Owned;
+        HarpTune? tune = HarpTune.Roll(owned, jackpot, jackpotChance, Random.value, Random.value, Random.value);
         if (tune == null)
         {
             // Declined: nothing playable is configured, so don't spend a cooldown on silence.
@@ -92,7 +101,7 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
 
         Reveal(player, tune);
         StartCoroutine(tune.PlayMelody());
-        tune.Play(new HarpContext(player, upgrades, this));
+        tune.Play(new HarpContext(player, upgrades, this, owned));
         return tapCooldown;
     }
 

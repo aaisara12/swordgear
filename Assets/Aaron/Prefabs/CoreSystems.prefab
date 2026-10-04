@@ -473,6 +473,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Main::LightWeapon
   repertoire: {fileID: 7674866716574420142}
+  jackpot: {fileID: 11400000, guid: 18ebc1255544f694ab45d03da4b58c90, type: 2}
+  jackpotChance: 0.03
   tapCooldown: 0.45
   revealPrefab: {fileID: 7718844726232751790, guid: 7c09bb2bf9bb71e41ab35915fab40cf8, type: 3}
   revealOffset: {x: 0, y: 3.9}

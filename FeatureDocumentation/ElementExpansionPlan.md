@@ -63,7 +63,7 @@ afterwards.
 | 17 | The arsenal — owned tunes, starters, family-first roll | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 18 | "Learn a tune" — the repeatable augment | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 19 | Staccato & Rest — two more tunes | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 20 | Grand Chord jackpot — every owned tune at once | ☐ | ☐ | ☐ |
+| 20 | Grand Chord jackpot — every owned tune at once | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 21 | Flourish — the charge | ☐ | ☐ | ☐ |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
@@ -539,12 +539,13 @@ effects, dynamic markings are intensity.
 | **Unlock** | Both are learned through "Learn a tune", never starters |
 | **Playtest** | Staccato sprays notes in every direction; Rest stills the enemies around you |
 
-### Commit 20 — Grand Chord jackpot
+### Commit 20 — Grand Chord jackpot ✅
 
 | | |
 |---|---|
-| **Adds** | `JackpotTune` + `GrandChord.asset`; stacked-chord SVG |
-| **Effect** | ~3%: plays **every tune you own** at once, with a full strummed chord. Grows with the arsenal: early it's three tunes, late it's ten |
+| **Adds** | `JackpotTune` + `GrandChord.asset`; stacked-chord SVG (four heads in thirds on one stem, with an arpeggio line); `HarpTune.Roll` (jackpot first, then the family roll) + a `HarpRollTest` case; `HarpContext.Owned`; `LightWeapon.jackpot` / `jackpotChance` (0.03) |
+| **Effect** | ~3% per tap, rolled before and outside the family roll: plays the **effect** of every tune you own at once (each streak gains a stack), with one full strummed chord instead of ten melodies, and a gold "JACKPOT!". Grows with the arsenal: three tunes on a fresh run, ten once everything is learned |
+| **Verified** | Forced with all ten owned: three streaks stacked, invulnerable, 10 projectiles, 3 waves, both auras, "JACKPOT!". Natural rate 2.81% over 20k rolls |
 | **Playtest** | Rarely, everything you own fires at once |
 
 ### Commit 21 — Flourish (the charge)

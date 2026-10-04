@@ -22,15 +22,19 @@ public readonly struct HarpContext
     public readonly Transform Player;
     public readonly HashSet<UpgradeType> Upgrades;
 
+    /// <summary> Every tune the harp knows right now, for a tune that plays others (the jackpot). </summary>
+    public readonly IReadOnlyList<HarpTune?> Owned;
+
     // The weapon, so a tune that unfolds over time can run a coroutine on something that lives in the
     // scene. A ScriptableObject can't host one itself.
     private readonly MonoBehaviour host;
 
-    public HarpContext(Transform player, HashSet<UpgradeType> upgrades, MonoBehaviour host)
+    public HarpContext(Transform player, HashSet<UpgradeType> upgrades, MonoBehaviour host, IReadOnlyList<HarpTune?>? owned = null)
     {
         Player = player;
         Upgrades = upgrades;
         this.host = host;
+        Owned = owned ?? System.Array.Empty<HarpTune?>();
     }
 
     public Coroutine Run(IEnumerator routine) => host.StartCoroutine(routine);
@@ -181,5 +185,25 @@ public abstract class HarpTune : ScriptableObject
         }
 
         return Pick(inFamily, tuneRoll);
+    }
+
+    /// <summary>
+    /// A whole tap's roll: the jackpot first, at <paramref name="jackpotChance"/>, otherwise
+    /// <see cref="PickByFamily"/> over the owned tunes. All rolls are uniform values in [0, 1).
+    /// </summary>
+    /// <remarks>
+    /// The jackpot sits outside the family roll so its odds are a flat chance per tap, untouched by how
+    /// many families or tunes are owned, and so taking it never thins any family.
+    /// </remarks>
+    public static HarpTune? Roll(
+        IReadOnlyList<HarpTune?> owned, HarpTune? jackpot, float jackpotChance,
+        float jackpotRoll, float familyRoll, float tuneRoll)
+    {
+        if (jackpot != null && jackpotRoll < jackpotChance)
+        {
+            return jackpot;
+        }
+
+        return PickByFamily(owned, familyRoll, tuneRoll);
     }
 }

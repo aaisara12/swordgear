@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 62" width="40" height="62">
+  <!-- The Grand Chord: the jackpot's glyph. Four noteheads stacked in thirds on one stem, the way a
+       full chord is engraved, with an arpeggio line beside it because the chord is strummed. Same
+       notehead and stem as every other note. Drawn white so the Opalite shader supplies the colour. -->
+  <g fill="#FFFFFF">
+    <ellipse cx="16" cy="54" rx="6.4" ry="4.5" transform="rotate(-20 16 54)"/>
+    <ellipse cx="16" cy="45" rx="6.4" ry="4.5" transform="rotate(-20 16 45)"/>
+    <ellipse cx="16" cy="36" rx="6.4" ry="4.5" transform="rotate(-20 16 36)"/>
+    <ellipse cx="16" cy="27" rx="6.4" ry="4.5" transform="rotate(-20 16 27)"/>
+    <rect x="21.2" y="4" width="1.5" height="50"/>
+  </g>
+  <path d="M 4.5 58 Q 1.5 55.5 4.5 53 T 4.5 48 T 4.5 43 T 4.5 38 T 4.5 33 T 4.5 28 T 4.5 23"
+        fill="none" stroke="#FFFFFF" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

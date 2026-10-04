@@ -113,6 +113,29 @@ public class HarpRollTest
     }
 
     [Test]
+    public void Jackpot_IsAFlatChance_OutsideTheFamilyRoll()
+    {
+        HarpTune jackpot = Tune("Jackpot", HarpTuneFamily.Jackpot);
+        var owned = new List<HarpTune?> { Tune("O1", HarpTuneFamily.Offense), Tune("S1", HarpTuneFamily.Sustain) };
+
+        int jackpots = 0;
+        const int steps = 1000;
+        for (int i = 0; i < steps; i++)
+        {
+            if (HarpTune.Roll(owned, jackpot, 0.03f, (i + 0.5f) / steps, 0.5f, 0.5f) == jackpot)
+            {
+                jackpots++;
+            }
+        }
+
+        Assert.AreEqual(30, jackpots);
+        // Below the chance it's the jackpot whatever the family roll would have said; above it, never.
+        Assert.AreEqual(jackpot, HarpTune.Roll(owned, jackpot, 0.03f, 0.01f, 0.99f, 0.99f));
+        Assert.AreNotEqual(jackpot, HarpTune.Roll(owned, jackpot, 0.03f, 0.5f, 0.01f, 0.01f));
+        Assert.AreNotEqual(jackpot, HarpTune.Roll(owned, null, 0.03f, 0.01f, 0.5f, 0.5f));
+    }
+
+    [Test]
     public void NothingPlayable_PicksNothing()
     {
         Assert.IsNull(HarpTune.PickByFamily(new List<HarpTune?>(), 0.5f, 0.5f));
