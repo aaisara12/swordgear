@@ -59,7 +59,7 @@ afterwards.
 | 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 15 | Hot streak — Fortissimo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 16 | Presto — move-speed streak | ☐ | ☐ | ☐ |
+| 16 | Presto — move-speed streak | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 17 | The arsenal — owned tunes, starters, family-first roll | ☐ | ☐ | ☐ |
 | 18 | "Learn a tune" — the repeatable augment | ☐ | ☐ | ☐ |
 | 19 | Staccato & Rest — two more tunes | ☐ | ☐ | ☐ |
@@ -499,12 +499,14 @@ effects, dynamic markings are intensity.
 | **Careful** | Augment values live in backing fields and `DamageMultiplier` / `AttackSpeedMultiplier` / `MoveSpeedMultiplier` are augment + streak, because `ReapplyFromBlob` rebuilds augments from scratch on every pickup (covered by `PlayerStreakTest`). Move speed is applied on stick input, so `PlayerController` replays the stick on `OnStreakChanged`. The icon row is scaled on its `Bob` node, not the icons, whose own scale belongs to their pop/burst clips. Light's reveal moved up to 3.9 to clear the icons |
 | **Playtest** | A sword (or metronome) with chevrons appears over your head and grows a chevron per stack; you hit harder or attack faster until you get hit, then it bursts with "STREAK BROKEN" |
 
-### Commit 16 — Presto
+### Commit 16 — Presto ✅
 
 | | |
 |---|---|
-| **Adds** | `Presto.asset` (`StreakTune`, Streak); thirty-second-note SVG (three flags: the fastest note on the harp); wing icon SVG + its indicator group |
-| **Effect** | +10% move speed per stack, max 3. Sounds a very fast run high up the harp |
+| **Adds** | `Presto.asset` (`StreakTune`, Streak); thirty-second-note SVG (three flags: the fastest note on the harp); wing icon SVG + its indicator group, whose `Wing_Flap` clip beats faster per stack like the metronome |
+| **Effect** | +10% move speed per stack, max 3. Sounds a blur of a run, G5 up to C7 |
+| **Odds** | Streak tunes now weigh 1 each (three of them = 3, level with Offense and Sustain) until commit 17's family-first roll retires per-family weight balancing. Measured 33.4 / 33.2 / 33.4% |
+| **Art note** | The wing took three drafts: a single swept blade read as a leaf, fanned ellipses as pebbles; the pointed-primaries silhouette reads as a wing at in-game size |
 | **Playtest** | Roll Presto → a wing with a chevron appears over your head and you move faster; it grows per stack and bursts on a hit |
 
 ### Commit 17 — The arsenal

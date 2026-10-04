@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 44" width="60" height="44">
+  <!-- Move-speed icon, shown over the player while Presto is live: a swept speed-wing. The leading edge
+       sweeps from the shoulder (lower left) up to the longest primary; four pointed primaries step down
+       the trailing edge, with dark lines running from each notch back toward the shoulder.
+       Dark outline baked in; the white fill takes the Opalite shader's colour. -->
+  <path d="M 6 30 C 8 14 26 5 56 6 Q 50 13 40 16 Q 47 16 52 20 Q 45 24 36 25 Q 42 27 46 33
+           Q 38 33 30 32 Q 34 36 36 40 C 24 41 12 39 6 30 Z"
+        fill="#FFFFFF" stroke="#0E0D14" stroke-width="3" stroke-linejoin="round"/>
+  <g fill="none" stroke="#0E0D14" stroke-width="1.8" stroke-linecap="round">
+    <path d="M 40 16 Q 30 18 21 22"/>
+    <path d="M 36 25 Q 28 26 20 28.5"/>
+    <path d="M 30 32 Q 24 33 18 33.5"/>
+  </g>
+</svg>

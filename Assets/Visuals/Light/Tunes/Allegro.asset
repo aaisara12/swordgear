@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Allegro
   m_EditorClassIdentifier: Main::StreakTune
   family: 2
-  weight: 1.5
+  weight: 1
   glyph: {fileID: 3286163911610860551, guid: fcac2cc920ef46947ab2d24c96eedf76, type: 3}
   melody:
   - semitones: 0
