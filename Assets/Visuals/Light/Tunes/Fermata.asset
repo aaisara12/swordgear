@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Fermata
   m_EditorClassIdentifier: Main::WardTune
   family: 1
-  weight: 1.5
+  weight: 1
   glyph: {fileID: 3286163911610860551, guid: 01d019862c608fb45933c4587a156f97, type: 3}
   melody:
   - semitones: -12

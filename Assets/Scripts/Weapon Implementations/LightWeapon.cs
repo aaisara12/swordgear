@@ -14,8 +14,8 @@ using UnityEngine;
 public class LightWeapon : MonoBehaviour, IElementalWeapon
 {
     [Header("Tunes")]
-    [Tooltip("Everything the harp can play. Odds come from each tune's weight.")]
-    [SerializeField] private List<HarpTune?> tunes = new();
+    [Tooltip("Which tunes the harp knows this run. The roll only ever plays owned tunes.")]
+    [SerializeField] private HarpRepertoire? repertoire;
     [SerializeField] private float tapCooldown = 0.45f;
 
     [Header("Reveal")]
@@ -36,9 +36,9 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
 
     private void Awake()
     {
-        if (tunes.Count == 0)
+        if (repertoire == null)
         {
-            Debug.LogError("LightWeapon: tunes is empty");
+            Debug.LogError("LightWeapon: repertoire is null");
             return;
         }
 
@@ -51,7 +51,7 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
 
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
     {
-        HarpTune? tune = HarpTune.Pick(tunes, Random.value);
+        HarpTune? tune = repertoire != null ? HarpTune.PickByFamily(repertoire.Owned, Random.value, Random.value) : null;
         if (tune == null)
         {
             // Declined: nothing playable is configured, so don't spend a cooldown on silence.

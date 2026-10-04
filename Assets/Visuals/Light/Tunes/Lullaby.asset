@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Lullaby
   m_EditorClassIdentifier: Main::HealTune
   family: 1
-  weight: 1.5
+  weight: 1
   glyph: {fileID: 3286163911610860551, guid: 2d5157e3b1063cd44a8989ea195f8267, type: 3}
   melody:
   - semitones: 12

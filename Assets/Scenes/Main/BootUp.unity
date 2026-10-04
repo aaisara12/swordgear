@@ -371,6 +371,7 @@ MonoBehaviour:
   unrestrictedGameComponents:
   - {fileID: 12069622}
   - {fileID: 2847362519}
+  - {fileID: 9120229236985474498}
   standaloneManagers: []
 --- !u!4 &1369852987
 Transform:
@@ -516,6 +517,17 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+--- !u!114 &9120229236985474498 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 7674866716574420142, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
+  m_PrefabInstance: {fileID: 9120229236985474497}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb01e782d3ffffd479587f145258a18d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::HarpRepertoire
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

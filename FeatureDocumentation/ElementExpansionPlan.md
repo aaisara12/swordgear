@@ -60,7 +60,7 @@ afterwards.
 | 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 15 | Hot streak — Fortissimo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 16 | Presto — move-speed streak | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 17 | The arsenal — owned tunes, starters, family-first roll | ☐ | ☐ | ☐ |
+| 17 | The arsenal — owned tunes, starters, family-first roll | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 18 | "Learn a tune" — the repeatable augment | ☐ | ☐ | ☐ |
 | 19 | Staccato & Rest — two more tunes | ☐ | ☐ | ☐ |
 | 20 | Grand Chord jackpot — every owned tune at once | ☐ | ☐ | ☐ |
@@ -509,12 +509,13 @@ effects, dynamic markings are intensity.
 | **Art note** | The wing took three drafts: a single swept blade read as a leaf, fanned ellipses as pebbles; the pointed-primaries silhouette reads as a wing at in-game size |
 | **Playtest** | Roll Presto → a wing with a chevron appears over your head and you move faster; it grows per stack and bursts on a hit |
 
-### Commit 17 — The arsenal
+### Commit 17 — The arsenal ✅
 
 | | |
 |---|---|
-| **Adds** | `HarpRepertoire` — which tunes the player owns: the starters plus every learned tune, read from the player blob's inventory (`light-tune:<id>` items); a family-first roll on `HarpTune` with EditMode tests over the pure logic; `jackpotChance` on `LightWeapon` |
-| **Changes** | `LightWeapon` rolls from owned tunes only. The per-tune `weight`s stop balancing families: they only weight tunes *within* a family |
+| **Adds** | `HarpRepertoire` (an `InitializeableUnrestrictedGameComponent` on the Light node, registered with `GameInitializer` in `BootUp`) — which tunes the player owns: the starters plus every learnable tune with a `light-tune-<name>` item in the player blob's inventory. It keeps no state of its own. `HarpTune.PickByFamily` (family evenly, then weight within family); `HarpRollTest` (6 EditMode tests over the logic, tunes built in-test) |
+| **Changes** | `LightWeapon` rolls `PickByFamily` over `repertoire.Owned`; its own tune list is gone. Every tune's `weight` reset to 1: weights now only rank tunes *within* a family |
+| **Verified** | Fresh run owns exactly Flurry / Lullaby / Fortissimo (33.2 / 33.4 / 33.4%). Learning Strike and Allegro through the live blob adds them, and families stay 32.9 / 33.9 / 33.2% |
 | **Starters** | Flurry, Lullaby, Fortissimo — one per family, so the first tap of a run is already even thirds |
 | **Playtest** | A fresh run rolls only Flurry, Lullaby and Fortissimo |
 

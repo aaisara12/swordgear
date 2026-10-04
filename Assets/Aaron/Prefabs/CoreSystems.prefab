@@ -437,6 +437,7 @@ GameObject:
   m_Component:
   - component: {fileID: 29555449687818042}
   - component: {fileID: 7187729910779021864}
+  - component: {fileID: 7674866716574420142}
   m_Layer: 0
   m_Name: Light
   m_TagString: Untagged
@@ -471,20 +472,34 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 614d5c0742a4f294296e5e5803f4edfa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::LightWeapon
-  tunes:
-  - {fileID: 11400000, guid: 46063b490e5896c4fac6b97fe64ce086, type: 2}
-  - {fileID: 11400000, guid: bfbde831c9a3a8b47b470d3a47d75dad, type: 2}
-  - {fileID: 11400000, guid: bc925a3439f5eb743bfca480f0bdaff8, type: 2}
-  - {fileID: 11400000, guid: e0b5c4f21a7cbd54eb970e819ed12617, type: 2}
-  - {fileID: 11400000, guid: d7ff52240e692934ab9db00d07f2c045, type: 2}
-  - {fileID: 11400000, guid: 5a7ab17700389604086805e04078f03b, type: 2}
-  - {fileID: 11400000, guid: 6634224f76df78e4ea62211b9e919eed, type: 2}
-  - {fileID: 11400000, guid: dbc14ecee1da9bd439560de639e90cec, type: 2}
+  repertoire: {fileID: 7674866716574420142}
   tapCooldown: 0.45
   revealPrefab: {fileID: 7718844726232751790, guid: 7c09bb2bf9bb71e41ab35915fab40cf8, type: 3}
   revealOffset: {x: 0, y: 3.9}
   revealLifetime: 0.9
   autoAimRadius: 12
+--- !u!114 &7674866716574420142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3184638746537000516}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cb01e782d3ffffd479587f145258a18d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::HarpRepertoire
+  starters:
+  - {fileID: 11400000, guid: 46063b490e5896c4fac6b97fe64ce086, type: 2}
+  - {fileID: 11400000, guid: e0b5c4f21a7cbd54eb970e819ed12617, type: 2}
+  - {fileID: 11400000, guid: 5a7ab17700389604086805e04078f03b, type: 2}
+  learnable:
+  - {fileID: 11400000, guid: bfbde831c9a3a8b47b470d3a47d75dad, type: 2}
+  - {fileID: 11400000, guid: bc925a3439f5eb743bfca480f0bdaff8, type: 2}
+  - {fileID: 11400000, guid: d7ff52240e692934ab9db00d07f2c045, type: 2}
+  - {fileID: 11400000, guid: 6634224f76df78e4ea62211b9e919eed, type: 2}
+  - {fileID: 11400000, guid: dbc14ecee1da9bd439560de639e90cec, type: 2}
 --- !u!1 &3472039058363920340
 GameObject:
   m_ObjectHideFlags: 0

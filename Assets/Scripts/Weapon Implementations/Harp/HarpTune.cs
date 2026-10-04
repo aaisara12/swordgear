@@ -64,8 +64,8 @@ public struct HarpNote
 public abstract class HarpTune : ScriptableObject
 {
     [SerializeField] private HarpTuneFamily family;
-    [Tooltip("Relative odds within the whole roll. Keep each family's weights summing to the same total " +
-             "so the families stay even.")]
+    [Tooltip("Relative odds against the other tunes of the same family. Families themselves are always " +
+             "even, however many tunes each holds (see PickByFamily).")]
     [SerializeField, Min(0f)] private float weight = 1f;
     [Tooltip("The note shown above the player as this tune plays.")]
     [SerializeField] private Sprite? glyph;
@@ -138,5 +138,48 @@ public abstract class HarpTune : ScriptableObject
 
         // roll == 1 lands exactly on the end; float error can too.
         return last;
+    }
+
+    /// <summary>
+    /// The harp's roll: pick a family evenly among the families present, then a tune within it by weight.
+    /// </summary>
+    /// <remarks>
+    /// Families first so the odds stay even thirds however lopsided the arsenal is. A run starts with one
+    /// tune per family and learns the rest at random, so one family can easily hold four tunes while
+    /// another holds one; a flat weighted pick would quietly turn Light into whatever it learned most of.
+    /// Jackpot tunes are never part of this roll: the weapon rolls for them separately.
+    /// Both rolls are uniform values in [0, 1), passed in so the pick is deterministic to test.
+    /// </remarks>
+    /// <returns>The chosen tune, or null when no family has a tune with positive weight.</returns>
+    public static HarpTune? PickByFamily(IReadOnlyList<HarpTune?> tunes, float familyRoll, float tuneRoll)
+    {
+        var families = new List<HarpTuneFamily>(3);
+        foreach (HarpTune? tune in tunes)
+        {
+            if (tune != null && tune.weight > 0f && tune.family != HarpTuneFamily.Jackpot && !families.Contains(tune.family))
+            {
+                families.Add(tune.family);
+            }
+        }
+
+        if (families.Count == 0)
+        {
+            return null;
+        }
+
+        // Enum order, so the same roll means the same family whatever order the tunes were listed in.
+        families.Sort();
+        HarpTuneFamily family = families[Mathf.Min((int)(Mathf.Clamp01(familyRoll) * families.Count), families.Count - 1)];
+
+        var inFamily = new List<HarpTune?>(tunes.Count);
+        foreach (HarpTune? tune in tunes)
+        {
+            if (tune != null && tune.family == family)
+            {
+                inFamily.Add(tune);
+            }
+        }
+
+        return Pick(inFamily, tuneRoll);
     }
 }
