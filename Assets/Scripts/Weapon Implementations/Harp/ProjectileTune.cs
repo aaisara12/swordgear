@@ -19,8 +19,11 @@ public class ProjectileTune : HarpTune
     [SerializeField, Min(1)] private int count = 1;
     [Tooltip("Seconds between notes, so a run reads as a run rather than a shotgun.")]
     [SerializeField, Min(0f)] private float interval = 0.06f;
-    [Tooltip("Total fan, in degrees, the notes leave across.")]
+    [Tooltip("Total fan, in degrees, the notes leave across, centred on the aim. Ignored for a ring.")]
     [SerializeField] private float spreadDegrees = 0f;
+    [Tooltip("Fire evenly all the way round, starting straight at the aim (Staccato). A centred fan of an " +
+             "even count never sends a note straight at the target.")]
+    [SerializeField] private bool ring = false;
     [SerializeField] private float speed = 10f;
     [SerializeField] private float spawnOffset = 0.6f;
     [Tooltip("Damage per note, as a multiple of base.")]
@@ -46,8 +49,8 @@ public class ProjectileTune : HarpTune
 
     private IEnumerator Volley(Transform player)
     {
-        float step = count > 1 ? spreadDegrees / (count - 1) : 0f;
-        float start = -spreadDegrees * 0.5f;
+        float step = ring ? 360f / count : count > 1 ? spreadDegrees / (count - 1) : 0f;
+        float start = ring ? 0f : -spreadDegrees * 0.5f;
 
         for (int i = 0; i < count; i++)
         {

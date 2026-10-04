@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 50" width="24" height="50">
+  <!-- A quarter rest: Rest's glyph. In music it's a beat of silence; on the harp it's a moment where
+       everything around you is stilled. The engraved zigzag: a diagonal down, a heavy bar back, a
+       diagonal down again, ending in a curled hook. Drawn white so the Opalite shader supplies the colour. -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M 8 4 L 16.5 14.5" stroke-width="3"/>
+    <path d="M 16.5 14.5 L 9 23.5" stroke-width="5.4"/>
+    <path d="M 9 23.5 L 16.5 32" stroke-width="3"/>
+    <path d="M 16.5 32 C 6 29 4.5 40 13 46" stroke-width="4"/>
+  </g>
+</svg>

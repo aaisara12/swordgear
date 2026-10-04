@@ -5,8 +5,8 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// A tune that sends sound waves rolling out from the player: Resonance. Each wave damages every enemy
-/// once, at the moment its front passes them.
+/// A tune that sends sound waves rolling out from the player: Resonance, whose waves damage, and Rest,
+/// whose single wave only stills. Each wave touches every enemy once, at the moment its front passes them.
 /// </summary>
 /// <remarks>
 /// A travelling wave rather than a point-blank burst, because Light is a gamble: every tune has to pay out
@@ -29,8 +29,10 @@ public class WaveTune : HarpTune
     [SerializeField] private float radius = 8f;
     [Tooltip("Seconds for a wave to reach full radius.")]
     [SerializeField] private float travelSeconds = 0.5f;
-    [Tooltip("Damage per wave, as a multiple of base.")]
-    [SerializeField] private float damageMultiplier = 0.5f;
+    [Tooltip("Damage per wave, as a multiple of base. 0 for a wave that only stills (Rest).")]
+    [SerializeField, Min(0f)] private float damageMultiplier = 0.5f;
+    [Tooltip("Seconds of Chill (Ice's slow) put on every enemy the front passes. 0 for none.")]
+    [SerializeField, Min(0)] private int chillSeconds = 0;
 
     private readonly List<EnemyController> scanBuffer = new();
 
@@ -123,9 +125,19 @@ public class WaveTune : HarpTune
                 continue;
             }
 
-            enemy.TakeDamage(
-                gameManager.CalculateDamage(enemy.element, Element.Light, damage),
-                new MoveType(Element.Light, AttackKind.Ranged));
+            // Reuses Ice's Chill rather than a Light-only slow: the effect system already handles refresh,
+            // expiry and the status tint, and a second slow would stack confusingly with it.
+            if (chillSeconds > 0)
+            {
+                gameManager.AddEffect(enemy, GameManager.EnemyEffect.Chill, chillSeconds);
+            }
+
+            if (damageMultiplier > 0f)
+            {
+                enemy.TakeDamage(
+                    gameManager.CalculateDamage(enemy.element, Element.Light, damage),
+                    new MoveType(Element.Light, AttackKind.Ranged));
+            }
         }
     }
 }

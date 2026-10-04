@@ -62,7 +62,7 @@ afterwards.
 | 16 | Presto — move-speed streak | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 17 | The arsenal — owned tunes, starters, family-first roll | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 18 | "Learn a tune" — the repeatable augment | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 19 | Staccato & Rest — two more tunes | ☐ | ☐ | ☐ |
+| 19 | Staccato & Rest — two more tunes | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 20 | Grand Chord jackpot — every owned tune at once | ☐ | ☐ | ☐ |
 | 21 | Flourish — the charge | ☐ | ☐ | ☐ |
 
@@ -424,9 +424,8 @@ effects, dynamic markings are intensity.
 ### Design principles
 
 1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
-   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `HushTune`,
-   `JackpotTune`), one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry, Strike and Staccato are
-   three assets of one class.
+   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`), one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry, Strike and Staccato are
+   three assets of one class; Resonance and Rest are both `WaveTune`.
 2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
    so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
    sits *on top of* augments, so an augment pickup (`ReapplyFromBlob`) can't wipe it.
@@ -530,11 +529,13 @@ effects, dynamic markings are intensity.
 | **Verified** | Bought through `PurchaseUtility` with a real tagged offer: learned Presto, Light ledger 0 → 1; buying out learned all five in random order, then 0 appearances in 300 Silver offer rolls. HP unchanged across a purchase |
 | **Playtest** | Buy it in the shop → next fight, a tune you didn't have starts showing up; keep buying until it disappears from the shop |
 
-### Commit 19 — Staccato & Rest
+### Commit 19 — Staccato & Rest ✅
 
 | | |
 |---|---|
-| **Adds** | `Staccato.asset` (`ProjectileTune`: a ring of short-lived notes fired all around you) + its note prefab; `HushTune` + `Rest.asset` (slows every enemy within reach for ~2s through the existing Chill effect, with a lilac ring); staccato-quarters and quarter-rest SVGs |
+| **Adds** | `Staccato.asset` (`ProjectileTune`) + `StaccatoNote.prefab` (an eighth note, 0.55s life); `Rest.asset` (`WaveTune`); staccato (two dotted quarters) and quarter-rest SVGs; `ProjectileTune.ring`; `WaveTune.chillSeconds` |
+| **Staccato** | Eight short-lived notes burst out evenly all around you, 0.4× base each. Fired as a `ring` starting straight at the aim: a centred fan of an even count never sends a note at the target or along the axes (the first pass hit only 2 of 4 enemies placed around the player) |
+| **Rest** | One slow wave (0.8s to radius 8) that deals nothing and chills every enemy it passes for 2s: 50% slower, through Ice's existing Chill effect (so it also wears Ice's blue tint). No new class: Rest is a `WaveTune` with damage 0. Sounds a soft low C |
 | **Unlock** | Both are learned through "Learn a tune", never starters |
 | **Playtest** | Staccato sprays notes in every direction; Rest stills the enemies around you |
 
