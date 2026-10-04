@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: GearArc
-  m_Shader: {fileID: 4800000, guid: 13c02b14c4d048fa9653293d54f6e0e1, type: 3}
+  m_Shader: {fileID: 4800000, guid: 78404abe671147c4db2dd871ae620523, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -34,7 +34,15 @@ Material:
     m_Ints: []
     m_Floats:
     - PixelSnap: 0
+    - _Active: 0
+    - _ActiveBoost: 0.8
     - _EnableExternalAlpha: 0
+    - _Fill: 1
+    - _Highlight: 0
+    - _HighlightBoost: 1.2
+    - _RimGlow: 1.2
+    - _RimWidth: 0.12
+    - _Swell: 0.35
     - _ZWrite: 0
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}

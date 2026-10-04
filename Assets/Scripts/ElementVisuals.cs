@@ -30,6 +30,21 @@ public static class ElementVisuals
             baseColor.a);
     }
 
+    /// <summary>
+    /// The element's colour pushed past 1 into HDR, for anything meant to glow: with bloom on, only HDR
+    /// colours bloom, so this is the one dial for "how much does this shine".
+    /// </summary>
+    /// <remarks>
+    /// Like Unity's own HDR colours this is an sRGB-space colour scaled up: in a linear project the engine
+    /// linearises it on assignment, so <paramref name="intensity"/> 2 lands at roughly 4.6x in linear.
+    /// Around 1.5 reads as a soft glow, 3 as a hot flare.
+    /// </remarks>
+    public static Color GetEmissionColor(Element element, float intensity)
+    {
+        Color baseColor = GetColor(element);
+        return new Color(baseColor.r * intensity, baseColor.g * intensity, baseColor.b * intensity, 1f);
+    }
+
     public static Element GetCurrentElement()
     {
         return GameManager.Instance != null

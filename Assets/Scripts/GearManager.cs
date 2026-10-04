@@ -87,6 +87,8 @@ public class GearManager : InitializeableGameComponent
     [SerializeField, Range(0f, 1f)] private float filledArcAlpha = 0.7f;
     [SerializeField, Range(0f, 1f)] private float emptyArcAlpha = 0.2f;
     [SerializeField] private Color emptyArcColor = new(0.5f, 0.5f, 0.5f, 1f);
+    [Tooltip("How quickly arcs ease between idle, aimed-at and active, per second.")]
+    [SerializeField] private float arcEaseRate = 14f;
 
     [Header("Imbue Grant")]
     [Tooltip("How long the element granted by a flick lasts.")]
@@ -109,6 +111,7 @@ public class GearManager : InitializeableGameComponent
 
     private Material? runtimeArcMaterial;
     private int highlightedArc = -1;
+    private Element activeElement = Element.Physical;
 
     /// <summary> One arc per equipped element — derived from the loadout, never authored directly. </summary>
     public int ArcCount => slotTiles.Count;
@@ -120,6 +123,23 @@ public class GearManager : InitializeableGameComponent
     private void Awake()
     {
         Instance = this;
+    }
+
+    private void OnEnable()
+    {
+        ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+    }
+
+    private void OnDisable()
+    {
+        ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
+    }
+
+    /// <summary> The imbued element's arc lights up as active; Physical (no imbue) lights none. </summary>
+    private void HandleActiveElementChanged(Element element)
+    {
+        activeElement = element;
+        RefreshVisuals();
     }
 
     private void Start()
@@ -173,6 +193,12 @@ public class GearManager : InitializeableGameComponent
 
         BuildArcs();
         RefreshVisuals();
+
+        // New arcs start in their state rather than fading in from white.
+        foreach (GearArcVisual arc in arcVisuals)
+        {
+            arc.SnapToTarget();
+        }
     }
 
     // ---------- Arc geometry ----------
@@ -306,6 +332,7 @@ public class GearManager : InitializeableGameComponent
             go.transform.SetParent(transform, false);
 
             var arc = go.AddComponent<GearArcVisual>();
+            arc.EaseRate = arcEaseRate;
             arc.SetMaterial(ResolveElementArcMaterial(i) ?? material);
             arc.SetSorting(sortingLayerId, arcSortingOrder);
             arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc);
@@ -332,12 +359,17 @@ public class GearManager : InitializeableGameComponent
         }
 
         bool highlighted = index == highlightedArc;
+        bool active = false;
         Color color;
 
         if (TryGetArcElement(index, out Element element))
         {
-            color = highlighted ? ElementVisuals.GetGlowColor(element) : ElementVisuals.GetColor(element);
-            color.a = highlighted ? 1f : filledArcAlpha;
+            active = element == activeElement && element != Element.Physical;
+
+            // The brightening itself happens in the shader (into HDR, so it blooms); the vertex colour only
+            // carries the element's hue and how solid the arc is.
+            color = ElementVisuals.GetColor(element);
+            color.a = highlighted || active ? 1f : filledArcAlpha;
         }
         else
         {
@@ -345,7 +377,7 @@ public class GearManager : InitializeableGameComponent
             color.a = highlighted ? Mathf.Min(1f, emptyArcAlpha * 2f) : emptyArcAlpha;
         }
 
-        arcVisuals[index].SetColor(color);
+        arcVisuals[index].SetTarget(color, highlighted ? 1f : 0f, active ? 1f : 0f);
     }
 
     private Material? ResolveElementArcMaterial(int index)
@@ -378,8 +410,10 @@ public class GearManager : InitializeableGameComponent
             return runtimeArcMaterial;
         }
 
-        // Both of these are Cull Off / vertex-colour-multiplying, so wedge winding order doesn't matter.
-        Shader? shader = Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default")
+        // All of these are Cull Off / vertex-colour-multiplying, so wedge winding order doesn't matter. Only
+        // the first shows the aimed-at / active states; the others are a last resort.
+        Shader? shader = Shader.Find("Swordgear/Gear Arc")
+                         ?? Shader.Find("Universal Render Pipeline/2D/Sprite-Unlit-Default")
                          ?? Shader.Find("Sprites/Default");
 
         if (shader == null)

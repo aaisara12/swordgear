@@ -705,7 +705,7 @@ only that slice and give you the exact play steps.*
 
 | Commit | Title | Committed | Editor pass | Verified in play |
 |---|---|---|---|---|
-| P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ☐ | ☐ | ☐ |
+| P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P2 | Fire & Ice sections | ☐ | ☐ | ☐ |
 | P3 | Lightning & Wind sections | ☐ | ☐ | ☐ |
 | P4 | Earth & Dark sections, Light upgraded | ☐ | ☐ | ☐ |
@@ -716,6 +716,15 @@ only that slice and give you the exact play steps.*
 | P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
 | P10 | Switch sounds | ☐ | ☐ | ☐ |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
+
+### P1 — Glow foundation ✅
+
+| | |
+|---|---|
+| **Adds** | `ElementFX.hlsl` (hash, value noise, fbm, voronoi, rim, pulse); `GearArcCommon.hlsl` (the arc contract: vertex data, outward swell, `_Highlight` / `_Active` / `_Fill` state, `ArcStateGlow`, `ArcRim`); `Swordgear/Gear Arc` shader; `Swordgear/Gear Arc Light` (Opalite's opal, ported onto the arc contract); `ElementVisuals.GetEmissionColor` |
+| **Changes** | `GearArcVisual` — two UV channels (u along / v across, and the same in world units), eased colour and state through a MaterialPropertyBlock, `SetTarget` / `SetFill` / `SnapToTarget`; `GearManager` — tracks the active imbue (`OnActiveElementChanged`) and sets each arc's highlight/active targets, arc ease rate; `GearArc.mat` now uses the new shader; Light's arc material `OpaliteArc` → `GearArcLight` on the new opal arc shader. The sprite Opalite shader multiplies by `unity_SpriteColor`, which a renderer's property block zeroes on a MeshRenderer, so it drew nothing once arcs carried state |
+| **Look** | Aimed-at arcs swell outward and brighten into HDR; the imbued element's arc glows as active; edges carry a soft rim. Nothing snaps: states settle in ~0.15s |
+| **Bloom** | Left at threshold 0.9 rather than retuned: the HDR arcs already bloom against it, and raising it would have dimmed every existing slash and hit effect tuned to it |
 
 ### Quick reference — what to play after each commit
 
