@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 66" width="40" height="66">
+  <!-- Damage-up icon, shown over the player while Fortissimo is live. A sword pointing up, because in
+       Swordgear that's what damage is. The dark outline is baked in so it reads over pale floors too;
+       the white fill takes the Opalite shader's colour, the dark stroke stays dark. -->
+  <g fill="#FFFFFF" stroke="#0E0D14" stroke-width="3" stroke-linejoin="round">
+    <path d="M 20 3 L 26.5 11 L 26.5 43 L 13.5 43 L 13.5 11 Z"/>
+    <rect x="5" y="43" width="30" height="6.5" rx="2.5"/>
+    <rect x="16.5" y="49.5" width="7" height="10" rx="1.5"/>
+    <circle cx="20" cy="61" r="3.3"/>
+  </g>
+  <line x1="20" y1="12" x2="20" y2="39" stroke="#0E0D14" stroke-width="1.6" stroke-linecap="round"/>
+</svg>

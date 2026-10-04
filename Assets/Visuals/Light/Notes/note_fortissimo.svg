@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 46 50" width="46" height="50">
+  <!-- ff, fortissimo, "very loud": Fortissimo's glyph. Two slanted italic f's: a heavy stem under a thinner
+       hooked top and curled tail (the thick-thin contrast engraved dynamics have), small ball terminals on
+       the curl tips, and a short crossbar each so the two read as two letters.
+       Drawn white so the Opalite shader supplies all of its colour. -->
+  <g fill="none" stroke="#FFFFFF" stroke-linecap="round">
+    <path d="M 3.5 45 C 6 48.5 10.5 47 12 40 L 16.5 15 C 17.6 9 21 6 25.5 7.5" stroke-width="3.4"/>
+    <line x1="11.4" y1="40.5" x2="16.6" y2="14.5" stroke-width="5.6"/>
+    <line x1="9.5" y1="21" x2="20.5" y2="20.2" stroke-width="3"/>
+    <path d="M 18.5 45 C 21 48.5 25.5 47 27 40 L 31.5 15 C 32.6 9 36 6 40.5 7.5" stroke-width="3.4"/>
+    <line x1="26.4" y1="40.5" x2="31.6" y2="14.5" stroke-width="5.6"/>
+    <line x1="24.5" y1="21" x2="35.5" y2="20.2" stroke-width="3"/>
+  </g>
+  <g fill="#FFFFFF">
+    <circle cx="26.1" cy="9.5" r="2.9"/>
+    <circle cx="3.9" cy="43.5" r="2.9"/>
+    <circle cx="41.1" cy="9.5" r="2.9"/>
+    <circle cx="18.9" cy="43.5" r="2.9"/>
+  </g>
+</svg>

@@ -22,7 +22,8 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
     [Tooltip("Shows the rolled tune's note above the player. Its pop-in, rise and fade are authored in " +
              "the prefab's animation; this only sets the sprite and places it.")]
     [SerializeField] private GameObject? revealPrefab;
-    [SerializeField] private Vector2 revealOffset = new(0f, 2.1f);
+    [Tooltip("Above the streak indicator that floats over the player's head, so the two never overlap.")]
+    [SerializeField] private Vector2 revealOffset = new(0f, 3.9f);
     [Tooltip("Seconds before the reveal returns to the pool. Match the reveal clip's length.")]
     [SerializeField] private float revealLifetime = 0.9f;
 

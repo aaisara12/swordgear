@@ -58,7 +58,7 @@ afterwards.
 | 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 15 | Hot streak — Crescendo & Allegro | ☐ | ☐ | ☐ |
+| 15 | Hot streak — Crescendo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 16 | Grand Chord jackpot | ☐ | ☐ | ☐ |
 | 17 | Flourish — the charge | ☐ | ☐ | ☐ |
 
@@ -465,13 +465,17 @@ effects, dynamic markings are intensity.
 | **Verified** | Lullaby healed exactly 24 of 200 in 2-HP steps every 0.25s. Under Fermata, hits at 0.3s and 1.3s did nothing and one at 1.7s landed |
 | **Playtest** | Some taps heal you (HP bar climbs over 3s, notes drift up around you), some make you briefly untouchable (an opal ring holds you) |
 
-### Commit 15 — Hot streak
+### Commit 15 — Hot streak ✅
 
 | | |
 |---|---|
-| **Adds** | Streak layer in `PlayerStatModifiers` (`AddStreakStack` / `ClearStreaks` / `OnStreakChanged`); `StreakTune`; Crescendo & Allegro; stack indicator |
-| **Playtest** | Hairpins / eighth notes stack over your head; you hit harder and faster until you get hit |
-| **Careful** | Move speed is event-driven — `PlayerController` re-applies movement on `OnStreakChanged`. Streaks clear on node reset, defeat and new run |
+| **Adds** | Streak layer in `PlayerStatModifiers` (`StreakStat`, `StreakBonus`, `StreakState`, `AddStreakStack` / `ClearStreaks` / static `OnStreakChanged(StreakChange, id)`); `StreakTune`; `Crescendo.asset`, `Allegro.asset`; crescendo-hairpin SVG; `StreakWorldIndicator` + `StreakIndicator.prefab` (on `CoreSystems`) + `StreakCallout.prefab`; `StreakText`; outlined HUD-font material; `PlayerStreakTest` |
+| **Crescendo** | Crescendo hairpin. +20% damage per stack. Sounds the same C plucked three times, louder each time, landing on G |
+| **Allegro** | Eighth note. +20% attack speed and +15% move speed per stack. Attack speed shortens every element's cooldown through `ElementManager.OnTap`, including Light's own taps. Sounds a quick run up C–D–E–F–G |
+| **Streak rules** | Max 3 stacks per streak; each stack refreshes a 20s safety cap; **any damage busts every streak** (`OnHealthChanged` with `Delta < 0`), so Fermata protects one. Cleared on node reset (`PlayerController.ResetForNode`) and new run (`ClearForNewRun`). Odds are now even thirds by family, measured 33.4 / 33.3 / 33.3% |
+| **Visibility** | Over the player's head, not on the HUD: a HUD panel was tried and dropped as too loud for something only one element uses. Each live streak shows its **exact running total** as outlined text over the head ("+40% DMG", "+40% ATK SPD  +30% MOVE"), packed down onto the head so a lone streak never floats over an empty slot, popping on every new stack. Stats rather than the tune's glyph, because mid-fight the question is "how much stronger am I", not "which tune was that". **Callouts:** "+20% DMG" floats up on each stack, stacking in lanes at tap speed, and a red "STREAK BROKEN" with a sour low harp cluster on a bust |
+| **Careful** | Augment values moved to backing fields and `DamageMultiplier` / `AttackSpeedMultiplier` / `MoveSpeedMultiplier` became augment + streak, because `ReapplyFromBlob` rebuilds augments from scratch on every pickup and would wipe a streak (covered by `PlayerStreakTest`). Move speed is applied on stick input, so `PlayerController` replays the stick on `OnStreakChanged`; verified mid-walk, 10 → 11.5 → 13 → 10 on a bust. Light's reveal moved up to 3.0 to clear the indicator |
+| **Playtest** | Your live bonuses read over your head ("+40% DMG") and grow with each stack; you hit harder and faster until you get hit, then "STREAK BROKEN" |
 
 ### Commit 16 — Grand Chord jackpot
 
@@ -514,7 +518,7 @@ effects, dynamic markings are intensity.
 | **12** | Tap → a rising four-note harp run |
 | **13** | Taps vary: a bursting quarter note, two waves rolling across the room |
 | **14** | Some taps heal (notes drift up, HP climbs), some make you untouchable (an opal ring holds you) |
-| **15** | Streak notes stack overhead; you hit harder/faster until hit |
+| **15** | Live bonuses read over your head and grow per stack; you hit harder/faster until hit, then "STREAK BROKEN" |
 | **16** | Rarely, everything fires at once |
 | **17** | Hold → release strums 2–5 tunes |
 
