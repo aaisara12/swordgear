@@ -717,7 +717,7 @@ only that slice and give you the exact play steps.*
 | P3 | Lightning & Wind sections | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P4 | Earth & Dark sections, Light upgraded | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P5 | Imbue timer on the gear | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P6 | The hub | ☐ | ☐ | ☐ |
+| P6 | The hub | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ☐ | ☐ | ☐ |
 | P8 | Bursts for Wind/Earth/Dark/Light | ☐ | ☐ | ☐ |
 | P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
@@ -767,6 +767,15 @@ only that slice and give you the exact play steps.*
 | **Changes** | `GearArcCommon.hlsl` — the arc is the timer: `ArcChargedHalfLength` / `ArcCharged` / `ArcTakeoverAt` cut an element's takeover back to the still-charged span, which shrinks in from both ends toward the centre as `_Fill` drains; `ArcEndFade` retreats with it so spilled shapes die down at the charge's edge; `ArcChargeEdge` inks the cut; `ArcUrgency` throbs the arc (swell + glow) in the last quarter, quickening as it runs out. Every element shader takes its tile with `ArcTakeoverAt`. `GearManager` follows the current arena's `GameManager.OnEmpowermentTimerChanged` (the gear outlives the scene) and feeds the active arc's fill; other arcs keep their last fill (resetting it as an imbue ends would flash the element back), so each new imbue grows its look back out from the centre |
 | **Look** | Imbue: the element's look grows out across the arc and goes wild. Over the 20s the element's look shrinks toward the arc's centre, the drained ends back to the plain tile with an ink cut at the edge; in the last 5s the arc throbs, faster and faster; on expiry it settles back to idle |
 | **Doc** | Corrected "Light is a 5s imbue" — imbues last 20s (`Gear.prefab` overrides the 5s default) |
+
+### P6 — The hub ✅
+
+| | |
+|---|---|
+| **Adds** | `Swordgear/Gear Hub` + `GearHub.mat`: a cartoon steel cog drawn on a quad behind the arcs |
+| **Changes** | `Gear.prefab` — `gear_0` (`gear_thin.png`, 8 baked notches) replaced by a `Hub` child (builtin quad, `GearHub.mat`, sort order 3 under the arcs' 4), wired to `GearManager.hubRenderer`; BootUp's now-unused `gear_0` scale overrides (and a stale `spinSpeed`) removed. `GearManager` — `UpdateHub` fits the quad to the arcs and sets `_HubShape` (inner/outer radius, tooth count = arc count, first arc's angle) and the imbued element's `_Tint` whenever the loadout or imbue changes; `ClickHub` on every grant from a flick advances `_Notch` and stamps `_ClickTime` |
+| **Look** | A steel band a little wider than the arcs, with a chunky tooth and a rivet in every gap between them, all inked. Imbued: tooth caps and the band's inner rim glow in the element's colour. Each grant (re-flicking the same element too) springs the cog round one notch with a small overshoot and flashes its teeth. The arcs never move |
+| **Note** | The click animates in the shader from `_ClickTime`, stamped with `Time.time` — the clock URP feeds `_Time.y` — so the shader and the stamp agree in every scene |
 
 ### Quick reference — what to play after each commit
 

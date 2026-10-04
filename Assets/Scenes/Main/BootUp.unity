@@ -444,10 +444,6 @@ PrefabInstance:
       propertyPath: radius
       value: 11
       objectReference: {fileID: 0}
-    - target: {fileID: 1106902424761290458, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
-      propertyPath: spinSpeed
-      value: 20
-      objectReference: {fileID: 0}
     - target: {fileID: 2387851173567323624, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: baseDamage
       value: 8
@@ -495,18 +491,6 @@ PrefabInstance:
     - target: {fileID: 4848120501802802916, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5683849335959786255, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5683849335959786255, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2.6
-      objectReference: {fileID: 0}
-    - target: {fileID: 5683849335959786255, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2.6
       objectReference: {fileID: 0}
     - target: {fileID: 8240674318395454783, guid: bf46c3f1840344cbe8dc53d50c37b3a3, type: 3}
       propertyPath: m_Name

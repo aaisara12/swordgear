@@ -95,6 +95,14 @@ public class GearManager : InitializeableGameComponent
     [SerializeField] private float arcOverflowOuter = 3.5f;
     [SerializeField] private float arcOverflowAlong = 0.6f;
 
+    [Header("Hub")]
+    [Tooltip("The cog behind the arcs (Swordgear/Gear Hub on a quad centred on the gear). Its teeth sit in the " +
+             "gaps between arcs, so it's resized and re-toothed whenever the loadout changes; it takes the " +
+             "imbued element's colour and clicks round a notch on every grant.")]
+    [SerializeField] private Renderer? hubRenderer;
+    [Tooltip("World units the hub's quad reaches past the arcs' outer edge, to fit its teeth.")]
+    [SerializeField] private float hubReach = 2.5f;
+
     [Header("Imbue Grant")]
     [Tooltip("How long the element granted by a flick lasts.")]
     [SerializeField] private float imbueDuration = 5f;
@@ -105,6 +113,11 @@ public class GearManager : InitializeableGameComponent
     [SerializeField] private float followLagDecay = 8f;
 
     public static GearManager? Instance;
+
+    private static readonly int HubShapeId = Shader.PropertyToID("_HubShape");
+    private static readonly int HubTintId = Shader.PropertyToID("_Tint");
+    private static readonly int HubNotchId = Shader.PropertyToID("_Notch");
+    private static readonly int HubClickTimeId = Shader.PropertyToID("_ClickTime");
 
     private readonly List<GearArcVisual> arcVisuals = new();
 
@@ -122,6 +135,9 @@ public class GearManager : InitializeableGameComponent
     private const float UrgencyShare = 0.25f;
     private float urgencyPhase;
     private GameManager? imbueTimerSource;
+    private MaterialPropertyBlock? hubBlock;
+    private int hubNotch;
+    private float hubClickTime = -100f;
 
     /// <summary> One arc per equipped element — derived from the loadout, never authored directly. </summary>
     public int ArcCount => slotTiles.Count;
@@ -151,6 +167,7 @@ public class GearManager : InitializeableGameComponent
     {
         activeElement = element;
         RefreshVisuals();
+        UpdateHub();
     }
 
     /// <summary>
@@ -341,6 +358,7 @@ public class GearManager : InitializeableGameComponent
         }
 
         GameManager.Instance.ApplyEmpowerment(granted, imbueDamageMultiplier, imbueDuration);
+        ClickHub();
         return true;
     }
 
@@ -421,6 +439,7 @@ public class GearManager : InitializeableGameComponent
         }
 
         highlightedArc = -1;
+        UpdateHub();
     }
 
     public void RefreshVisuals()
@@ -462,6 +481,43 @@ public class GearManager : InitializeableGameComponent
         // The active arc spills furthest, so it draws over its neighbours; an aimed-at arc's outline next.
         int lift = active ? 2 : highlighted ? 1 : 0;
         arcVisuals[index].SetSorting(SortingLayer.NameToID(arcSortingLayer), arcSortingOrder + lift);
+    }
+
+    // ---------- Hub ----------
+
+    /// <summary> Fits the hub to the current arcs and tints it with the imbued element. </summary>
+    private void UpdateHub()
+    {
+        if (hubRenderer == null)
+        {
+            return;
+        }
+
+        float inner = Mathf.Max(0f, radius - arcThickness * 0.5f);
+        float outer = radius + arcThickness * 0.5f;
+        hubRenderer.transform.localScale = Vector3.one * 2f * (outer + hubReach);
+
+        Color tint = ElementVisuals.GetColor(activeElement);
+        tint.a = activeElement == Element.Physical ? 0f : 1f;
+
+        hubBlock ??= new MaterialPropertyBlock();
+        hubRenderer.GetPropertyBlock(hubBlock);
+        hubBlock.SetVector(HubShapeId, new Vector4(inner, outer, Mathf.Max(1, ArcCount), arcOffsetDegrees * Mathf.Deg2Rad));
+        hubBlock.SetColor(HubTintId, tint);
+        hubBlock.SetFloat(HubNotchId, hubNotch);
+        hubBlock.SetFloat(HubClickTimeId, hubClickTime);
+        hubRenderer.SetPropertyBlock(hubBlock);
+    }
+
+    /// <summary>
+    /// Clicks the hub round one notch. The spring and flash play out in the shader from the click's time,
+    /// stamped on the shader's clock (URP sets _Time.y from Time.time), so nothing here animates.
+    /// </summary>
+    private void ClickHub()
+    {
+        hubNotch = (hubNotch + 1) % Mathf.Max(1, ArcCount);
+        hubClickTime = Time.time;
+        UpdateHub();
     }
 
     private Material? ResolveElementArcMaterial(int index)
