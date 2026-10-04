@@ -517,7 +517,7 @@ effects, dynamic markings are intensity.
 ## Backlog (in this doc's scope, not started)
 
 - ☐ **Element-switch flourish / "gear arts"** — the doc asks for a visual pop on switch; nothing exists.
-  `ElementManager.OnActiveElementChanged` is the hook.
+  `ElementManager.OnActiveElementChanged` is the hook. Folded into the polish pass at the end of this doc.
 - ☐ **Sword sprite changes per element.** The doc says *"sword changes to match that element"* with a
   shared gear crossguard motif. Today only VFX differ — `PlayerWeaponIndicator` just rotates the pivot
   and toggles visibility; there is no element→sprite path. Art-blocked (7 sprites), then a small change.
@@ -575,3 +575,17 @@ size accepted, interface tidied rather than split and reordered ahead of all ele
 into four beats around a transient ballista. Say **"start commit 04"** (or a later number) and we apply
 only that slice and give you the exact play steps.*
 
+---
+
+## ⏰ Reminder — plan the polish pass
+
+**Before calling the expansion done, sit down and `/plan` a dedicated polish pass.** Not started and not
+yet designed. Requested 2026-10-03. Two goals:
+
+1. **Make every element's gear section look cooler.** Today each arc is a flat vertex-coloured wedge.
+   Light's opal arc (`OpaliteArc.mat`, through `GearManager.elementArcMaterials`) shows the route: each
+   element can get its own material — e.g. flowing embers for Fire, frost crystals for Ice, crackling
+   arcs for Lightning, drifting leaves for Wind, stone strata for Earth, smoke for Dark.
+2. **A sick on-screen visual when you switch elements.** A full moment, not just a colour change. This
+   absorbs the backlog's *element-switch flourish / "gear arts"* item; `ElementManager.OnActiveElementChanged`
+   is the hook. Authored in the editor (prefabs, particles, AnimationClips) per AGENTS.md, not built in code.
