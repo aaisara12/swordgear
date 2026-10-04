@@ -600,7 +600,7 @@ effects, dynamic markings are intensity.
 ## Backlog (in this doc's scope, not started)
 
 - ☐ **Element-switch flourish / "gear arts"** — the doc asks for a visual pop on switch; nothing exists.
-  `ElementManager.OnActiveElementChanged` is the hook. Folded into the polish pass at the end of this doc.
+  `ElementManager.OnActiveElementChanged` is the hook. Absorbed by milestone P (polish pass) at the end of this doc.
 - ☐ **Sword sprite changes per element.** The doc says *"sword changes to match that element"* with a
   shared gear crossguard motif. Today only VFX differ — `PlayerWeaponIndicator` just rotates the pivot
   and toggles visibility; there is no element→sprite path. Art-blocked (7 sprites), then a small change.
@@ -660,15 +660,75 @@ only that slice and give you the exact play steps.*
 
 ---
 
-## ⏰ Reminder — plan the polish pass
+## P — Polish pass: a living gear and an element switch with real impact
 
-**Before calling the expansion done, sit down and `/plan` a dedicated polish pass.** Not started and not
-yet designed. Requested 2026-10-03. Two goals:
+> Planned 2026-10-03, replacing the reminder that stood here. The user's choices: an **animated shader per
+> element** for the gear sections, a **big but fast** switch that never pauses play, the **active section drains**
+> to show imbue time, **synthesized switch sounds** per element, and: *the whole screen can be involved; make it
+> glowy, with VFX and shaders that have real impact.* Absorbs the backlog's element-switch flourish.
 
-1. **Make every element's gear section look cooler.** Today each arc is a flat vertex-coloured wedge.
-   Light's opal arc (`OpaliteArc.mat`, through `GearManager.elementArcMaterials`) shows the route: each
-   element can get its own material — e.g. flowing embers for Fire, frost crystals for Ice, crackling
-   arcs for Lightning, drifting leaves for Wind, stone strata for Earth, smoke for Dark.
-2. **A sick on-screen visual when you switch elements.** A full moment, not just a colour change. This
-   absorbs the backlog's *element-switch flourish / "gear arts"* item; `ElementManager.OnActiveElementChanged`
-   is the hook. Authored in the editor (prefabs, particles, AnimationClips) per AGENTS.md, not built in code.
+### What exists (before P)
+
+- Switching is a flick of the aim stick at an arc: `PlayerController.GrabElementFromGear` →
+  `GearManager.TryGrantElementFromDirection` → `GameManager.ApplyEmpowerment` → `ElementManager.SetActiveElement`
+  → static `OnActiveElementChanged`. The only feedback is `Sound.Bounce`. The event also fires on boot and when an
+  imbue **expires back to Physical**.
+- **An imbue lasts 20s**, not 5: `Gear.prefab` overrides `imbueDuration`. `GameManager.OnEmpowermentTimerChanged`
+  ticks every frame, but nothing in the real game shows it.
+- Arcs are `GearArcVisual` wedges: vertex colour only, **no UVs**, colour snaps instantly. Only Light has its own
+  material. The decorative `gear_thin.png` ring has 8 baked notches against 7 arcs.
+- Arena has a global Volume (`Assets/Misc/ArenaPostFX.asset`, bloom threshold 0.9) and HDR on, but every element
+  colour is capped at 1.0, so almost nothing blooms. **HDR emission is the lever for glow.**
+- The held sword is never element-tinted.
+
+### Design
+
+- **Glow language.** Every element gets an HDR emission colour (`ElementVisuals.GetEmissionColor`), and bloom is
+  retuned so only deliberate emission blooms. Everything P adds glows through that one path.
+- **The gear.** Arcs gain UVs (u along, v inner→outer). One animated shader per element on a shared
+  `ElementFX.hlsl`: Fire flame tongues and embers; Ice frosted facets and glints; Lightning striking bolts;
+  Wind streaming currents; Earth glowing strata cracks; Dark drifting void smoke; Light's Opalite upgraded.
+  Arc states ease (idle → aimed-at → **active**) through a MaterialPropertyBlock. The active arc **drains** over
+  the imbue. A shader **hub** replaces `gear_thin.png`: teeth match the arc count, it takes the element's colour,
+  and it clicks round a notch on every switch. Arcs never move, so flick directions stay learnable.
+- **The switch** (≤0.4s, never pauses), fired from a new `GearManager.OnElementGranted` (a real flick, not boot or
+  expiry): the arc flares and streaks energy into the player; an element burst blooms (one authored prefab per
+  element); a tinted shockwave rolls across the arena; the **screen edges** flare in the element, then settle to a
+  faint tint while imbued; a post-FX pulse (bloom spike, chromatic aberration, colour nudge); camera kick, light
+  flash, and the element's own sound.
+- **Imbued player.** The held sword takes the element (tint and HDR glow); a low-rate ambient aura; a flicker in
+  the last seconds; an audible, visible fizzle on expiry.
+- **Authoring.** Bursts, auras, vignette and hub are prefabs, materials and AnimationClips made in the editor;
+  scripts only listen and set parameters. Shaders are hand-written URP 2D HLSL. Mobile-conscious throughout.
+
+### Status
+
+| Commit | Title | Committed | Editor pass | Verified in play |
+|---|---|---|---|---|
+| P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ☐ | ☐ | ☐ |
+| P2 | Fire & Ice sections | ☐ | ☐ | ☐ |
+| P3 | Lightning & Wind sections | ☐ | ☐ | ☐ |
+| P4 | Earth & Dark sections, Light upgraded | ☐ | ☐ | ☐ |
+| P5 | Imbue timer on the gear | ☐ | ☐ | ☐ |
+| P6 | The hub | ☐ | ☐ | ☐ |
+| P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ☐ | ☐ | ☐ |
+| P8 | Bursts for Wind/Earth/Dark/Light | ☐ | ☐ | ☐ |
+| P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
+| P10 | Switch sounds | ☐ | ☐ | ☐ |
+| P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
+
+### Quick reference — what to play after each commit
+
+| After commit | Play this |
+|---|---|
+| **P1** | Aim across the ring: sections ease brighter and swell, nothing snaps; glows bloom |
+| **P2** | Fire's arc licks with flame and embers; Ice's is frosted crystal with glints |
+| **P3** | Bolts strike across Lightning's arc; currents stream along Wind's |
+| **P4** | Glowing strata cracks; drifting void smoke; opal rims and blooms |
+| **P5** | The active section glows and drains over 20s, pulsing near the end |
+| **P6** | The centre gear matches the arc count and clicks round as you switch |
+| **P7** | Switching fires a streak from the arc into you and a burst |
+| **P8** | Every element has its own burst |
+| **P9** | The screen edges flare in the element and stay faintly tinted while imbued |
+| **P10** | Each element switch has its own sound |
+| **P11** | Your sword and aura carry the element; expiry is visible and audible |
