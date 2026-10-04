@@ -20,6 +20,7 @@ public enum UpgradeType
     Wind_RendingGale,
     Lightning_Thunderstep,        // dash while sword is out -> blink to the sword, cleave + pick it up
     Nonelemental_Attunement,      // same-element attacks deal 0 damage (both player and enemy side)
+    Light_LearnTune,              // repeatable: each copy teaches the harp one random tune it doesn't know (HarpRepertoire)
 }
 
 /// <summary>

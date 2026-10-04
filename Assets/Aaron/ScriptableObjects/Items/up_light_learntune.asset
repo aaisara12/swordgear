@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 594a74c4135e7fb4d81ab9521a933f5f, type: 3}
+  m_Name: up_light_learntune
+  m_EditorClassIdentifier: Main::Shop.LearnTuneStoreItem
+  id: elem-upgrade-Light_LearnTune
+  displayName: Learn a Tune
+  description: Your harp learns a new tune, chosen at random. Take it again until
+    you know them all.
+  cost: 100
+  icon: {fileID: 3286163911610860551, guid: e0e28fb37ea90d9469c328d0682f80f3, type: 3}
+  qualityTier: 1
+  elementUpgrade: 11

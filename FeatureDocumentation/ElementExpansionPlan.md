@@ -61,7 +61,7 @@ afterwards.
 | 15 | Hot streak — Fortissimo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 16 | Presto — move-speed streak | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 17 | The arsenal — owned tunes, starters, family-first roll | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 18 | "Learn a tune" — the repeatable augment | ☐ | ☐ | ☐ |
+| 18 | "Learn a tune" — the repeatable augment | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 19 | Staccato & Rest — two more tunes | ☐ | ☐ | ☐ |
 | 20 | Grand Chord jackpot — every owned tune at once | ☐ | ☐ | ☐ |
 | 21 | Flourish — the charge | ☐ | ☐ | ☐ |
@@ -519,12 +519,15 @@ effects, dynamic markings are intensity.
 | **Starters** | Flurry, Lullaby, Fortissimo — one per family, so the first tap of a run is already even thirds |
 | **Playtest** | A fresh run rolls only Flurry, Lullaby and Fortissimo |
 
-### Commit 18 — "Learn a tune"
+### Commit 18 — "Learn a tune" ✅
 
 | | |
 |---|---|
-| **Adds** | One repeatable Light augment in the store catalog. Buying it is turned, on pickup, into a specific `light-tune:<id>` item for a random tune you don't own yet (the same consume-and-convert path instant heals use) |
-| **Rules** | Offered again and again until you know every tune, then no longer offered |
+| **Adds** | `UpgradeType.Light_LearnTune` (appended); `LearnTuneStoreItem` (an `ElementUpgradeLoadableStoreItem`) + `up_light_learntune.asset` in `AugmentCatalog` — **Silver** tier, cost 100, harp icon SVG; `LoadableStoreItem.IsOfferable` (virtual, default true) honoured by the tier pickers; `HarpRepertoire.OnTuneLearned`; `StreakWorldIndicator.Announce`; 3 more `HarpRollTest` cases |
+| **How it works** | The purchase is an ordinary element upgrade: each copy lands in the inventory (element-tagged `@Light|elem-upgrade-Light_LearnTune`) and **stays there**, so the element ledger counts it as a Light augment like any other. `HarpRepertoire` counts copies against learned tunes and, on every inventory change, learns random unknown tunes until they match (idempotent; over-buying stops at everything). Each learn pops the tune's note over the player with a gold "NEW TUNE: STRIKE" |
+| **Rules** | `IsOfferable` is false once nothing is left to learn, so it drops out of every offer |
+| **Tier** | Silver rather than the Diamond other element upgrades use, so it shows up in regular post-fight offers: it's meant to be taken many times. ~1 in 11 of the Silver pool. A tuning knob |
+| **Verified** | Bought through `PurchaseUtility` with a real tagged offer: learned Presto, Light ledger 0 → 1; buying out learned all five in random order, then 0 appearances in 300 Silver offer rolls. HP unchanged across a purchase |
 | **Playtest** | Buy it in the shop → next fight, a tune you didn't have starts showing up; keep buying until it disappears from the shop |
 
 ### Commit 19 — Staccato & Rest

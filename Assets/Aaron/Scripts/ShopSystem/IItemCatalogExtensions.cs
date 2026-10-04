@@ -44,7 +44,7 @@ namespace Shop
         public static List<IStoreItem> GetRandomItemsForTier(this LoadableStoreItemCatalog catalog, int numberOfItems, AugmentQualityTier minimumTier)
         {
             return GetRandomItemsFromPool(catalog, numberOfItems, allowDuplicates: false, item =>
-                item is LoadableStoreItem loadable && loadable.QualityTier >= minimumTier);
+                item is LoadableStoreItem loadable && loadable.QualityTier >= minimumTier && loadable.IsOfferable);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace Shop
             var tierPool = new List<IStoreItem>();
             foreach (IStoreItem item in catalog.GetItems())
             {
-                if (item is LoadableStoreItem loadable && loadable.QualityTier == tier)
+                if (item is LoadableStoreItem loadable && loadable.QualityTier == tier && loadable.IsOfferable)
                 {
                     tierPool.Add(item);
                 }

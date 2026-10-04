@@ -62,6 +62,9 @@ public class StreakWorldIndicator : MonoBehaviour
     [SerializeField] private int[] bustSemitones = { -13, -12 };
     [SerializeField, Range(0f, 1f)] private float bustVolume = 0.7f;
 
+    /// <summary> The indicator over the player, for anything else that needs a callout there. </summary>
+    public static StreakWorldIndicator? Instance { get; private set; }
+
     private static readonly int PopState = Animator.StringToHash("Pop");
     private static readonly int BustState = Animator.StringToHash("Bust");
 
@@ -72,6 +75,8 @@ public class StreakWorldIndicator : MonoBehaviour
 
     private void Awake()
     {
+        Instance = this;
+
         if (calloutPrefab == null)
         {
             Debug.LogError("StreakWorldIndicator: calloutPrefab is null");
@@ -90,6 +95,17 @@ public class StreakWorldIndicator : MonoBehaviour
         PlayerStatModifiers.OnStreakChanged -= HandleStreakChanged;
         bustRoutine = null;
     }
+
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            Instance = null;
+        }
+    }
+
+    /// <summary> Pops a callout over the player, in the same lanes as the streak callouts. </summary>
+    public void Announce(string text, Color color) => Callout(text, color);
 
     private void LateUpdate()
     {

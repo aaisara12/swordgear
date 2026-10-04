@@ -26,6 +26,8 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
     [SerializeField] private Vector2 revealOffset = new(0f, 3.9f);
     [Tooltip("Seconds before the reveal returns to the pool. Match the reveal clip's length.")]
     [SerializeField] private float revealLifetime = 0.9f;
+    [Tooltip("Colour of the \"NEW TUNE\" callout when the harp learns one.")]
+    [SerializeField] private Color learnedColor = new(1f, 0.93f, 0.55f, 1f);
 
     [Header("Aim")]
     [Tooltip("Between Fire's 10 and Earth's 15: the harp's notes travel and home, so it reaches further " +
@@ -47,6 +49,36 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
             Debug.LogError("LightWeapon: revealPrefab is null");
             return;
         }
+    }
+
+    private void OnEnable()
+    {
+        HarpRepertoire.OnTuneLearned += AnnounceLearned;
+    }
+
+    private void OnDisable()
+    {
+        HarpRepertoire.OnTuneLearned -= AnnounceLearned;
+    }
+
+    /// <summary>
+    /// Shows a newly learned tune's note over the player and names it, so the shop's random pick isn't
+    /// a silent change: the player sees what they won.
+    /// </summary>
+    /// <remarks>
+    /// Usually fires while the augment pick has the game paused. The reveal and callout run on scaled time,
+    /// so they play as the game resumes rather than vanishing behind the shop.
+    /// </remarks>
+    private void AnnounceLearned(HarpTune tune)
+    {
+        GameManager? gameManager = GameManager.Instance;
+        if (gameManager == null || gameManager.player == null)
+        {
+            return;
+        }
+
+        Reveal(gameManager.player.transform, tune);
+        StreakWorldIndicator.Instance?.Announce($"NEW TUNE: {tune.name.ToUpperInvariant()}", learnedColor);
     }
 
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)

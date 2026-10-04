@@ -149,4 +149,73 @@ public class HarpRollTest
         blob.ReceiveItem(HarpRepertoire.LearnedItemId(unknown), 1);
         Assert.IsFalse(repertoire.HasUnlearned);
     }
+
+    private (HarpRepertoire repertoire, PlayerBlob blob, HarpTune[] learnable) RepertoireWithLearnable(int learnableCount)
+    {
+        var go = new GameObject("Repertoire");
+        _created.Add(go);
+        var repertoire = go.AddComponent<HarpRepertoire>();
+        var tunes = new HarpTune[learnableCount];
+        for (int i = 0; i < learnableCount; i++)
+        {
+            tunes[i] = Tune("L" + i, HarpTuneFamily.Offense);
+        }
+
+        var serialized = new SerializedObject(repertoire);
+        var learnable = serialized.FindProperty("learnable");
+        learnable.arraySize = learnableCount;
+        for (int i = 0; i < learnableCount; i++)
+        {
+            learnable.GetArrayElementAtIndex(i).objectReferenceValue = tunes[i];
+        }
+
+        serialized.ApplyModifiedPropertiesWithoutUndo();
+        var blob = new PlayerBlob();
+        repertoire.InitializeOnGameStart_Dangerous(blob);
+        return (repertoire, blob, tunes);
+    }
+
+    // The id exactly as the shop hands it over: element-tagged, as AugmentElementRoller stamps every offer.
+    private static string LearnTuneOfferId() =>
+        Shop.AugmentElementSerializer.Serialize(Element.Light, UpgradeTypeSerializer.Serialize(UpgradeType.Light_LearnTune));
+
+    [Test]
+    public void EachLearnATune_TeachesOneUnknownTune()
+    {
+        var (repertoire, blob, learnable) = RepertoireWithLearnable(5);
+
+        blob.ReceiveItem(LearnTuneOfferId(), 1);
+        Assert.AreEqual(1, repertoire.Owned.Count);
+
+        blob.ReceiveItem(LearnTuneOfferId(), 1);
+        Assert.AreEqual(2, repertoire.Owned.Count);
+        Assert.AreNotEqual(repertoire.Owned[0], repertoire.Owned[1]);
+
+        // The purchase itself stays in the inventory, so the element ledger still counts it as a Light augment.
+        Assert.AreEqual(2, blob.GetItemCount(LearnTuneOfferId()));
+    }
+
+    [Test]
+    public void BuyingMoreThanThereIsToLearn_StopsAtEverything()
+    {
+        var (repertoire, blob, learnable) = RepertoireWithLearnable(2);
+
+        blob.ReceiveItem(LearnTuneOfferId(), 5);
+
+        Assert.AreEqual(2, repertoire.Owned.Count);
+        Assert.IsFalse(repertoire.HasUnlearned);
+    }
+
+    [Test]
+    public void ReSyncing_NeverLearnsMoreThanWasBought()
+    {
+        var (repertoire, blob, learnable) = RepertoireWithLearnable(5);
+        blob.ReceiveItem(LearnTuneOfferId(), 2);
+
+        // Game start re-initialises against the same blob; an unrelated pickup also fires the sync.
+        repertoire.InitializeOnGameStart_Dangerous(blob);
+        blob.ReceiveItem("some-other-augment", 1);
+
+        Assert.AreEqual(2, repertoire.Owned.Count);
+    }
 }
