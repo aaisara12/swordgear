@@ -88,6 +88,12 @@ half ArcSpillOpen()
     return saturate(max(_Active, _Highlight) * 4.0);
 }
 
+// The size of one pixel in world units, for EFX_FillPx. Radial distance is exactly world units.
+float ArcPixel(ArcVaryings input)
+{
+    return length(float2(ddx(input.uvWorld.y), ddy(input.uvWorld.y)));
+}
+
 // 1 along the arc's middle, falling to 0 over `width` world units at each end. `x` is along the arc in
 // world units (uvWorld.x). Lets spilled shapes die down toward the ends rather than stop at a hard cut.
 float ArcEndFade(float x, float width)
@@ -180,7 +186,11 @@ half4 ArcNeutral(ArcVaryings input, ArcFrame f)
     rgb = lerp(rgb, base * 0.72, 1.0 - EFX_Step(0.24, v));
     rgb = lerp(rgb, lerp(base, 1.0, 0.38), EFX_Step(0.72, v));
     rgb = lerp(rgb, 1.0, ArcShine(f, 1.0) * 0.55);
-    rgb *= ArcStateGlow();
+
+    // Brighten, but only until the brightest channel tops out: past that a pale colour (Wind, Light) clips
+    // to plain white and loses its hue. The halo carries the rest of the glow.
+    half peak = max(max(base.r, base.g), max(base.b, 0.05));
+    rgb *= min(ArcStateGlow(), 1.15 / peak);
 
     half ink = EFX_Step(-ArcInkWidth, f.sdf);
     rgb = lerp(rgb, base * ArcInkTone, ink);

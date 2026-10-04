@@ -109,6 +109,14 @@ float EFX_Fill(float sdf)
     return 1.0 - EFX_Step(0.0, sdf);
 }
 
+// Coverage from a signed distance measured in the same units as `pixel`, the size of one pixel in those
+// units (e.g. fwidth of a world-unit coordinate). Unlike EFX_Fill it ignores jumps in the distance field, so
+// shapes scattered over cells don't fringe where a cell's edge cuts the field.
+float EFX_FillPx(float sdf, float pixel)
+{
+    return saturate(0.5 - sdf / max(pixel, 1e-5));
+}
+
 // Signed distance to a box of half-size b, corners rounded by r, centred on the origin.
 float EFX_SdRoundBox(float2 p, float2 b, float r)
 {

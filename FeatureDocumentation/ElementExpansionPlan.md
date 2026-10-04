@@ -714,7 +714,7 @@ only that slice and give you the exact play steps.*
 |---|---|---|---|---|
 | P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P2 | Fire & Ice sections; the shared cartoon tile and overflow | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P3 | Lightning & Wind sections | ☐ | ☐ | ☐ |
+| P3 | Lightning & Wind sections | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P4 | Earth & Dark sections, Light upgraded | ☐ | ☐ | ☐ |
 | P5 | Imbue timer on the gear | ☐ | ☐ | ☐ |
 | P6 | The hub | ☐ | ☐ | ☐ |
@@ -742,6 +742,14 @@ only that slice and give you the exact play steps.*
 | **Look** | Idle: flat cartoon tiles in each element's colour. Aimed: swells, brightens, white-ish glowing outline. Active Fire: the tile catches — nested yellow/orange/red tongues with dark-red ink jump to random heights and roar up to ~3 units past the gear, egg-shaped flame bits fly off. Active Ice: the tile freezes into big slanted facets split by bright cracks, glass shine stripes race across, a crown of two-tone crystal spikes punches out in a wave round the arc, four-point stars pop |
 | **Cost** | Overflow rows are zero-area until an arc is aimed at or active, so idle arcs draw only their band |
 | **Note** | Top and bottom arcs spill mostly off-screen (the ring nearly fills the screen height); side arcs show it all. The band itself carries the active look either way |
+
+### P3 — Lightning & Wind sections ✅
+
+| | |
+|---|---|
+| **Adds** | `Swordgear/Gear Arc Lightning` + `GearArcLightning.mat`, `Swordgear/Gear Arc Wind` + `GearArcWind.mat` (wired into CoreSystems' `elementArcMaterials`); `EFX_FillPx` (coverage that ignores jumps in a cell-scattered field) and `ArcPixel` |
+| **Changes** | `ArcNeutral` caps its aimed-at brightening where the brightest channel tops out, so pale colours (Wind, Light) keep their hue instead of clipping to white; the halo carries the glow |
+| **Look** | Active Lightning: the tile turns to an indigo storm with cloud puffs rolling along it; a zig-zag crawls through the cloud and fresh fat yellow bolts (white core, dark ink) strike up to ~3 units past the gear, redrawn ~9 times a second; sparks pop; the storm strobes on some strikes. Active Wind: two-tone gust bands snake round the tile; inked white speed lines race round in lanes and past the gear; cartoon swirls spin up out of the tile, curl outward and shrink away |
 
 ### Quick reference — what to play after each commit
 
