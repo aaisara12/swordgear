@@ -1826,7 +1826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: elementArcMaterials.Array.size
-      value: 1
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[2].gearTile
@@ -1837,9 +1837,25 @@ PrefabInstance:
       value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[1].element
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[2].element
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: elementArcMaterials.Array.data[0].material
       value: 
       objectReference: {fileID: 2100000, guid: 78f15b12cb984f94bb638e19c9f34029, type: 2}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[1].material
+      value: 
+      objectReference: {fileID: 2100000, guid: c7fef6defd762fc4aa5fc721016963b5, type: 2}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[2].material
+      value: 
+      objectReference: {fileID: 2100000, guid: b61c1563c5c0c1645abc3fa33ea095e3, type: 2}
     - target: {fileID: 7126362550526451437, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: m_Name
       value: Gear Manager

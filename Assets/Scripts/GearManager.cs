@@ -89,6 +89,11 @@ public class GearManager : InitializeableGameComponent
     [SerializeField] private Color emptyArcColor = new(0.5f, 0.5f, 0.5f, 1f);
     [Tooltip("How quickly arcs ease between idle, aimed-at and active, per second.")]
     [SerializeField] private float arcEaseRate = 14f;
+    [Tooltip("How far (world units) an aimed-at or active arc's element may spill past its band: inward, " +
+             "outward, and past each end. Idle arcs don't spill, so this costs nothing until an arc is in play.")]
+    [SerializeField] private float arcOverflowInner = 0.5f;
+    [SerializeField] private float arcOverflowOuter = 3.5f;
+    [SerializeField] private float arcOverflowAlong = 0.6f;
 
     [Header("Imbue Grant")]
     [Tooltip("How long the element granted by a flick lasts.")]
@@ -335,7 +340,8 @@ public class GearManager : InitializeableGameComponent
             arc.EaseRate = arcEaseRate;
             arc.SetMaterial(ResolveElementArcMaterial(i) ?? material);
             arc.SetSorting(sortingLayerId, arcSortingOrder);
-            arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc);
+            arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc,
+                arcOverflowInner, arcOverflowOuter, arcOverflowAlong);
 
             arcVisuals.Add(arc);
         }
@@ -378,6 +384,10 @@ public class GearManager : InitializeableGameComponent
         }
 
         arcVisuals[index].SetTarget(color, highlighted ? 1f : 0f, active ? 1f : 0f);
+
+        // The active arc spills furthest, so it draws over its neighbours; an aimed-at arc's outline next.
+        int lift = active ? 2 : highlighted ? 1 : 0;
+        arcVisuals[index].SetSorting(SortingLayer.NameToID(arcSortingLayer), arcSortingOrder + lift);
     }
 
     private Material? ResolveElementArcMaterial(int index)

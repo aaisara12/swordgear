@@ -1,20 +1,19 @@
 Shader "Swordgear/Gear Arc"
 {
-    // The plain gear arc: the element's colour with glowing edges, swelling and brightening (into HDR, so
-    // it blooms) when aimed at or active. The fallback for any element without a shader of its own, and
-    // the template the element arc shaders follow.
+    // The plain gear arc: the shared cartoon tile in the element's colour (GearArcCommon's ArcNeutral),
+    // swelling, brightening into HDR and taking a glowing outline when aimed at or active. The fallback for
+    // any element without a shader of its own, and the template the element arc shaders follow.
     Properties
     {
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
-        _HighlightBoost ("Brightness When Aimed", Range(0, 4)) = 1.2
-        _ActiveBoost ("Brightness When Active", Range(0, 4)) = 0.8
-        _RimWidth ("Rim Width (0..0.5 of the band)", Range(0.01, 0.5)) = 0.12
-        _RimGlow ("Rim Glow", Range(0, 4)) = 1.2
+        _HighlightBoost ("Brightness When Aimed", Range(0, 4)) = 0.9
+        _ActiveBoost ("Brightness When Active", Range(0, 4)) = 0.6
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
         [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
+        [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
     }
 
     SubShader
@@ -34,8 +33,8 @@ Shader "Swordgear/Gear Arc"
 
             half4 ArcFragment(ArcVaryings input) : SV_Target
             {
-                half3 rgb = input.color.rgb * (1.0 + ArcRim(input.uv.y)) * ArcStateGlow();
-                return half4(rgb, input.color.a);
+                ArcFrame f = ArcGetFrame(input);
+                return EFX_Over(ArcNeutral(input, f), ArcHalo(f, input.color.rgb));
             }
             ENDHLSL
         }

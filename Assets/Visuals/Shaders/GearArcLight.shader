@@ -36,6 +36,7 @@ Shader "Swordgear/Gear Arc Light"
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
         [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
+        [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
     }
 
     SubShader
@@ -54,7 +55,8 @@ Shader "Swordgear/Gear Arc Light"
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half4 _MilkColor; \
                 half _SheenStrength; half _SheenScale; half _SheenSpeed; half _SheenAngle; half _Swirl; \
-                half _FleckScale; half _FleckThreshold; half _FleckIntensity; half _FleckTwinkle; half _FleckStateGlow;
+                half _FleckScale; half _FleckThreshold; half _FleckIntensity; half _FleckTwinkle; half _FleckStateGlow; \
+                half _RimWidth; half _RimGlow;
             #include "GearArcCommon.hlsl"
 
             // Pastel rainbow, as in Opalite.shader: a high floor and a small swing keep it opalescent, not neon.
@@ -85,9 +87,15 @@ Shader "Swordgear/Gear Arc Light"
                 half3 fleckColour = Pastel(s * 1.7 + n * 2.0 + 0.25, 0.45);
                 rgb += fleckColour * fleck * _FleckIntensity * (1.0 + _FleckStateGlow * max(_Highlight, _Active));
 
-                rgb += sheen * ArcRim(input.uv.y);
+                rgb += sheen * EFX_Rim(input.uv.y, _RimWidth) * _RimGlow * (0.5 + 0.5 * max(_Highlight, _Active));
                 rgb *= ArcStateGlow();
-                return half4(rgb, input.color.a);
+
+                // Cut to the shared tile's shape and inked like the rest of the ring.
+                ArcFrame f = ArcGetFrame(input);
+                half ink = EFX_Step(-ArcInkWidth, f.sdf);
+                rgb = lerp(rgb, input.color.rgb * ArcInkTone, ink);
+                half4 opal = half4(rgb, EFX_Fill(f.sdf) * lerp(input.color.a, 1.0, ink * 0.6));
+                return EFX_Over(opal, ArcHalo(f, input.color.rgb));
             }
             ENDHLSL
         }

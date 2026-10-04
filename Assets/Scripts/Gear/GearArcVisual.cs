@@ -17,6 +17,11 @@ using UnityEngine;
 /// u along the arc (0..1) and v from inner edge (0) to outer edge (1); TEXCOORD1 is the same in world
 /// units, for patterns that must not stretch with arc length.
 /// </para>
+/// <para>
+/// Around the band sit overflow rows (inside and outside) and overflow at both ends, built with zero area:
+/// TEXCOORD2 tells the shader how far each vertex may open. The shader opens them only while the arc is
+/// aimed at or active, so the active element can spill past the gear while idle arcs cost no extra fill.
+/// </para>
 /// </remarks>
 [RequireComponent(typeof(MeshFilter))]
 [RequireComponent(typeof(MeshRenderer))]
@@ -24,9 +29,13 @@ public class GearArcVisual : MonoBehaviour
 {
     private const int MinSegments = 2;
 
+    // Vertex rows per column, inner to outer: inner overflow, inner edge, outer edge, outer overflow.
+    private const int Rows = 4;
+
     private static readonly int HighlightId = Shader.PropertyToID("_Highlight");
     private static readonly int ActiveId = Shader.PropertyToID("_Active");
     private static readonly int FillId = Shader.PropertyToID("_Fill");
+    private static readonly int ArcShapeId = Shader.PropertyToID("_ArcShape");
 
     /// <summary> How quickly the arc eases toward its targets, per second (exponential). </summary>
     public float EaseRate { get; set; } = 14f;
@@ -40,7 +49,9 @@ public class GearArcVisual : MonoBehaviour
     private Color[] colors = System.Array.Empty<Color>();
     private Vector2[] uvs = System.Array.Empty<Vector2>();
     private Vector2[] worldUvs = System.Array.Empty<Vector2>();
+    private Vector2[] overflows = System.Array.Empty<Vector2>();
     private int[] triangles = System.Array.Empty<int>();
+    private Vector4 arcShape;
 
     private Color currentColor = Color.white;
     private Color targetColor = Color.white;
@@ -184,6 +195,7 @@ public class GearArcVisual : MonoBehaviour
         block.SetFloat(HighlightId, highlight);
         block.SetFloat(ActiveId, active);
         block.SetFloat(FillId, fill);
+        block.SetVector(ArcShapeId, arcShape);
         meshRenderer.SetPropertyBlock(block);
         stateDirty = false;
     }
@@ -192,17 +204,23 @@ public class GearArcVisual : MonoBehaviour
     /// Rebuilds the wedge in local space, centred on <paramref name="centerAngleDegrees"/> (0 = +X axis,
     /// increasing counter-clockwise) and spanning <paramref name="sweepDegrees"/>.
     /// </summary>
+    /// <param name="overflowInner">How far, in world units, the arc may spill inward past its band when in play.</param>
+    /// <param name="overflowOuter">How far it may spill outward past its band.</param>
+    /// <param name="overflowAlong">How far it may spill past each end, in world units at the mid radius.</param>
     public void Rebuild(
         float innerRadius,
         float outerRadius,
         float centerAngleDegrees,
         float sweepDegrees,
-        int segments)
+        int segments,
+        float overflowInner = 0f,
+        float overflowOuter = 0f,
+        float overflowAlong = 0f)
     {
         EnsureBuilt();
 
         segments = Mathf.Max(MinSegments, segments);
-        int vertexCount = (segments + 1) * 2;
+        int vertexCount = (segments + 1) * Rows;
 
         if (vertices.Length != vertexCount)
         {
@@ -210,13 +228,15 @@ public class GearArcVisual : MonoBehaviour
             colors = new Color[vertexCount];
             uvs = new Vector2[vertexCount];
             worldUvs = new Vector2[vertexCount];
-            triangles = new int[segments * 6];
+            overflows = new Vector2[vertexCount];
+            triangles = new int[segments * (Rows - 1) * 6];
         }
 
         // World-unit length along the arc's middle, so world-space patterns keep their size on any ring.
         float midRadius = (innerRadius + outerRadius) * 0.5f;
         float arcLength = midRadius * sweepDegrees * Mathf.Deg2Rad;
         float thickness = outerRadius - innerRadius;
+        float endTurn = midRadius > 0f ? overflowAlong / midRadius : 0f;
 
         float startDegrees = centerAngleDegrees - sweepDegrees * 0.5f;
         for (int i = 0; i <= segments; i++)
@@ -224,28 +244,36 @@ public class GearArcVisual : MonoBehaviour
             float along = (float)i / segments;
             float radians = (startDegrees + sweepDegrees * along) * Mathf.Deg2Rad;
             var direction = new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0f);
+            float turn = i == 0 ? -endTurn : i == segments ? endTurn : 0f;
 
-            int v = i * 2;
-            vertices[v] = direction * innerRadius;
-            vertices[v + 1] = direction * outerRadius;
-            colors[v] = currentColor;
-            colors[v + 1] = currentColor;
-            uvs[v] = new Vector2(along, 0f);
-            uvs[v + 1] = new Vector2(along, 1f);
-            worldUvs[v] = new Vector2(along * arcLength, 0f);
-            worldUvs[v + 1] = new Vector2(along * arcLength, thickness);
+            // Overflow rows start on the band's edges; the shader moves them out by their overflow.
+            int v = i * Rows;
+            for (int row = 0; row < Rows; row++)
+            {
+                bool outer = row >= 2;
+                float spill = row == 0 ? -overflowInner : row == Rows - 1 ? overflowOuter : 0f;
+                vertices[v + row] = direction * (outer ? outerRadius : innerRadius);
+                colors[v + row] = currentColor;
+                uvs[v + row] = new Vector2(along, outer ? 1f : 0f);
+                worldUvs[v + row] = new Vector2(along * arcLength, outer ? thickness : 0f);
+                overflows[v + row] = new Vector2(spill, turn);
+            }
         }
 
         for (int i = 0; i < segments; i++)
         {
-            int v = i * 2;
-            int t = i * 6;
-            triangles[t] = v;
-            triangles[t + 1] = v + 1;
-            triangles[t + 2] = v + 3;
-            triangles[t + 3] = v;
-            triangles[t + 4] = v + 3;
-            triangles[t + 5] = v + 2;
+            for (int row = 0; row < Rows - 1; row++)
+            {
+                int v = i * Rows + row;
+                int next = v + Rows;
+                int t = (i * (Rows - 1) + row) * 6;
+                triangles[t] = v;
+                triangles[t + 1] = v + 1;
+                triangles[t + 2] = next + 1;
+                triangles[t + 3] = v;
+                triangles[t + 4] = next + 1;
+                triangles[t + 5] = next;
+            }
         }
 
         mesh!.Clear();
@@ -253,12 +281,18 @@ public class GearArcVisual : MonoBehaviour
         mesh.colors = colors;
         mesh.SetUVs(0, uvs);
         mesh.SetUVs(1, worldUvs);
+        mesh.SetUVs(2, overflows);
         mesh.triangles = triangles;
         mesh.RecalculateBounds();
 
-        // The swell pushes vertices outward in the shader; widen the bounds so the arc isn't culled mid-swell.
+        // The shader pushes vertices outward (the swell, the overflow); widen the bounds so the arc isn't
+        // culled while they're out.
         Bounds bounds = mesh.bounds;
-        bounds.Expand(2f);
+        bounds.Expand(2f * (Mathf.Max(overflowOuter, overflowAlong) + 1f));
         mesh.bounds = bounds;
+
+        arcShape = new Vector4(sweepDegrees * Mathf.Deg2Rad, innerRadius, outerRadius, centerAngleDegrees * Mathf.Deg2Rad);
+        stateDirty = true;
+        ApplyState();
     }
 }

@@ -666,6 +666,12 @@ only that slice and give you the exact play steps.*
 > element** for the gear sections, a **big but fast** switch that never pauses play, the **active section drains**
 > to show imbue time, **synthesized switch sounds** per element, and: *the whole screen can be involved; make it
 > glowy, with VFX and shaders that have real impact.* Absorbs the backlog's element-switch flourish.
+>
+> **Direction update (2026-10-03, on seeing the first Fire/Ice arcs):** everything is **cartoon** — flat colour,
+> crisp edges, ink outlines — not realistic noise ("the ice looks a little too realistic"). Every arc **idles as
+> the same calm cartoon tile** in its element's colour; aiming swells it and gives it a glowing outline; **only the
+> active arc goes wild**, its element's own animated look **spilling past the gear** ("going out of the gear is
+> fine, i want it to look very alive"). Applies to the bursts, vignette, hub and aura too.
 
 ### What exists (before P)
 
@@ -685,10 +691,11 @@ only that slice and give you the exact play steps.*
 
 - **Glow language.** Every element gets an HDR emission colour (`ElementVisuals.GetEmissionColor`), and bloom is
   retuned so only deliberate emission blooms. Everything P adds glows through that one path.
-- **The gear.** Arcs gain UVs (u along, v inner→outer). One animated shader per element on a shared
-  `ElementFX.hlsl`: Fire flame tongues and embers; Ice frosted facets and glints; Lightning striking bolts;
-  Wind streaming currents; Earth glowing strata cracks; Dark drifting void smoke; Light's Opalite upgraded.
-  Arc states ease (idle → aimed-at → **active**) through a MaterialPropertyBlock. The active arc **drains** over
+- **The gear.** Arcs gain UVs (u along, v inner→outer) and collapsible overflow so the active one can spill past
+  the band. Idle and aimed-at arcs share one cartoon tile (`GearArcCommon.hlsl`); one shader per element adds its
+  wild **active** look: Fire's nested cartoon flames and flying flame bits; Ice freezing solid with a crown of
+  crystal spikes; then Lightning, Wind, Earth, Dark and Light in the same spirit. Arc states ease (idle →
+  aimed-at → **active**) through a MaterialPropertyBlock. The active arc **drains** over
   the imbue. A shader **hub** replaces `gear_thin.png`: teeth match the arc count, it takes the element's colour,
   and it clicks round a notch on every switch. Arcs never move, so flick directions stay learnable.
 - **The switch** (≤0.4s, never pauses), fired from a new `GearManager.OnElementGranted` (a real flick, not boot or
@@ -706,7 +713,7 @@ only that slice and give you the exact play steps.*
 | Commit | Title | Committed | Editor pass | Verified in play |
 |---|---|---|---|---|
 | P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P2 | Fire & Ice sections | ☐ | ☐ | ☐ |
+| P2 | Fire & Ice sections; the shared cartoon tile and overflow | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P3 | Lightning & Wind sections | ☐ | ☐ | ☐ |
 | P4 | Earth & Dark sections, Light upgraded | ☐ | ☐ | ☐ |
 | P5 | Imbue timer on the gear | ☐ | ☐ | ☐ |
@@ -726,14 +733,24 @@ only that slice and give you the exact play steps.*
 | **Look** | Aimed-at arcs swell outward and brighten into HDR; the imbued element's arc glows as active; edges carry a soft rim. Nothing snaps: states settle in ~0.15s |
 | **Bloom** | Left at threshold 0.9 rather than retuned: the HDR arcs already bloom against it, and raising it would have dimmed every existing slash and hit effect tuned to it |
 
+### P2 — Fire & Ice sections, and the cartoon tile ✅
+
+| | |
+|---|---|
+| **Adds** | `Swordgear/Gear Arc Fire` + `GearArcFire.mat`, `Swordgear/Gear Arc Ice` + `GearArcIce.mat` (wired into the CoreSystems Gear Manager's `elementArcMaterials`); cartoon helpers in `ElementFX.hlsl` (anti-aliased step and fill, rounded-box SDF, field-to-distance for even outlines, four-point star, straight-alpha over) |
+| **Changes** | `GearArcCommon.hlsl` — the shared cartoon tile every arc idles as (`ArcNeutral`: shaded and lit strips, a glint every ~6s, ink outline, rounded corners), the aimed-at glowing outline (`ArcHalo`), the arc's own frame (`ArcGetFrame`), `ArcEnergy` / `ArcTakeover` (only the active arc goes wild), and collapsible overflow. `GearArcVisual` — four vertex rows plus overflow data (TEXCOORD2), `_ArcShape` in the block. `GearManager` — overflow sizes (inner 0.5, outer 3.5, past each end 0.6) and the active arc sorts above its neighbours. `Gear Arc` (Lightning/Wind/Earth/Dark for now) and `Gear Arc Light` sit on the tile |
+| **Look** | Idle: flat cartoon tiles in each element's colour. Aimed: swells, brightens, white-ish glowing outline. Active Fire: the tile catches — nested yellow/orange/red tongues with dark-red ink jump to random heights and roar up to ~3 units past the gear, egg-shaped flame bits fly off. Active Ice: the tile freezes into big slanted facets split by bright cracks, glass shine stripes race across, a crown of two-tone crystal spikes punches out in a wave round the arc, four-point stars pop |
+| **Cost** | Overflow rows are zero-area until an arc is aimed at or active, so idle arcs draw only their band |
+| **Note** | Top and bottom arcs spill mostly off-screen (the ring nearly fills the screen height); side arcs show it all. The band itself carries the active look either way |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
 |---|---|
 | **P1** | Aim across the ring: sections ease brighter and swell, nothing snaps; glows bloom |
-| **P2** | Fire's arc licks with flame and embers; Ice's is frosted crystal with glints |
-| **P3** | Bolts strike across Lightning's arc; currents stream along Wind's |
-| **P4** | Glowing strata cracks; drifting void smoke; opal rims and blooms |
+| **P2** | Idle arcs are flat cartoon tiles; aim one: it swells with a glowing outline. Imbue Fire: cartoon flames roar off its arc, flame bits fly. Imbue Ice: the arc freezes, crystal spikes punch out in a wave, stars pop |
+| **P3** | Imbue Lightning, then Wind: each active arc breaks out into its own cartoon look past the gear |
+| **P4** | Same for Earth, Dark and Light; Light's arc idles as the shared tile like the rest |
 | **P5** | The active section glows and drains over 20s, pulsing near the end |
 | **P6** | The centre gear matches the arc count and clicks round as you switch |
 | **P7** | Switching fires a streak from the arc into you and a burst |
