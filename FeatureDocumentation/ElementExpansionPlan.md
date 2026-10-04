@@ -720,7 +720,7 @@ only that slice and give you the exact play steps.*
 | P6 | The hub | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P8 | Bursts for Wind/Earth/Dark/Light | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
+| P9 | Whole screen — element vignette and post-FX pulse | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P10 | Switch sounds | ☐ | ☐ | ☐ |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
 
@@ -794,6 +794,15 @@ only that slice and give you the exact play steps.*
 | **Adds** | `BurstWind`, `BurstEarth`, `BurstDark`, `BurstLight` (wired into `ElementSwitchFX`); cartoon shapes swirl, rock, note, leaf and dash (+ materials) |
 | **Changes** | `Swordgear/Cartoon Particle`: the shape is now a plain enum with a uniform branch (twelve shapes, past KeywordEnum's nine); edges anti-alias over one pixel of the particle's square (`EFX_FillPx`) rather than the field's gradient, so a swirl doesn't fringe where its field changes turns |
 | **Bursts** | Wind: white gust curls all spinning one way, speed lines flung out point-first, tumbling leaves, a mint ring. Earth: chunky two-tone rocks and pebbles, dust puffs, a dust ring. Dark: wisps sucked inward into a void that swells and collapses inside a glowing rim, then smoke and sparks burst back out. Light: a soft opal flash, pastel notes and sparkles flung out, three chord rings in turn |
+
+### P9 — Whole screen ✅
+
+| | |
+|---|---|
+| **Adds** | `Swordgear/Element Vignette` + `ElementVignette.mat`; `ElementVignette` (on an `Element Vignette` Screen Space - Camera canvas in Arena, sort order 100: under the HUD's overlay canvases, inside post-FX so it blooms); a `Pulse Volume` child (global, priority 20 over the arena's 10, weight 0) with `Assets/Misc/SwitchPulsePostFX.asset` (bloom 3.5, chromatic aberration 0.4, exposure +0.15, colour filter) and an Animator (`Assets/Visuals/Animations/SwitchPulse/`: Idle holds weight 0; a `Pulse` trigger swells it to 1 in 0.05s and drops it by 0.42s); `ElementSwitchFX.OnSwitchLanded` |
+| **Changes** | `Main.asmdef` references `Unity.RenderPipelines.Core.Runtime` (for `Volume` / `VolumeProfile`) |
+| **Look** | As a switch lands, the screen's edges flare deep in the element — flame tongues flickering in, icicle teeth, a crackling zig-zag, rolling waves, stepped rock, drippy wobbling blobs, pastel scallops — inked along their inner edge, while the frame takes a bloom spike, a little chromatic aberration and a nudge toward the element's colour. Half a second later only a thin edge in the element remains, held while imbued and thinning away over the imbue's last quarter |
+| **Timing** | The flare and pulse land with the burst (`OnSwitchLanded`), not the flick; the border animates in the shader from a stamped time (globals `_ElementVignette*`), reset when the arena goes |
 
 ### Quick reference — what to play after each commit
 

@@ -24,6 +24,12 @@ public struct ElementBurstPrefab
 /// </remarks>
 public class ElementSwitchFX : MonoBehaviour
 {
+    /// <summary>
+    /// The streak reached the player and the burst went off: the switch's moment of impact, for effects that
+    /// should land with it rather than with the flick (the screen's flare and post-FX pulse).
+    /// </summary>
+    public static event System.Action<Element>? OnSwitchLanded;
+
     [SerializeField] private GameObject? streakPrefab;
     [SerializeField] private GameObject? shockwavePrefab;
     [Tooltip("One burst per element. An element without one still gets the streak and the shockwave.")]
@@ -111,6 +117,7 @@ public class ElementSwitchFX : MonoBehaviour
         }
 
         Testing.CinemachineTrackingTargetFromGameManagerSetter.Shake(cameraKick, toPlayer);
+        OnSwitchLanded?.Invoke(element);
 
         LightFlash? flash = player.GetComponentInChildren<LightFlash>();
         if (flash != null)
