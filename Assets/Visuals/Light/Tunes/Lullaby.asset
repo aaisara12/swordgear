@@ -32,3 +32,11 @@ MonoBehaviour:
   durationSeconds: 3
   ticks: 12
   auraPrefab: {fileID: 5193434084161082546, guid: 6b08718c7b0debc43969ec19147e91ec, type: 3}
+  healNumberPrefab: {fileID: 9161166652363444249, guid: 4721b5b1abd3ff34f891d52dd03f51b9, type: 3}
+  healNumberSeconds: 0.8
+  healNumberOffset: {x: 0, y: 0.8}
+  healNumberJitter: 0.5
+  healNumberColor: {r: 0.45, g: 1, b: 0.5, a: 1}
+  shimmerVolume: 0.6
+  sparkleSemitones: 180000001a0000001c0000001f000000
+  sparkleVolume: 0.14

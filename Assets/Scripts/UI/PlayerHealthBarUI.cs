@@ -31,6 +31,13 @@ public class PlayerHealthBarUI : MonoBehaviour
     [SerializeField] private float damageShakeStrength = 6f;
     [SerializeField] private float damagePopScale = 1.08f;
 
+    [Header("Heal")]
+    [Tooltip("The fill flashes toward this on every heal, so healing reads as healing and not just a bar moving.")]
+    [SerializeField] private Color healFlashColor = new(0.35f, 0.95f, 0.45f, 1f);
+    [SerializeField] private float healFlashDuration = 0.45f;
+    [Tooltip("How much the bar swells at the peak of a heal flash.")]
+    [SerializeField] private float healPopScale = 1.05f;
+
     private Color _fullFillColor;
     private Color _lowFillColor;
     private float _currentFill;
@@ -40,6 +47,7 @@ public class PlayerHealthBarUI : MonoBehaviour
     private bool _isVisible;
     private Coroutine? _damageChunkRoutine;
     private Coroutine? _damageFeedbackRoutine;
+    private float _healFlash;
     private Vector3 _barBaseScale = Vector3.one;
     private Vector2 _barBaseAnchoredPosition;
 
@@ -111,6 +119,18 @@ public class PlayerHealthBarUI : MonoBehaviour
 
         _currentFill = Mathf.MoveTowards(_currentFill, _targetFill, healLerpSpeed * Time.deltaTime);
         _damageFill = Mathf.MoveTowards(_damageFill, _targetDamageFill, healLerpSpeed * Time.deltaTime);
+
+        if (_healFlash > 0f)
+        {
+            _healFlash = Mathf.Max(0f, _healFlash - Time.deltaTime / Mathf.Max(0.01f, healFlashDuration));
+
+            // Damage feedback owns the bar's transform while it runs; a heal only swells an idle bar.
+            if (_damageFeedbackRoutine == null && barContainer != null)
+            {
+                barContainer.localScale = _barBaseScale * Mathf.Lerp(1f, healPopScale, _healFlash);
+            }
+        }
+
         ApplyFillVisuals();
     }
 
@@ -148,6 +168,12 @@ public class PlayerHealthBarUI : MonoBehaviour
         {
             _targetFill = normalized;
             _targetDamageFill = normalized;
+
+            if (snapshot.Delta > 0f)
+            {
+                // Every heal re-lights the flash, so a heal over time (Lullaby) glows for its whole length.
+                _healFlash = 1f;
+            }
         }
 
         UpdateHpText(snapshot.Current, snapshot.Max);
@@ -219,6 +245,7 @@ public class PlayerHealthBarUI : MonoBehaviour
 
         barContainer.localScale = _barBaseScale;
         barContainer.anchoredPosition = _barBaseAnchoredPosition;
+        _healFlash = 0f;
     }
 
     private void ApplyFillImmediate(float current, float damage)
@@ -238,7 +265,8 @@ public class PlayerHealthBarUI : MonoBehaviour
         if (fillImage != null)
         {
             float colorT = Mathf.Clamp01(_currentFill / lowHealthThreshold);
-            fillImage.color = Color.Lerp(_lowFillColor, _fullFillColor, colorT);
+            Color fill = Color.Lerp(_lowFillColor, _fullFillColor, colorT);
+            fillImage.color = Color.Lerp(fill, healFlashColor, _healFlash);
         }
     }
 

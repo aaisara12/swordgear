@@ -483,6 +483,7 @@ effects, dynamic markings are intensity.
 | **Careful** | `GrantIFrames` also runs the player's hurt-blink, so Fermata blinks the sprite; the ward is what tells it apart from being hit. `HarpAura` stretches its clip and sets its emitters' duration to the tune's, so tune data stays the single source of truth for timing. Emitters must keep stop action `None`: the pool turns `Destroy` into a release callback |
 | **Odds** | Sustain's two tunes at weight 1.5 match Offense's three at 1, so it's 50/50 by family until Streak lands in 15: 16.7% per Offense tune and 25% per Sustain tune over 60k rolls |
 | **Verified** | Lullaby healed exactly 24 of 200 in 2-HP steps every 0.25s. Under Fermata, hits at 0.3s and 1.3s did nothing and one at 1.7s landed |
+| **Heal clarity (follow-up)** | Drifting opal notes alone didn't read as healing. Each tick that actually heals now pops a green "+2" off the player (`HealNumber.prefab`, skipped at full HP) and a quiet high harp sparkle; a synthesized `Sound.Heal_Shimmer` (rising C-major bell chime, appended) marks the start; and `PlayerHealthBarUI` flashes the fill green and swells the bar on **any** heal (lifesteal and rest nodes too) |
 | **Playtest** | Some taps heal you (HP bar climbs over 3s, notes drift up around you), some make you briefly untouchable (an opal ring holds you) |
 
 ### Commit 15 — Hot streak: Fortissimo & Allegro ✅
