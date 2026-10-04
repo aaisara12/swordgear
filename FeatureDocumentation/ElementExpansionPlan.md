@@ -58,9 +58,13 @@ afterwards.
 | 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 15 | Hot streak — Crescendo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 16 | Grand Chord jackpot | ☐ | ☐ | ☐ |
-| 17 | Flourish — the charge | ☐ | ☐ | ☐ |
+| 15 | Hot streak — Fortissimo & Allegro | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
+| 16 | Presto — move-speed streak | ☐ | ☐ | ☐ |
+| 17 | The arsenal — owned tunes, starters, family-first roll | ☐ | ☐ | ☐ |
+| 18 | "Learn a tune" — the repeatable augment | ☐ | ☐ | ☐ |
+| 19 | Staccato & Rest — two more tunes | ☐ | ☐ | ☐ |
+| 20 | Grand Chord jackpot — every owned tune at once | ☐ | ☐ | ☐ |
+| 21 | Flourish — the charge | ☐ | ☐ | ☐ |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -389,19 +393,28 @@ Every tune **shows its note above the player** as it plays (the "reel reveal"), 
 melody, and the note value *means* something: quick notes are many quick hits, long notes are sustained
 effects, dynamic markings are intensity.
 
-| # | Tune | Note | Family | Effect |
-|---|---|---|---|---|
-| 1 | **Flurry** | four beamed 16ths | Offense | 4 small homing notes at the nearest enemies |
-| 2 | **Strike** | quarter note | Offense | one heavy straight note that bursts on impact |
-| 3 | **Resonance** | two beamed 8ths | Offense | two sound waves roll out across the room, hitting each enemy as they pass |
-| 4 | **Lullaby** | whole note | Sustain | heal ~12% max HP over 3s — the sustained note |
-| 5 | **Fermata** | half note + fermata | Sustain | ~1.5s invulnerability — the note "holds" you |
-| 6 | **Crescendo** | hairpin (<) | Streak | +20% damage per stack |
-| 7 | **Allegro** | eighth note | Streak | +20% attack speed, +15% move speed per stack |
-| ★ | **Grand Chord** | stacked chord | Jackpot | ~3%: Strike + Lullaby + Crescendo + Allegro at once |
+| # | Tune | Note | Family | Effect | Starter? |
+|---|---|---|---|---|---|
+| 1 | **Flurry** | four beamed 16ths | Offense | 4 small homing notes at the nearest enemies | ✅ |
+| 2 | **Strike** | quarter note | Offense | one heavy straight note that bursts on impact | |
+| 3 | **Resonance** | two beamed 8ths | Offense | two sound waves roll out across the room, hitting each enemy as they pass | |
+| 4 | **Staccato** | two quarter notes with staccato dots | Offense | a ring of short, detached notes bursts outward all around you | |
+| 5 | **Lullaby** | whole note | Sustain | heal ~12% max HP over 3s — the sustained note | ✅ |
+| 6 | **Fermata** | half note + fermata | Sustain | ~1.5s invulnerability — the note "holds" you | |
+| 7 | **Rest** | quarter rest | Sustain | everything around you is stilled — nearby enemies slowed for ~2s | |
+| 8 | **Fortissimo** | ff | Streak | +10% damage per stack · overhead icon: sword | ✅ |
+| 9 | **Allegro** | eighth note | Streak | +10% attack speed per stack · overhead icon: metronome | |
+| 10 | **Presto** | thirty-second note | Streak | +10% move speed per stack · overhead icon: wing | |
+| ★ | **Grand Chord** | stacked chord | Jackpot | ~3%: plays **every tune you own** at once | always |
 
-- **Odds:** even thirds by *family* (Offense, Sustain, Streak), split evenly inside each; the jackpot is
-  carved off the top. One `weight` per tune asset, so retuning is an Inspector edit.
+- **One stat per streak tune**, at +10% per stack (halved from the first pass, which was too strong).
+  Each has its own overhead icon with a chevron per stack, so the icon *is* the stat.
+- **The arsenal.** A run starts with one tune per family (Flurry, Lullaby, Fortissimo). Every other tune
+  is learned through **one repeatable augment, "Learn a tune"**: each purchase teaches a random tune you
+  don't know yet, and it stops being offered once you know them all. The gamble starts in the shop.
+- **Odds:** the roll picks a **family** evenly among the families you own a tune in, then a tune within
+  it. So it's even thirds from the first tap and stays even as the arsenal grows, with no weights to
+  rebalance per tune. The jackpot is its own ~3% roll ahead of that, and gets better as you learn more.
 - **Hot streak:** Streak tunes stack (max 3) and last **until you take damage** (20s safety cap,
   refreshed per stack). Getting hit busts the streak; Fermata exists partly to protect it.
 - **Tap** ~0.45s cooldown. **Charge — "Flourish":** stays mobile (Dark's shape, no aim lock); release
@@ -411,16 +424,24 @@ effects, dynamic markings are intensity.
 ### Design principles
 
 1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
-   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`),
-   one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry and Strike are two assets of one class.
+   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `HushTune`,
+   `JackpotTune`), one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry, Strike and Staccato are
+   three assets of one class.
 2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
    so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
    sits *on top of* augments, so an augment pickup (`ReapplyFromBlob`) can't wipe it.
 3. **Opal is a shader, not a colour.** `Swordgear/Opalite` — milky base, pastel sheen and twinkling
    play-of-colour flecks, all driven by world position + time (the gear arc mesh has no UVs). The flat
    palette entry (lilac pearl `0.95, 0.86, 1.0`) is the stand-in for everything that can only take a colour.
-4. **Notes are real notation.** Hand-authored SVGs in `Assets/Visuals/Light/Notes/`, imported as Textured
-   Sprites at one shared scale (1 SVG unit = 0.012 world units), drawn white so the opal shader colours them.
+4. **Notes are real notation; stat icons are icons.** The tune reveal is hand-authored notation
+   (`Assets/Visuals/Light/Notes/`); a live streak is shown by a plain stat icon (`Assets/Visuals/Light/Icons/`
+   — sword, metronome, wing, chevron) with its outline baked in. All imported as Textured Sprites at one
+   shared scale (1 SVG unit = 0.012 world units), drawn white so the opal shader colours them.
+5. **Light's feedback lives over the player, not on the HUD.** A HUD panel was tried and dropped as too
+   loud for something one element uses. Over-head icons carry the state; floating callouts carry the
+   exact numbers at the moment you earn them.
+6. **Ownership is inventory.** Learned tunes are inventory items on the player blob, so they persist
+   across nodes and are wiped with everything else on a new run, with no new save path.
 
 ### Commit 11 — Light is on the ring, in opalite ✅
 
@@ -465,25 +486,61 @@ effects, dynamic markings are intensity.
 | **Verified** | Lullaby healed exactly 24 of 200 in 2-HP steps every 0.25s. Under Fermata, hits at 0.3s and 1.3s did nothing and one at 1.7s landed |
 | **Playtest** | Some taps heal you (HP bar climbs over 3s, notes drift up around you), some make you briefly untouchable (an opal ring holds you) |
 
-### Commit 15 — Hot streak ✅
+### Commit 15 — Hot streak: Fortissimo & Allegro ✅
 
 | | |
 |---|---|
-| **Adds** | Streak layer in `PlayerStatModifiers` (`StreakStat`, `StreakBonus`, `StreakState`, `AddStreakStack` / `ClearStreaks` / static `OnStreakChanged(StreakChange, id)`); `StreakTune`; `Crescendo.asset`, `Allegro.asset`; crescendo-hairpin SVG; `StreakWorldIndicator` + `StreakIndicator.prefab` (on `CoreSystems`) + `StreakCallout.prefab`; `StreakText`; outlined HUD-font material; `PlayerStreakTest` |
-| **Crescendo** | Crescendo hairpin. +20% damage per stack. Sounds the same C plucked three times, louder each time, landing on G |
-| **Allegro** | Eighth note. +20% attack speed and +15% move speed per stack. Attack speed shortens every element's cooldown through `ElementManager.OnTap`, including Light's own taps. Sounds a quick run up C–D–E–F–G |
-| **Streak rules** | Max 3 stacks per streak; each stack refreshes a 20s safety cap; **any damage busts every streak** (`OnHealthChanged` with `Delta < 0`), so Fermata protects one. Cleared on node reset (`PlayerController.ResetForNode`) and new run (`ClearForNewRun`). Odds are now even thirds by family, measured 33.4 / 33.3 / 33.3% |
-| **Visibility** | Over the player's head, not on the HUD: a HUD panel was tried and dropped as too loud for something only one element uses. Each live streak shows its **exact running total** as outlined text over the head ("+40% DMG", "+40% ATK SPD  +30% MOVE"), packed down onto the head so a lone streak never floats over an empty slot, popping on every new stack. Stats rather than the tune's glyph, because mid-fight the question is "how much stronger am I", not "which tune was that". **Callouts:** "+20% DMG" floats up on each stack, stacking in lanes at tap speed, and a red "STREAK BROKEN" with a sour low harp cluster on a bust |
-| **Careful** | Augment values moved to backing fields and `DamageMultiplier` / `AttackSpeedMultiplier` / `MoveSpeedMultiplier` became augment + streak, because `ReapplyFromBlob` rebuilds augments from scratch on every pickup and would wipe a streak (covered by `PlayerStreakTest`). Move speed is applied on stick input, so `PlayerController` replays the stick on `OnStreakChanged`; verified mid-walk, 10 → 11.5 → 13 → 10 on a bust. Light's reveal moved up to 3.0 to clear the indicator |
-| **Playtest** | Your live bonuses read over your head ("+40% DMG") and grow with each stack; you hit harder and faster until you get hit, then "STREAK BROKEN" |
+| **Adds** | Streak layer in `PlayerStatModifiers` (`StreakStat`, `StreakBonus`, `StreakState`, `AddStreakStack` / `ClearStreaks` / static `OnStreakChanged(StreakChange, id)`); `StreakTune`; `Fortissimo.asset`, `Allegro.asset`; ff SVG; sword, metronome (+ swinging arm) and chevron icon SVGs; `StreakWorldIndicator` + `StreakIndicator.prefab` (on `CoreSystems`) + `StreakCallout.prefab`; `StreakText`; outlined HUD-font material; `PlayerStreakTest` |
+| **Fortissimo** | ff, "very loud". +10% damage per stack. Sounds two hammered octaves |
+| **Allegro** | Eighth note. +10% attack speed per stack, shortening every element's cooldown through `ElementManager.OnTap` — Light's own taps too, so you pull the lever faster |
+| **Streak rules** | Max 3 stacks per streak; each stack refreshes a 20s safety cap; **any damage busts every streak** (`OnHealthChanged` with `Delta < 0`). Cleared on node reset (`PlayerController.ResetForNode`) and new run (`ClearForNewRun`) |
+| **Visibility** | Over the player's head, never the HUD. Each live streak is a **stat icon with a chevron per stack**: a sword for damage, a metronome for attack speed whose arm swings faster with every stack. Chevrons climb in a loop, a new stack pops the icon, a bust swells and bursts it. **Callouts** carry the numbers: "+10% DMG" per stack (stacking in lanes at tap speed) and a red "STREAK BROKEN" with a sour low harp cluster on a bust |
+| **History** | First pass gave Allegro attack + move speed and used notation glyphs and a HUD panel; reworked on feedback to one stat per tune at half strength, icons instead of text, no HUD. Crescendo's hairpin read as "a sideways pixelated shape" and became Fortissimo's ff |
+| **Careful** | Augment values live in backing fields and `DamageMultiplier` / `AttackSpeedMultiplier` / `MoveSpeedMultiplier` are augment + streak, because `ReapplyFromBlob` rebuilds augments from scratch on every pickup (covered by `PlayerStreakTest`). Move speed is applied on stick input, so `PlayerController` replays the stick on `OnStreakChanged`. The icon row is scaled on its `Bob` node, not the icons, whose own scale belongs to their pop/burst clips. Light's reveal moved up to 3.9 to clear the icons |
+| **Playtest** | A sword (or metronome) with chevrons appears over your head and grows a chevron per stack; you hit harder or attack faster until you get hit, then it bursts with "STREAK BROKEN" |
 
-### Commit 16 — Grand Chord jackpot
+### Commit 16 — Presto
 
 | | |
 |---|---|
-| **Playtest** | Rarely, everything fires at once with a full strummed chord |
+| **Adds** | `Presto.asset` (`StreakTune`, Streak); thirty-second-note SVG (three flags: the fastest note on the harp); wing icon SVG + its indicator group |
+| **Effect** | +10% move speed per stack, max 3. Sounds a very fast run high up the harp |
+| **Playtest** | Roll Presto → a wing with a chevron appears over your head and you move faster; it grows per stack and bursts on a hit |
 
-### Commit 17 — Flourish (the charge)
+### Commit 17 — The arsenal
+
+| | |
+|---|---|
+| **Adds** | `HarpRepertoire` — which tunes the player owns: the starters plus every learned tune, read from the player blob's inventory (`light-tune:<id>` items); a family-first roll on `HarpTune` with EditMode tests over the pure logic; `jackpotChance` on `LightWeapon` |
+| **Changes** | `LightWeapon` rolls from owned tunes only. The per-tune `weight`s stop balancing families: they only weight tunes *within* a family |
+| **Starters** | Flurry, Lullaby, Fortissimo — one per family, so the first tap of a run is already even thirds |
+| **Playtest** | A fresh run rolls only Flurry, Lullaby and Fortissimo |
+
+### Commit 18 — "Learn a tune"
+
+| | |
+|---|---|
+| **Adds** | One repeatable Light augment in the store catalog. Buying it is turned, on pickup, into a specific `light-tune:<id>` item for a random tune you don't own yet (the same consume-and-convert path instant heals use) |
+| **Rules** | Offered again and again until you know every tune, then no longer offered |
+| **Playtest** | Buy it in the shop → next fight, a tune you didn't have starts showing up; keep buying until it disappears from the shop |
+
+### Commit 19 — Staccato & Rest
+
+| | |
+|---|---|
+| **Adds** | `Staccato.asset` (`ProjectileTune`: a ring of short-lived notes fired all around you) + its note prefab; `HushTune` + `Rest.asset` (slows every enemy within reach for ~2s through the existing Chill effect, with a lilac ring); staccato-quarters and quarter-rest SVGs |
+| **Unlock** | Both are learned through "Learn a tune", never starters |
+| **Playtest** | Staccato sprays notes in every direction; Rest stills the enemies around you |
+
+### Commit 20 — Grand Chord jackpot
+
+| | |
+|---|---|
+| **Adds** | `JackpotTune` + `GrandChord.asset`; stacked-chord SVG |
+| **Effect** | ~3%: plays **every tune you own** at once, with a full strummed chord. Grows with the arsenal: early it's three tunes, late it's ten |
+| **Playtest** | Rarely, everything you own fires at once |
+
+### Commit 21 — Flourish (the charge)
 
 | | |
 |---|---|
@@ -492,7 +549,8 @@ effects, dynamic markings are intensity.
 ### Acceptance criteria (M2 done)
 
 - Every tap plays something, and you can tell which tune it was from the note alone.
-- Families come up in roughly even thirds over a fight.
+- Families come up in roughly even thirds over a fight, however many tunes are owned.
+- A fresh run plays only the three starters; "Learn a tune" grows the arsenal one random tune at a time.
 - A streak feels worth protecting, and getting hit visibly ends it.
 - Light reads as support / sustain, not as a fourth ranged damage element.
 
@@ -518,9 +576,13 @@ effects, dynamic markings are intensity.
 | **12** | Tap → a rising four-note harp run |
 | **13** | Taps vary: a bursting quarter note, two waves rolling across the room |
 | **14** | Some taps heal (notes drift up, HP climbs), some make you untouchable (an opal ring holds you) |
-| **15** | Live bonuses read over your head and grow per stack; you hit harder/faster until hit, then "STREAK BROKEN" |
-| **16** | Rarely, everything fires at once |
-| **17** | Hold → release strums 2–5 tunes |
+| **15** | A sword or metronome with chevrons over your head; hit harder / attack faster until hit, then "STREAK BROKEN" |
+| **16** | Presto: a wing over your head and you move faster |
+| **17** | A fresh run only rolls Flurry, Lullaby, Fortissimo |
+| **18** | Buy "Learn a tune" → a new random tune joins the roll; it leaves the shop once you know them all |
+| **19** | Staccato sprays notes all around; Rest stills nearby enemies |
+| **20** | Rarely, every tune you own fires at once |
+| **21** | Hold → release strums 2–5 tunes |
 
 ---
 
