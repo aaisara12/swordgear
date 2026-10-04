@@ -715,7 +715,7 @@ only that slice and give you the exact play steps.*
 | P1 | Glow foundation — HDR emission, bloom retune, `ElementFX.hlsl`, arc UVs, eased arc states | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P2 | Fire & Ice sections; the shared cartoon tile and overflow | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P3 | Lightning & Wind sections | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P4 | Earth & Dark sections, Light upgraded | ☐ | ☐ | ☐ |
+| P4 | Earth & Dark sections, Light upgraded | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P5 | Imbue timer on the gear | ☐ | ☐ | ☐ |
 | P6 | The hub | ☐ | ☐ | ☐ |
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ☐ | ☐ | ☐ |
@@ -750,6 +750,15 @@ only that slice and give you the exact play steps.*
 | **Adds** | `Swordgear/Gear Arc Lightning` + `GearArcLightning.mat`, `Swordgear/Gear Arc Wind` + `GearArcWind.mat` (wired into CoreSystems' `elementArcMaterials`); `EFX_FillPx` (coverage that ignores jumps in a cell-scattered field) and `ArcPixel` |
 | **Changes** | `ArcNeutral` caps its aimed-at brightening where the brightest channel tops out, so pale colours (Wind, Light) keep their hue instead of clipping to white; the halo carries the glow |
 | **Look** | Active Lightning: the tile turns to an indigo storm with cloud puffs rolling along it; a zig-zag crawls through the cloud and fresh fat yellow bolts (white core, dark ink) strike up to ~3 units past the gear, redrawn ~9 times a second; sparks pop; the storm strobes on some strikes. Active Wind: two-tone gust bands snake round the tile; inked white speed lines race round in lanes and past the gear; cartoon swirls spin up out of the tile, curl outward and shrink away |
+
+### P4 — Earth & Dark sections, Light on the tile ✅
+
+| | |
+|---|---|
+| **Adds** | `Swordgear/Gear Arc Earth` + `GearArcEarth.mat`, `Swordgear/Gear Arc Dark` + `GearArcDark.mat` (wired into CoreSystems' `elementArcMaterials`) |
+| **Changes** | `Swordgear/Gear Arc Light` rewritten: idles as the shared tile like every other arc; the opal is now its active look |
+| **Look** | Active Earth: the tile rumbles as cartoon rock — three wavy strata with inked seams, a zig-zag crack glowing molten amber in pulses that run along it — and chunky two-tone boulders tumble up past the gear and drop back, dust puffs swelling at launch and landing. Active Dark: an inky void with a glowing violet rim, specks twinkling in it, pairs of yellow cartoon eyes that blink and glance about, and two-tone tendrils writhing out past the gear. Active Light: Opalite's sheen cut into flat pastel bands with white seams, flowing; pastel eighth notes float up past the gear, wobbling; sparkles pop |
+| **Gotcha** | The arc's (along, outward) frame runs counter-clockwise, so it's mirrored against the screen: anything with a handedness (the notes) flips x back |
 
 ### Quick reference — what to play after each commit
 

@@ -7,8 +7,8 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: GearArcLight
-  m_Shader: {fileID: 4800000, guid: f79b2fa7eb493d4449fccc255aa45226, type: 3}
+  m_Name: GearArcDark
+  m_Shader: {fileID: 4800000, guid: eb935d1596ed8e0458e9c242267d0f5d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -27,24 +27,22 @@ Material:
     m_Floats:
     - _Active: 0
     - _ActiveBoost: 0.6
-    - _Bands: 5
-    - _Emission: 1.25
+    - _Emission: 2
+    - _EyeDensity: 0.6
     - _Fill: 1
     - _Highlight: 0
     - _HighlightBoost: 0.9
-    - _NoteRate: 0.55
-    - _NoteReach: 2.6
-    - _NoteSize: 0.95
-    - _NoteSpacing: 2.1
-    - _SheenAngle: 35
-    - _SheenScale: 0.3
-    - _SheenSpeed: 0.5
-    - _SparkleDensity: 0.35
     - _Swell: 0.35
-    - _Swirl: 0.45
+    - _TendrilReach: 2.8
+    - _TendrilSpacing: 1.8
+    - _TendrilWidth: 0.3
+    - _Writhe: 3.5
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
-    - _InkColor: {r: 0.31999996, g: 0.21999997, b: 0.45, a: 1}
-    - _MilkColor: {r: 0.95, g: 0.93, b: 0.97999996, a: 1}
+    - _EyeColor: {r: 1, g: 0.93, b: 0.54999995, a: 1}
+    - _GlowColor: {r: 0.82, g: 0.45, b: 1, a: 1}
+    - _InkColor: {r: 0.03, g: 0, b: 0.059999965, a: 1}
+    - _RimColor: {r: 0.41999996, g: 0.12999997, b: 0.62, a: 1}
+    - _VoidColor: {r: 0.06999998, g: 0.02, b: 0.11999995, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

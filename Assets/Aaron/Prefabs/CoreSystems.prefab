@@ -1826,7 +1826,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: elementArcMaterials.Array.size
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: tilePrefabPairs.Array.data[2].gearTile
@@ -1853,6 +1853,14 @@ PrefabInstance:
       value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[5].element
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[6].element
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: elementArcMaterials.Array.data[0].material
       value: 
       objectReference: {fileID: 2100000, guid: 78f15b12cb984f94bb638e19c9f34029, type: 2}
@@ -1872,6 +1880,14 @@ PrefabInstance:
       propertyPath: elementArcMaterials.Array.data[4].material
       value: 
       objectReference: {fileID: 2100000, guid: bdeee0f9a1d32294983587206e83ace1, type: 2}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[5].material
+      value: 
+      objectReference: {fileID: 2100000, guid: 31f6e72fca084eb488709da36b2a3354, type: 2}
+    - target: {fileID: 2536351299557600620, guid: 985658553c0304249a75b2f7de019e21, type: 3}
+      propertyPath: elementArcMaterials.Array.data[6].material
+      value: 
+      objectReference: {fileID: 2100000, guid: 2c29f665a62b2fe43bfa3df819197c70, type: 2}
     - target: {fileID: 7126362550526451437, guid: 985658553c0304249a75b2f7de019e21, type: 3}
       propertyPath: m_Name
       value: Gear Manager
