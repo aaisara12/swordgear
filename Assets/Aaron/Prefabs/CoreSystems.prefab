@@ -475,6 +475,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 46063b490e5896c4fac6b97fe64ce086, type: 2}
   - {fileID: 11400000, guid: bfbde831c9a3a8b47b470d3a47d75dad, type: 2}
   - {fileID: 11400000, guid: bc925a3439f5eb743bfca480f0bdaff8, type: 2}
+  - {fileID: 11400000, guid: e0b5c4f21a7cbd54eb970e819ed12617, type: 2}
+  - {fileID: 11400000, guid: d7ff52240e692934ab9db00d07f2c045, type: 2}
   tapCooldown: 0.45
   revealPrefab: {fileID: 7718844726232751790, guid: 7c09bb2bf9bb71e41ab35915fab40cf8, type: 3}
   revealOffset: {x: 0, y: 2.1}

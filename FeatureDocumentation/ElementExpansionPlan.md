@@ -57,7 +57,7 @@ afterwards.
 | 11 | Light on the ring, in opalite (Flurry) | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 14 | Lullaby & Fermata | ☐ | ☐ | ☐ |
+| 14 | Lullaby & Fermata | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 15 | Hot streak — Crescendo & Allegro | ☐ | ☐ | ☐ |
 | 16 | Grand Chord jackpot | ☐ | ☐ | ☐ |
 | 17 | Flourish — the charge | ☐ | ☐ | ☐ |
@@ -453,11 +453,17 @@ effects, dynamic markings are intensity.
 | **Odds** | Three Offense tunes at weight 1 each: a measured 33.8 / 32.9 / 33.3% over 30k rolls |
 | **Playtest** | Taps vary: a heavy quarter note that bursts; two opal waves rolling out across the room, hitting enemies as they pass |
 
-### Commit 14 — Lullaby & Fermata
+### Commit 14 — Lullaby & Fermata ✅
 
 | | |
 |---|---|
-| **Playtest** | Some taps heal you (HP bar climbs over 3s), some make you briefly untouchable |
+| **Adds** | `HealTune`, `WardTune`, `HarpAura` (+ `HarpAuraUtility.Wear`); `Lullaby.asset`, `Fermata.asset`; `LullabyAura.prefab` (particles, `OpaliteEighthNote.mat`), `FermataWard.prefab` + `FermataWard_Hold` clip; whole-note, half-note-with-fermata and single-eighth SVGs |
+| **Lullaby** | Whole note. Heals 12% of max HP over 3s in 12 even ticks through `PlayerGameplayManager.Heal`, so the bar visibly climbs. Opal eighth notes drift up around you while it plays. Sounds a slow falling C6–G5–E5–C5 |
+| **Fermata** | Half note under a fermata. 1.5s invulnerable through `PlayerController.GrantIFrames`, which never shortens a window already running. An opal ward rings you, popping in, breathing and swelling open as it lets go. Sounds an open chord, C4 + G4 + C5, left to ring |
+| **Careful** | `GrantIFrames` also runs the player's hurt-blink, so Fermata blinks the sprite; the ward is what tells it apart from being hit. `HarpAura` stretches its clip and sets its emitters' duration to the tune's, so tune data stays the single source of truth for timing. Emitters must keep stop action `None`: the pool turns `Destroy` into a release callback |
+| **Odds** | Sustain's two tunes at weight 1.5 match Offense's three at 1, so it's 50/50 by family until Streak lands in 15: 16.7% per Offense tune and 25% per Sustain tune over 60k rolls |
+| **Verified** | Lullaby healed exactly 24 of 200 in 2-HP steps every 0.25s. Under Fermata, hits at 0.3s and 1.3s did nothing and one at 1.7s landed |
+| **Playtest** | Some taps heal you (HP bar climbs over 3s, notes drift up around you), some make you briefly untouchable (an opal ring holds you) |
 
 ### Commit 15 — Hot streak
 
@@ -507,7 +513,7 @@ effects, dynamic markings are intensity.
 | **11** | Flick to Light → opal arc; tap → beamed 16ths pop overhead, four notes home in |
 | **12** | Tap → a rising four-note harp run |
 | **13** | Taps vary: a bursting quarter note, two waves rolling across the room |
-| **14** | Some taps heal, some make you untouchable |
+| **14** | Some taps heal (notes drift up, HP climbs), some make you untouchable (an opal ring holds you) |
 | **15** | Streak notes stack overhead; you hit harder/faster until hit |
 | **16** | Rarely, everything fires at once |
 | **17** | Hold → release strums 2–5 tunes |
