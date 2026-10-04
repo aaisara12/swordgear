@@ -480,6 +480,12 @@ MonoBehaviour:
   revealOffset: {x: 0, y: 3.9}
   revealLifetime: 0.9
   learnedColor: {r: 1, g: 0.93, b: 0.55, a: 1}
+  maxChargeTime: 0.9
+  minFlourishTunes: 2
+  maxFlourishTunes: 5
+  strumInterval: 0.1
+  flourishCooldown: 0.9
+  flourishRevealSpacing: 1.4
   autoAimRadius: 12
 --- !u!114 &7674866716574420142
 MonoBehaviour:

@@ -64,7 +64,7 @@ afterwards.
 | 18 | "Learn a tune" — the repeatable augment | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 19 | Staccato & Rest — two more tunes | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 20 | Grand Chord jackpot — every owned tune at once | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 21 | Flourish — the charge | ☐ | ☐ | ☐ |
+| 21 | Flourish — the charge | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 
 > **Renumbered 2026-08-23.** M1 was three commits, now four: the old 03 (charge locks movement) split
 > into *grounds you* (04) and *the ballista appears* (05). M2/M3 shifted by two; their content is
@@ -548,11 +548,13 @@ effects, dynamic markings are intensity.
 | **Verified** | Forced with all ten owned: three streaks stacked, invulnerable, 10 projectiles, 3 waves, both auras, "JACKPOT!". Natural rate 2.81% over 20k rolls |
 | **Playtest** | Rarely, everything you own fires at once |
 
-### Commit 21 — Flourish (the charge)
+### Commit 21 — Flourish (the charge) ✅
 
 | | |
 |---|---|
-| **Playtest** | Hold → release strums 2–5 random tunes in a row; you can move while charging |
+| **Adds** | `LightWeapon` implements `IMeleeChargeProvider` (Dark's shape: mobile, no aim lock); `PlayRolledTune` shared by the tap and the strum |
+| **Effect** | Hold up to 0.9s, release → strums `round(lerp(2, 5, charge))` tunes 0.1s apart, each a full independent roll (jackpot included), with their reveals fanned side by side (1.4 apart) so every note played can be read. 0.9s cooldown |
+| **Verified** | Through the real input path (`BeginChargeAttack` / `ReleaseChargeAttack`): indicators read 0.5 at half hold and max at full; walking at full speed while charging; a full hold put 5 reveals on screen, a 0.12s hold put 2 |
 
 ### Acceptance criteria (M2 done)
 
