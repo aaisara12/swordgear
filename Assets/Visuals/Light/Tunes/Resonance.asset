@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06f3157421f52d40a4c135d11ac437c, type: 3}
+  m_Name: Resonance
+  m_EditorClassIdentifier: Main::WaveTune
+  family: 0
+  weight: 1
+  glyph: {fileID: 3286163911610860551, guid: 324b4045391c9cc438128dcad48db9c7, type: 3}
+  melody:
+  - semitones: -12
+    delay: 0
+    volume: 0.75
+  - semitones: -5
+    delay: 0.15
+    volume: 0.75
+  wavePrefab: {fileID: 923093829015587267, guid: f0a14ce28a3aba04783bad7e775a11e1, type: 3}
+  waves: 2
+  interval: 0.15
+  radius: 8
+  travelSeconds: 0.5
+  damageMultiplier: 0.5

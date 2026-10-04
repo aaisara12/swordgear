@@ -56,7 +56,7 @@ afterwards.
 | 10 | Dark execution raises a minion | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 11 | Light on the ring, in opalite (Flurry) | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 13 | Strike & Resonance | ☐ | ☐ | ☐ |
+| 13 | Strike & Resonance | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 14 | Lullaby & Fermata | ☐ | ☐ | ☐ |
 | 15 | Hot streak — Crescendo & Allegro | ☐ | ☐ | ☐ |
 | 16 | Grand Chord jackpot | ☐ | ☐ | ☐ |
@@ -393,7 +393,7 @@ effects, dynamic markings are intensity.
 |---|---|---|---|---|
 | 1 | **Flurry** | four beamed 16ths | Offense | 4 small homing notes at the nearest enemies |
 | 2 | **Strike** | quarter note | Offense | one heavy straight note that bursts on impact |
-| 3 | **Resonance** | two beamed 8ths | Offense | a sound-wave ring damaging everything around you |
+| 3 | **Resonance** | two beamed 8ths | Offense | two sound waves roll out across the room, hitting each enemy as they pass |
 | 4 | **Lullaby** | whole note | Sustain | heal ~12% max HP over 3s — the sustained note |
 | 5 | **Fermata** | half note + fermata | Sustain | ~1.5s invulnerability — the note "holds" you |
 | 6 | **Crescendo** | hairpin (<) | Streak | +20% damage per stack |
@@ -411,7 +411,7 @@ effects, dynamic markings are intensity.
 ### Design principles
 
 1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
-   *kind* of effect (`ProjectileTune`, `PulseTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`),
+   *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`),
    one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry and Strike are two assets of one class.
 2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
    so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
@@ -440,11 +440,18 @@ effects, dynamic markings are intensity.
 | **Mechanism** | Every pitch is the one sample re-pitched by `2^(semitones/12)`. That also shortens high notes, the way short harp strings die faster |
 | **Playtest** | Tap → a quick rising four-note run, one pluck per note leaving |
 
-### Commit 13 — Strike & Resonance join the roll
+### Commit 13 — Strike & Resonance join the roll ✅
 
 | | |
 |---|---|
-| **Playtest** | Taps vary: a heavy quarter note that bursts, a ring pulse around you |
+| **Adds** | `WaveTune` + `HarpWave`; `Strike.asset` (a `ProjectileTune`) + `StrikeNote.prefab`; `Resonance.asset` + `ResonanceWave.prefab` and its `ResonanceWave_Travel` clip; quarter-note, beamed-eighths and wave-ring SVGs |
+| **Strike** | One straight, non-homing quarter note (1.8× base) that bursts for 2.2 on impact through `PlayerProjectile.EnableExplosion`, Earth's proven burst. It hits harder than Flurry's 4 × 0.35 because it can miss. Sounds a low open fifth, C4 + G4 together |
+| **Resonance** | Two opal sound waves roll out from where you played them, 0.15s apart, each reaching 8 (just inside the gear ring) in 0.5s and dealing 0.5× base to every enemy **as its front passes them**. Needs no target and reaches most of the room, so it pays out whether you're swarmed or not. Sounds C4 then G4, one pluck per wave |
+| **Why a wave** | It began as a point-blank 3.5 burst, but that's melee reach: it only paid when enemies were already on you, and a random tune that rolls a dud in most situations feels like losing the gamble. The burst ring also faded from 55% of its growth, so it read smaller than its damage |
+| **Mechanism** | The expansion is an authored, normalised AnimationClip. `HarpWave.Play` stretches it to `travelSeconds` and sizes it to `radius` (DarkMinion's drain-sync idiom), and `WaveTune` reads the animated front back each frame to decide who's been hit. The ring on screen *is* the hit test, so retiming or re-easing the clip moves the damage with it |
+| **Careful** | `CatchExplosionFX`'s ring tops out at radius ~1.2 at scale 1 (`_MaxRadius` 0.95 of a 2.5-unit quad), so Strike's burst scales from **1.2**, not the 1.5 Earth's rock uses. The ring you see is the area that took damage |
+| **Odds** | Three Offense tunes at weight 1 each: a measured 33.8 / 32.9 / 33.3% over 30k rolls |
+| **Playtest** | Taps vary: a heavy quarter note that bursts; two opal waves rolling out across the room, hitting enemies as they pass |
 
 ### Commit 14 — Lullaby & Fermata
 
@@ -499,7 +506,7 @@ effects, dynamic markings are intensity.
 | **10** | Dark execution → the corpse fights for you |
 | **11** | Flick to Light → opal arc; tap → beamed 16ths pop overhead, four notes home in |
 | **12** | Tap → a rising four-note harp run |
-| **13** | Taps vary: a bursting quarter note, a ring pulse |
+| **13** | Taps vary: a bursting quarter note, two waves rolling across the room |
 | **14** | Some taps heal, some make you untouchable |
 | **15** | Streak notes stack overhead; you hit harder/faster until hit |
 | **16** | Rarely, everything fires at once |
@@ -567,3 +574,4 @@ play-mode feel check. Plan revised in discussion: matrix-neutral confirmed, time
 size accepted, interface tidied rather than split and reordered ahead of all element work, M1 re-sliced
 into four beats around a transient ballista. Say **"start commit 04"** (or a later number) and we apply
 only that slice and give you the exact play steps.*
+
