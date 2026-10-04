@@ -106,6 +106,18 @@ public class PlayerController : PlayerGameplayPawn
         }
     }
 
+    /// <summary>
+    /// Instantly hands control and visibility back. Safety net for an ultimate whose sequence is cut short —
+    /// without it the player is left frozen, invincible and invisible for the rest of the run.
+    /// </summary>
+    public void CancelUltimateState()
+    {
+        SetUltimateInvincible(false);
+        SetUltimateFrozen(false);
+        if (playerRenderer != null)
+            playerRenderer.enabled = true;
+    }
+
     public IEnumerator PlayVanishAndHide()
     {
         yield return PlayAnimationState(AnimUltVanishHash);
