@@ -722,7 +722,7 @@ only that slice and give you the exact play steps.*
 | P8 | Bursts for Wind/Earth/Dark/Light | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P9 | Whole screen — element vignette and post-FX pulse | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P10 | Switch sounds | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ☐ | ☐ | ☐ |
+| P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 
 ### P1 — Glow foundation ✅
 
@@ -812,6 +812,15 @@ only that slice and give you the exact play steps.*
 | **Changes** | `ElementSwitchFX` plays the element's switch sound from the flick; a successful grab in `PlayerController.GrabElementFromGear` no longer plays the generic `Sound.Bounce` |
 | **Sounds** | Each opens with a quick rising zip (the streak) and lands its impact ~0.14s in, with the burst. Fire: a low fwoomp, a dropping thump, crackle. Ice: a crystalline chime over a glassy shatter and tinkles. Lightning: a jittering buzz under a sharp crack and sizzle. Wind: a swelling, sweeping gust with a faint whistle. Earth: a deep thud, low rumble and gravel crunch. Dark: a suck inward into a deep, wavering boom. Light: a strummed C-major harp chord (Karplus-Strong) with a shimmer |
 | **Source** | Python stdlib synthesis (noise through swept one-pole filters, swept sines, Karplus-Strong plucks), like the harp pluck and heal shimmer; only the clips are kept |
+
+### P11 — Imbued player ✅
+
+| | |
+|---|---|
+| **Adds** | `ImbuedPlayerVisual` (on `Player.prefab`); a `Glow` child under the held sword (`CursorParent/Cursor`: an unlit copy of its sprite, 1.45×, behind it); an `Imbue Aura` child with one low-rate looping cartoon particle system per element; `ImbueFizzle.prefab`; `imbue_fizzle.wav` as `Sound.Imbue_Fizzle` (appended, 30, SFX group) |
+| **Look** | While imbued, the held sword leans 75% to the element's colour and an HDR silhouette in it glows behind it (only while the sword is in hand). Round the player: Fire embers rising, Ice snowflakes drifting down, Lightning sparks twinkling, Wind speed lines, Earth dust motes, Dark smoke wisps, Light pastel sparkles. In the last 3s the glow blinks, faster and faster. When the imbue runs out: a puff of smoke and dying sparks in the faded element off the sword, and a hiss with a falling note |
+| **Expiry, not switches** | Switching goes straight from one element to the next; only a run-out passes through Physical, and the fizzle also needs the timer to have reached zero, so a new arena's reset to Physical stays silent |
+| **Verified** | 5s Fire imbue: glow on at 1.2s; blinking 13 of 20 samples in the last 3s; at expiry the fizzle sound played, the element was Physical and the glow off |
 
 ### Quick reference — what to play after each commit
 

@@ -51,6 +51,9 @@ public class AudioSystem : MonoBehaviour
         Switch_Earth,
         Switch_Dark,
         Switch_Light,
+
+        // An imbue running out: a hiss with a falling note and a few pops.
+        Imbue_Fizzle,
     }
 
     public AudioLibrary library;
