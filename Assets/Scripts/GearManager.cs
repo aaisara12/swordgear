@@ -114,6 +114,13 @@ public class GearManager : InitializeableGameComponent
 
     public static GearManager? Instance;
 
+    /// <summary>
+    /// A flick granted an element from an arc: (element, arc index). Fires only for a real grant — not on boot,
+    /// not when an imbue expires back to Physical — and again when the same element is re-flicked, which is
+    /// what the switch effects want (ElementManager.OnActiveElementChanged covers neither case).
+    /// </summary>
+    public static event System.Action<Element, int>? OnElementGranted;
+
     private static readonly int HubShapeId = Shader.PropertyToID("_HubShape");
     private static readonly int HubTintId = Shader.PropertyToID("_Tint");
     private static readonly int HubNotchId = Shader.PropertyToID("_Notch");
@@ -325,6 +332,21 @@ public class GearManager : InitializeableGameComponent
         return true;
     }
 
+    /// <summary> World position of the middle of an arc's band: where switch effects leave it from. </summary>
+    public bool TryGetArcCentre(int index, out Vector3 worldPosition)
+    {
+        worldPosition = transform.position;
+
+        if (index < 0 || index >= ArcCount)
+        {
+            return false;
+        }
+
+        float radians = (GetArcLocalAngle(index) + transform.eulerAngles.z) * Mathf.Deg2Rad;
+        worldPosition += new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0f) * radius;
+        return true;
+    }
+
     public bool TryGetArcElement(int index, out Element element)
     {
         element = Element.Physical;
@@ -359,6 +381,12 @@ public class GearManager : InitializeableGameComponent
 
         GameManager.Instance.ApplyEmpowerment(granted, imbueDamageMultiplier, imbueDuration);
         ClickHub();
+        if (index < arcVisuals.Count)
+        {
+            arcVisuals[index].Flare();
+        }
+
+        OnElementGranted?.Invoke(granted, index);
         return true;
     }
 

@@ -718,7 +718,7 @@ only that slice and give you the exact play steps.*
 | P4 | Earth & Dark sections, Light upgraded | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P5 | Imbue timer on the gear | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P6 | The hub | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ☐ | ☐ | ☐ |
+| P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P8 | Bursts for Wind/Earth/Dark/Light | ☐ | ☐ | ☐ |
 | P9 | Whole screen — element vignette and post-FX pulse | ☐ | ☐ | ☐ |
 | P10 | Switch sounds | ☐ | ☐ | ☐ |
@@ -776,6 +776,16 @@ only that slice and give you the exact play steps.*
 | **Changes** | `Gear.prefab` — `gear_0` (`gear_thin.png`, 8 baked notches) replaced by a `Hub` child (builtin quad, `GearHub.mat`, sort order 3 under the arcs' 4), wired to `GearManager.hubRenderer`; BootUp's now-unused `gear_0` scale overrides (and a stale `spinSpeed`) removed. `GearManager` — `UpdateHub` fits the quad to the arcs and sets `_HubShape` (inner/outer radius, tooth count = arc count, first arc's angle) and the imbued element's `_Tint` whenever the loadout or imbue changes; `ClickHub` on every grant from a flick advances `_Notch` and stamps `_ClickTime` |
 | **Look** | A steel band a little wider than the arcs, with a chunky tooth and a rivet in every gap between them, all inked. Imbued: tooth caps and the band's inner rim glow in the element's colour. Each grant (re-flicking the same element too) springs the cog round one notch with a small overshoot and flashes its teeth. The arcs never move |
 | **Note** | The click animates in the shader from `_ClickTime`, stamped with `Time.time` — the clock URP feeds `_Time.y` — so the shader and the stamp agree in every scene |
+
+### P7 — Switch burst ✅
+
+| | |
+|---|---|
+| **Adds** | `GearManager.OnElementGranted(element, arcIndex)` (static; a real flick only — not boot, not expiry — and again on a re-flick) and `TryGetArcCentre`; `GearArcVisual.Flare` (blaze + outward pop, animated in the shader from `_FlareTime`); `ElementSwitchFX` (the director, on a `Switch FX` child of `Gear.prefab`); `Swordgear/Cartoon Particle` — one shader drawing inked two-tone cartoon shapes in each particle's square (blob, star, shard, bolt, ring, puff, comet) with materials under `Assets/Visuals/Materials/ElementFX/`; prefabs under `Assets/Visuals/Prefabs/ElementFX/`: `SwitchStreak`, `SwitchShockwave`, `BurstFire`, `BurstIce`, `BurstLightning` |
+| **The moment** | Flick → the arc flares and the hub clicks; a cartoon comet with sparks streaks from the arc into the player (0.14s); as it lands, the element's burst blooms round the player, a pale element-tinted shockwave and its echo roll out across the arena, the camera kicks along the streak, and the player's light flashes. ~0.5s end to end; never touches `Time.timeScale` |
+| **Bursts** | Fire: puffy fireballs, embers, star sparks, a flame ring. Ice: shards flung outward point-first, spinning snowflakes, frost puffs, a frost ring. Lightning: a soft flash, zig-zag bolts flying outward, sparks, a ring |
+| **Authoring** | Every visual is a prefab/material made in the editor; the director only listens, places them from `PrefabPool`, tints the streak and shockwave, and sets the streak's speed |
+| **Gotchas** | Unity's velocity alignment (and Align To Direction) turns a billboard edge-on to a top-down orthographic camera, and stretched billboards misbehave there too: shapes that point along their flight read the Velocity vertex stream and turn inside a camera-facing quad (`_ALIGN_VELOCITY`). Particle ink is capped in pixels so a 30-unit ring isn't drawn in a fat marker. A `[Toggle]` keyword must be saved with its float, or the drawer re-syncs it off |
 
 ### Quick reference — what to play after each commit
 

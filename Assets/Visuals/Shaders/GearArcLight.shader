@@ -36,6 +36,7 @@ Shader "Swordgear/Gear Arc Light"
         [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
         [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
+        [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
 
     SubShader

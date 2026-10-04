@@ -1,5 +1,61 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1554330815043744504
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7087062139439276060}
+  - component: {fileID: 1139386254751149360}
+  m_Layer: 0
+  m_Name: Switch FX
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7087062139439276060
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554330815043744504}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 767856262929794321}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1139386254751149360
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554330815043744504}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 535ff8118d9660b4fa55695cef15d4b7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Main::ElementSwitchFX
+  streakPrefab: {fileID: 6832899974882660366, guid: d1918822c0ea5d84f851256cb74d9193, type: 3}
+  shockwavePrefab: {fileID: 5534377116083912321, guid: 81507a578f8107747bf3fea259b65b31, type: 3}
+  bursts:
+  - element: 1
+    prefab: {fileID: 1361230060719358054, guid: 908f97411ced9ba418e13f2505f7e8df, type: 3}
+  - element: 2
+    prefab: {fileID: 6572665331903102572, guid: d01aee367a3d1df44b07a765a69a07de, type: 3}
+  - element: 3
+    prefab: {fileID: 5837582096777065897, guid: a70cc356c3aba0b499eb5bd013988a78, type: 3}
+  streakSeconds: 0.14
+  cameraKick: 0.8
+  lightFlash: 1.5
 --- !u!1 &4867975037036078747
 GameObject:
   m_ObjectHideFlags: 0
@@ -122,6 +178,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 689858236223176291}
+  - {fileID: 7087062139439276060}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &2536351299557600620

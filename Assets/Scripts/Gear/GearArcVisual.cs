@@ -37,6 +37,7 @@ public class GearArcVisual : MonoBehaviour
     private static readonly int FillId = Shader.PropertyToID("_Fill");
     private static readonly int UrgencyId = Shader.PropertyToID("_Urgency");
     private static readonly int ArcShapeId = Shader.PropertyToID("_ArcShape");
+    private static readonly int FlareTimeId = Shader.PropertyToID("_FlareTime");
 
     /// <summary> How quickly the arc eases toward its targets, per second (exponential). </summary>
     public float EaseRate { get; set; } = 14f;
@@ -63,6 +64,7 @@ public class GearArcVisual : MonoBehaviour
     private float urgency;
     private float fill = 1f;
     private float targetFill = 1f;
+    private float flareTime = -100f;
     private bool stateDirty = true;
 
     private void Awake() => EnsureBuilt();
@@ -129,6 +131,16 @@ public class GearArcVisual : MonoBehaviour
 
     /// <summary> How much of the arc is lit, 0..1: the imbue timer draining along the active arc. </summary>
     public void SetFill(float fill01) => targetFill = Mathf.Clamp01(fill01);
+
+    /// <summary>
+    /// Flares the arc: a blaze and an outward pop that die away in a fraction of a second, for the moment its
+    /// element is granted. Plays out in the shader from the flare's time, so nothing here animates.
+    /// </summary>
+    public void Flare()
+    {
+        flareTime = Time.time;   // the clock URP feeds the shader's _Time.y
+        stateDirty = true;
+    }
 
     /// <summary> Jumps straight to the targets, for a freshly built arc that shouldn't fade in from white. </summary>
     public void SnapToTarget()
@@ -208,6 +220,7 @@ public class GearArcVisual : MonoBehaviour
         block.SetFloat(FillId, fill);
         block.SetFloat(UrgencyId, urgency);
         block.SetVector(ArcShapeId, arcShape);
+        block.SetFloat(FlareTimeId, flareTime);
         meshRenderer.SetPropertyBlock(block);
         stateDirty = false;
     }

@@ -12,8 +12,8 @@
 //   TEXCOORD0  u along the arc 0..1, v inner edge 0 -> outer edge 1 (beyond 0..1 in the overflow)
 //   TEXCOORD1  the same in world units (length along the mid radius, distance out from the inner edge)
 //   TEXCOORD2  overflow: x = radial world units this vertex opens by, y = radians it turns by
-// Per-arc block values: _Highlight, _Active, _Fill (state, 0..1) and _ArcShape (sweep in radians, inner
-// radius, outer radius, centre angle in radians).
+// Per-arc block values: _Highlight, _Active, _Fill (state, 0..1), _ArcShape (sweep in radians, inner
+// radius, outer radius, centre angle in radians) and _FlareTime (when the arc last flared, in _Time.y).
 #ifndef SWORDGEAR_GEAR_ARC_COMMON_INCLUDED
 #define SWORDGEAR_GEAR_ARC_COMMON_INCLUDED
 
@@ -38,6 +38,7 @@ CBUFFER_START(UnityPerMaterial)
     half _Fill;
     half _Urgency;   // not eased: it's already a beat, set by GearManager
     float4 _ArcShape;
+    float _FlareTime;
 
     // Shared look.
     float _Swell;
@@ -115,6 +116,14 @@ half ArcChargeEdge(float x)
     return (1.0 - EFX_Step(ArcInkWidth * 0.5, fromEdge)) * step(_Fill, 0.995);
 }
 
+// The flare when the arc's element is granted: 1 at the grant, gone in about half a second. The stamp is on
+// the same clock as _Time.y (Time.time); one in the future (the default) reads as long over.
+half ArcFlare()
+{
+    float since = _Time.y - _FlareTime;
+    return since < 0.0 ? 0.0 : exp(-since * 7.0);
+}
+
 // In the imbue's last quarter the active arc throbs, its beats quickening as it runs out. 0..1.
 half ArcUrgency()
 {
@@ -167,8 +176,8 @@ ArcVaryings ArcVertex(ArcAttributes input)
     uvWorld += float2(turn * (_ArcShape.y + _ArcShape.z) * 0.5, spill);
     o.positionOS = position.xy;
 
-    // Aiming at an arc pushes it outward, toward the flick; a running-out imbue throbs it.
-    position.xy += radial * (_Swell * max(_Highlight, ArcUrgency()));
+    // Aiming at an arc pushes it outward, toward the flick; a running-out imbue throbs it; a grant pops it.
+    position.xy += radial * (_Swell * max(_Highlight, ArcUrgency()) + ArcFlare() * 0.9);
 
     o.positionCS = TransformObjectToHClip(position);
     o.positionWS = TransformObjectToWorld(position).xy;
@@ -232,6 +241,7 @@ half4 ArcNeutral(ArcVaryings input, ArcFrame f)
     // to plain white and loses its hue. The halo carries the rest of the glow.
     half peak = max(max(base.r, base.g), max(base.b, 0.05));
     rgb *= min(ArcStateGlow(), 1.15 / peak);
+    rgb = lerp(rgb, lerp(base, 1.0, 0.6) * 3.0, ArcFlare() * 0.8);   // a granted arc blazes, past white
 
     half ink = EFX_Step(-ArcInkWidth, f.sdf);
     rgb = lerp(rgb, base * ArcInkTone, ink);
