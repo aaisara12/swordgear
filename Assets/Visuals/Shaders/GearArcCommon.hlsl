@@ -36,6 +36,7 @@ CBUFFER_START(UnityPerMaterial)
     half _Highlight;
     half _Active;
     half _Fill;
+    half _Urgency;   // not eased: it's already a beat, set by GearManager
     float4 _ArcShape;
 
     // Shared look.
@@ -82,6 +83,46 @@ half ArcTakeover()
     return smoothstep(0.05, 0.9, ArcEnergy());
 }
 
+// Half the arc's length along its mid radius, world units: uvWorld.x of its centre.
+float ArcHalfLength()
+{
+    return 0.25 * ArcSweep() * (_ArcShape.y + _ArcShape.z);
+}
+
+// The arc is the imbue timer: its still-charged span shrinks in from both ends toward the centre as the
+// imbue runs down (_Fill). Half that span, world units.
+float ArcChargedHalfLength()
+{
+    return _Fill * ArcHalfLength();
+}
+
+// 1 where the arc is still charged with its element, 0 where the imbue has drained away. x is uvWorld.x.
+half ArcCharged(float x)
+{
+    return 1.0 - EFX_Step(ArcChargedHalfLength(), abs(x - ArcHalfLength()));
+}
+
+// ArcTakeover, cut back to the still-charged span: what an element's takeover of its tile should use.
+half ArcTakeoverAt(float x)
+{
+    return ArcTakeover() * ArcCharged(x);
+}
+
+// An ink line where the charge has drained to, so the timer's edge reads as a crisp cartoon cut. 0..1.
+half ArcChargeEdge(float x)
+{
+    float fromEdge = abs(abs(x - ArcHalfLength()) - ArcChargedHalfLength());
+    return (1.0 - EFX_Step(ArcInkWidth * 0.5, fromEdge)) * step(_Fill, 0.995);
+}
+
+// In the imbue's last quarter the active arc throbs, its beats quickening as it runs out. 0..1.
+half ArcUrgency()
+{
+    // The beat comes from the CPU, where its phase is integrated: a clock times a changing rate here would
+    // sweep the frequency far past the rate, into flicker.
+    return _Urgency * _Active;
+}
+
 // The overflow opens fully as soon as the arc is in play; what's drawn in it is up to the fragment.
 half ArcSpillOpen()
 {
@@ -94,12 +135,12 @@ float ArcPixel(ArcVaryings input)
     return length(float2(ddx(input.uvWorld.y), ddy(input.uvWorld.y)));
 }
 
-// 1 along the arc's middle, falling to 0 over `width` world units at each end. `x` is along the arc in
-// world units (uvWorld.x). Lets spilled shapes die down toward the ends rather than stop at a hard cut.
+// 1 along the arc's middle, falling to 0 over `width` world units at each end of its still-charged span.
+// `x` is along the arc in world units (uvWorld.x). Lets spilled shapes die down toward the ends rather than
+// stop at a hard cut, and retreat with the charge as the imbue runs down.
 float ArcEndFade(float x, float width)
 {
-    float halfLength = 0.25 * ArcSweep() * (_ArcShape.y + _ArcShape.z);
-    return saturate((halfLength - abs(x - halfLength)) / width);
+    return saturate((ArcChargedHalfLength() - abs(x - ArcHalfLength())) / width);
 }
 
 ArcVaryings ArcVertex(ArcAttributes input)
@@ -126,8 +167,8 @@ ArcVaryings ArcVertex(ArcAttributes input)
     uvWorld += float2(turn * (_ArcShape.y + _ArcShape.z) * 0.5, spill);
     o.positionOS = position.xy;
 
-    // Aiming at an arc pushes it outward, toward the flick.
-    position.xy += radial * (_Swell * _Highlight);
+    // Aiming at an arc pushes it outward, toward the flick; a running-out imbue throbs it.
+    position.xy += radial * (_Swell * max(_Highlight, ArcUrgency()));
 
     o.positionCS = TransformObjectToHClip(position);
     o.positionWS = TransformObjectToWorld(position).xy;
@@ -140,7 +181,7 @@ ArcVaryings ArcVertex(ArcAttributes input)
 // The state's brightness multiplier. Above 1 is HDR: that's what blooms.
 half ArcStateGlow()
 {
-    return 1.0 + _Highlight * _HighlightBoost + _Active * _ActiveBoost;
+    return 1.0 + _Highlight * _HighlightBoost + _Active * _ActiveBoost + ArcUrgency() * 0.6;
 }
 
 // Where a pixel sits in the arc's own frame, in world units.

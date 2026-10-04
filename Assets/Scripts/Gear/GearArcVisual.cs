@@ -35,6 +35,7 @@ public class GearArcVisual : MonoBehaviour
     private static readonly int HighlightId = Shader.PropertyToID("_Highlight");
     private static readonly int ActiveId = Shader.PropertyToID("_Active");
     private static readonly int FillId = Shader.PropertyToID("_Fill");
+    private static readonly int UrgencyId = Shader.PropertyToID("_Urgency");
     private static readonly int ArcShapeId = Shader.PropertyToID("_ArcShape");
 
     /// <summary> How quickly the arc eases toward its targets, per second (exponential). </summary>
@@ -59,6 +60,7 @@ public class GearArcVisual : MonoBehaviour
     private float targetHighlight;
     private float active;
     private float targetActive;
+    private float urgency;
     private float fill = 1f;
     private float targetFill = 1f;
     private bool stateDirty = true;
@@ -114,6 +116,15 @@ public class GearArcVisual : MonoBehaviour
         targetColor = color;
         targetHighlight = highlight01;
         targetActive = active01;
+    }
+
+    /// <summary>
+    /// The throb of a running-out imbue, 0..1, already shaped as a beat; applied as is, without easing.
+    /// </summary>
+    public void SetUrgency(float throb01)
+    {
+        urgency = Mathf.Clamp01(throb01);
+        stateDirty = true;
     }
 
     /// <summary> How much of the arc is lit, 0..1: the imbue timer draining along the active arc. </summary>
@@ -195,6 +206,7 @@ public class GearArcVisual : MonoBehaviour
         block.SetFloat(HighlightId, highlight);
         block.SetFloat(ActiveId, active);
         block.SetFloat(FillId, fill);
+        block.SetFloat(UrgencyId, urgency);
         block.SetVector(ArcShapeId, arcShape);
         meshRenderer.SetPropertyBlock(block);
         stateDirty = false;

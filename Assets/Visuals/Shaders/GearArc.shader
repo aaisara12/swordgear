@@ -13,6 +13,7 @@ Shader "Swordgear/Gear Arc"
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
         [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
+        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
     }
 

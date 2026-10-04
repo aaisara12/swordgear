@@ -118,6 +118,11 @@ public class GearManager : InitializeableGameComponent
     private int highlightedArc = -1;
     private Element activeElement = Element.Physical;
 
+    // The last share of an imbue over which the active arc throbs, its beats quickening as it runs out.
+    private const float UrgencyShare = 0.25f;
+    private float urgencyPhase;
+    private GameManager? imbueTimerSource;
+
     /// <summary> One arc per equipped element — derived from the loadout, never authored directly. </summary>
     public int ArcCount => slotTiles.Count;
     public IReadOnlyList<GearTile?> GetSlots() => slotTiles;
@@ -138,6 +143,7 @@ public class GearManager : InitializeableGameComponent
     private void OnDisable()
     {
         ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
+        TrackImbueTimer(null);
     }
 
     /// <summary> The imbued element's arc lights up as active; Physical (no imbue) lights none. </summary>
@@ -146,6 +152,74 @@ public class GearManager : InitializeableGameComponent
         activeElement = element;
         RefreshVisuals();
     }
+
+    /// <summary>
+    /// The imbue timer lives on the arena's GameManager, which comes and goes with the scene while the gear
+    /// persists; follow whichever one is current.
+    /// </summary>
+    private void TrackImbueTimer(GameManager? source)
+    {
+        if (imbueTimerSource == source)
+        {
+            return;
+        }
+
+        if (imbueTimerSource is not null)
+        {
+            imbueTimerSource.OnEmpowermentTimerChanged -= HandleImbueTimerChanged;
+        }
+
+        imbueTimerSource = source;
+
+        if (imbueTimerSource is not null)
+        {
+            imbueTimerSource.OnEmpowermentTimerChanged += HandleImbueTimerChanged;
+        }
+    }
+
+    /// <summary>
+    /// The active arc is the imbue timer: its element's look drains in from both ends as the imbue runs down.
+    /// </summary>
+    /// <remarks>
+    /// Other arcs keep whatever fill they had: it only shows while an arc is active, and resetting it as an
+    /// imbue ends would flash the element back across the arc while it fades out. The next imbue's first tick
+    /// refills it, so the look grows back out from the centre as a charge-up.
+    /// </remarks>
+    private void HandleImbueTimerChanged(float remaining, float duration)
+    {
+        float fill = duration > 0f ? Mathf.Clamp01(remaining / duration) : 0f;
+        float urgency = NextUrgency(fill);
+
+        for (int i = 0; i < arcVisuals.Count; i++)
+        {
+            if (IsActiveArc(i))
+            {
+                arcVisuals[i].SetFill(fill);
+                arcVisuals[i].SetUrgency(urgency);
+            }
+        }
+    }
+
+    /// <summary> The active arc's throb this frame, 0..1: beats quickening from 2 to 5 a second as it runs out. </summary>
+    /// <remarks>
+    /// The beat's phase is integrated frame by frame. Computing it as clock × rate would add the rate's own
+    /// change times the clock to the frequency, which a minute into a run is a flicker, not a beat.
+    /// </remarks>
+    private float NextUrgency(float fill)
+    {
+        if (fill <= 0f || fill >= UrgencyShare)
+        {
+            urgencyPhase = 0f;
+            return 0f;
+        }
+
+        float beatsPerSecond = Mathf.Lerp(2f, 5f, 1f - fill / UrgencyShare);
+        urgencyPhase += beatsPerSecond * Time.deltaTime;
+        return Mathf.Pow(Mathf.Clamp01(Mathf.Sin(urgencyPhase * 2f * Mathf.PI)), 4f);
+    }
+
+    private bool IsActiveArc(int index) =>
+        activeElement != Element.Physical && TryGetArcElement(index, out Element element) && element == activeElement;
 
     private void Start()
     {
@@ -441,6 +515,7 @@ public class GearManager : InitializeableGameComponent
     private void Update()
     {
         GameManager? gameManager = GameManager.Instance;
+        TrackImbueTimer(gameManager);
 
         if (gameManager == null || gameManager.player == null)
         {

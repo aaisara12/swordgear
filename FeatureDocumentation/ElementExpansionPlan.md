@@ -426,7 +426,7 @@ effects, dynamic markings are intensity.
 1. **Tunes are data.** Abstract `HarpTune : ScriptableObject` (family, weight, glyph); one subclass per
    *kind* of effect (`ProjectileTune`, `WaveTune`, `HealTune`, `WardTune`, `StreakTune`, `JackpotTune`), one asset per tune under `Assets/Visuals/Light/Tunes/`. Flurry, Strike and Staccato are
    three assets of one class; Resonance and Rest are both `WaveTune`.
-2. **Streaks are player-level.** Light is a 5s imbue and switching element ends the old weapon's buffs,
+2. **Streaks are player-level.** Light is a timed imbue (20s; `Gear.prefab` overrides the 5s default) and switching element ends the old weapon's buffs,
    so a weapon-local buff would die with the imbue. The streak layer lives in `PlayerStatModifiers` and
    sits *on top of* augments, so an augment pickup (`ReapplyFromBlob`) can't wipe it.
 3. **Opal is a shader, not a colour.** `Swordgear/Opalite` — milky base, pastel sheen and twinkling
@@ -716,7 +716,7 @@ only that slice and give you the exact play steps.*
 | P2 | Fire & Ice sections; the shared cartoon tile and overflow | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P3 | Lightning & Wind sections | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P4 | Earth & Dark sections, Light upgraded | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P5 | Imbue timer on the gear | ☐ | ☐ | ☐ |
+| P5 | Imbue timer on the gear | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P6 | The hub | ☐ | ☐ | ☐ |
 | P7 | Switch burst — director, flare + streak, shockwave, camera, light; Fire/Ice/Lightning bursts | ☐ | ☐ | ☐ |
 | P8 | Bursts for Wind/Earth/Dark/Light | ☐ | ☐ | ☐ |
@@ -760,6 +760,14 @@ only that slice and give you the exact play steps.*
 | **Look** | Active Earth: the tile rumbles as cartoon rock — three wavy strata with inked seams, a zig-zag crack glowing molten amber in pulses that run along it — and chunky two-tone boulders tumble up past the gear and drop back, dust puffs swelling at launch and landing. Active Dark: an inky void with a glowing violet rim, specks twinkling in it, pairs of yellow cartoon eyes that blink and glance about, and two-tone tendrils writhing out past the gear. Active Light: Opalite's sheen cut into flat pastel bands with white seams, flowing; pastel eighth notes float up past the gear, wobbling; sparkles pop |
 | **Gotcha** | The arc's (along, outward) frame runs counter-clockwise, so it's mirrored against the screen: anything with a handedness (the notes) flips x back |
 
+### P5 — Imbue timer on the gear ✅
+
+| | |
+|---|---|
+| **Changes** | `GearArcCommon.hlsl` — the arc is the timer: `ArcChargedHalfLength` / `ArcCharged` / `ArcTakeoverAt` cut an element's takeover back to the still-charged span, which shrinks in from both ends toward the centre as `_Fill` drains; `ArcEndFade` retreats with it so spilled shapes die down at the charge's edge; `ArcChargeEdge` inks the cut; `ArcUrgency` throbs the arc (swell + glow) in the last quarter, quickening as it runs out. Every element shader takes its tile with `ArcTakeoverAt`. `GearManager` follows the current arena's `GameManager.OnEmpowermentTimerChanged` (the gear outlives the scene) and feeds the active arc's fill; other arcs keep their last fill (resetting it as an imbue ends would flash the element back), so each new imbue grows its look back out from the centre |
+| **Look** | Imbue: the element's look grows out across the arc and goes wild. Over the 20s the element's look shrinks toward the arc's centre, the drained ends back to the plain tile with an ink cut at the edge; in the last 5s the arc throbs, faster and faster; on expiry it settles back to idle |
+| **Doc** | Corrected "Light is a 5s imbue" — imbues last 20s (`Gear.prefab` overrides the 5s default) |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -768,7 +776,7 @@ only that slice and give you the exact play steps.*
 | **P2** | Idle arcs are flat cartoon tiles; aim one: it swells with a glowing outline. Imbue Fire: cartoon flames roar off its arc, flame bits fly. Imbue Ice: the arc freezes, crystal spikes punch out in a wave, stars pop |
 | **P3** | Imbue Lightning, then Wind: each active arc breaks out into its own cartoon look past the gear |
 | **P4** | Same for Earth, Dark and Light; Light's arc idles as the shared tile like the rest |
-| **P5** | The active section glows and drains over 20s, pulsing near the end |
+| **P5** | The active section's element look shrinks in from both ends over 20s, throbbing in the last 5s, then the arc settles back |
 | **P6** | The centre gear matches the arc count and clicks round as you switch |
 | **P7** | Switching fires a streak from the arc into you and a burst |
 | **P8** | Every element has its own burst |
