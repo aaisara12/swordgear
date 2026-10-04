@@ -36,8 +36,20 @@ public readonly struct HarpContext
     public Coroutine Run(IEnumerator routine) => host.StartCoroutine(routine);
 }
 
+/// <summary>One plucked note of a tune's melody.</summary>
+[System.Serializable]
+public struct HarpNote
+{
+    [Tooltip("Semitones above the pluck sample's C5. 12 is the octave above; negative goes below.")]
+    public int semitones;
+    [Tooltip("Seconds after the previous note. The first note's delay is from the tap.")]
+    public float delay;
+    [Range(0f, 1f)] public float volume;
+}
+
 /// <summary>
-/// One tune Light's harp can play: what it does, how likely it is, and the note that shows it.
+/// One tune Light's harp can play: what it does, how likely it is, the note that shows it and the
+/// melody that sounds it.
 /// </summary>
 /// <remarks>
 /// Tunes are data assets rather than code paths in the weapon, one subclass per <em>kind</em> of effect
@@ -57,6 +69,9 @@ public abstract class HarpTune : ScriptableObject
     [SerializeField, Min(0f)] private float weight = 1f;
     [Tooltip("The note shown above the player as this tune plays.")]
     [SerializeField] private Sprite? glyph;
+    [Tooltip("What the tune sounds like. Its shape should echo the note: a run for sixteenths, one long " +
+             "tone for a whole note.")]
+    [SerializeField] private HarpNote[] melody = System.Array.Empty<HarpNote>();
 
     public HarpTuneFamily Family => family;
     public float Weight => weight;
@@ -64,6 +79,24 @@ public abstract class HarpTune : ScriptableObject
 
     /// <summary>Performs the tune's effect.</summary>
     public abstract void Play(HarpContext context);
+
+    /// <summary>Plucks the melody, re-pitching the one harp sample per note.</summary>
+    /// <remarks>
+    /// Pitch through <c>AudioSource.pitch</c> also changes a note's length (an octave up rings half as
+    /// long), which is how a real harp behaves anyway: high strings are short and die fast.
+    /// </remarks>
+    public IEnumerator PlayMelody()
+    {
+        foreach (HarpNote note in melody)
+        {
+            if (note.delay > 0f)
+            {
+                yield return new WaitForSeconds(note.delay);
+            }
+
+            AudioSystem.Play(AudioSystem.Sound.Harp_Pluck, note.volume, Mathf.Pow(2f, note.semitones / 12f));
+        }
+    }
 
     /// <summary>
     /// Weighted pick. <paramref name="roll"/> is a uniform value in [0, 1), passed in rather than drawn

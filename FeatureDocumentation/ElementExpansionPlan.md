@@ -55,7 +55,7 @@ afterwards.
 | 09 | Dark charge blinks + circle swing | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 10 | Dark execution raises a minion | ✅ landed | ✅ 2026-09-06 | ⏳ not yet |
 | 11 | Light on the ring, in opalite (Flurry) | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
-| 12 | The harp sounds | ☐ | ☐ | ☐ |
+| 12 | The harp sounds | ✅ landed | ✅ 2026-10-03 | ⏳ not yet |
 | 13 | Strike & Resonance | ☐ | ☐ | ☐ |
 | 14 | Lullaby & Fermata | ☐ | ☐ | ☐ |
 | 15 | Hot streak — Crescendo & Allegro | ☐ | ☐ | ☐ |
@@ -431,12 +431,14 @@ effects, dynamic markings are intensity.
 | **Playtest** | Flick to Light: the arc shimmers opal. Tap → four beamed sixteenths pop above you and four small sixteenth notes home into the nearest enemies |
 | **Regression check** | Every other arc still draws with its flat colour; every flick direction has shifted (7 arcs) |
 
-### Commit 12 — The harp sounds
+### Commit 12 — The harp sounds ✅
 
 | | |
 |---|---|
-| **Adds** | `harp_pluck.wav` (Karplus-Strong, synthesized offline); `Sound.Harp_Pluck` (appended); each tune's melody |
-| **Playtest** | Tap → a quick rising four-note run |
+| **Adds** | `Assets/Audio/Light/harp_pluck.wav` — one C5 pluck, Karplus-Strong synthesized offline with the Python stdlib (soft fingered excitation, a pick-position comb, a faintly detuned sympathetic string); `Sound.Harp_Pluck` (appended) + its `MainAudioLibrary` entry on the SFX group; `HarpNote` melodies on `HarpTune` |
+| **Changes** | `LightWeapon` — plays the rolled tune's melody alongside its effect; Flurry's melody is C–E–G–C rising, 0.06s apart to match its volley |
+| **Mechanism** | Every pitch is the one sample re-pitched by `2^(semitones/12)`. That also shortens high notes, the way short harp strings die faster |
+| **Playtest** | Tap → a quick rising four-note run, one pluck per note leaving |
 
 ### Commit 13 — Strike & Resonance join the roll
 

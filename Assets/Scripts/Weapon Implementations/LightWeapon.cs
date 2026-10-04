@@ -58,6 +58,7 @@ public class LightWeapon : MonoBehaviour, IElementalWeapon
         }
 
         Reveal(player, tune);
+        StartCoroutine(tune.PlayMelody());
         tune.Play(new HarpContext(player, upgrades, this));
         return tapCooldown;
     }
