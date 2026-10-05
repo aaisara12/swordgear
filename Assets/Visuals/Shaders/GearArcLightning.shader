@@ -29,8 +29,6 @@ Shader "Swordgear/Gear Arc Lightning"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -92,8 +90,8 @@ Shader "Swordgear/Gear Arc Lightning"
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Fill(crawl - ArcInkWidth) * crawlOn);
                 rgb = lerp(rgb, _BoltColor.rgb * _Emission, EFX_Fill(crawl) * crawlOn);
                 rgb = lerp(rgb, _CoreColor.rgb * _Emission * 1.3, EFX_Fill(crawl + _BoltWidth * 0.4) * crawlOn);
-                rgb = lerp(rgb, _InkColor.rgb, max(EFX_Step(-ArcInkWidth, f.sdf), ArcChargeEdge(x)));
-                half4 storm = half4(rgb, EFX_Fill(f.sdf) * ArcTakeoverAt(x));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, f.sdf));
+                half4 storm = half4(rgb, EFX_Fill(f.sdf) * ArcTakeover());
 
                 // Strikes: in each slot along the arc, a fresh bolt most ticks, rooted in the cloud, kinking
                 // every 0.55 units on its way out and thinning to its tip.
@@ -113,7 +111,7 @@ Shader "Swordgear/Gear Arc Lightning"
                 float bolt = max(fromAxis - halfWidth, max(rootY - y, y - rootY - (thickness * 0.25 + reach)));
 
                 half boost = _Emission * (1.0 + strobe * 0.5);
-                half inside = lerp(ArcTakeoverAt(x), 1.0, EFX_Step(0.0, f.sdf));
+                half inside = lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf));
                 half4 bolts = half4(_InkColor.rgb, EFX_FillPx(bolt - ArcInkWidth, px));
                 bolts = EFX_Over(half4(_BoltColor.rgb * boost, EFX_FillPx(bolt, px)), bolts);
                 bolts = EFX_Over(half4(_CoreColor.rgb * boost * 1.4, EFX_FillPx(fromAxis - halfWidth * 0.4, px) * EFX_FillPx(bolt, px)), bolts);

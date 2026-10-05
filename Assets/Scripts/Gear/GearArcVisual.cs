@@ -7,8 +7,8 @@ using UnityEngine;
 /// colours so every arc on a gear can share one material per element.
 /// </summary>
 /// <remarks>
-/// The arc's state — aimed at, active, how much imbue is left — is eased here and handed to the shader
-/// through a MaterialPropertyBlock (<c>_Highlight</c>, <c>_Active</c>, <c>_Fill</c>; see
+/// The arc's state — aimed at, active — is eased here and handed to the shader
+/// through a MaterialPropertyBlock (<c>_Highlight</c>, <c>_Active</c>; see
 /// GearArcCommon.hlsl), so arcs that share a material still each show their own state. Easing lives in
 /// code rather than an AnimationClip because the targets change with every frame of aiming and the arc is
 /// a procedural mesh with no authored rig to animate.
@@ -34,8 +34,6 @@ public class GearArcVisual : MonoBehaviour
 
     private static readonly int HighlightId = Shader.PropertyToID("_Highlight");
     private static readonly int ActiveId = Shader.PropertyToID("_Active");
-    private static readonly int FillId = Shader.PropertyToID("_Fill");
-    private static readonly int UrgencyId = Shader.PropertyToID("_Urgency");
     private static readonly int ArcShapeId = Shader.PropertyToID("_ArcShape");
     private static readonly int FlareTimeId = Shader.PropertyToID("_FlareTime");
 
@@ -61,9 +59,6 @@ public class GearArcVisual : MonoBehaviour
     private float targetHighlight;
     private float active;
     private float targetActive;
-    private float urgency;
-    private float fill = 1f;
-    private float targetFill = 1f;
     private float flareTime = -100f;
     private bool stateDirty = true;
 
@@ -121,18 +116,6 @@ public class GearArcVisual : MonoBehaviour
     }
 
     /// <summary>
-    /// The throb of a running-out imbue, 0..1, already shaped as a beat; applied as is, without easing.
-    /// </summary>
-    public void SetUrgency(float throb01)
-    {
-        urgency = Mathf.Clamp01(throb01);
-        stateDirty = true;
-    }
-
-    /// <summary> How much of the arc is lit, 0..1: the imbue timer draining along the active arc. </summary>
-    public void SetFill(float fill01) => targetFill = Mathf.Clamp01(fill01);
-
-    /// <summary>
     /// Flares the arc: a blaze and an outward pop that die away in a fraction of a second, for the moment its
     /// element is granted. Plays out in the shader from the flare's time, so nothing here animates.
     /// </summary>
@@ -148,7 +131,6 @@ public class GearArcVisual : MonoBehaviour
         currentColor = targetColor;
         highlight = targetHighlight;
         active = targetActive;
-        fill = targetFill;
         ApplyColor();
         stateDirty = true;
         ApplyState();
@@ -165,8 +147,7 @@ public class GearArcVisual : MonoBehaviour
         }
 
         stateDirty |= Ease(ref highlight, targetHighlight, t)
-                      | Ease(ref active, targetActive, t)
-                      | Ease(ref fill, targetFill, t);
+                      | Ease(ref active, targetActive, t);
         ApplyState();
     }
 
@@ -217,8 +198,6 @@ public class GearArcVisual : MonoBehaviour
         meshRenderer.GetPropertyBlock(block);
         block.SetFloat(HighlightId, highlight);
         block.SetFloat(ActiveId, active);
-        block.SetFloat(FillId, fill);
-        block.SetFloat(UrgencyId, urgency);
         block.SetVector(ArcShapeId, arcShape);
         block.SetFloat(FlareTimeId, flareTime);
         meshRenderer.SetPropertyBlock(block);

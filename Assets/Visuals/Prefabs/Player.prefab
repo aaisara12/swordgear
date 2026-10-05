@@ -10405,10 +10405,8 @@ MonoBehaviour:
     particles: {fileID: 4047120264691730348}
   - element: 7
     particles: {fileID: 3112521534291304543}
-  fizzlePrefab: {fileID: 7129042425446946293, guid: 0018221d22f9d144292f46cf66ee0af9, type: 3}
   tintStrength: 0.75
   glowIntensity: 2.5
-  flickerSeconds: 3
 --- !u!1 &2405011503219170139
 GameObject:
   m_ObjectHideFlags: 0

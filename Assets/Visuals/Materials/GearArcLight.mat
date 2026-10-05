@@ -29,7 +29,7 @@ Material:
     - _ActiveBoost: 0.6
     - _Bands: 5
     - _Emission: 1.25
-    - _Fill: 1
+    - _FlareTime: -100
     - _Highlight: 0
     - _HighlightBoost: 0.9
     - _NoteRate: 0.55

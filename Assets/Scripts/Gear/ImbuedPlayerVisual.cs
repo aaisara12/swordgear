@@ -13,13 +13,10 @@ public struct ElementAura
 /// <summary>
 /// The player carries their imbue. While an element is imbued the held sword takes its colour and a glowing
 /// silhouette in it, and a light aura of the element's particles hangs round the player (embers, snowflakes,
-/// sparks, wind streaks, dust motes, smoke wisps, opal sparkles). In the imbue's last seconds the glow
-/// flickers; when it runs out the sword fizzles — a puff of smoke, dying sparks and a hiss — so expiry is seen
-/// and heard rather than silent.
+/// sparks, wind streaks, dust motes, smoke wisps, opal sparkles).
 /// </summary>
 /// <remarks>
-/// The glow, auras and fizzle are authored in Player.prefab and ElementFX; this only tints, starts and stops
-/// them and spawns the fizzle.
+/// The glow and auras are authored in Player.prefab; this only tints, starts and stops them.
 /// </remarks>
 public class ImbuedPlayerVisual : MonoBehaviour
 {
@@ -28,19 +25,12 @@ public class ImbuedPlayerVisual : MonoBehaviour
     [Tooltip("An unlit copy of the sword, scaled up behind it: its glowing silhouette.")]
     [SerializeField] private SpriteRenderer? glowRenderer;
     [SerializeField] private List<ElementAura> auras = new();
-    [SerializeField] private GameObject? fizzlePrefab;
     [Tooltip("How far the sword's colour leans toward the element.")]
     [SerializeField, Range(0f, 1f)] private float tintStrength = 0.75f;
     [Tooltip("HDR brightness of the glow, so it blooms.")]
     [SerializeField] private float glowIntensity = 2.5f;
-    [Tooltip("Seconds before the imbue ends that the glow starts to flicker.")]
-    [SerializeField] private float flickerSeconds = 3f;
 
-    private Element element = Element.Physical;
     private bool glowLit;
-    private float lastRemaining = float.MaxValue;
-    private float flickerPhase;
-    private GameManager? timerSource;
 
     private void Awake()
     {
@@ -53,28 +43,17 @@ public class ImbuedPlayerVisual : MonoBehaviour
         {
             Debug.LogError("ImbuedPlayerVisual: glowRenderer is null", this);
         }
-
-        if (fizzlePrefab == null)
-        {
-            Debug.LogError("ImbuedPlayerVisual: fizzlePrefab is null", this);
-        }
     }
 
     private void OnEnable()
     {
-        ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+        ElementManager.OnActiveElementChanged += Show;
         Show(ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical);
     }
 
     private void OnDisable()
     {
-        ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
-        TrackImbueTimer(null);
-    }
-
-    private void Update()
-    {
-        TrackImbueTimer(GameManager.Instance);
+        ElementManager.OnActiveElementChanged -= Show;
     }
 
     private void LateUpdate()
@@ -86,23 +65,10 @@ public class ImbuedPlayerVisual : MonoBehaviour
         }
     }
 
-    private void HandleActiveElementChanged(Element next)
+    private void Show(Element element)
     {
-        // Switching element goes straight from one to the other, so a drop to Physical is an imbue ending. Only
-        // fizzle if it ran out: a new arena also resets to Physical, and that's no moment to hiss at the player.
-        if (next == Element.Physical && element != Element.Physical && lastRemaining < 0.1f)
-        {
-            Fizzle(element);
-        }
-
-        Show(next);
-    }
-
-    private void Show(Element next)
-    {
-        element = next;
-        bool imbued = next != Element.Physical;
-        Color colour = ElementVisuals.GetColor(next);
+        bool imbued = element != Element.Physical;
+        Color colour = ElementVisuals.GetColor(element);
 
         if (swordRenderer != null)
         {
@@ -115,7 +81,6 @@ public class ImbuedPlayerVisual : MonoBehaviour
         }
 
         glowLit = imbued;
-        lastRemaining = float.MaxValue;
 
         foreach (ElementAura aura in auras)
         {
@@ -124,7 +89,7 @@ public class ImbuedPlayerVisual : MonoBehaviour
                 continue;
             }
 
-            if (imbued && aura.element == next)
+            if (imbued && aura.element == element)
             {
                 aura.particles.Play(true);
             }
@@ -132,81 +97,6 @@ public class ImbuedPlayerVisual : MonoBehaviour
             {
                 aura.particles.Stop(true, ParticleSystemStopBehavior.StopEmitting);
             }
-        }
-    }
-
-    /// <summary> In the imbue's last seconds the glow blinks, faster as it runs out. </summary>
-    private void HandleImbueTimerChanged(float remaining, float duration)
-    {
-        if (element == Element.Physical)
-        {
-            return;
-        }
-
-        lastRemaining = remaining;
-
-        if (remaining > flickerSeconds)
-        {
-            glowLit = true;
-            flickerPhase = 0f;
-            return;
-        }
-
-        // Integrate the blink's phase: the clock times a changing rate would sweep the frequency far past the
-        // rate, into random flicker.
-        float urgency = 1f - Mathf.Clamp01(remaining / Mathf.Max(flickerSeconds, 0.01f));
-        flickerPhase += Mathf.Lerp(3f, 10f, urgency) * Time.deltaTime;
-        glowLit = Mathf.Repeat(flickerPhase, 1f) < 0.6f;
-    }
-
-    private void Fizzle(Element from)
-    {
-        AudioSystem.Play(AudioSystem.Sound.Imbue_Fizzle);
-
-        if (fizzlePrefab == null || PrefabPool.Instance == null)
-        {
-            return;
-        }
-
-        Vector3 at = swordRenderer != null && swordRenderer.enabled ? swordRenderer.transform.position : transform.position;
-        GameObject fizzle = PrefabPool.Instance.Spawn(fizzlePrefab, at, Quaternion.identity);
-
-        // The dying sparks keep a little of the element they were.
-        Color faded = Color.Lerp(ElementVisuals.GetColor(from), Color.grey, 0.4f);
-        foreach (ParticleSystem system in fizzle.GetComponentsInChildren<ParticleSystem>())
-        {
-            if (system.name == "Sparks")
-            {
-                ParticleSystem.MainModule main = system.main;
-                main.startColor = faded;
-            }
-
-            system.Play(false);
-        }
-
-        if (fizzle.TryGetComponent(out PooledInstance pooled))
-        {
-            pooled.ReleaseWhenParticlesDone();
-        }
-    }
-
-    private void TrackImbueTimer(GameManager? source)
-    {
-        if (timerSource == source)
-        {
-            return;
-        }
-
-        if (timerSource is not null)
-        {
-            timerSource.OnEmpowermentTimerChanged -= HandleImbueTimerChanged;
-        }
-
-        timerSource = source;
-
-        if (timerSource is not null)
-        {
-            timerSource.OnEmpowermentTimerChanged += HandleImbueTimerChanged;
         }
     }
 }

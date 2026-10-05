@@ -55,12 +55,6 @@ public class GameManager : MonoBehaviour
     }
 
 
-    // A private field to store the reference to the currently running empowerment coroutine
-    private Coroutine? _currentEmpowermentRoutine;
-
-    /// <summary> Fired every frame while an elemental empowerment (imbue) is active, with remaining/total duration. </summary>
-    public event Action<float, float>? OnEmpowermentTimerChanged;
-
     private void Awake()
     {
         Instance = this;
@@ -120,48 +114,26 @@ public class GameManager : MonoBehaviour
         return finalDamage;
     }
 
-    // Call this method from the Embue script
-    public void ApplyEmpowerment(Element newElement, float newDamageMultiplier, float duration)
+    /// <summary>
+    /// Imbues the player with an element. An imbue lasts until the next one, or until a new arena clears it
+    /// (<see cref="ClearEmpowerment"/>): it doesn't time out.
+    /// </summary>
+    public void ApplyEmpowerment(Element newElement, float newDamageMultiplier)
     {
-        // 1. If an empowerment coroutine is already running on the sword, stop it.
-        if (_currentEmpowermentRoutine != null)
-        {
-            Debug.Log("Stopping previous routine");
-            StopCoroutine(_currentEmpowermentRoutine);
-        }
-
-        // 2. Start the new empowerment coroutine and store its reference.
-        // This allows us to stop it later using StopCoroutine(_currentEmpowermentRoutine).
-        _currentEmpowermentRoutine = StartCoroutine(EmpowermentRoutine(newElement, newDamageMultiplier, duration));
-        Debug.Log($"Starting new empowerment routine for {newElement} on {gameObject.name}.");
+        currentDamage = GetEffectiveBaseDamage() * newDamageMultiplier;
+        currentElement = newElement;
     }
 
-    private IEnumerator EmpowermentRoutine(Element elementToApply, float damageMultiplierToApply, float duration)
+    /// <summary> Back to no element (Physical), as each arena starts. Does nothing if there's no imbue. </summary>
+    public void ClearEmpowerment()
     {
-        // --- Apply Empowerment ---
-        currentDamage = GetEffectiveBaseDamage() * damageMultiplierToApply;
-        currentElement = elementToApply;
-
-        Debug.Log($"Sword {gameObject.name} is now {elementToApply}. Current Damage: {currentDamage}");
-
-        // --- Wait for Duration, ticking so UI (e.g. the radial imbue timer) can track remaining time ---
-        float remaining = duration;
-        OnEmpowermentTimerChanged?.Invoke(remaining, duration);
-        while (remaining > 0f)
+        if (currentElement == Element.Physical)
         {
-            yield return null;
-            remaining -= Time.deltaTime;
-            OnEmpowermentTimerChanged?.Invoke(Mathf.Max(0f, remaining), duration);
+            return;
         }
 
-        // --- Undo Empowerment ---
-        Debug.Log($"Empower effect for {elementToApply} on {gameObject.name} finished.");
-
         currentDamage = GetEffectiveBaseDamage();
-        currentElement = Element.Physical; // Reset to default/physical
-
-        // Clear the coroutine reference as it has now finished executing.
-        _currentEmpowermentRoutine = null;
+        currentElement = Element.Physical;
     }
 
     #region Enemy Effects

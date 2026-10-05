@@ -31,8 +31,6 @@ Shader "Swordgear/Gear Arc Wind"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -93,8 +91,8 @@ Shader "Swordgear/Gear Arc Wind"
                 float flow = x - t * _GustSpeed;
                 float wave = sin(y * 3.2 + sin(flow * 0.9) * 1.4 + flow * 0.35);
                 half3 rgb = lerp(_AirColor.rgb, _GustColor.rgb, EFX_Step(0.35, wave)) * _Emission;
-                rgb = lerp(rgb, _InkColor.rgb, max(EFX_Step(-ArcInkWidth, f.sdf), ArcChargeEdge(x)));
-                half4 gale = half4(rgb, EFX_Fill(f.sdf) * ArcTakeoverAt(x));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, f.sdf));
+                half4 gale = half4(rgb, EFX_Fill(f.sdf) * ArcTakeover());
 
                 // Speed lines: rounded dashes in lanes, each lane racing round at its own speed. They fill the
                 // tile and the first stretch above it.
@@ -114,7 +112,7 @@ Shader "Swordgear/Gear Arc Wind"
                                * ArcEndFade(x, 1.0);
                 half4 streaks = half4(_InkColor.rgb, EFX_FillPx(streak - ArcInkWidth * 0.6, px));
                 streaks = EFX_Over(half4(_LineColor.rgb * _Emission * 1.4, EFX_FillPx(streak, px)), streaks);
-                streaks.a *= present * lerp(ArcTakeoverAt(x), 1.0, EFX_Step(0.0, f.sdf));
+                streaks.a *= present * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf));
 
                 // Swirls: one per slot along the arc, each on its own clock: it spins up out of the tile,
                 // curls outward as it grows, and shrinks away.

@@ -7,7 +7,7 @@ using UnityEngine.Rendering.Universal;
 /// <summary>
 /// The whole screen takes part in an element switch. As the switch lands (ElementSwitchFX.OnSwitchLanded) the
 /// screen's edges flare in the element (a cartoon border in its shape: flames, icicles, crackle…) and settle
-/// to a thin edge held while the imbue lasts, thinning away over its last quarter; and a post-FX pulse — a
+/// to a thin edge held while the element is imbued; and a post-FX pulse — a
 /// bloom spike, a touch of chromatic aberration, the colour nudged toward the element — washes over the frame.
 /// </summary>
 /// <remarks>
@@ -29,10 +29,7 @@ public class ElementVignette : MonoBehaviour
     [SerializeField] private Animator? pulseAnimator;
     [Tooltip("How far the pulse's colour filter leans toward the element (0 = none, 1 = the element's colour).")]
     [SerializeField, Range(0f, 1f)] private float colourNudge = 0.3f;
-    [Tooltip("The share of the imbue, at its end, over which the held edge thins away.")]
-    [SerializeField, Range(0.05f, 1f)] private float holdFadeShare = 0.25f;
 
-    private GameManager? timerSource;
     private ColorAdjustments? pulseColour;
 
     private void Awake()
@@ -60,13 +57,15 @@ public class ElementVignette : MonoBehaviour
     {
         ElementSwitchFX.OnSwitchLanded += HandleSwitchLanded;
         ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+
+        // The element can be set before this arena's border exists; start from it rather than a blank edge.
+        HandleActiveElementChanged(ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical);
     }
 
     private void OnDisable()
     {
         ElementSwitchFX.OnSwitchLanded -= HandleSwitchLanded;
         ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
-        TrackImbueTimer(null);
     }
 
     private void OnDestroy()
@@ -88,11 +87,6 @@ public class ElementVignette : MonoBehaviour
         }
     }
 
-    private void Update()
-    {
-        TrackImbueTimer(GameManager.Instance);
-    }
-
     private void HandleSwitchLanded(Element element)
     {
         ShowElement(element);
@@ -109,21 +103,11 @@ public class ElementVignette : MonoBehaviour
         }
     }
 
+    /// <summary> The held edge shows while an element is imbued, and goes with it. </summary>
     private void HandleActiveElementChanged(Element element)
     {
         ShowElement(element);
-
-        if (element == Element.Physical)
-        {
-            Shader.SetGlobalFloat(HoldId, 0f);
-        }
-    }
-
-    /// <summary> The held edge: full while imbued, thinning away over the imbue's last stretch. </summary>
-    private void HandleImbueTimerChanged(float remaining, float duration)
-    {
-        float hold = duration > 0f ? Mathf.Clamp01(remaining / (duration * holdFadeShare)) : 0f;
-        Shader.SetGlobalFloat(HoldId, hold);
+        Shader.SetGlobalFloat(HoldId, element != Element.Physical ? 1f : 0f);
     }
 
     private static void ShowElement(Element element)
@@ -137,26 +121,5 @@ public class ElementVignette : MonoBehaviour
         Shader.SetGlobalFloat(HoldId, 0f);
         Shader.SetGlobalFloat(FlareTimeId, -100f);
         Shader.SetGlobalFloat(StyleId, 0f);
-    }
-
-    /// <summary> Follows whichever GameManager is current; its imbue timer drives the held edge. </summary>
-    private void TrackImbueTimer(GameManager? source)
-    {
-        if (timerSource == source)
-        {
-            return;
-        }
-
-        if (timerSource is not null)
-        {
-            timerSource.OnEmpowermentTimerChanged -= HandleImbueTimerChanged;
-        }
-
-        timerSource = source;
-
-        if (timerSource is not null)
-        {
-            timerSource.OnEmpowermentTimerChanged += HandleImbueTimerChanged;
-        }
     }
 }

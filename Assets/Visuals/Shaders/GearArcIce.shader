@@ -27,8 +27,6 @@ Shader "Swordgear/Gear Arc Ice"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -115,9 +113,9 @@ Shader "Swordgear/Gear Arc Ice"
 
                 // Ink round the whole silhouette and round each spike, so they read as crystals growing out.
                 half ink = max(EFX_Step(-ArcInkWidth, ice), EFX_Step(-ArcInkWidth * 0.8, spikes) * EFX_Fill(spikes));
-                rgb = lerp(rgb, _InkColor.rgb, max(ink, ArcChargeEdge(x)));
+                rgb = lerp(rgb, _InkColor.rgb, ink);
 
-                half4 frozen = half4(rgb, EFX_Fill(ice) * lerp(ArcTakeoverAt(x), 1.0, EFX_Step(0.0, f.sdf)));
+                half4 frozen = half4(rgb, EFX_Fill(ice) * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf)));
 
                 // Twinkle stars popping around the crown.
                 float2 starCell = floor(float2(x, y) / 1.4);

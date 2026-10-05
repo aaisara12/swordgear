@@ -28,7 +28,7 @@ Material:
     - _Active: 0
     - _ActiveBoost: 0.6
     - _Emission: 1.1
-    - _Fill: 1
+    - _FlareTime: -100
     - _GustSpeed: 7
     - _Highlight: 0
     - _HighlightBoost: 0.9

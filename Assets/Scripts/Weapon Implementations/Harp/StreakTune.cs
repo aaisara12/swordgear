@@ -7,8 +7,8 @@ using UnityEngine;
 /// A tune that starts or feeds a hot streak: Crescendo (damage), Allegro (attack and move speed).
 /// </summary>
 /// <remarks>
-/// The streak itself lives on <see cref="PlayerStatModifiers"/>, not here and not on the weapon: Light is a
-/// timed imbue, and a buff owned by the weapon would end the moment the imbue did. Stacks build up to
+/// The streak itself lives on <see cref="PlayerStatModifiers"/>, not here and not on the weapon: switching
+/// element (or a new arena) ends Light's imbue, and a buff owned by the weapon would end with it. Stacks build up to
 /// <see cref="maxStacks"/>, each refreshing a safety timer, and the whole streak busts the moment the
 /// player takes damage. That's the gamble: ride your luck, but don't get touched.
 /// </remarks>

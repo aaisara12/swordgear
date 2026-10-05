@@ -220,7 +220,6 @@ MonoBehaviour:
   arcOverflowAlong: 0.6
   hubRenderer: {fileID: 2308284995112310845}
   hubReach: 2.5
-  imbueDuration: 20
   imbueDamageMultiplier: 1.2
   followLagDecay: 8
 --- !u!212 &3377753912994020425

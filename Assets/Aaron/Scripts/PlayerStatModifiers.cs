@@ -75,8 +75,8 @@ public sealed class StreakState
 /// Also holds <b>streaks</b>: temporary, stackable boosts (Light's Crescendo and Allegro) layered on top
 /// of the augment values. They live in their own list rather than in the augment fields because
 /// <see cref="ReapplyFromBlob"/> rebuilds those from scratch on every pickup, which would silently wipe a
-/// streak. Streaks are player-level rather than weapon-level because Light is a timed imbue: a buff owned
-/// by the weapon would die the moment the imbue ended.
+/// streak. Streaks are player-level rather than weapon-level because an imbue ends whenever the player
+/// switches element or a new arena starts: a buff owned by the weapon would die with it.
 /// </remarks>
 public class PlayerStatModifiers : InitializeableGameComponent
 {

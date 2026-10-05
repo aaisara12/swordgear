@@ -14,7 +14,7 @@ public abstract class Embue : MonoBehaviour
         SwordProjectile sword = collision.GetComponent<SwordProjectile>();
         if (sword != null)
         {
-            GameManager.Instance.ApplyEmpowerment(embueType, damageMultiplier, effectDuration);
+            GameManager.Instance.ApplyEmpowerment(embueType, damageMultiplier);
         }
     }
 }

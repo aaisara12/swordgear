@@ -60,11 +60,7 @@ throwing `KeyNotFoundException` mid-combat. Adding a row is how an element opts 
 
 ## Embue System
 
-Embue scripts (attached to in-world pickup objects) call `GameManager.Instance.ApplyEmpowerment(element, multiplier, duration)`, which runs a coroutine that:
-1. Sets the active element and damage multiplier for the duration.
-2. Resets back to `Element.Physical` when the timer expires.
-
-Only one empowerment can be active at a time — starting a new one cancels the previous coroutine.
+The gear flick (`GearManager.TryGrantElementFromDirection`) and the legacy Embue pickups call `GameManager.Instance.ApplyEmpowerment(element, multiplier)`, which sets the active element. An imbue doesn't time out: it lasts until the next one replaces it, or until the player enters a new node — `PlayerGameplayManager.SpawnPawnAtLocation` (each arena, the tutorial) calls `GameManager.ClearEmpowerment()`, which puts the player back on `Element.Physical`.
 
 ---
 

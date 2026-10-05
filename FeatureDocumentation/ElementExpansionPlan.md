@@ -630,8 +630,9 @@ effects, dynamic markings are intensity.
    shrinking toward ~51° is accepted and not a concern.
 4. **`IElementalWeapon` gets tidied, not split** — rename to tap/charge + default members (commit 02).
    A melee/ranged interface split was considered and rejected: every element shares one input shape.
-5. **Element grants stay timed** — `ApplyEmpowerment` with `imbueDuration`, expiring back to `Physical`,
-   is the intended model. **Confirmed 2026-08-23**; no longer an open question.
+5. **Element grants are permanent until replaced** — *superseded 2026-10-04 (P12)*. Was: timed grants
+   expiring back to `Physical` (confirmed 2026-08-23). Now an imbue lasts until the next flick, and each
+   arena starts the player with no element.
 6. **A dash cancels the Earth root** — fixed now even though the dash is unreachable, so reviving it
    can't silently strand a rooted player.
 7. **The ballista is transient** — it exists for the duration of the charge. A placed, persistent turret
@@ -723,6 +724,17 @@ only that slice and give you the exact play steps.*
 | P9 | Whole screen — element vignette and post-FX pulse | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P10 | Switch sounds | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
+| P12 | Permanent imbues — timer, drain, blink and fizzle removed; each arena starts with no element | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
+| P13 | A quieter border — a faint edge, with the element's particles carrying it | ☐ | ☐ | ☐ |
+| P14 | Arc art knobs and an edit-mode preview | ☐ | ☐ | ☐ |
+| P15 | Arc pieces as editable particle prefabs | ☐ | ☐ | ☐ |
+
+> **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
+> that last forever (no timer, blink or fizzle), the switch left exactly as it is (no switch damage or cleave —
+> considered and declined), a border that is more distinct per element but much less noticeable, carried by
+> element particles (embers, snowflakes, lightning streaks, wind streaks…) drawn faintly over gameplay, and
+> arc art a human can edit easily: every look number as a labelled setting, an edit-mode preview, and the
+> loose pieces as particle prefabs. Each arena starts with no element.
 
 ### P1 — Glow foundation ✅
 
@@ -822,6 +834,17 @@ only that slice and give you the exact play steps.*
 | **Expiry, not switches** | Switching goes straight from one element to the next; only a run-out passes through Physical, and the fizzle also needs the timer to have reached zero, so a new arena's reset to Physical stays silent |
 | **Verified** | 5s Fire imbue: glow on at 1.2s; blinking 13 of 20 samples in the last 3s; at expiry the fizzle sound played, the element was Physical and the glow off |
 
+### P12 — Permanent imbues ✅
+
+| | |
+|---|---|
+| **Changes** | `GameManager.ApplyEmpowerment(element, multiplier)` sets the element and keeps it — no coroutine, no `OnEmpowermentTimerChanged`; `ClearEmpowerment()` puts the player back on Physical. `PlayerGameplayManager.SpawnPawnAtLocation` clears it whenever the player enters a node — each arena and the tutorial (which doesn't go through `LevelLoader`) — right after the player is set, because changing element touches the player's weapons. `GearManager.imbueDuration` is gone |
+| **Removed** | The P5 arc drain and last-quarter throb (`_Fill`, `_Urgency`, `ArcCharged*`, `ArcChargeEdge`, `ArcUrgency`, `SetFill`/`SetUrgency`); the P9 held-edge fade (the edge simply shows while imbued, and syncs to the current element when the arena loads); the P11 blink and expiry fizzle (`ImbueFizzle.prefab`, `imbue_fizzle.wav`, `Sound.Imbue_Fizzle` — the last enum value, removed with its library entry, so nothing shifts) |
+| **Joystick** | The radial imbue border no longer counts down: it's a full ring in the element's colour while imbued, hidden with none |
+| **Fixes** | An imbue running out on the Map screen used to throw (the player is despawned there, and switching element reads it) |
+| **Unchanged** | The imbue's ×1.2 damage multiplier still only writes `currentDamage`, which nothing reads — as before. Once an element is flicked, Physical comes back only at the next arena |
+| **Verified** | Fire held 25s with no change; a fresh `LoadLevel` reset to Physical (arcs idle, hub plain, ring hidden, no border); flicking Ice after it worked. An independent review caught that the tutorial would have kept a run's leftover element, hence the reset on spawn. EditMode 104/104 |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -836,4 +859,8 @@ only that slice and give you the exact play steps.*
 | **P8** | Every element has its own burst |
 | **P9** | The screen edges flare in the element and stay faintly tinted while imbued |
 | **P10** | Each element switch has its own sound |
-| **P11** | Your sword and aura carry the element; expiry is visible and audible |
+| **P11** | Your sword and aura carry the element |
+| **P12** | Flick an element and keep it as long as you like; the next arena starts with none, so flick again |
+| **P13** | The screen edges carry the element faintly — a soft tint and its particles — without pulling your eye |
+| **P14** | Open the arc preview scene: every arc idle/aimed/active without pressing Play; tweak any number live |
+| **P15** | Edit an element's loose arc pieces (embers, stars, boulders, notes…) as ordinary particle prefabs |

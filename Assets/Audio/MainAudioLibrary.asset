@@ -100,6 +100,3 @@ MonoBehaviour:
   - sound: 29
     clip: {fileID: 8300000, guid: 1acc250a490badd4eb8a575d9ad26c7d, type: 3}
     mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}
-  - sound: 30
-    clip: {fileID: 8300000, guid: 367cf351e864b6747b4eddb8d3ec8168, type: 3}
-    mixerGroup: {fileID: -73197476919511432, guid: 165f179be3365504f8c0f4cc08b18116, type: 2}

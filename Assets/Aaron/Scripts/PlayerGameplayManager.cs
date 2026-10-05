@@ -96,6 +96,11 @@ public class PlayerGameplayManager : MonoBehaviour
         // TODO: aisara => refactor GameManager so that we don't have to do this - ideally the PlayerGameplayManager would be the source of truth for the player pawn
         GameManager.Instance.player = spawnedPawn.gameObject;
 
+        // Imbues don't time out, so every node the player enters (each arena, the tutorial) starts them with no
+        // element: they flick one from the gear. After the player is set, because changing element touches the
+        // player's weapons.
+        GameManager.Instance.ClearEmpowerment();
+
         GameManager.OnPlayerDealtDamage -= HandlePlayerDealtDamage;
         GameManager.OnPlayerDealtDamage += HandlePlayerDealtDamage;
         PlayerStatModifiers.OnStatsChanged -= HandleStatsChanged;

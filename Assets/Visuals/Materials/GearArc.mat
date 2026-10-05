@@ -27,7 +27,6 @@ Material:
     m_Floats:
     - _Active: 0
     - _ActiveBoost: 0.6
-    - _Fill: 1
     - _Highlight: 0
     - _HighlightBoost: 0.9
     - _Swell: 0.35

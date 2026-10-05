@@ -28,8 +28,6 @@ Shader "Swordgear/Gear Arc Fire"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -104,11 +102,11 @@ Shader "Swordgear/Gear Arc Fire"
                 rgb = lerp(rgb, _MidColor.rgb, EFX_Step(0.0, y - coreTop));
                 rgb = lerp(rgb, _OuterColor.rgb, EFX_Step(0.0, y - midTop));
                 rgb *= _Emission * (1.0 + 0.3 * _Highlight);
-                rgb = lerp(rgb, _InkColor.rgb, max(EFX_Step(-ArcInkWidth, fire), ArcChargeEdge(x)));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, fire));
 
                 // Above the tile the flames show as soon as they reach; inside it they take over a beat later,
                 // and only where the imbue hasn't drained.
-                half4 flames = half4(rgb, EFX_Fill(fire) * lerp(ArcTakeoverAt(x), 1.0, EFX_Step(0.0, f.sdf)));
+                half4 flames = half4(rgb, EFX_Fill(fire) * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf)));
 
                 // Flame bits: blobs that break off the tips and fly outward, shrinking as they go.
                 float2 bitCell = float2(x / 1.0, (y - t * _BitSpeed) / 1.3);

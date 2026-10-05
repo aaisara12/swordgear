@@ -29,8 +29,6 @@ Shader "Swordgear/Gear Arc Earth"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -101,8 +99,8 @@ Shader "Swordgear/Gear Arc Earth"
                 rgb = lerp(rgb, _InkColor.rgb, 1.0 - EFX_Step(0.17, crack));
                 rgb = lerp(rgb, _CrackColor.rgb * _CrackGlow * pulse, 1.0 - EFX_Step(0.07, crack));
 
-                rgb = lerp(rgb, _InkColor.rgb, max(EFX_Step(-ArcInkWidth, sdf), ArcChargeEdge(input.uvWorld.x)));
-                half4 rock = half4(rgb, EFX_Fill(sdf) * ArcTakeoverAt(input.uvWorld.x));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, sdf));
+                half4 rock = half4(rgb, EFX_Fill(sdf) * ArcTakeover());
 
                 // Boulders: one per slot, hopping on its own clock, tumbling as it goes.
                 float slot = floor(input.uvWorld.x / _BoulderSpacing);

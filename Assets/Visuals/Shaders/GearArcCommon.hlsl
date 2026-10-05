@@ -1,6 +1,6 @@
 // The contract every gear-arc shader shares: the arc mesh's vertex data, the overflow that lets an element
-// spill past the gear, the outward swell, the shared cartoon tile, and the arc's state (highlight / active /
-// fill) as GearArcVisual drives it through a MaterialPropertyBlock.
+// spill past the gear, the outward swell, the shared cartoon tile, and the arc's state (highlight / active)
+// as GearArcVisual drives it through a MaterialPropertyBlock.
 //
 // Each element's arc shader includes this, declares its own look in GEAR_ARC_MATERIAL_PROPERTIES, and only
 // writes a fragment function. That keeps the ring one object: every arc idles as the same calm cartoon tile
@@ -12,7 +12,7 @@
 //   TEXCOORD0  u along the arc 0..1, v inner edge 0 -> outer edge 1 (beyond 0..1 in the overflow)
 //   TEXCOORD1  the same in world units (length along the mid radius, distance out from the inner edge)
 //   TEXCOORD2  overflow: x = radial world units this vertex opens by, y = radians it turns by
-// Per-arc block values: _Highlight, _Active, _Fill (state, 0..1), _ArcShape (sweep in radians, inner
+// Per-arc block values: _Highlight, _Active (state, 0..1), _ArcShape (sweep in radians, inner
 // radius, outer radius, centre angle in radians) and _FlareTime (when the arc last flared, in _Time.y).
 #ifndef SWORDGEAR_GEAR_ARC_COMMON_INCLUDED
 #define SWORDGEAR_GEAR_ARC_COMMON_INCLUDED
@@ -35,8 +35,6 @@ CBUFFER_START(UnityPerMaterial)
     // Per arc (MaterialPropertyBlock), eased by GearArcVisual.
     half _Highlight;
     half _Active;
-    half _Fill;
-    half _Urgency;   // not eased: it's already a beat, set by GearManager
     float4 _ArcShape;
     float _FlareTime;
 
@@ -90,46 +88,12 @@ float ArcHalfLength()
     return 0.25 * ArcSweep() * (_ArcShape.y + _ArcShape.z);
 }
 
-// The arc is the imbue timer: its still-charged span shrinks in from both ends toward the centre as the
-// imbue runs down (_Fill). Half that span, world units.
-float ArcChargedHalfLength()
-{
-    return _Fill * ArcHalfLength();
-}
-
-// 1 where the arc is still charged with its element, 0 where the imbue has drained away. x is uvWorld.x.
-half ArcCharged(float x)
-{
-    return 1.0 - EFX_Step(ArcChargedHalfLength(), abs(x - ArcHalfLength()));
-}
-
-// ArcTakeover, cut back to the still-charged span: what an element's takeover of its tile should use.
-half ArcTakeoverAt(float x)
-{
-    return ArcTakeover() * ArcCharged(x);
-}
-
-// An ink line where the charge has drained to, so the timer's edge reads as a crisp cartoon cut. 0..1.
-half ArcChargeEdge(float x)
-{
-    float fromEdge = abs(abs(x - ArcHalfLength()) - ArcChargedHalfLength());
-    return (1.0 - EFX_Step(ArcInkWidth * 0.5, fromEdge)) * step(_Fill, 0.995);
-}
-
 // The flare when the arc's element is granted: 1 at the grant, gone in about half a second. The stamp is on
 // the same clock as _Time.y (Time.time); one in the future (the default) reads as long over.
 half ArcFlare()
 {
     float since = _Time.y - _FlareTime;
     return since < 0.0 ? 0.0 : exp(-since * 7.0);
-}
-
-// In the imbue's last quarter the active arc throbs, its beats quickening as it runs out. 0..1.
-half ArcUrgency()
-{
-    // The beat comes from the CPU, where its phase is integrated: a clock times a changing rate here would
-    // sweep the frequency far past the rate, into flicker.
-    return _Urgency * _Active;
 }
 
 // The overflow opens fully as soon as the arc is in play; what's drawn in it is up to the fragment.
@@ -144,12 +108,11 @@ float ArcPixel(ArcVaryings input)
     return length(float2(ddx(input.uvWorld.y), ddy(input.uvWorld.y)));
 }
 
-// 1 along the arc's middle, falling to 0 over `width` world units at each end of its still-charged span.
-// `x` is along the arc in world units (uvWorld.x). Lets spilled shapes die down toward the ends rather than
-// stop at a hard cut, and retreat with the charge as the imbue runs down.
+// 1 along the arc's middle, falling to 0 over `width` world units at each end. `x` is along the arc in world
+// units (uvWorld.x). Lets spilled shapes die down toward the ends rather than stop at a hard cut.
 float ArcEndFade(float x, float width)
 {
-    return saturate((ArcChargedHalfLength() - abs(x - ArcHalfLength())) / width);
+    return saturate((ArcHalfLength() - abs(x - ArcHalfLength())) / width);
 }
 
 ArcVaryings ArcVertex(ArcAttributes input)
@@ -176,8 +139,8 @@ ArcVaryings ArcVertex(ArcAttributes input)
     uvWorld += float2(turn * (_ArcShape.y + _ArcShape.z) * 0.5, spill);
     o.positionOS = position.xy;
 
-    // Aiming at an arc pushes it outward, toward the flick; a running-out imbue throbs it; a grant pops it.
-    position.xy += radial * (_Swell * max(_Highlight, ArcUrgency()) + ArcFlare() * 0.9);
+    // Aiming at an arc pushes it outward, toward the flick; a grant pops it.
+    position.xy += radial * (_Swell * _Highlight + ArcFlare() * 0.9);
 
     o.positionCS = TransformObjectToHClip(position);
     o.positionWS = TransformObjectToWorld(position).xy;
@@ -190,7 +153,7 @@ ArcVaryings ArcVertex(ArcAttributes input)
 // The state's brightness multiplier. Above 1 is HDR: that's what blooms.
 half ArcStateGlow()
 {
-    return 1.0 + _Highlight * _HighlightBoost + _Active * _ActiveBoost + ArcUrgency() * 0.6;
+    return 1.0 + _Highlight * _HighlightBoost + _Active * _ActiveBoost;
 }
 
 // Where a pixel sits in the arc's own frame, in world units.

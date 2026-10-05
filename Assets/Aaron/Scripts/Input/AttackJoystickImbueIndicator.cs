@@ -5,7 +5,8 @@ using UnityEngine.UI;
 
 /// <summary>
 /// Attack mode: Knob shows shadedDark49 (pad + glyph); range ring tints from the active element;
-/// imbue border uses full thickness.
+/// imbue border uses full thickness. Imbues don't time out, so the imbue border is a full ring in the element's
+/// colour while one is active, and hidden with none.
 /// Dash mode: Knob keeps a plain dark pad with DashIcon on top; range-ring tint is suppressed
 /// (Physical / gray); imbue border stays visible at half thickness and half opacity until the sword is caught.
 /// </summary>
@@ -25,11 +26,9 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
     [SerializeField] private float dashIconScale = 0.55f;
 
     private Element _activeElement = Element.Physical;
-    private bool _subscribedToGameManager;
     private Image? _modeKnobImage;
     private RectTransform? _dashOverlayRect;
     private bool _inDashMode;
-    private float _storedImbueProgress;
     private float _knobAlpha = 1f;
     private float _normalOuterRadius;
     private float _normalInnerRadius;
@@ -67,7 +66,6 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
             _activeElement = ElementManager.Instance.ActiveElement;
         }
 
-        TrySubscribeToGameManager();
         UpdateModeVisuals();
         RefreshColors();
     }
@@ -75,29 +73,11 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
     private void OnDisable()
     {
         ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
-        if (_subscribedToGameManager && GameManager.Instance != null)
-        {
-            GameManager.Instance.OnEmpowermentTimerChanged -= HandleEmpowermentTimerChanged;
-        }
-        _subscribedToGameManager = false;
     }
 
     private void LateUpdate()
     {
-        if (!_subscribedToGameManager)
-        {
-            TrySubscribeToGameManager();
-        }
-
         UpdateModeVisuals();
-    }
-
-    private void TrySubscribeToGameManager()
-    {
-        if (_subscribedToGameManager || GameManager.Instance == null) return;
-
-        GameManager.Instance.OnEmpowermentTimerChanged += HandleEmpowermentTimerChanged;
-        _subscribedToGameManager = true;
     }
 
     private void UpdateModeVisuals()
@@ -209,23 +189,7 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
     private void HandleActiveElementChanged(Element element)
     {
         _activeElement = element;
-
-        if (element == Element.Physical)
-        {
-            _storedImbueProgress = 0f;
-        }
-
         RefreshColors();
-    }
-
-    private void HandleEmpowermentTimerChanged(float remaining, float duration)
-    {
-        float progress = duration > 0f ? remaining / duration : 0f;
-        _storedImbueProgress = progress;
-
-        if (imbueBorder == null) return;
-
-        imbueBorder.Progress = progress;
     }
 
     private void RefreshColors()
@@ -247,7 +211,7 @@ public class AttackJoystickImbueIndicator : MonoBehaviour
                     borderColor.a *= DashBorderOpacityScale;
                 }
                 imbueBorder.color = borderColor;
-                imbueBorder.Progress = _storedImbueProgress;
+                imbueBorder.Progress = 1f;
             }
         }
 

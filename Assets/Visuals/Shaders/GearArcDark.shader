@@ -27,8 +27,6 @@ Shader "Swordgear/Gear Arc Dark"
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
-        [HideInInspector] _Fill ("Fill", Range(0, 1)) = 1
-        [HideInInspector] _Urgency ("Urgency", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)
         [HideInInspector] _FlareTime ("Flare Time", Float) = -100
     }
@@ -101,8 +99,8 @@ Shader "Swordgear/Gear Arc Dark"
                 rgb = lerp(rgb, _EyeColor.rgb * _Emission, eyeCover);
                 rgb = lerp(rgb, _InkColor.rgb, eyeCover * EFX_FillPx(pupil, px));
 
-                rgb = lerp(rgb, _InkColor.rgb, max(EFX_Step(-ArcInkWidth, f.sdf), ArcChargeEdge(x)));
-                half4 abyss = half4(rgb, EFX_Fill(f.sdf) * ArcTakeoverAt(x));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, f.sdf));
+                half4 abyss = half4(rgb, EFX_Fill(f.sdf) * ArcTakeover());
 
                 // Tendrils: one per slot, rooted in the void, writhing as a wave runs up them, tapering to a tip.
                 float slot = floor(x / _TendrilSpacing);

@@ -32,7 +32,7 @@ Material:
     - _BoulderSize: 0.42
     - _BoulderSpacing: 1.9
     - _CrackGlow: 2.6
-    - _Fill: 1
+    - _FlareTime: -100
     - _Highlight: 0
     - _HighlightBoost: 0.9
     - _Rumble: 0.06

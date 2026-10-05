@@ -30,8 +30,8 @@ Material:
     - _BitDensity: 0.45
     - _BitSpeed: 3
     - _Emission: 1.2
-    - _Fill: 1
     - _FlameReach: 3.3
+    - _FlareTime: -100
     - _Flicker: 6
     - _Highlight: 0
     - _HighlightBoost: 0.9
