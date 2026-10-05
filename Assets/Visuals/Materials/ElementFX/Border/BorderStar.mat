@@ -7,9 +7,9 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: ElementVignette
-  m_Shader: {fileID: 4800000, guid: a2b5e1ad9b7255f469020e4553f4cd29, type: 3}
-  m_Parent: {fileID: 0}
+  m_Name: BorderStar
+  m_Shader: {fileID: 4800000, guid: b5aa3cba8656df6449f9cd86164ca9c9, type: 3}
+  m_Parent: {fileID: 2100000, guid: 7514ac9581149b04cb983441bb7e22f8, type: 2}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
   m_InvalidKeywords: []
@@ -22,20 +22,12 @@ Material:
   m_LockedProperties: 
   m_SavedProperties:
     serializedVersion: 3
-    m_TexEnvs:
-    - _MainTex:
-        m_Texture: {fileID: 0}
-        m_Scale: {x: 1, y: 1}
-        m_Offset: {x: 0, y: 0}
+    m_TexEnvs: []
     m_Ints: []
     m_Floats:
-    - _Falloff: 1.8
-    - _FlareAlpha: 0.3
-    - _FlareDecay: 6
-    - _FlareDepth: 0.05
-    - _Glow: 0.2
-    - _HoldAlpha: 0.22
-    - _HoldDepth: 0.045
+    - _Emission: 0.85
+    - _HighlightDot: 0
+    - _InkMaxPixels: 2
     m_Colors: []
   m_BuildTextureStacks: []
   m_AllowLocking: 1

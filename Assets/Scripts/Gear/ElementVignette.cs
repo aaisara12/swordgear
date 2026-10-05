@@ -1,29 +1,46 @@
 #nullable enable
 
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
+using UnityEngine.UI;
+
+[System.Serializable]
+public struct ElementBorder
+{
+    public Element element;
+    [Tooltip("Loops while this element is imbued. Child systems play and stop with it.")]
+    public ParticleSystem? held;
+    [Tooltip("A one-shot burst as a switch to this element lands. Child systems play with it.")]
+    public ParticleSystem? flare;
+}
 
 /// <summary>
-/// The whole screen takes part in an element switch. As the switch lands (ElementSwitchFX.OnSwitchLanded) the
-/// screen's edges flare in the element (a cartoon border in its shape: flames, icicles, crackle…) and settle
-/// to a thin edge held while the element is imbued; and a post-FX pulse — a
-/// bloom spike, a touch of chromatic aberration, the colour nudged toward the element — washes over the frame.
+/// The screen's edges carry the imbued element, faintly: a soft tint in its colour, and its own particles along
+/// the edges (embers, snowflakes, lightning streaks, wind streaks, dust, smoke wisps, sparkles) — enough that
+/// the player always knows their element, never so much that it pulls their eye. As a switch lands
+/// (ElementSwitchFX.OnSwitchLanded) the tint deepens for a moment, the element's particles burst once, and a
+/// post-FX pulse — a bloom spike, a touch of chromatic aberration, the colour nudged toward the element —
+/// washes over the frame.
 /// </summary>
 /// <remarks>
-/// The border is Swordgear/Element Vignette on a full-screen image in this Screen Space - Camera canvas, so it
-/// sits under the HUD and blooms with the scene. It's driven through shader globals and animates itself from
-/// the flare's time. The pulse is a second, higher-priority Volume whose weight an authored AnimationClip
-/// swells and drops; this only tints it and pulls the trigger.
+/// Everything visual is authored: the tint is Swordgear/Element Vignette on a full-screen image in this Screen
+/// Space - Camera canvas, the particles are one prefab per element (Assets/Visuals/Prefabs/ElementFX/Border/)
+/// placed under it, and the pulse is a second, higher-priority Volume whose weight an AnimationClip swells and
+/// drops. This only turns them on and off, tints, and pulls triggers. The tint image is disabled with no
+/// element, so the full-screen pass costs nothing then.
 /// </remarks>
 public class ElementVignette : MonoBehaviour
 {
     private static readonly int ColorId = Shader.PropertyToID("_ElementVignetteColor");
-    private static readonly int StyleId = Shader.PropertyToID("_ElementVignetteStyle");
     private static readonly int HoldId = Shader.PropertyToID("_ElementVignetteHold");
     private static readonly int FlareTimeId = Shader.PropertyToID("_ElementVignetteFlareTime");
     private static readonly int PulseTrigger = Animator.StringToHash("Pulse");
 
+    [Tooltip("The full-screen image drawing the edge tint (Swordgear/Element Vignette).")]
+    [SerializeField] private Graphic? edgeTint;
+    [SerializeField] private List<ElementBorder> borders = new();
     [Tooltip("The switch-pulse Volume (global, above the arena's own) whose weight the Animator animates.")]
     [SerializeField] private Volume? pulseVolume;
     [SerializeField] private Animator? pulseAnimator;
@@ -34,6 +51,11 @@ public class ElementVignette : MonoBehaviour
 
     private void Awake()
     {
+        if (edgeTint == null)
+        {
+            Debug.LogError("ElementVignette: edgeTint is null", this);
+        }
+
         if (pulseVolume == null)
         {
             Debug.LogError("ElementVignette: pulseVolume is null", this);
@@ -56,16 +78,16 @@ public class ElementVignette : MonoBehaviour
     private void OnEnable()
     {
         ElementSwitchFX.OnSwitchLanded += HandleSwitchLanded;
-        ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+        ElementManager.OnActiveElementChanged += Show;
 
         // The element can be set before this arena's border exists; start from it rather than a blank edge.
-        HandleActiveElementChanged(ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical);
+        Show(ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : Element.Physical);
     }
 
     private void OnDisable()
     {
         ElementSwitchFX.OnSwitchLanded -= HandleSwitchLanded;
-        ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
+        ElementManager.OnActiveElementChanged -= Show;
     }
 
     private void OnDestroy()
@@ -89,8 +111,20 @@ public class ElementVignette : MonoBehaviour
 
     private void HandleSwitchLanded(Element element)
     {
-        ShowElement(element);
+        // Show whatever is imbued now: a quicker flick may already have replaced the element that just landed.
+        Show(ElementManager.Instance != null ? ElementManager.Instance.ActiveElement : element);
         Shader.SetGlobalFloat(FlareTimeId, Time.time);   // the clock URP feeds the shader's _Time.y
+
+        foreach (ElementBorder border in borders)
+        {
+            if (border.element == element && border.flare != null)
+            {
+                // Play() does nothing on a system that's still playing, so a quick re-flick would lose its burst:
+                // restart it.
+                border.flare.Stop(true, ParticleSystemStopBehavior.StopEmittingAndClear);
+                border.flare.Play(true);
+            }
+        }
 
         if (pulseColour != null)
         {
@@ -103,23 +137,41 @@ public class ElementVignette : MonoBehaviour
         }
     }
 
-    /// <summary> The held edge shows while an element is imbued, and goes with it. </summary>
-    private void HandleActiveElementChanged(Element element)
+    /// <summary> The edge shows the imbued element — its tint and its particles — and nothing with none. </summary>
+    private void Show(Element element)
     {
-        ShowElement(element);
-        Shader.SetGlobalFloat(HoldId, element != Element.Physical ? 1f : 0f);
-    }
-
-    private static void ShowElement(Element element)
-    {
+        bool imbued = element != Element.Physical;
         Shader.SetGlobalColor(ColorId, ElementVisuals.GetColor(element));
-        Shader.SetGlobalFloat(StyleId, (int)element);
+        Shader.SetGlobalFloat(HoldId, imbued ? 1f : 0f);
+
+        if (edgeTint != null)
+        {
+            edgeTint.enabled = imbued;
+        }
+
+        foreach (ElementBorder border in borders)
+        {
+            if (border.held == null)
+            {
+                continue;
+            }
+
+            bool mine = imbued && border.element == element;
+            if (mine && !border.held.isEmitting)
+            {
+                border.held.Play(true);
+            }
+            else if (!mine && border.held.isEmitting)
+            {
+                // Let what's already out drift away rather than vanish.
+                border.held.Stop(true, ParticleSystemStopBehavior.StopEmitting);
+            }
+        }
     }
 
     private static void ResetGlobals()
     {
         Shader.SetGlobalFloat(HoldId, 0f);
         Shader.SetGlobalFloat(FlareTimeId, -100f);
-        Shader.SetGlobalFloat(StyleId, 0f);
     }
 }

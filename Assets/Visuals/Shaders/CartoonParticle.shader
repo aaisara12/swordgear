@@ -6,7 +6,9 @@ Shader "Swordgear/Cartoon Particle"
     // shade and ink are derived from it, so colour-over-lifetime recolours the whole cartoon.
     //
     // The shape is a plain enum rather than keywords (there are more shapes than a KeywordEnum allows); every
-    // particle of a material takes the same branch, so the branch costs next to nothing.
+    // particle of a material takes the same branch, so the branch costs next to nothing. Its Inspector dropdown
+    // comes from the C# enum CartoonParticleShape (an inline [Enum] list stops working past seven entries), so
+    // a new shape is added in both places with the same number.
     //
     // Renderers using it need custom vertex streams UV, AgePercent and StableRandom.x, which pack into
     // TEXCOORD0.xyzw: age thins rings, the random seeds each bolt's zig-zag and each rock's outline. Shapes
@@ -15,8 +17,7 @@ Shader "Swordgear/Cartoon Particle"
     // alignment turns the quad edge-on to a top-down camera.)
     Properties
     {
-        [Enum(Blob, 0, Star, 1, Shard, 2, Bolt, 3, Ring, 4, Puff, 5, Comet, 6, Swirl, 7, Rock, 8, Note, 9, Leaf, 10, Dash, 11)]
-        _Shape ("Shape", Float) = 0
+        [Enum(CartoonParticleShape)] _Shape ("Shape", Float) = 0
         _Emission ("Emission (HDR)", Range(0.5, 6)) = 1.5
         _InkTone ("Ink (the colour this dark)", Range(0, 1)) = 0.25
         _InkWidth ("Ink Width (of the half-size)", Range(0, 0.3)) = 0.12
@@ -55,6 +56,7 @@ Shader "Swordgear/Cartoon Particle"
             #define SHAPE_NOTE 9
             #define SHAPE_LEAF 10
             #define SHAPE_DASH 11
+            #define SHAPE_SNOWFLAKE 12
 
             CBUFFER_START(UnityPerMaterial)
                 float _Shape;
@@ -195,6 +197,21 @@ Shader "Swordgear/Cartoon Particle"
                     // A speed line: a capsule along y.
                     return length(float2(q.x, q.y - clamp(q.y, -0.78, 0.78))) - 0.19;
                 }
+                else if (shape == SHAPE_SNOWFLAKE)
+                {
+                    // Six arms, each with a pair of branches, round a small hub. Fold the plane into one arm's
+                    // sixth (pointing up), mirrored, and draw that arm.
+                    const float sector = 6.2831853 / 6.0;
+                    float angle = atan2(q.x, q.y);
+                    angle -= sector * round(angle / sector);
+                    float r = length(q);
+                    float2 f = r * float2(abs(sin(angle)), cos(angle));
+                    float arm = length(float2(f.x, f.y - clamp(f.y, 0.0, 0.84))) - 0.09;
+                    float2 root = f - float2(0.0, 0.48);
+                    float2 outward = float2(0.7071, 0.7071);
+                    float branch = length(root - outward * clamp(dot(root, outward), 0.0, 0.3)) - 0.075;
+                    return min(min(arm, branch), r - 0.2);
+                }
 
                 return length(q) - 0.8;
             }
@@ -220,7 +237,8 @@ Shader "Swordgear/Cartoon Particle"
 
                 // Shade: most shapes shade the crescent not covered by themselves nudged up-left, as if lit from
                 // there; shards and leaves shade one face; strokes (rings, bolts, swirls, dashes) stay flat.
-                bool stroke = shape == SHAPE_RING || shape == SHAPE_BOLT || shape == SHAPE_SWIRL || shape == SHAPE_DASH;
+                bool stroke = shape == SHAPE_RING || shape == SHAPE_BOLT || shape == SHAPE_SWIRL || shape == SHAPE_DASH
+                              || shape == SHAPE_SNOWFLAKE;
                 bool faceted = shape == SHAPE_SHARD || shape == SHAPE_LEAF;
                 half crescent = 1.0 - EFX_FillPx(Shape(shape, q + float2(0.2, -0.2), age, seed), px);
                 half shade = stroke ? 0.0 : (faceted ? EFX_Step(0.0, q.x) : crescent);

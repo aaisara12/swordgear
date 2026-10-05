@@ -725,9 +725,9 @@ only that slice and give you the exact play steps.*
 | P10 | Switch sounds | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P12 | Permanent imbues — timer, drain, blink and fizzle removed; each arena starts with no element | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P13 | A quieter border — a faint edge, with the element's particles carrying it | ☐ | ☐ | ☐ |
-| P14 | Arc art knobs and an edit-mode preview | ☐ | ☐ | ☐ |
-| P15 | Arc pieces as editable particle prefabs | ☐ | ☐ | ☐ |
+| P13 | A quieter border — a faint edge, with the element's particles carrying it | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
+| P14 | Arc pieces as editable particle prefabs | ☐ | ☐ | ☐ |
+| P15 | Arc art knobs and an edit-mode preview | ☐ | ☐ | ☐ |
 
 > **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
 > that last forever (no timer, blink or fizzle), the switch left exactly as it is (no switch damage or cleave —
@@ -845,6 +845,19 @@ only that slice and give you the exact play steps.*
 | **Unchanged** | The imbue's ×1.2 damage multiplier still only writes `currentDamage`, which nothing reads — as before. Once an element is flicked, Physical comes back only at the next arena |
 | **Verified** | Fire held 25s with no change; a fresh `LoadLevel` reset to Physical (arcs idle, hub plain, ring hidden, no border); flicking Ice after it worked. An independent review caught that the tutorial would have kept a run's leftover element, hence the reset on spawn. EditMode 104/104 |
 
+### P13 — A quieter border ✅
+
+| | |
+|---|---|
+| **Why** | The user found the P9 border too distracting (a solid, saturated band at 60% opacity with constantly moving shapes, and a flare that bloomed) and asked for it to be more distinct per element yet just noticeable enough to tell the player their element, carried by element particles |
+| **Tint** | `Swordgear/Element Vignette` is now a soft, still gradient in the element's colour: 0.045 screen heights deep, 22% opacity at the very edge, falling off fast; rounded corners. A switch deepens it by 0.05 and +30% opacity, decaying at 6/s with a slight glow. The motif shapes, ink and outer band are gone. `ElementVignette` disables the tint image with no element, so the full-screen pass costs nothing then |
+| **Particles** | One prefab per element in `Assets/Visuals/Prefabs/ElementFX/Border/` (`Border<Element>`), placed under the arena's border canvas: a looping `Held` system (with child systems) and a one-shot `Flare` played as a switch lands. Sizes are 1080p reference pixels (a `CanvasScaler`, 1920×1080 match height, was added to the canvas). Fire: embers rising in. Ice: snowflakes drifting down. Lightning: short bolts streaking along the edges, sparks. Wind: streaks circling the screen. Earth: pebbles and dust. Dark: violet smoke wisps seeping in from off screen. Light: pastel sparkles and the odd note. They use material variants of the cartoon particle materials (`Assets/Visuals/Materials/ElementFX/Border/`) kept under the bloom threshold, with no glint and thin ink |
+| **Emitter** | `ScreenFrameEmitter` gives each border system a frame-shaped emission mesh sized to the screen (Play only), so one system covers all four edges at any aspect ratio; motion is ordinary velocity-over-lifetime — radial (negative = inward), orbital (circling), linear (rise/fall) |
+| **Snowflake** | `Swordgear/Cartoon Particle` gains a six-arm `Snowflake` shape (12) and `CartoonSnowflake.mat`; Ice's switch burst and player aura use it too. The material's Shape dropdown now works: it comes from the C# enum `CartoonParticleShape` (Unity's inline `[Enum]` list stops at seven entries, so it had shown a bare number since P8) |
+| **Unchanged** | The switch's post-FX pulse (bloom, chromatic aberration, colour nudge), per the user: the switch stays as it is |
+| **Review fixes** | A flare re-triggered while still playing is restarted (Play() alone does nothing then, so a quick re-flick lost its burst); a landing shows the element imbued now, not the one that landed; the frame mesh is swapped rather than cleared in place (clearing the mesh the Shape module uses logged a warning per emitter on every arena load) |
+| **Verified** | In play per element: tint faint, particles hug the edges (19/19 Ice flakes within the band on a 2337×1080 canvas), other elements idle, tint off with no element |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -862,5 +875,5 @@ only that slice and give you the exact play steps.*
 | **P11** | Your sword and aura carry the element |
 | **P12** | Flick an element and keep it as long as you like; the next arena starts with none, so flick again |
 | **P13** | The screen edges carry the element faintly — a soft tint and its particles — without pulling your eye |
-| **P14** | Open the arc preview scene: every arc idle/aimed/active without pressing Play; tweak any number live |
-| **P15** | Edit an element's loose arc pieces (embers, stars, boulders, notes…) as ordinary particle prefabs |
+| **P14** | Edit an element's loose arc pieces (flame bits, stars, sparks, swirls, boulders, notes…) as ordinary particle prefabs |
+| **P15** | Open the arc preview scene: every arc idle/aimed/active without pressing Play; tweak any number live |
