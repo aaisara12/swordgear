@@ -35,7 +35,6 @@ Material:
     - _FlareTime: -100
     - _Highlight: 0
     - _HighlightBoost: 0.9
-    - _SparkDensity: 0.3
     - _StrikeRate: 9
     - _Swell: 0.35
     m_Colors:

@@ -7,6 +7,9 @@ Shader "Swordgear/Gear Arc Light"
     //
     // The sheen runs on world position, as Opalite's does on the notes: as the gear trails the player the
     // bands slide across the stone, which reads as light catching it.
+    //
+    // The loose pieces (the notes and sparkles) are particles, not this shader: ArcBitsLight.prefab in
+    // Assets/Visuals/Prefabs/ElementFX/ArcBits/, placed on the arc by GearArcArt.
     Properties
     {
         [Header(Opal)]
@@ -19,12 +22,6 @@ Shader "Swordgear/Gear Arc Light"
         _InkColor ("Ink", Color) = (0.32, 0.22, 0.45, 1)
         _Emission ("Emission (HDR)", Range(1, 3)) = 1.25
 
-        [Header(Notes)]
-        _NoteReach ("Reach Past The Gear (world units)", Range(0, 3.5)) = 2.6
-        _NoteSize ("Size (world units)", Range(0.3, 1.2)) = 0.95
-        _NoteSpacing ("Spacing (world units)", Range(1.5, 5)) = 2.1
-        _NoteRate ("Notes Per Second, Per Slot", Range(0.1, 2)) = 0.55
-        _SparkleDensity ("Sparkle Density", Range(0, 1)) = 0.35
 
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
@@ -52,31 +49,13 @@ Shader "Swordgear/Gear Arc Light"
 
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half4 _MilkColor; half _SheenScale; half _SheenSpeed; half _SheenAngle; half _Swirl; half _Bands; \
-                half4 _InkColor; half _Emission; \
-                half _NoteReach; half _NoteSize; half _NoteSpacing; half _NoteRate; half _SparkleDensity;
+                half4 _InkColor; half _Emission;
             #include "GearArcCommon.hlsl"
 
             // Pastel rainbow, as in Opalite.shader: a high floor and a small swing keep it opalescent, not neon.
             half3 Pastel(float t, half swing)
             {
                 return 0.78 + swing * cos(6.2831853 * (t + float3(0.0, 0.33, 0.67)));
-            }
-
-            float2 Rotate(float2 p, float angle)
-            {
-                float c = cos(angle);
-                float s = sin(angle);
-                return float2(p.x * c - p.y * s, p.x * s + p.y * c);
-            }
-
-            // Signed distance to a cartoon eighth note, head at the origin, about one unit tall.
-            float SdNote(float2 p)
-            {
-                float2 h = Rotate(p, 0.35) / float2(0.3, 0.21);
-                float head = (length(h) - 1.0) * 0.21;
-                float stem = EFX_SdRoundBox(p - float2(0.24, 0.52), float2(0.06, 0.52), 0.04);
-                float flag = EFX_SdRoundBox(Rotate(p - float2(0.42, 0.88), 0.6), float2(0.2, 0.08), 0.06);
-                return min(head, min(stem, flag));
             }
 
             half4 LightFragment(ArcVaryings input) : SV_Target
@@ -107,37 +86,7 @@ Shader "Swordgear/Gear Arc Light"
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, f.sdf));
                 half4 opal = half4(rgb, EFX_Fill(f.sdf) * ArcTakeover());
 
-                // Notes: one per slot on its own clock, popping out of the opal, wobbling up past the gear and
-                // shrinking away, each its own pastel.
-                float slot = floor(x / _NoteSpacing);
-                float seed = EFX_Hash21(float2(slot, 5.7));
-                float life = frac(t * _NoteRate * (0.8 + 0.4 * seed) + seed);
-                float centreX = (slot + 0.5) * _NoteSpacing;
-                float2 noteAt = float2(centreX + sin(life * 9.0 + seed * 6.0) * 0.25,
-                                       thickness * 0.55 + life * (thickness * 0.45 + _NoteReach * energy));
-                float size = _NoteSize * smoothstep(0.0, 0.12, life) * (1.0 - smoothstep(0.75, 1.0, life))
-                             * ArcEndFade(centreX, 1.2) * ArcTakeover();
-                // The arc's frame runs counter-clockwise, which mirrors it against the screen; flip x back so
-                // the notes don't read backwards.
-                float2 fromNote = (float2(x, y) - noteAt) * float2(-1.0, 1.0);
-                float2 local = Rotate(fromNote, sin(t * 4.0 + seed * 9.0) * 0.25) / max(size, 1e-3) + float2(0.1, 0.45);
-                float note = SdNote(local) * size;
-                half4 notes = half4(_InkColor.rgb, EFX_FillPx(note - ArcInkWidth * 0.55, px));
-                notes = EFX_Over(half4(Pastel(seed, 0.4) * _Emission * 1.2, EFX_FillPx(note, px)), notes);
-                notes.a *= step(0.01, size);
-
-                // Sparkles popping round the notes.
-                float2 sparkleCell = floor(float2(x, y) / 1.3);
-                float sparkleSeed = EFX_Hash21(sparkleCell + 7.4);
-                float2 sparkleCentre = (sparkleCell + 0.5 + (EFX_Hash22(sparkleCell + 1.1) - 0.5) * 0.6) * 1.3;
-                float pop = pow(saturate(sin(t * (2.0 + sparkleSeed * 3.0) + sparkleSeed * 40.0)), 3.0);
-                float sparkleSize = 0.45 * pop * step(1.0 - _SparkleDensity, sparkleSeed) * ArcTakeover() * ArcEndFade(sparkleCentre.x, 1.0);
-                float2 fromSparkle = float2(x, y) - sparkleCentre;
-                float sparkle = EFX_SdStar4(fromSparkle, max(sparkleSize, 1e-3));
-                half4 sparkles = half4(Pastel(sparkleSeed * 3.0, 0.3) * _Emission * 1.8,
-                                       EFX_FillPx(sparkle, px) * step(length(fromSparkle), sparkleSize) * step(thickness * 0.6, y));
-
-                return EFX_Over(sparkles, EFX_Over(notes, EFX_Over(opal, tile)));
+                return EFX_Over(opal, tile);
             }
             ENDHLSL
         }

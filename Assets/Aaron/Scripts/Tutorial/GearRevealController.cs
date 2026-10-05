@@ -33,13 +33,9 @@ namespace Tutorial
                 return;
             }
 
-            foreach (SpriteRenderer renderer in gearManager.GetComponentsInChildren<SpriteRenderer>(true))
-            {
-                renderer.enabled = visible;
-            }
-
-            // The arc wedges are procedural meshes, not sprites, so they need toggling separately.
-            foreach (MeshRenderer renderer in gearManager.GetComponentsInChildren<MeshRenderer>(true))
+            // Every kind of renderer under the gear: sprites, the arc wedges and hub (meshes), and the particles
+            // that fly off an active arc.
+            foreach (Renderer renderer in gearManager.GetComponentsInChildren<Renderer>(true))
             {
                 renderer.enabled = visible;
             }

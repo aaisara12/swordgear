@@ -4,6 +4,9 @@ Shader "Swordgear/Gear Arc Lightning"
     // the tile turns to a storm — indigo cloud puffs rolling along it — and cartoon bolts never stop: one
     // crawls zig-zagging through the cloud while fresh ones strike out past the gear many times a second, each
     // a fat yellow zig-zag with a white-hot core in dark ink, sparks popping, the storm strobing as they land.
+    //
+    // The loose pieces (the sparks) are particles, not this shader: ArcBitsLightning.prefab in
+    // Assets/Visuals/Prefabs/ElementFX/ArcBits/, placed on the arc by GearArcArt.
     Properties
     {
         [Header(Bolts)]
@@ -20,7 +23,6 @@ Shader "Swordgear/Gear Arc Lightning"
         _StormColor ("Storm", Color) = (0.14, 0.12, 0.38, 1)
         _CloudColor ("Cloud", Color) = (0.28, 0.26, 0.6, 1)
         _CloudSpeed ("Cloud Drift (world units / s)", Range(0, 4)) = 0.8
-        _SparkDensity ("Spark Density", Range(0, 1)) = 0.3
 
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
@@ -49,7 +51,7 @@ Shader "Swordgear/Gear Arc Lightning"
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half _BoltReach; half _BoltSpacing; half _BoltWidth; half _StrikeRate; \
                 half4 _BoltColor; half4 _CoreColor; half4 _InkColor; half _Emission; \
-                half4 _StormColor; half4 _CloudColor; half _CloudSpeed; half _SparkDensity;
+                half4 _StormColor; half4 _CloudColor; half _CloudSpeed;
             #include "GearArcCommon.hlsl"
 
             half4 LightningFragment(ArcVaryings input) : SV_Target
@@ -117,17 +119,7 @@ Shader "Swordgear/Gear Arc Lightning"
                 bolts = EFX_Over(half4(_CoreColor.rgb * boost * 1.4, EFX_FillPx(fromAxis - halfWidth * 0.4, px) * EFX_FillPx(bolt, px)), bolts);
                 bolts.a *= strikes * inside;
 
-                // Sparks popping round the strikes, re-scattered every tick.
-                float2 sparkCell = floor(float2(x, y) / 1.1);
-                float seed = EFX_Hash21(sparkCell + tick * 0.37);
-                float2 sparkCentre = (sparkCell + 0.5 + (EFX_Hash22(sparkCell + tick) - 0.5) * 0.5) * 1.1;
-                float sparkSize = 0.34 * step(1.0 - _SparkDensity, seed) * ArcTakeover() * ArcEndFade(sparkCentre.x, 1.0);
-                float2 fromSpark = float2(x, y) - sparkCentre;
-                float spark = EFX_SdStar4(fromSpark, max(sparkSize, 1e-3));
-                half4 sparks = half4(_CoreColor.rgb * _Emission * 1.5,
-                                     EFX_FillPx(spark, px) * step(length(fromSpark), sparkSize) * step(thickness * 0.9, y));
-
-                return EFX_Over(sparks, EFX_Over(bolts, EFX_Over(storm, tile)));
+                return EFX_Over(bolts, EFX_Over(storm, tile));
             }
             ENDHLSL
         }

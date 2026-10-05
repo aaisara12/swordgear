@@ -34,7 +34,6 @@ Material:
     - _ShineSpeed: 9
     - _SpikeReach: 2.4
     - _SpikeSpacing: 1.15
-    - _StarDensity: 0.4
     - _Swell: 0.35
     - _WaveSpeed: 5
     m_Colors:

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7587ad7fcca6fa449a20dd743360fb3f, type: 3}
+  m_Name: GearArcArt
+  m_EditorClassIdentifier: Main::GearArcArt
+  defaultMaterial: {fileID: 2100000, guid: 7ec28e59fc350ee4a996f15236d85cf7, type: 2}
+  elements:
+  - element: 1
+    material: {fileID: 2100000, guid: c7fef6defd762fc4aa5fc721016963b5, type: 2}
+    bits: {fileID: 3567831417544688925, guid: 32ba30e63a1b36146a882a2b4e4730f5, type: 3}
+  - element: 2
+    material: {fileID: 2100000, guid: b61c1563c5c0c1645abc3fa33ea095e3, type: 2}
+    bits: {fileID: 6949751799294327363, guid: 764d7aaaa97462a4baf3eda9e565be53, type: 3}
+  - element: 3
+    material: {fileID: 2100000, guid: a62b3802530f57749ac6d788e019f51f, type: 2}
+    bits: {fileID: 8117744641985615740, guid: c762172cb1f3a7c48974e1357de581e2, type: 3}
+  - element: 4
+    material: {fileID: 2100000, guid: bdeee0f9a1d32294983587206e83ace1, type: 2}
+    bits: {fileID: 8672455477109877197, guid: f1b06628525eb8e4caf241c892f93f64, type: 3}
+  - element: 5
+    material: {fileID: 2100000, guid: 31f6e72fca084eb488709da36b2a3354, type: 2}
+    bits: {fileID: 7146593896407061022, guid: 6294a77379ed0af40821b022e97de6f0, type: 3}
+  - element: 6
+    material: {fileID: 2100000, guid: 2c29f665a62b2fe43bfa3df819197c70, type: 2}
+    bits: {fileID: 0}
+  - element: 7
+    material: {fileID: 2100000, guid: 78f15b12cb984f94bb638e19c9f34029, type: 2}
+    bits: {fileID: 1868874205528159395, guid: 64e73176b755b254aa8ffcc7a2f86079, type: 3}

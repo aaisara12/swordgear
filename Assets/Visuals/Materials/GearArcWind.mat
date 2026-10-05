@@ -35,10 +35,6 @@ Material:
     - _LineReach: 1.6
     - _LineSpeed: 16
     - _Swell: 0.35
-    - _SwirlReach: 2.4
-    - _SwirlSize: 0.9
-    - _SwirlSpacing: 3
-    - _SwirlSpin: 7
     m_Colors:
     - _AirColor: {r: 0.8, g: 1, b: 0.82, a: 1}
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}

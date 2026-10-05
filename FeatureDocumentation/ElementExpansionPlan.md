@@ -726,7 +726,7 @@ only that slice and give you the exact play steps.*
 | P11 | Imbued player — sword glow, aura, flicker, expiry fizzle | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P12 | Permanent imbues — timer, drain, blink and fizzle removed; each arena starts with no element | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P13 | A quieter border — a faint edge, with the element's particles carrying it | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P14 | Arc pieces as editable particle prefabs | ☐ | ☐ | ☐ |
+| P14 | Arc pieces as editable particle prefabs | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P15 | Arc art knobs and an edit-mode preview | ☐ | ☐ | ☐ |
 
 > **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
@@ -857,6 +857,17 @@ only that slice and give you the exact play steps.*
 | **Unchanged** | The switch's post-FX pulse (bloom, chromatic aberration, colour nudge), per the user: the switch stays as it is |
 | **Review fixes** | A flare re-triggered while still playing is restarted (Play() alone does nothing then, so a quick re-flick lost its burst); a landing shows the element imbued now, not the one that landed; the frame mesh is swapped rather than cleared in place (clearing the mesh the Shape module uses logged a warning per emitter on every arena load) |
 | **Verified** | In play per element: tint faint, particles hug the edges (19/19 Ice flakes within the band on a 2337×1080 canvas), other elements idle, tint off with no element |
+
+### P14 — Arc pieces as editable particle prefabs ✅
+
+| | |
+|---|---|
+| **Why** | The user wants the arc art easy for a human to edit. The loose pieces flying off an active arc were procedural shader code; now they're ordinary particle systems you edit with Unity's particle tools |
+| **Adds** | `GearArcArt` (ScriptableObject, `Assets/Visuals/GearArt/GearArcArt.asset`): one place for every arc's look — a default material, and per element its material and its pieces. `ArcBits` (component on each pieces prefab): a list of particle systems with the band each emits from (world units out from the arc's outer edge); it shapes them to the arc (a Circle sweeping the arc's angle) whenever the arc is built, and plays them while the arc is active. Six prefabs in `Assets/Visuals/Prefabs/ElementFX/ArcBits/`: Fire's flame bits, Ice's twinkle stars, Lightning's sparks, Wind's swirls, Earth's boulders (a radial-velocity curve makes them hop out and land back) and dust, Light's notes and sparkles. Dark keeps everything in its shader (its pieces — eyes, tendrils — are part of the void) |
+| **Changes** | `GearManager` takes the `GearArcArt` asset instead of `arcMaterial` + `elementArcMaterials` (set on `Gear.prefab`, so every scene with the gear gets it; CoreSystems' old per-element overrides are removed) and places each element's pieces prefab under its arc. `GearArcVisual.SetBits` fits and plays them. The six element shaders drop the moved pieces and their properties; each shader's header says where its pieces live now |
+| **To edit** | Flame-bit colours, sizes, speeds, rates: open `ArcBitsFire.prefab`, edit the `FlameBits` particle system. Where across the arc they start: the `From`/`To` band on its `ArcBits` entry. Which pieces an element gets, or a different material: `GearArcArt.asset` |
+| **Review fix** | The tutorial hides the gear until its reveal by switching off its renderers; it now switches off every renderer under the gear, so an early flick can't show the new particle pieces before the reveal |
+| **Verified** | In play: each element's pieces fly off its active arc (Earth's boulders hop out and land back, with dust); idle arcs show none. EditMode 104/104 |
 
 ### Quick reference — what to play after each commit
 

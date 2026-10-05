@@ -52,6 +52,7 @@ public class GearArcVisual : MonoBehaviour
     private Vector2[] overflows = System.Array.Empty<Vector2>();
     private int[] triangles = System.Array.Empty<int>();
     private Vector4 arcShape;
+    private ArcBits? bits;
 
     private Color currentColor = Color.white;
     private Color targetColor = Color.white;
@@ -95,6 +96,19 @@ public class GearArcVisual : MonoBehaviour
         stateDirty = true;
     }
 
+    /// <summary>
+    /// The arc's loose pieces (an ArcBits instance parented under it): fitted to the arc whenever it's built,
+    /// and flying while the arc is active.
+    /// </summary>
+    public void SetBits(ArcBits? arcBits)
+    {
+        bits = arcBits;
+        if (bits != null)
+        {
+            bits.Fit(arcShape.y, arcShape.z, arcShape.w * Mathf.Rad2Deg, arcShape.x * Mathf.Rad2Deg);
+        }
+    }
+
     public void SetSorting(int sortingLayerId, int sortingOrder)
     {
         EnsureBuilt();
@@ -113,6 +127,11 @@ public class GearArcVisual : MonoBehaviour
         targetColor = color;
         targetHighlight = highlight01;
         targetActive = active01;
+
+        if (bits != null)
+        {
+            bits.SetPlaying(active01 >= 0.5f);
+        }
     }
 
     /// <summary>
@@ -298,5 +317,10 @@ public class GearArcVisual : MonoBehaviour
         arcShape = new Vector4(sweepDegrees * Mathf.Deg2Rad, innerRadius, outerRadius, centerAngleDegrees * Mathf.Deg2Rad);
         stateDirty = true;
         ApplyState();
+
+        if (bits != null)
+        {
+            bits.Fit(innerRadius, outerRadius, centerAngleDegrees, sweepDegrees);
+        }
     }
 }

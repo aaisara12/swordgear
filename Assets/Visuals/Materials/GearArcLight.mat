@@ -32,14 +32,9 @@ Material:
     - _FlareTime: -100
     - _Highlight: 0
     - _HighlightBoost: 0.9
-    - _NoteRate: 0.55
-    - _NoteReach: 2.6
-    - _NoteSize: 0.95
-    - _NoteSpacing: 2.1
     - _SheenAngle: 35
     - _SheenScale: 0.3
     - _SheenSpeed: 0.5
-    - _SparkleDensity: 0.35
     - _Swell: 0.35
     - _Swirl: 0.45
     m_Colors:

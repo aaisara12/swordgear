@@ -4,6 +4,9 @@ Shader "Swordgear/Gear Arc Earth"
     // turns to rumbling cartoon rock — three wavy strata in ink, split by cracks that glow molten amber in
     // pulses running along them — and chunky boulders tumble up out of it, hop past the gear and drop back,
     // kicking up dust puffs as they launch and land.
+    //
+    // The loose pieces (the boulders and dust) are particles, not this shader: ArcBitsEarth.prefab in
+    // Assets/Visuals/Prefabs/ElementFX/ArcBits/, placed on the arc by GearArcArt.
     Properties
     {
         [Header(Rock)]
@@ -15,12 +18,6 @@ Shader "Swordgear/Gear Arc Earth"
         _CrackGlow ("Crack Glow (HDR)", Range(1, 5)) = 2.6
         _Rumble ("Rumble (world units)", Range(0, 0.3)) = 0.06
 
-        [Header(Boulders)]
-        _BoulderReach ("Hop Height Past The Gear (world units)", Range(0, 3.5)) = 2.6
-        _BoulderSize ("Size (world units)", Range(0.2, 0.6)) = 0.42
-        _BoulderSpacing ("Spacing (world units)", Range(1.5, 5)) = 1.9
-        _BoulderRate ("Hops Per Second", Range(0.2, 4)) = 1.3
-        _DustColor ("Dust", Color) = (0.95, 0.87, 0.7, 1)
 
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
@@ -48,16 +45,8 @@ Shader "Swordgear/Gear Arc Earth"
 
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half4 _TopColor; half4 _MidColor; half4 _DeepColor; half4 _InkColor; \
-                half4 _CrackColor; half _CrackGlow; half _Rumble; \
-                half _BoulderReach; half _BoulderSize; half _BoulderSpacing; half _BoulderRate; half4 _DustColor;
+                half4 _CrackColor; half _CrackGlow; half _Rumble;
             #include "GearArcCommon.hlsl"
-
-            float2 Rotate(float2 p, float angle)
-            {
-                float c = cos(angle);
-                float s = sin(angle);
-                return float2(p.x * c - p.y * s, p.x * s + p.y * c);
-            }
 
             half4 EarthFragment(ArcVaryings input) : SV_Target
             {
@@ -102,35 +91,7 @@ Shader "Swordgear/Gear Arc Earth"
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, sdf));
                 half4 rock = half4(rgb, EFX_Fill(sdf) * ArcTakeover());
 
-                // Boulders: one per slot, hopping on its own clock, tumbling as it goes.
-                float slot = floor(input.uvWorld.x / _BoulderSpacing);
-                float seed = EFX_Hash21(float2(slot, 6.1));
-                float life = frac(t * _BoulderRate * (0.7 + 0.6 * seed) + seed);
-                float hop = 4.0 * life * (1.0 - life);
-                float centreX = (slot + 0.5 + (seed - 0.5) * 0.1) * _BoulderSpacing;
-                float endFade = ArcEndFade(centreX, 1.2);
-                float2 centre = float2(centreX, thickness * 0.72 + hop * _BoulderReach * energy * (0.6 + 0.4 * seed) * endFade);
-                float size = _BoulderSize * (0.75 + 0.4 * EFX_Hash21(float2(slot, 9.9))) * ArcTakeover() * endFade;
-                float2 q = Rotate(input.uvWorld - centre, t * (seed - 0.5) * 6.0 + seed * 6.28);
-                float boulder = EFX_SdRoundBox(q, float2(size, size * (0.65 + 0.3 * seed)), size * 0.35);
-                boulder = max(boulder, dot(q, float2(0.7071, 0.7071)) - size * 0.72);   // a chipped corner
-                half lit = step(0.15, dot(q, float2(-0.6, 0.8)));
-                half4 boulders = half4(_InkColor.rgb, EFX_FillPx(boulder - ArcInkWidth * 0.8, px));
-                boulders = EFX_Over(half4(lerp(_MidColor.rgb, _TopColor.rgb, lit), EFX_FillPx(boulder, px)), boulders);
-                boulders.a *= step(0.01, size);
-
-                // Dust: three puffs at the boulder's launch spot, swelling and thinning just after it leaves
-                // and as it lands.
-                half kick = saturate(max(1.0 - life * 4.0, (life - 0.82) * 5.5));
-                float puffRadius = (0.16 + 0.28 * (1.0 - kick)) * endFade;
-                float2 dustAt = input.uvWorld - float2(centreX, thickness + 0.05);
-                float dust = min(min(length(dustAt - float2(-0.36, 0.0)), length(dustAt - float2(0.36, 0.0))),
-                                 length(dustAt - float2(0.0, 0.16))) - puffRadius;
-                half4 puffs = half4(_InkColor.rgb, EFX_FillPx(dust - ArcInkWidth * 0.6, px));
-                puffs = EFX_Over(half4(_DustColor.rgb, EFX_FillPx(dust, px)), puffs);
-                puffs.a *= kick * ArcTakeover() * step(0.01, puffRadius);
-
-                return EFX_Over(boulders, EFX_Over(puffs, EFX_Over(rock, tile)));
+                return EFX_Over(rock, tile);
             }
             ENDHLSL
         }

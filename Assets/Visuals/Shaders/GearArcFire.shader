@@ -4,6 +4,9 @@ Shader "Swordgear/Gear Arc Fire"
     // tile catches: cartoon fire — nested red, orange and yellow
     // tongues inside an ink outline — roars up past the gear, every tongue jumping to its own height, while
     // flame bits break off and fly outward.
+    //
+    // The loose pieces (the flame bits) are particles, not this shader: ArcBitsFire.prefab in
+    // Assets/Visuals/Prefabs/ElementFX/ArcBits/, placed on the arc by GearArcArt.
     Properties
     {
         [Header(Flames)]
@@ -17,9 +20,6 @@ Shader "Swordgear/Gear Arc Fire"
         _InkColor ("Ink", Color) = (0.3, 0.03, 0.02, 1)
         _Emission ("Emission (HDR)", Range(1, 4)) = 1.2
 
-        [Header(Flame bits)]
-        _BitDensity ("Density", Range(0, 1)) = 0.45
-        _BitSpeed ("Rise Speed (world units / s)", Range(0, 8)) = 3
 
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
@@ -47,8 +47,7 @@ Shader "Swordgear/Gear Arc Fire"
 
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half _FlameReach; half _TongueWidth; half _Flicker; half _Sway; \
-                half4 _OuterColor; half4 _MidColor; half4 _CoreColor; half4 _InkColor; half _Emission; \
-                half _BitDensity; half _BitSpeed;
+                half4 _OuterColor; half4 _MidColor; half4 _CoreColor; half4 _InkColor; half _Emission;
             #include "GearArcCommon.hlsl"
 
             // A row of cartoon flame tongues: the height at x, 0..1. Pointed tips with bulging sides, each
@@ -104,24 +103,10 @@ Shader "Swordgear/Gear Arc Fire"
                 rgb *= _Emission * (1.0 + 0.3 * _Highlight);
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, fire));
 
-                // Above the tile the flames show as soon as they reach; inside it they take over a beat later,
-                // and only where the imbue hasn't drained.
+                // Above the tile the flames show as soon as they reach; inside it they take over a beat later.
                 half4 flames = half4(rgb, EFX_Fill(fire) * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf)));
 
-                // Flame bits: blobs that break off the tips and fly outward, shrinking as they go.
-                float2 bitCell = float2(x / 1.0, (y - t * _BitSpeed) / 1.3);
-                float2 cell = floor(bitCell);
-                float seed = EFX_Hash21(cell + 31.7);
-                float2 centre = (cell + 0.5 + (EFX_Hash22(cell) - 0.5) * 0.5) * float2(1.0, 1.3) + float2(0.0, t * _BitSpeed);
-                float lift = saturate((centre.y - thickness) / max(_FlameReach + 1.0, 0.1));
-                float radius = 0.34 * (1.0 - lift) * step(1.0 - _BitDensity, seed) * ArcTakeover() * ArcEndFade(centre.x, 1.2);
-                float2 d = float2(x, y) - centre;
-                float bit = length(float2(d.x, d.y > 0.0 ? d.y : d.y * 0.55)) - radius;   // an egg, trailing downward
-                half3 bitColor = lerp(_CoreColor.rgb, _MidColor.rgb, EFX_Step(-radius * 0.45, bit)) * _Emission * 1.3;
-                // Gated to the bit's own disc: a cell's edge is a jump in the field, which would otherwise fringe.
-                half4 bits = half4(bitColor, EFX_Fill(bit) * step(length(d), radius * 2.0) * step(thickness * 0.8, y));
-
-                return EFX_Over(bits, EFX_Over(flames, tile));
+                return EFX_Over(flames, tile);
             }
             ENDHLSL
         }

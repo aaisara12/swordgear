@@ -35,13 +35,6 @@ public static class GearTileElements
     }
 }
 
-[System.Serializable]
-public struct ElementArcMaterial
-{
-    public Element element;
-    public Material? material;
-}
-
 /// <summary>
 /// The ring that orbits the player. It holds one arc per <em>equipped</em> element, evenly distributed;
 /// flicking the attack stick toward an arc grants that arc's element.
@@ -77,11 +70,9 @@ public class GearManager : InitializeableGameComponent
     [SerializeField, Min(2)] private int segmentsPerArc = 12;
 
     [Header("Arc Rendering")]
-    [Tooltip("Optional. Leave empty to build an unlit vertex-coloured material at runtime.")]
-    [SerializeField] private Material? arcMaterial;
-    [Tooltip("Per-element replacements for arcMaterial, for an element whose colour can't be a flat " +
-             "tint — Light's opal shimmer is a shader, not a colour.")]
-    [SerializeField] private List<ElementArcMaterial> elementArcMaterials = new();
+    [Tooltip("What every element's arc looks like: its material and the pieces that fly off it while active. " +
+             "Leave empty to fall back to a plain arc built at runtime.")]
+    [SerializeField] private GearArcArt? art;
     [SerializeField] private string arcSortingLayer = "Default";
     [SerializeField] private int arcSortingOrder = 4;
     [SerializeField, Range(0f, 1f)] private float filledArcAlpha = 0.7f;
@@ -374,19 +365,28 @@ public class GearManager : InitializeableGameComponent
         float inner = Mathf.Max(0f, radius - arcThickness * 0.5f);
         float outer = radius + arcThickness * 0.5f;
         int sortingLayerId = SortingLayer.NameToID(arcSortingLayer);
-        Material material = ResolveArcMaterial();
+        Material fallback = ResolveFallbackMaterial();
 
         for (int i = 0; i < ArcCount; i++)
         {
             var go = new GameObject($"Arc_{i}");
             go.transform.SetParent(transform, false);
 
+            ElementArcLook look = default;
+            bool hasLook = art != null && TryGetArcElement(i, out Element element) && art.TryGetLook(element, out look);
+
             var arc = go.AddComponent<GearArcVisual>();
             arc.EaseRate = arcEaseRate;
-            arc.SetMaterial(ResolveElementArcMaterial(i) ?? material);
+            arc.SetMaterial(hasLook && look.material != null ? look.material : fallback);
             arc.SetSorting(sortingLayerId, arcSortingOrder);
             arc.Rebuild(inner, outer, GetArcLocalAngle(i), sweep, segmentsPerArc,
                 arcOverflowInner, arcOverflowOuter, arcOverflowAlong);
+
+            // The pieces are an authored prefab; placing it under the arc is all that happens here.
+            if (hasLook && look.bits != null)
+            {
+                arc.SetBits(Instantiate(look.bits, go.transform));
+            }
 
             arcVisuals.Add(arc);
         }
@@ -473,29 +473,12 @@ public class GearManager : InitializeableGameComponent
         UpdateHub();
     }
 
-    private Material? ResolveElementArcMaterial(int index)
+    /// <summary> The arc for an element with no look of its own: the art's default, else one built here. </summary>
+    private Material ResolveFallbackMaterial()
     {
-        if (!TryGetArcElement(index, out Element element))
+        if (art != null && art.DefaultMaterial != null)
         {
-            return null;
-        }
-
-        foreach (ElementArcMaterial entry in elementArcMaterials)
-        {
-            if (entry.element == element && entry.material != null)
-            {
-                return entry.material;
-            }
-        }
-
-        return null;
-    }
-
-    private Material ResolveArcMaterial()
-    {
-        if (arcMaterial != null)
-        {
-            return arcMaterial;
+            return art.DefaultMaterial;
         }
 
         if (runtimeArcMaterial != null)

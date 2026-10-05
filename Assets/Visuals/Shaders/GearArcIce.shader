@@ -4,6 +4,9 @@ Shader "Swordgear/Gear Arc Ice"
     // freezes solid — big flat facets split by bright cracks, glass shine
     // stripes racing across — and a crown of cartoon crystal spikes punches out past the gear in a wave that
     // runs round the arc, with twinkle stars popping between them.
+    //
+    // The loose pieces (the twinkle stars) are particles, not this shader: ArcBitsIce.prefab in
+    // Assets/Visuals/Prefabs/ElementFX/ArcBits/, placed on the arc by GearArcArt.
     Properties
     {
         [Header(Crystal)]
@@ -18,7 +21,6 @@ Shader "Swordgear/Gear Arc Ice"
 
         [Header(Light)]
         _ShineSpeed ("Shine Stripe Speed (world units / s)", Range(0, 20)) = 9
-        _StarDensity ("Twinkle Star Density", Range(0, 1)) = 0.4
 
         [Header(State response)]
         _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
@@ -47,7 +49,7 @@ Shader "Swordgear/Gear Arc Ice"
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half _SpikeReach; half _SpikeSpacing; half _WaveSpeed; \
                 half4 _LightColor; half4 _MidColor; half4 _ShadeColor; half4 _InkColor; half _Emission; \
-                half _ShineSpeed; half _StarDensity;
+                half _ShineSpeed;
             #include "GearArcCommon.hlsl"
 
             half4 IceFragment(ArcVaryings input) : SV_Target
@@ -117,19 +119,7 @@ Shader "Swordgear/Gear Arc Ice"
 
                 half4 frozen = half4(rgb, EFX_Fill(ice) * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf)));
 
-                // Twinkle stars popping around the crown.
-                float2 starCell = floor(float2(x, y) / 1.4);
-                float seed = EFX_Hash21(starCell + 9.1);
-                float2 starCentre = (starCell + 0.5 + (EFX_Hash22(starCell + 2.3) - 0.5) * 0.6) * 1.4;
-                float pop = pow(saturate(sin(t * (2.0 + seed * 3.0) + seed * 40.0)), 3.0);
-                float starSize = 0.6 * pop * step(1.0 - _StarDensity, seed) * ArcTakeover() * ArcEndFade(starCentre.x, 1.0);
-                float2 fromStar = float2(x, y) - starCentre;
-                float star = EFX_SdStar4(fromStar, max(starSize, 1e-3));
-                // Gated to the star's own disc: a cell's edge is a jump in the field, which would otherwise fringe.
-                half4 stars = half4(_LightColor.rgb * _Emission * 2.0,
-                                    EFX_Fill(star) * step(length(fromStar), starSize) * step(thickness * 0.6, y));
-
-                return EFX_Over(stars, EFX_Over(frozen, tile));
+                return EFX_Over(frozen, tile);
             }
             ENDHLSL
         }

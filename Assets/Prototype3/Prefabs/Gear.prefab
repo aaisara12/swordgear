@@ -207,8 +207,7 @@ MonoBehaviour:
   arcGapDegrees: 4
   arcOffsetDegrees: 0
   segmentsPerArc: 12
-  arcMaterial: {fileID: 2100000, guid: 7ec28e59fc350ee4a996f15236d85cf7, type: 2}
-  elementArcMaterials: []
+  art: {fileID: 11400000, guid: bb0086fdb9bec644d9345d4eec43533f, type: 2}
   arcSortingLayer: Default
   arcSortingOrder: 4
   filledArcAlpha: 0.7
