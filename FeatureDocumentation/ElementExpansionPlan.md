@@ -728,6 +728,7 @@ only that slice and give you the exact play steps.*
 | P13 | A quieter border — a faint edge, with the element's particles carrying it | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P14 | Arc pieces as editable particle prefabs | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P15 | Arc art knobs — shared settings on the art asset, every look number a labelled material setting | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
+| P16 | The arc preview scene — every element idle, aimed and active in edit mode | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 
 > **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
 > that last forever (no timer, blink or fizzle), the switch left exactly as it is (no switch damage or cleave —
@@ -879,6 +880,16 @@ only that slice and give you the exact play steps.*
 | **Removed** | The per-material State block (`_Swell`, `_HighlightBoost`, `_ActiveBoost`), now on the art asset; the stale values left in the materials |
 | **Verified** | Every shader compiles; the promoted defaults checked equal to the literals they replaced; in play the arcs look as before (idle tiles, the aimed halo and swell, active Fire with its flame bits); raising the asset's ink width from 0.16 to 0.45 thickened every arc's outline at once (all 21 in the P16 preview), and setting it back restored them |
 
+### P16 — The arc preview scene ✅
+
+| | |
+|---|---|
+| **Adds** | `Assets/Scenes/Tools/GearArcPreview.unity` and `GearArcPreview` (`[ExecuteAlways]`): a grid with one column per element and rows idle, aimed and active, built from `GearArcArt.asset` exactly as the gear builds its arcs, pieces prefabs included. The scene has an HDR camera and the arena's post-FX volume, so glow and bloom match the game |
+| **Live** | In edit mode it steps the pieces' particles and repaints every editor tick, so shaders and particles animate without Play. Edits to the art asset, an arc material or a pieces prefab show straight away; changing the preview's own fields (elements, radius, spacing…) rebuilds it. The preview arcs are never saved — the scene holds only the component, a camera and the volume |
+| **Changes** | `GearArcArt` raises `LooksEdited` (editor only) when an element's material or pieces, or the default material, change, and the preview rebuilds; the shared sliders don't raise it — they're live already, and rebuilding would restart the pieces mid-drag |
+| **Review fixes** | The preview frees its arcs' meshes itself (edit mode never calls `OnDestroy` on a component without `[ExecuteAlways]`, so they leaked 21 per rebuild); it records the shape `ArcBits` fits onto each pieces instance as a prefab override, since saving the prefab rebuilds its instances from the asset and would have dropped the fit; swapping a material or pieces prefab in the art asset now refreshes it (`LooksEdited`) |
+| **Verified** | Opened in edit mode: 21 arcs, the three states correct per element, particles flying off the active row. Five rebuilds left the arc mesh count unchanged; re-saving `ArcBitsFire.prefab` kept its pieces fitted to the arc; clearing Fire's pieces in the art asset removed them from the preview within a tick, and restoring brought them back; the scene stays clean throughout |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -898,3 +909,4 @@ only that slice and give you the exact play steps.*
 | **P13** | The screen edges carry the element faintly — a soft tint and its particles — without pulling your eye |
 | **P14** | Edit an element's loose arc pieces (flame bits, stars, sparks, swirls, boulders, notes…) as ordinary particle prefabs |
 | **P15** | Select `GearArcArt.asset` in Play and drag a setting (ink width, aim swell…): every arc follows. Select an arc material: its look numbers are labelled sliders |
+| **P16** | Open `Assets/Scenes/Tools/GearArcPreview.unity`: every arc idle, aimed and active, animating without pressing Play; edit the art asset, a material or a pieces prefab and it follows |

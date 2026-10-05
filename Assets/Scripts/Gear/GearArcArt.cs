@@ -22,7 +22,7 @@ public struct ElementArcLook
 /// </summary>
 /// <remarks>
 /// The shared settings go to the arc shaders as globals (GearArcCommon.hlsl), so they apply to every arc at
-/// once and update live while you edit them, in Play too.
+/// once and update live while you edit them, in the arc preview scene and in Play.
 /// </remarks>
 [CreateAssetMenu(menuName = "Swordgear/Gear Arc Art", fileName = "GearArcArt")]
 public class GearArcArt : ScriptableObject
@@ -77,9 +77,36 @@ public class GearArcArt : ScriptableObject
 
     public Material? DefaultMaterial => defaultMaterial;
 
-    private void OnEnable() => ApplyShared();
+#if UNITY_EDITOR
+    /// <summary>
+    /// Editor only: which material or pieces an arc uses changed (the arc preview rebuilds). Not raised for the
+    /// shared settings, which reach the shaders live.
+    /// </summary>
+    public static event System.Action<GearArcArt>? LooksEdited;
 
-    private void OnValidate() => ApplyShared();
+    private int looksHash;
+#endif
+
+    private void OnEnable()
+    {
+        ApplyShared();
+#if UNITY_EDITOR
+        looksHash = HashLooks();
+#endif
+    }
+
+    private void OnValidate()
+    {
+        ApplyShared();
+#if UNITY_EDITOR
+        int hash = HashLooks();
+        if (hash != looksHash)
+        {
+            looksHash = hash;
+            LooksEdited?.Invoke(this);
+        }
+#endif
+    }
 
     /// <summary> Pushes the shared tile and state settings to the arc shaders. </summary>
     public void ApplyShared()
@@ -120,4 +147,20 @@ public class GearArcArt : ScriptableObject
         look = default;
         return false;
     }
+
+#if UNITY_EDITOR
+    private int HashLooks()
+    {
+        var hash = new System.HashCode();
+        hash.Add(defaultMaterial);
+        foreach (ElementArcLook entry in elements)
+        {
+            hash.Add(entry.element);
+            hash.Add(entry.material);
+            hash.Add(entry.bits);
+        }
+
+        return hash.ToHashCode();
+    }
+#endif
 }
