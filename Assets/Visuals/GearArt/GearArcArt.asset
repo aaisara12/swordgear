@@ -12,6 +12,25 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7587ad7fcca6fa449a20dd743360fb3f, type: 3}
   m_Name: GearArcArt
   m_EditorClassIdentifier: Main::GearArcArt
+  inkWidth: 0.16
+  inkTone: 0.28
+  cornerRadius: 0.45
+  shadeTone: 0.72
+  shadeShare: 0.24
+  litShare: 0.72
+  litTint: 0.38
+  shinePeriod: 6
+  shineStrength: 0.55
+  shineWidth: 0.22
+  aimSwell: 0.35
+  aimBrightness: 0.9
+  activeBrightness: 0.6
+  maxBrightness: 1.15
+  haloWidth: 0.2
+  haloGlow: 3
+  flarePop: 0.9
+  flareBlaze: 0.8
+  flareDecay: 7
   defaultMaterial: {fileID: 2100000, guid: 7ec28e59fc350ee4a996f15236d85cf7, type: 2}
   elements:
   - element: 1

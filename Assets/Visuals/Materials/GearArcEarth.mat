@@ -26,13 +26,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _ActiveBoost: 0.6
     - _CrackGlow: 2.6
     - _FlareTime: -100
     - _Highlight: 0
-    - _HighlightBoost: 0.9
     - _Rumble: 0.06
-    - _Swell: 0.35
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
     - _CrackColor: {r: 1, g: 0.62, b: 0.14999998, a: 1}

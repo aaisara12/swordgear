@@ -26,7 +26,6 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _ActiveBoost: 0.6
     - _BoltReach: 3.2
     - _BoltSpacing: 1.7
     - _BoltWidth: 0.26
@@ -34,9 +33,7 @@ Material:
     - _Emission: 1.8
     - _FlareTime: -100
     - _Highlight: 0
-    - _HighlightBoost: 0.9
     - _StrikeRate: 9
-    - _Swell: 0.35
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
     - _BoltColor: {r: 1, g: 0.86, b: 0.14999998, a: 1}

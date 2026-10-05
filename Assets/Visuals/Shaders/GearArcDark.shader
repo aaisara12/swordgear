@@ -14,16 +14,59 @@ Shader "Swordgear/Gear Arc Dark"
         _Emission ("Glow Emission (HDR)", Range(1, 4)) = 2
         _EyeDensity ("Eye Density", Range(0, 1)) = 0.6
 
+        [Header(Void Rim)]
+        _RimDepth ("Inner Rim Depth (world units in from the edge)", Range(0, 2)) = 0.5
+        _GlowDepth ("Glow Depth (world units in from the edge)", Range(0, 1)) = 0.28
+
+        [Header(Specks)]
+        _SpeckCellSize ("Cell Size (world units, one speck chance per cell)", Range(0.2, 2)) = 0.55
+        _SpeckScatter ("Scatter From The Cell Centre (share of a cell)", Range(0, 1)) = 0.5
+        _SpeckRarity ("Rarity (0-1 share of cells left empty)", Range(0, 1)) = 0.8
+        _SpeckSize ("Radius At Full Twinkle (world units)", Range(0, 0.3)) = 0.05
+        _TwinkleSpeed ("Twinkle Speed, Slowest (radians per second)", Range(0, 10)) = 1.5
+        _TwinkleSpeedSpread ("Twinkle Speed, Extra For The Fastest (radians per second)", Range(0, 10)) = 3.0
+
+        [Header(Eyes)]
+        _EyeSpacing ("Pair Spacing (world units, one pair chance per slot)", Range(0.5, 6)) = 2.2
+        _EyeRow ("Height, Lowest (share of the band, 0 inner - 1 outer)", Range(0, 1)) = 0.38
+        _EyeRowSpread ("Height, Extra Range (share of the band)", Range(0, 1)) = 0.2
+        _EyeApart ("Each Eye From The Pair's Middle (world units)", Range(0, 1)) = 0.27
+        _EyeHalfWidth ("Eye Half-Width (world units)", Range(0.02, 0.6)) = 0.21
+        _EyeHalfHeight ("Eye Half-Height When Open (world units)", Range(0.02, 0.6)) = 0.15
+        _PupilRadius ("Pupil Radius (world units)", Range(0, 0.3)) = 0.08
+        _GlanceReachX ("Glance Distance, Sideways (world units)", Range(0, 0.3)) = 0.07
+        _GlanceReachY ("Glance Distance, Up-Down (world units)", Range(0, 0.3)) = 0.04
+        _GlanceSpeedX ("Glance Speed, Sideways (radians per second)", Range(0, 6)) = 1.3
+        _GlanceSpeedY ("Glance Speed, Up-Down (radians per second)", Range(0, 6)) = 0.9
+        _BlinkRate ("Blinks (per second)", Range(0, 3)) = 0.45
+        _BlinkOpenShare ("Open Share Of Each Blink Cycle (0-1)", Range(0, 1)) = 0.92
+        _BlinkShut ("How Far A Blink Shuts The Eye (0-1)", Range(0, 1)) = 0.9
+        _EyeHideBelow ("Hide Eyes Less Open Than (0-1)", Range(0.01, 1)) = 0.05
+        _EyeEndFade ("Fade Toward The Arc's Ends (world units)", Range(0.05, 4)) = 1.0
+
         [Header(Tendrils)]
         _TendrilReach ("Reach Past The Gear (world units)", Range(0, 3.5)) = 2.8
         _TendrilSpacing ("Spacing (world units)", Range(1.5, 5)) = 1.8
         _TendrilWidth ("Root Half-Width (world units)", Range(0.1, 0.45)) = 0.3
         _Writhe ("Writhe Speed", Range(0, 10)) = 3.5
+        _TendrilRoot ("Root Height (share of the band, 0 inner - 1 outer)", Range(0, 1)) = 0.72
+        _TendrilEndFade ("Fade Toward The Arc's Ends (world units)", Range(0.05, 4)) = 1.2
 
-        [Header(State response)]
-        _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
-        _HighlightBoost ("Brightness When Aimed", Range(0, 4)) = 0.9
-        _ActiveBoost ("Brightness When Active", Range(0, 4)) = 0.6
+        [Header(Tendril Length)]
+        _TendrilBaseLength ("Length Inside The Band (share of the band)", Range(0, 1)) = 0.28
+        _TendrilShortest ("Shortest Reach (share of full reach)", Range(0, 1)) = 0.55
+        _TendrilLengthSpread ("Extra Reach For The Longest (share of full reach)", Range(0, 1)) = 0.45
+        _StretchBase ("Stretch, Average (share of reach)", Range(0, 1.5)) = 0.85
+        _StretchSwing ("Stretch, Swing Either Way (share of reach)", Range(0, 1)) = 0.15
+        _StretchSpeed ("Stretch Speed (radians per second)", Range(0, 10)) = 2.0
+
+        [Header(Tendril Shape)]
+        _WritheWaves ("Wave Along A Tendril (radians, root to tip)", Range(0, 12)) = 4.0
+        _Sway ("Sway At The Tip (world units)", Range(0, 1.5)) = 0.35
+        _TendrilTaper ("Taper Curve (1 straight, below 1 fuller, above 1 thinner)", Range(0.1, 3)) = 0.8
+        _TendrilTipWidth ("Tip Half-Width (world units)", Range(0, 0.2)) = 0.02
+        _TendrilEdgeStart ("Lit Edge Starts At (share of the half-width out from the middle)", Range(0, 1)) = 0.35
+        _TendrilEdgeGlow ("Lit Edge Brightness (times Glow)", Range(0, 4)) = 1.3
 
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
@@ -47,7 +90,19 @@ Shader "Swordgear/Gear Arc Dark"
             #define GEAR_ARC_MATERIAL_PROPERTIES \
                 half4 _VoidColor; half4 _RimColor; half4 _GlowColor; half4 _EyeColor; half4 _InkColor; \
                 half _Emission; half _EyeDensity; \
-                half _TendrilReach; half _TendrilSpacing; half _TendrilWidth; half _Writhe;
+                float _RimDepth; float _GlowDepth; \
+                float _SpeckCellSize; float _SpeckScatter; float _SpeckRarity; float _SpeckSize; \
+                float _TwinkleSpeed; float _TwinkleSpeedSpread; \
+                float _EyeSpacing; float _EyeRow; float _EyeRowSpread; float _EyeApart; \
+                float _EyeHalfWidth; float _EyeHalfHeight; float _PupilRadius; \
+                float _GlanceReachX; float _GlanceReachY; float _GlanceSpeedX; float _GlanceSpeedY; \
+                float _BlinkRate; float _BlinkOpenShare; half _BlinkShut; half _EyeHideBelow; float _EyeEndFade; \
+                half _TendrilReach; half _TendrilSpacing; half _TendrilWidth; half _Writhe; \
+                float _TendrilRoot; float _TendrilEndFade; \
+                float _TendrilBaseLength; float _TendrilShortest; float _TendrilLengthSpread; \
+                float _StretchBase; float _StretchSwing; float _StretchSpeed; \
+                float _WritheWaves; float _Sway; float _TendrilTaper; float _TendrilTipWidth; \
+                float _TendrilEdgeStart; half _TendrilEdgeGlow;
             #include "GearArcCommon.hlsl"
 
             // Signed distance to an ellipse of radii r (approximate, good near its edge).
@@ -75,50 +130,51 @@ Shader "Swordgear/Gear Arc Dark"
 
                 // The void: near-black, a glowing violet rim just inside the ink, specks twinkling in its depths.
                 half3 rgb = _VoidColor.rgb;
-                rgb = lerp(rgb, _RimColor.rgb, EFX_Step(-0.5, f.sdf));
-                rgb = lerp(rgb, _GlowColor.rgb * _Emission, EFX_Step(-0.28, f.sdf));
-                float2 speckCell = floor(float2(x, y) / 0.55);
+                rgb = lerp(rgb, _RimColor.rgb, EFX_Step(-_RimDepth, f.sdf));
+                rgb = lerp(rgb, _GlowColor.rgb * _Emission, EFX_Step(-_GlowDepth, f.sdf));
+                float2 speckCell = floor(float2(x, y) / _SpeckCellSize);
                 float speckSeed = EFX_Hash21(speckCell + 3.3);
-                float2 speckAt = float2(x, y) - (speckCell + 0.5 + (EFX_Hash22(speckCell) - 0.5) * 0.5) * 0.55;
-                half twinkle = 0.5 + 0.5 * sin(t * (1.5 + speckSeed * 3.0) + speckSeed * 30.0);
-                half speck = step(0.8, speckSeed) * EFX_FillPx(length(speckAt) - 0.05 * twinkle, px);
+                float2 speckAt = float2(x, y) - (speckCell + 0.5 + (EFX_Hash22(speckCell) - 0.5) * _SpeckScatter) * _SpeckCellSize;
+                half twinkle = 0.5 + 0.5 * sin(t * (_TwinkleSpeed + speckSeed * _TwinkleSpeedSpread) + speckSeed * 30.0);
+                half speck = step(_SpeckRarity, speckSeed) * EFX_FillPx(length(speckAt) - _SpeckSize * twinkle, px);
                 rgb = lerp(rgb, _GlowColor.rgb * _Emission, speck);
 
                 // Eyes: a pair per slot, opening out of the dark, blinking now and then and glancing about.
-                float eyeSlot = floor(x / 2.2);
+                float eyeSlot = floor(x / _EyeSpacing);
                 float eyeSeed = EFX_Hash21(float2(eyeSlot, 8.8));
-                float2 eyeCentre = float2((eyeSlot + 0.5) * 2.2, thickness * (0.38 + 0.2 * eyeSeed));
-                half blink = step(0.92, frac(t * 0.45 + eyeSeed * 3.0));
-                half open = (1.0 - blink * 0.9) * step(1.0 - _EyeDensity, eyeSeed) * ArcEndFade(eyeCentre.x, 1.0);
-                float2 look = float2(sin(t * 1.3 + eyeSeed * 7.0), cos(t * 0.9 + eyeSeed * 3.0)) * float2(0.07, 0.04);
+                float2 eyeCentre = float2((eyeSlot + 0.5) * _EyeSpacing, thickness * (_EyeRow + _EyeRowSpread * eyeSeed));
+                half blink = step(_BlinkOpenShare, frac(t * _BlinkRate + eyeSeed * 3.0));
+                half open = (1.0 - blink * _BlinkShut) * step(1.0 - _EyeDensity, eyeSeed) * ArcEndFade(eyeCentre.x, _EyeEndFade);
+                float2 look = float2(sin(t * _GlanceSpeedX + eyeSeed * 7.0), cos(t * _GlanceSpeedY + eyeSeed * 3.0)) * float2(_GlanceReachX, _GlanceReachY);
                 float2 fromPair = float2(x, y) - eyeCentre;
-                float2 fromEye = float2(abs(fromPair.x) - 0.27, fromPair.y);
-                float eye = SdEllipse(fromEye, float2(0.21, max(0.15 * open, 0.01)));
-                float pupil = length(fromEye - look) - 0.08;
-                half eyeCover = EFX_FillPx(eye, px) * step(0.05, open);
+                float2 fromEye = float2(abs(fromPair.x) - _EyeApart, fromPair.y);
+                float eye = SdEllipse(fromEye, float2(_EyeHalfWidth, max(_EyeHalfHeight * open, 0.01)));
+                float pupil = length(fromEye - look) - _PupilRadius;
+                half eyeCover = EFX_FillPx(eye, px) * step(_EyeHideBelow, open);
                 rgb = lerp(rgb, _EyeColor.rgb * _Emission, eyeCover);
                 rgb = lerp(rgb, _InkColor.rgb, eyeCover * EFX_FillPx(pupil, px));
 
-                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-ArcInkWidth, f.sdf));
+                rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-_ArcInkWidth, f.sdf));
                 half4 abyss = half4(rgb, EFX_Fill(f.sdf) * ArcTakeover());
 
                 // Tendrils: one per slot, rooted in the void, writhing as a wave runs up them, tapering to a tip.
                 float slot = floor(x / _TendrilSpacing);
                 float seed = EFX_Hash21(float2(slot, 4.2));
                 float centreX = (slot + 0.5) * _TendrilSpacing;
-                float rootY = thickness * 0.72;
-                float reach = (thickness * 0.28 + _TendrilReach * energy * (0.55 + 0.45 * seed) * (0.85 + 0.15 * sin(t * 2.0 + seed * 9.0)))
-                              * ArcEndFade(centreX, 1.2);
+                float rootY = thickness * _TendrilRoot;
+                float reach = (thickness * _TendrilBaseLength + _TendrilReach * energy * (_TendrilShortest + _TendrilLengthSpread * seed)
+                                  * (_StretchBase + _StretchSwing * sin(t * _StretchSpeed + seed * 9.0)))
+                              * ArcEndFade(centreX, _TendrilEndFade);
                 float s = saturate((y - rootY) / max(reach, 1e-3));
-                float phase = s * 4.0 - t * _Writhe + seed * 6.28;
-                float sway = 0.35 * s;
+                float phase = s * _WritheWaves - t * _Writhe + seed * 6.28;
+                float sway = _Sway * s;
                 float pathX = centreX + sway * sin(phase);
-                float slope = 0.35 * (sin(phase) + s * 4.0 * cos(phase)) / max(reach, 1e-3);
+                float slope = _Sway * (sin(phase) + s * _WritheWaves * cos(phase)) / max(reach, 1e-3);
                 float across = (x - pathX) * rsqrt(1.0 + slope * slope);
-                float halfWidth = _TendrilWidth * pow(1.0 - s, 0.8) + 0.02;
+                float halfWidth = _TendrilWidth * pow(1.0 - s, _TendrilTaper) + _TendrilTipWidth;
                 float tendril = max(abs(across) - halfWidth, max(rootY - y, y - rootY - reach));
-                half4 tendrils = half4(_InkColor.rgb, EFX_FillPx(tendril - ArcInkWidth, px));
-                half3 skin = lerp(_RimColor.rgb, _GlowColor.rgb * 1.3, step(across, -halfWidth * 0.35));   // a lit edge
+                half4 tendrils = half4(_InkColor.rgb, EFX_FillPx(tendril - _ArcInkWidth, px));
+                half3 skin = lerp(_RimColor.rgb, _GlowColor.rgb * _TendrilEdgeGlow, step(across, -halfWidth * _TendrilEdgeStart));   // a lit edge
                 tendrils = EFX_Over(half4(skin, EFX_FillPx(tendril, px)), tendrils);
                 tendrils.a *= ArcTakeover() * step(0.01, reach);
 

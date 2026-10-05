@@ -5,11 +5,6 @@ Shader "Swordgear/Gear Arc"
     // any element without a shader of its own, and the template the element arc shaders follow.
     Properties
     {
-        [Header(State response)]
-        _Swell ("Swell When Aimed (world units)", Range(0, 1)) = 0.35
-        _HighlightBoost ("Brightness When Aimed", Range(0, 4)) = 0.9
-        _ActiveBoost ("Brightness When Active", Range(0, 4)) = 0.6
-
         [HideInInspector] _Highlight ("Highlight", Range(0, 1)) = 0
         [HideInInspector] _Active ("Active", Range(0, 1)) = 0
         [HideInInspector] _ArcShape ("Arc Shape", Vector) = (0.8, 9.5, 12.5, 0)

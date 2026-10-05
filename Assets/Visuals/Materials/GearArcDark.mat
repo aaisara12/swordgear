@@ -26,13 +26,10 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _ActiveBoost: 0.6
     - _Emission: 2
     - _EyeDensity: 0.6
     - _FlareTime: -100
     - _Highlight: 0
-    - _HighlightBoost: 0.9
-    - _Swell: 0.35
     - _TendrilReach: 2.8
     - _TendrilSpacing: 1.8
     - _TendrilWidth: 0.3

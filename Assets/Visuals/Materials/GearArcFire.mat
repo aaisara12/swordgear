@@ -26,15 +26,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _ActiveBoost: 0.6
     - _Emission: 1.2
     - _FlameReach: 3.3
     - _FlareTime: -100
     - _Flicker: 6
     - _Highlight: 0
-    - _HighlightBoost: 0.9
     - _Sway: 0.3
-    - _Swell: 0.35
     - _TongueWidth: 1.7
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}

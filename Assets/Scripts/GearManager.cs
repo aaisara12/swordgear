@@ -141,6 +141,24 @@ public class GearManager : InitializeableGameComponent
     private void Awake()
     {
         Instance = this;
+        ApplySharedArcArt();
+    }
+
+    /// <summary>
+    /// The arc shaders read the shared tile and state settings as globals. The art asset pushes them when it
+    /// loads; this makes sure, and falls back to the defaults when no art is assigned.
+    /// </summary>
+    private void ApplySharedArcArt()
+    {
+        if (art != null)
+        {
+            art.ApplyShared();
+            return;
+        }
+
+        GearArcArt defaults = ScriptableObject.CreateInstance<GearArcArt>();
+        defaults.ApplyShared();
+        Destroy(defaults);
     }
 
     private void OnEnable()

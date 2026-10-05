@@ -26,15 +26,12 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _ActiveBoost: 0.6
     - _Emission: 1.1
     - _FlareTime: -100
     - _GustSpeed: 7
     - _Highlight: 0
-    - _HighlightBoost: 0.9
     - _LineReach: 1.6
     - _LineSpeed: 16
-    - _Swell: 0.35
     m_Colors:
     - _AirColor: {r: 0.8, g: 1, b: 0.82, a: 1}
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}

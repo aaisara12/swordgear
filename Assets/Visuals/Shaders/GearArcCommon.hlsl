@@ -24,12 +24,28 @@
 #define GEAR_ARC_MATERIAL_PROPERTIES
 #endif
 
-// The tile's cartoon frame, shared by every arc so the ring reads as one object. Tune the whole ring here.
-static const float ArcInkWidth = 0.16;       // outline, world units
-static const half ArcInkTone = 0.28;         // ink = the element colour this dark
-static const float ArcCornerRadius = 0.45;   // world units
-static const float ArcHaloWidth = 0.2;       // the aimed-at outline, outside the ink, world units
-static const float ArcShinePeriod = 6.0;     // seconds between glints sweeping an idle tile
+// The shared tile and the arc states: the same for every arc, so the ring reads as one object. They're shader
+// globals set from GearArcArt.asset (its "Shared tile" and "States" sections), so one edit there changes the
+// whole ring; the asset's tooltips describe each.
+float _ArcInkWidth;
+half _ArcInkTone;
+float _ArcCornerRadius;
+float _ArcHaloWidth;
+half _ArcHaloGlow;
+float _ArcShinePeriod;
+half _ArcShineStrength;
+float _ArcShineWidth;
+half _ArcShadeTone;
+half _ArcShadeShare;
+half _ArcLitShare;
+half _ArcLitTint;
+half _ArcMaxBrightness;
+float _ArcSwell;
+half _ArcHighlightBoost;
+half _ArcActiveBoost;
+float _ArcFlarePop;
+half _ArcFlareBlaze;
+float _ArcFlareDecay;
 
 CBUFFER_START(UnityPerMaterial)
     // Per arc (MaterialPropertyBlock), eased by GearArcVisual.
@@ -37,11 +53,6 @@ CBUFFER_START(UnityPerMaterial)
     half _Active;
     float4 _ArcShape;
     float _FlareTime;
-
-    // Shared look.
-    float _Swell;
-    half _HighlightBoost;
-    half _ActiveBoost;
 
     GEAR_ARC_MATERIAL_PROPERTIES
 CBUFFER_END
@@ -93,7 +104,7 @@ float ArcHalfLength()
 half ArcFlare()
 {
     float since = _Time.y - _FlareTime;
-    return since < 0.0 ? 0.0 : exp(-since * 7.0);
+    return since < 0.0 ? 0.0 : exp(-since * _ArcFlareDecay);
 }
 
 // The overflow opens fully as soon as the arc is in play; what's drawn in it is up to the fragment.
@@ -140,7 +151,7 @@ ArcVaryings ArcVertex(ArcAttributes input)
     o.positionOS = position.xy;
 
     // Aiming at an arc pushes it outward, toward the flick; a grant pops it.
-    position.xy += radial * (_Swell * _Highlight + ArcFlare() * 0.9);
+    position.xy += radial * (_ArcSwell * _Highlight + ArcFlare() * _ArcFlarePop);
 
     o.positionCS = TransformObjectToHClip(position);
     o.positionWS = TransformObjectToWorld(position).xy;
@@ -153,7 +164,7 @@ ArcVaryings ArcVertex(ArcAttributes input)
 // The state's brightness multiplier. Above 1 is HDR: that's what blooms.
 half ArcStateGlow()
 {
-    return 1.0 + _Highlight * _HighlightBoost + _Active * _ActiveBoost;
+    return 1.0 + _Highlight * _ArcHighlightBoost + _Active * _ArcActiveBoost;
 }
 
 // Where a pixel sits in the arc's own frame, in world units.
@@ -171,20 +182,20 @@ ArcFrame ArcGetFrame(ArcVaryings input)
     float midRadius = (_ArcShape.y + _ArcShape.z) * 0.5;
     f.p = float2((input.uv.x - 0.5) * ArcSweep() * radius, radius - midRadius);
     f.halfSize = float2(0.5 * ArcSweep() * radius, ArcThickness() * 0.5);
-    f.sdf = EFX_SdRoundBox(f.p, f.halfSize, ArcCornerRadius);
+    f.sdf = EFX_SdRoundBox(f.p, f.halfSize, _ArcCornerRadius);
     return f;
 }
 
-// A cartoon glint: a fat and a thin slanted stripe sweeping across the tile, once every ArcShinePeriod /
+// A cartoon glint: a fat and a thin slanted stripe sweeping across the tile, once every _ArcShinePeriod /
 // rate seconds, each arc on its own beat (offset by its angle). Returns 0..1.
 half ArcShine(ArcFrame f, float rate)
 {
     const float sweepShare = 0.25;   // of each period, the part spent crossing the tile
-    float phase = frac(_Time.y * rate / ArcShinePeriod + _ArcShape.w * 0.159);
+    float phase = frac(_Time.y * rate / max(_ArcShinePeriod, 0.1) + _ArcShape.w * 0.159);
     float across = f.halfSize.x + 1.5;
     float x = f.p.x + f.p.y * 0.6 - lerp(-across, across, phase / sweepShare);
-    float fat = 1.0 - EFX_Step(0.22, abs(x));
-    float thin = 1.0 - EFX_Step(0.07, abs(x - 0.5));
+    float fat = 1.0 - EFX_Step(_ArcShineWidth, abs(x));
+    float thin = 1.0 - EFX_Step(_ArcShineWidth * 0.32, abs(x - 0.5));
     return max(fat, thin) * step(phase, sweepShare);
 }
 
@@ -196,18 +207,18 @@ half4 ArcNeutral(ArcVaryings input, ArcFrame f)
     float v = input.uv.y;
 
     half3 rgb = base;
-    rgb = lerp(rgb, base * 0.72, 1.0 - EFX_Step(0.24, v));
-    rgb = lerp(rgb, lerp(base, 1.0, 0.38), EFX_Step(0.72, v));
-    rgb = lerp(rgb, 1.0, ArcShine(f, 1.0) * 0.55);
+    rgb = lerp(rgb, base * _ArcShadeTone, 1.0 - EFX_Step(_ArcShadeShare, v));
+    rgb = lerp(rgb, lerp(base, 1.0, _ArcLitTint), EFX_Step(_ArcLitShare, v));
+    rgb = lerp(rgb, 1.0, ArcShine(f, 1.0) * _ArcShineStrength);
 
     // Brighten, but only until the brightest channel tops out: past that a pale colour (Wind, Light) clips
     // to plain white and loses its hue. The halo carries the rest of the glow.
     half peak = max(max(base.r, base.g), max(base.b, 0.05));
-    rgb *= min(ArcStateGlow(), 1.15 / peak);
-    rgb = lerp(rgb, lerp(base, 1.0, 0.6) * 3.0, ArcFlare() * 0.8);   // a granted arc blazes, past white
+    rgb *= min(ArcStateGlow(), _ArcMaxBrightness / peak);
+    rgb = lerp(rgb, lerp(base, 1.0, 0.6) * 3.0, ArcFlare() * _ArcFlareBlaze);   // a granted arc blazes, past white
 
-    half ink = EFX_Step(-ArcInkWidth, f.sdf);
-    rgb = lerp(rgb, base * ArcInkTone, ink);
+    half ink = EFX_Step(-_ArcInkWidth, f.sdf);
+    rgb = lerp(rgb, base * _ArcInkTone, ink);
     half alpha = EFX_Fill(f.sdf) * lerp(input.color.a, 1.0, ink * 0.6);
     return half4(rgb, alpha);
 }
@@ -215,8 +226,8 @@ half4 ArcNeutral(ArcVaryings input, ArcFrame f)
 // The aimed-at mark: a glowing outline just outside the ink, in a pale tint of `color`, HDR so it blooms.
 half4 ArcHalo(ArcFrame f, half3 color)
 {
-    half ring = EFX_Fill(f.sdf - ArcHaloWidth) * EFX_Step(0.0, f.sdf);
-    half3 rgb = lerp(color, 1.0, 0.5) * 3.0;
+    half ring = EFX_Fill(f.sdf - _ArcHaloWidth) * EFX_Step(0.0, f.sdf);
+    half3 rgb = lerp(color, 1.0, 0.5) * _ArcHaloGlow;
     return half4(rgb, ring * _Highlight);
 }
 

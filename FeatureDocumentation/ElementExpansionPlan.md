@@ -727,7 +727,7 @@ only that slice and give you the exact play steps.*
 | P12 | Permanent imbues — timer, drain, blink and fizzle removed; each arena starts with no element | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P13 | A quieter border — a faint edge, with the element's particles carrying it | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P14 | Arc pieces as editable particle prefabs | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
-| P15 | Arc art knobs and an edit-mode preview | ☐ | ☐ | ☐ |
+| P15 | Arc art knobs — shared settings on the art asset, every look number a labelled material setting | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 
 > **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
 > that last forever (no timer, blink or fizzle), the switch left exactly as it is (no switch damage or cleave —
@@ -869,6 +869,16 @@ only that slice and give you the exact play steps.*
 | **Review fix** | The tutorial hides the gear until its reveal by switching off its renderers; it now switches off every renderer under the gear, so an early flick can't show the new particle pieces before the reveal |
 | **Verified** | In play: each element's pieces fly off its active arc (Earth's boulders hop out and land back, with dust); idle arcs show none. EditMode 104/104 |
 
+### P15 — Arc art knobs ✅
+
+| | |
+|---|---|
+| **Why** | The second half of "make the arc art easy for a human to edit": no look number left buried in shader code |
+| **Shared settings** | `GearArcArt.asset` gains the settings every arc shares, as labelled sliders with tooltips. *Shared tile*: ink width and tone, corner radius, the shaded inner and lit outer strips, the idle glint (period, strength, width). *States*: how far an aimed-at arc swells and brightens, how bright the active arc is, the brightness cap that keeps pale colours from clipping, the aimed-at halo (width, glow), and the grant flare (pop, blaze, decay). They reach the shaders as globals (`_Arc*`, declared in `GearArcCommon.hlsl`), set when the asset loads and whenever it's edited, so one change hits every arc at once, live in Play. `GearManager` applies them on `Awake` (built-in defaults if the gear has no asset) |
+| **Element looks** | Every number in the seven element shaders that shapes its active look — 164 of them — is now a material property with a plain-English label and units, grouped under headers (Fire: Flames, Reach, Tongue Shape, Tongue Motion, Second Row Of Tongues, Flame Layers; and so on). Defaults equal the old literals, so nothing looks different until someone drags a slider. Select `GearArcFire.mat` (etc.) to edit |
+| **Removed** | The per-material State block (`_Swell`, `_HighlightBoost`, `_ActiveBoost`), now on the art asset; the stale values left in the materials |
+| **Verified** | Every shader compiles; the promoted defaults checked equal to the literals they replaced; in play the arcs look as before (idle tiles, the aimed halo and swell, active Fire with its flame bits); raising the asset's ink width from 0.16 to 0.45 thickened every arc's outline at once (all 21 in the P16 preview), and setting it back restored them |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -887,4 +897,4 @@ only that slice and give you the exact play steps.*
 | **P12** | Flick an element and keep it as long as you like; the next arena starts with none, so flick again |
 | **P13** | The screen edges carry the element faintly — a soft tint and its particles — without pulling your eye |
 | **P14** | Edit an element's loose arc pieces (flame bits, stars, sparks, swirls, boulders, notes…) as ordinary particle prefabs |
-| **P15** | Open the arc preview scene: every arc idle/aimed/active without pressing Play; tweak any number live |
+| **P15** | Select `GearArcArt.asset` in Play and drag a setting (ink width, aim swell…): every arc follows. Select an arc material: its look numbers are labelled sliders |
