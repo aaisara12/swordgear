@@ -26,20 +26,96 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _BoltReach: 3.2
-    - _BoltSpacing: 1.7
-    - _BoltWidth: 0.26
-    - _CloudSpeed: 0.8
-    - _Emission: 1.8
+    - _BlinkAt: 0.11
+    - _BlinkLength: 0.035
+    - _BoilJitter: 0.08
+    - _BoilRate: 12
+    - _BoilWobble: 0.1
+    - _BoltCoreInset: 0.19
+    - _BoltEndMargin: 1.3
+    - _BoltGlow: 1.1
+    - _BoltInkWidth: 0.1
+    - _BoltJog: 0.6
+    - _BoltLean: 0.5
+    - _BoltReachMax: 2.85
+    - _BoltReachMin: 2.55
+    - _BoltRoot: 2.2
+    - _BoltTilt: 12
+    - _BoltWidth: 0.27
+    - _CloudEndTaper: 1.2
+    - _CloudInkWidth: 0.09
+    - _CoreGlow: 1.2
+    - _CrackleBurstEvery: 0.6
+    - _CrackleBurstLength: 0.32
+    - _CrackleEndMargin: 1
+    - _CrackleFlicker: 12
+    - _CrackleGlow: 1.2
+    - _CrackleHeight: 1.55
+    - _CrackleHeightRandom: 0.15
+    - _CrackleInkWidth: 0.05
+    - _CrackleLength: 1.3
+    - _CrackleOnChance: 0.7
+    - _CrackleSwing: 0.17
+    - _CrackleTilt: 45
+    - _CrackleTiltRandom: 12
+    - _CrackleWidth: 0.075
+    - _CrownDrop: 0.15
+    - _CrownInkStart: 0.1
+    - _CrownSize: 0.7
+    - _CrownSizeRandom: 0.25
+    - _CrownSpacing: 1.3
+    - _CrownWidth: 1.15
+    - _EndPuffBulge: 0.35
+    - _EndPuffSize: 1.45
     - _FlareTime: -100
+    - _FlashRadius: 1.1
+    - _FlashTime: 0.05
+    - _ForkChance: 0.25
+    - _ForkLength: 0.7
     - _Highlight: 0
-    - _StrikeRate: 9
+    - _ImpactGlow: 1.1
+    - _ImpactInkWidth: 0.07
+    - _ImpactPoints: 6
+    - _ImpactPop: 1.15
+    - _ImpactSize: 0.52
+    - _ImpactTime: 0.1
+    - _ImpactValley: 0.55
+    - _Inhale: 0.08
+    - _InhaleTime: 0.1
+    - _InkArcStart: 0.5
+    - _LitCap: 0.3
+    - _LitCapCut: 0.15
+    - _LumpHeight: 0.95
+    - _LumpSize: 0.8
+    - _LumpSizeRandom: 0.2
+    - _LumpSpacing: 2.2
+    - _LumpWidth: 1.4
+    - _PuffInkWidth: 0.06
+    - _PuffMinSize: 0.55
+    - _ShadowDepth: 0.42
+    - _StrikeHold: 0.28
+    - _StrikeRate: 2
+    - _StrikeSeparation: 2
+    - _Swell: 0.1
+    - _SwellSpeed: 2.2
+    - _ThrowPop: 0.2
+    - _ThrowRadius: 0.9
+    - _ThrowSettle: 0.18
+    - _TwoStepChance: 0.3
+    - _UnderRaise: 1.2
+    - _UnderSize: 1.4
+    - _UnderSpacing: 2.1
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
-    - _BoltColor: {r: 1, g: 0.86, b: 0.14999998, a: 1}
-    - _CloudColor: {r: 0.27999997, g: 0.25999996, b: 0.6, a: 1}
-    - _CoreColor: {r: 1, g: 1, b: 0.85, a: 1}
-    - _InkColor: {r: 0.06999998, g: 0.04, b: 0.19999996, a: 1}
-    - _StormColor: {r: 0.13999996, g: 0.11999995, b: 0.37999994, a: 1}
+    - _BoltColor: {r: 1, g: 0.8, b: 0.16, a: 1}
+    - _CloudDeep: {r: 0.282, g: 0.29, b: 0.392, a: 1}
+    - _CloudLight: {r: 0.525, g: 0.541, b: 0.722, a: 1}
+    - _CloudMid: {r: 0.376, g: 0.388, b: 0.537, a: 1}
+    - _CloudTop: {r: 0.71, g: 0.725, b: 0.859, a: 1}
+    - _CoreColor: {r: 1, g: 1, b: 1, a: 1}
+    - _CrackleColor: {r: 1, g: 0.8, b: 0.16, a: 1}
+    - _FlashColor: {r: 0.851, g: 0.808, b: 0.62, a: 1}
+    - _ImpactColor: {r: 1, g: 0.8, b: 0.16, a: 1}
+    - _InkColor: {r: 0.078, g: 0.071, b: 0.18, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1

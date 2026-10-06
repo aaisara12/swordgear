@@ -3,7 +3,9 @@
 // as GearArcVisual drives it through a MaterialPropertyBlock.
 //
 // Each element's arc shader includes this, declares its own look in GEAR_ARC_MATERIAL_PROPERTIES, and only
-// writes a fragment function. That keeps the ring one object: every arc idles as the same calm cartoon tile
+// writes a fragment function (or, to work out something that's the same for the whole arc once per vertex,
+// a vertex function that calls ArcVertex unchanged and adds its own varyings — as Lightning does for its
+// strike schedule). That keeps the ring one object: every arc idles as the same calm cartoon tile
 // in its element's colour (ArcNeutral) and is outlined the same way when aimed at (ArcHalo); only the
 // *active* arc breaks out into its element's own wild, animated look (ArcEnergy), spilling past the band.
 //
