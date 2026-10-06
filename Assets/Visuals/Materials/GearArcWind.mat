@@ -26,17 +26,83 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _Emission: 1.1
+    - _Anticlockwise: 0
+    - _Boil: 0.1
+    - _CurlDownChance: 0.2
+    - _CurlSize: 1
+    - _CurlSizeSpread: 0.3
+    - _CurlTip: 0.35
+    - _CurlTipWidth: 0.45
+    - _CurlTurns: 0.9
+    - _CurrentLength: 4.5
+    - _CurrentSpacing: 7
+    - _CurrentSpeed: 1.3
+    - _CurrentWidth: 0.5
+    - _Emission: 0.95
+    - _EndFade: 1.1
     - _FlareTime: -100
-    - _GustSpeed: 7
+    - _GustSpeed: 6
     - _Highlight: 0
-    - _LineReach: 1.6
-    - _LineSpeed: 16
+    - _LaneHeight: 0.85
+    - _LaneSpeedMin: 0.9
+    - _LaneSpeedSpread: 0.45
+    - _LaneWobble: 0.08
+    - _LineGlow: 1.15
+    - _LineInkWidth: 0.06
+    - _LineLengthMin: 2.6
+    - _LineLengthSpread: 2.2
+    - _LineLife: 0.75
+    - _LineLift: 0.1
+    - _LineLowest: 1.3
+    - _LineReach: 2.7
+    - _LineShadowDrop: 0.06
+    - _LineSpacing: 8
+    - _LineThinning: 0.8
+    - _LineWidth: 0.17
+    - _LineWidthSpread: 0.3
+    - _PeelLength: 3.2
+    - _PeelLift: 1.6
+    - _RibbonBandInk: 0.5
+    - _RibbonFade: 0.8
+    - _RibbonGlow: 1.2
+    - _RibbonGrow: 0.2
+    - _RibbonLength: 3.4
+    - _RibbonLengthSpread: 1.6
+    - _RibbonLife: 2.4
+    - _RibbonReach: 3.3
+    - _RibbonRest: 0.04
+    - _RibbonRise: 0.5
+    - _RibbonRiseSpread: 0.7
+    - _RibbonRoot: 0.5
+    - _RibbonShade: 0.3
+    - _RibbonShine: 0
+    - _RibbonSpacing: 2.8
+    - _RibbonSpeed: 0.45
+    - _RibbonSteepness: 0.42
+    - _RibbonStretch: 0.25
+    - _RibbonWidth: 0.52
+    - _ShadeHeight: 0.2
+    - _ShadeSpeed: 1.2
+    - _ShadeWave: 0.1
+    - _ShadeWavelength: 3.5
+    - _SurgeEvery: 1.6
+    - _SurgeFlash: 0.3
+    - _SurgeLength: 0.45
+    - _SurgePeak: 3
+    - _SurgeStretch: 0.5
+    - _SurgeWindUp: 0.15
+    - _SurgeWindUpSpeed: 0.4
+    - _WaveLean: 0.6
     m_Colors:
-    - _AirColor: {r: 0.8, g: 1, b: 0.82, a: 1}
+    - _AirColor: {r: 0.9, g: 0.98999995, b: 0.94, a: 1}
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
-    - _GustColor: {r: 0.41999996, g: 0.85, b: 0.5, a: 1}
-    - _InkColor: {r: 0.059999965, g: 0.29999998, b: 0.13999996, a: 1}
+    - _BandColor: {r: 0.62, g: 0.92, b: 0.72, a: 1}
+    - _CurrentColor: {r: 0.8, g: 0.96999997, b: 0.86, a: 1}
+    - _CurrentHeights: {r: 0.42, g: 0.74, b: 0, a: 0}
+    - _DeepColor: {r: 0.29999995, g: 0.77, b: 0.56, a: 1}
+    - _InkColor: {r: 0.059999943, g: 0.3199999, b: 0.23999992, a: 1}
     - _LineColor: {r: 1, g: 1, b: 1, a: 1}
+    - _LineShadowColor: {r: 0.35999995, g: 0.8, b: 0.6, a: 1}
+    - _ShadeColor: {r: 0.56, g: 0.89, b: 0.7, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
