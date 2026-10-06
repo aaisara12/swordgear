@@ -11,10 +11,18 @@ Shader "Swordgear/Cartoon Particle"
     // a new shape is added in both places with the same number.
     //
     // Renderers using it need custom vertex streams UV, AgePercent and StableRandom.x, which pack into
-    // TEXCOORD0.xyzw: age thins rings, the random seeds each bolt's zig-zag and each rock's outline. Shapes
-    // that point along their flight (_ALIGN_VELOCITY: shards, bolts, comets, dashes) also need Velocity, in
-    // TEXCOORD1: the quad stays facing the camera and the shape turns inside it. (Unity's own velocity
-    // alignment turns the quad edge-on to a top-down camera.)
+    // TEXCOORD0.xyzw: age thins rings, the random gives each bolt its jog, lean and girth (and mirrors half of
+    // them), each swirl its length, each shard its girth, point and break, each dash its bow and each rock its
+    // outline. Shapes that point along their flight (_ALIGN_VELOCITY: shards, bolts, comets, dashes) also need
+    // Velocity, in TEXCOORD1: the quad stays facing the camera and the shape turns inside it. (Unity's own
+    // velocity alignment turns the quad edge-on to a top-down camera.) Turned shards and bolts still light the
+    // side facing the screen's upper left, like every other shape.
+    //
+    // Shards, bolts, swirls and dashes draw their own two tones and white-hot parts (see "Shapes drawn with
+    // their own inner detail"). Their shaded side never brightens past a set ceiling however high the emission,
+    // so pale colours keep a visible second tone. Their ink thins with the stroke, so a swirl's hook and a
+    // dash's tail stay their colour rather than turning to ink. A dash's tail also dissolves behind it. The
+    // other shapes take the generic shade crescent and the material's ink width unchanged.
     Properties
     {
         [Enum(CartoonParticleShape)] _Shape ("Shape", Float) = 0
@@ -118,28 +126,222 @@ Shader "Swordgear/Cartoon Particle"
                 return dot(p, float2(a, b)) - r1;
             }
 
-            // The shape, as a signed distance in the particle's square (-1..1 each way).
+            // The ink line's width in the particle's own units, capped in pixels so a big ring isn't drawn in a
+            // fat marker.
+            float InkWidth(float px)
+            {
+                return min(_InkWidth, _InkMaxPixels * px);
+            }
+
+            // ---------- Shapes drawn with their own inner detail ----------
+            // Shards, bolts, swirls and dashes paint their own shade and white-hot parts rather than taking the
+            // generic crescent. Each returns the signed distance (negative inside, in the particle's square) and
+            // fills a ShapeDetail. Masks are already anti-aliased over `px`, one pixel in the square's units. They
+            // take no derivatives, so they can sit inside a branch. `litSide` is +1 when the left of the flight
+            // faces the light (the screen's upper left), -1 when the right does.
+            struct ShapeDetail
+            {
+                half shade;         // 0 lit .. 1 shaded
+                half hot;           // 0 .. 1 white-hot
+                float inkLimit;     // the ink line is no wider than this here, so a thin stroke keeps its colour
+                half alpha;         // 1, or less where the shape dissolves (a dash's tail)
+            };
+
+            // A cartoon ice shard flying point first along +y: a long crystal with a sharp point and a square,
+            // slanted broken end, the face toward the light lit and the other shaded either side of the ridge,
+            // with a straight white glint down the lit face. Each shard its own girth, point and break.
+            float ShardShape(float2 q, float seed, float px, half litSide, inout ShapeDetail d)
+            {
+                float halfWidth = 0.27 + 0.08 * seed;                   // each shard its own girth...
+                float shoulder = 0.12 + 0.18 * frac(seed * 7.31);       // ...where its point starts...
+                float breakTilt = (frac(seed * 3.7) - 0.5) * 1.0;       // ...and how slanted its broken end is
+                const float nose = 0.95;            // the point
+                const float breakAt = -0.62;        // the broken end, across the middle
+                const float glintWidth = 0.045;     // the glint's half-width
+                float2 p = float2(abs(q.x), q.y);
+                float2 frontNormal = normalize(float2(nose - shoulder, halfWidth));
+                float2 breakNormal = normalize(float2(breakTilt, -1.0));
+                float sdf = max(p.x - halfWidth, dot(p - float2(0.0, nose), frontNormal));
+                sdf = max(sdf, dot(q - float2(0.0, breakAt), breakNormal));
+                d.shade = EFX_FillPx(-q.x * litSide, px);
+                // A straight glint down the middle of the lit face, its ends cut square to the point's edge and
+                // to the break, like a facet catching the light.
+                float glint = abs(q.x + litSide * halfWidth * 0.5) - glintWidth;
+                glint = max(glint, dot(p - float2(0.0, nose - 0.3), frontNormal));
+                glint = max(glint, dot(q - float2(0.0, breakAt + 0.22), breakNormal));
+                d.hot = EFX_FillPx(glint, px);
+                return sdf;
+            }
+
+            // Signed distance to a polygon edge, accumulated (iq's polygon): call once per edge, `a` the edge's
+            // vertex and `b` the one before it; the polygon's distance is then parity * sqrt(nearest).
+            void PolygonEdge(float2 p, float2 a, float2 b, inout float nearest, inout float parity)
+            {
+                float2 e = b - a;
+                float2 w = p - a;
+                float2 c = w - e * saturate(dot(w, e) / dot(e, e));
+                nearest = min(nearest, dot(c, c));
+                bool3 crossing = bool3(p.y >= a.y, p.y < b.y, e.x * w.y > e.y * w.x);
+                if (all(crossing) || all(!crossing)) parity = -parity;
+            }
+
+            // A cartoon lightning bolt, point first along +y: a slanted slab, a jog, then a blade tapering to the
+            // point. The side toward the light is lit and the other shaded, with a white-hot core down the seam
+            // between that stops short of the point. Each bolt jogs at its own height, swings its point its own
+            // way and has its own girth; half are mirrored.
+            float BoltShape(float2 q, float seed, float px, half litSide, inout ShapeDetail d)
+            {
+                const float fit = 0.94;                                 // the glyph below is drawn a little big
+                const float coreWidth = 0.042;                          // the white-hot core's half-width...
+                const float coreStops = 0.7;                            // ...and how far up the blade it reaches
+                float2 p = q / fit;
+                bool mirrored = seed > 0.5;
+                p.x = mirrored ? -p.x : p.x;
+                float jog = (frac(seed * 13.7) - 0.5) * 0.4;            // the zig's height, up or down the bolt
+                float lean = (frac(seed * 29.1) - 0.5) * 0.3;           // how far the point swings
+                float girth = 1.0 + (frac(seed * 41.3) - 0.5) * 0.3;    // the back slab's width, +-15%
+                // The outline, round from the back edge's left corner.
+                float2 backLeft = float2(0.14 - 0.23 * girth, -0.92);
+                float2 backRight = float2(0.14 + 0.23 * girth, -0.92);
+                float2 notchRight = float2(0.106, -0.10 + jog);
+                float2 jutRight = float2(0.405, -0.10 + jog);
+                float2 tip = float2(-0.176 + lean, 0.95);
+                float2 notchLeft = float2(-0.088, 0.12 + jog);
+                float2 jutLeft = float2(-0.387, 0.12 + jog);
+                float nearest = dot(p - backLeft, p - backLeft);
+                float inside = 1.0;
+                PolygonEdge(p, backLeft, jutLeft, nearest, inside);
+                PolygonEdge(p, backRight, backLeft, nearest, inside);
+                PolygonEdge(p, notchRight, backRight, nearest, inside);
+                PolygonEdge(p, jutRight, notchRight, nearest, inside);
+                PolygonEdge(p, tip, jutRight, nearest, inside);
+                PolygonEdge(p, notchLeft, tip, nearest, inside);
+                PolygonEdge(p, jutLeft, notchLeft, nearest, inside);
+                float sdf = inside * sqrt(nearest) * fit;
+
+                // The seam: up the middle of the slab, across the jog and up the middle of the blade to the point.
+                float slabLeft = lerp(backLeft.x, jutLeft.x, (notchRight.y - backLeft.y) / (jutLeft.y - backLeft.y));
+                float bladeRight = lerp(jutRight.x, tip.x, (notchLeft.y - jutRight.y) / (tip.y - jutRight.y));
+                float2 seam0 = float2(0.14, -0.92);
+                float2 seam1 = float2(0.5 * (slabLeft + notchRight.x), notchRight.y);
+                float2 seam2 = float2(0.5 * (notchLeft.x + bladeRight), notchLeft.y);
+                float2 from = p.y < seam1.y ? seam0 : (p.y < seam2.y ? seam1 : seam2);
+                float2 to = p.y < seam1.y ? seam1 : (p.y < seam2.y ? seam2 : tip);
+                float slope = (to.x - from.x) / (to.y - from.y);
+                float across = (p.x - (from.x + (p.y - from.y) * slope)) * rsqrt(1.0 + slope * slope) * fit;
+                across = mirrored ? -across : across;                   // now + is the right of the flight
+                d.shade = EFX_FillPx(-across * litSide, px);
+                float core = coreWidth * saturate((coreStops - p.y) / 0.45);
+                d.hot = EFX_FillPx(abs(across) - core, px) * EFX_FillPx(sdf + InkWidth(px) + 0.04, px);
+                return sdf;
+            }
+
+            // A cartoon gust curl: one brush stroke about a turn and a third long that sweeps wide on the outside
+            // and tightens into a hook, fat at its outer end (with a little swell, as if the brush pressed down)
+            // and tapering steadily to a point at the centre, its centre-facing side shaded. Each curl is its
+            // own length.
+            float SwirlShape(float2 q, float seed, float px, inout ShapeDetail d)
+            {
+                const float tau = 6.2831853;
+                const float innerEnd = 2.0;         // the stroke runs from this angle (radians, its point)...
+                float outerEnd = 10.1 + 0.9 * seed; // ...out to this one, its fat end
+                const float outerRadius = 0.78;     // how far out the fat end sits
+                const float tighten = 1.35;         // 1 = evenly spaced turns; more = a tighter hook inside
+                const float fattest = 0.145;        // half-width at the fat end...
+                const float press = 0.25;           // ...swelling by this share over the last fifth
+                const float shadeFrom = 0.3;        // the inner shade stops this share of the half-width short of the middle
+                float r = length(q);
+                float theta = atan2(q.y, q.x);
+                float turn = round((outerEnd * pow(max(r / outerRadius, 0.0), 1.0 / tighten) - theta) / tau);
+                float innerRadius = outerRadius * pow(max(innerEnd / outerEnd, 0.0), tighten);
+                float2 innerTip = innerRadius * float2(cos(innerEnd), sin(innerEnd));
+                float2 outerTip = outerRadius * float2(cos(outerEnd), sin(outerEnd));
+                float sdf = 1e4;
+                float side = 1.0;
+                float width = 0.0;
+                [unroll] for (int i = -1; i <= 1; i++)
+                {
+                    float phi = theta + tau * (turn + i);
+                    float onStroke = clamp(phi, innerEnd, outerEnd);
+                    float along = (onStroke - innerEnd) / (outerEnd - innerEnd);
+                    float halfWidth = fattest * pow(max(along, 0.0), 1.1) * (1.0 + press * smoothstep(0.8, 1.0, along));
+                    float radius = outerRadius * pow(max(onStroke / outerEnd, 0.0), tighten);
+                    float offset = r - radius;
+                    // The spiral crosses each radius at a slant, so the gap along the radius overstates the distance.
+                    float climb = tighten * radius / onStroke;
+                    float gap = phi < innerEnd ? length(q - innerTip)
+                              : (phi > outerEnd ? length(q - outerTip) : abs(offset) * radius * rsqrt(radius * radius + climb * climb));
+                    float dist = gap - halfWidth;
+                    if (dist < sdf) { sdf = dist; side = offset + shadeFrom * halfWidth; width = halfWidth; }
+                }
+                d.shade = EFX_FillPx(side, px);
+                d.inkLimit = 0.32 * width;
+                return sdf;
+            }
+
+            // Signed distance to an ellipse of semi-axes r about the origin (iq's approximation: exact enough
+            // near the edge, which is all the anti-aliasing and ink need).
+            float SdEllipse(float2 p, float2 r)
+            {
+                float k0 = length(p / r);
+                float k1 = length(p / (r * r));
+                return k0 * (k0 - 1.0) / max(k1, 1e-5);
+            }
+
+            // A speed streak flying along +y, in one flat colour: a blunt-pointed head that draws out into a long
+            // taper, the tail dissolving to nothing behind. Each streak bows a little one way or the other.
+            float DashShape(float2 q, float seed, float px, inout ShapeDetail d)
+            {
+                const float tailEnd = -0.96;        // the tail's point (+y is the flight)...
+                const float fattestAt = 0.52;       // ...the head's widest point...
+                const float noseEnd = 0.96;         // ...and the nose
+                const float fattest = 0.13;         // the head's half-width
+                const float fullness = 0.8;         // the taper's curve: 1 = straight sides, less = fuller for longer
+                const float fadeFrom = -0.5;        // the tail is solid down to here, then dissolves to its point
+                float bow = (seed - 0.5) * 0.2;     // how far the middle bends off the straight
+                const float reach = 0.96;           // the bow is measured over -reach..reach
+                // The centre line: a gentle parabola through the ends.
+                float centre = bow * (1.0 - q.y * q.y / (reach * reach));
+                float centreSlope = -2.0 * bow * q.y / (reach * reach);
+                // The head: an oval from its widest point to the nose, turned to follow the bow.
+                float headCentreX = bow * (1.0 - fattestAt * fattestAt / (reach * reach));
+                float2 headAxis = normalize(float2(-2.0 * bow * fattestAt / (reach * reach), 1.0));
+                float2 h = q - float2(headCentreX, fattestAt);
+                float head = SdEllipse(float2(dot(h, float2(headAxis.y, -headAxis.x)), dot(h, headAxis)),
+                                       float2(fattest, noseEnd - fattestAt));
+                // The tail: sides tapering from the head's width to a point.
+                float s = saturate((q.y - tailEnd) / (fattestAt - tailEnd));    // 0 the tail's point .. 1 the head
+                float halfWidth = fattest * pow(s, fullness);
+                float widthSlope = fattest * fullness * pow(max(s, 0.05), fullness - 1.0) / (fattestAt - tailEnd);
+                float across = q.x - centre;
+                float slope = sign(across) * centreSlope - widthSlope;
+                float tailSd = (abs(across) - halfWidth) * rsqrt(1.0 + slope * slope);
+                tailSd = max(tailSd, max(q.y - fattestAt, tailEnd - q.y));
+                d.inkLimit = 0.3 * halfWidth;
+                d.alpha = smoothstep(tailEnd, fadeFrom, q.y);
+                return min(head, tailSd);
+            }
+
+            float DetailedShape(int shape, float2 q, float seed, float px, half litSide, out ShapeDetail d)
+            {
+                d.shade = 0.0;
+                d.hot = 0.0;
+                d.inkLimit = 1e4;
+                d.alpha = 1.0;
+                float sdf;
+                [branch] if (shape == SHAPE_SHARD) sdf = ShardShape(q, seed, px, litSide, d);
+                else if (shape == SHAPE_BOLT) sdf = BoltShape(q, seed, px, litSide, d);
+                else if (shape == SHAPE_SWIRL) sdf = SwirlShape(q, seed, px, d);
+                else sdf = DashShape(q, seed, px, d);
+                return sdf;
+            }
+
+            // The other shapes, as a signed distance in the particle's square (-1..1 each way).
             float Shape(int shape, float2 q, float age, float seed)
             {
                 [branch] if (shape == SHAPE_STAR)
                 {
                     return EFX_SdStar4(q, 0.95);
-                }
-                else if (shape == SHAPE_SHARD)
-                {
-                    // A long diamond, point first along +y.
-                    return (abs(q.x) * 2.6 + abs(q.y) - 0.95) * rsqrt(2.6 * 2.6 + 1.0);
-                }
-                else if (shape == SHAPE_BOLT)
-                {
-                    // A zig-zag along y, kinking every 0.38, each particle its own.
-                    float kink = (q.y + 0.95) / 0.38;
-                    float k = floor(kink);
-                    float x0 = (EFX_Hash21(float2(k, seed * 97.0)) - 0.5) * 0.7 * step(0.5, k);
-                    float x1 = (EFX_Hash21(float2(k + 1.0, seed * 97.0)) - 0.5) * 0.7;
-                    float slope = (x1 - x0) / 0.38;
-                    float across = abs(q.x - lerp(x0, x1, frac(kink))) * rsqrt(1.0 + slope * slope);
-                    return max(across - 0.2 * (1.0 - 0.5 * abs(q.y)), abs(q.y) - 0.95);
                 }
                 else if (shape == SHAPE_RING)
                 {
@@ -159,16 +361,6 @@ Shader "Swordgear/Cartoon Particle"
                 {
                     // A round head leading along +y, a tail tapering away behind it.
                     return SdUnevenCapsule(float2(q.x, 0.5 - q.y), 0.42, 0.06, 1.38);
-                }
-                else if (shape == SHAPE_SWIRL)
-                {
-                    // A gust curl: about a turn and a quarter of a spiral stroke, thickening toward its tail.
-                    const float pitch = 0.105;
-                    float theta = atan2(q.y, q.x);
-                    float phi = theta + 6.2831853 * round((length(q) / pitch - theta) / 6.2831853);
-                    phi = clamp(phi, 1.2, 8.6);
-                    float2 onSpiral = pitch * phi * float2(cos(phi), sin(phi));
-                    return length(q - onSpiral) - (0.08 + 0.08 * (phi - 1.2) / 7.4);
                 }
                 else if (shape == SHAPE_ROCK)
                 {
@@ -191,11 +383,6 @@ Shader "Swordgear/Cartoon Particle"
                 {
                     // A leaf: the lens between two circles, tips along y.
                     return max(length(q - float2(0.6, 0.0)), length(q + float2(0.6, 0.0))) - 0.95;
-                }
-                else if (shape == SHAPE_DASH)
-                {
-                    // A speed line: a capsule along y.
-                    return length(float2(q.x, q.y - clamp(q.y, -0.78, 0.78))) - 0.19;
                 }
                 else if (shape == SHAPE_SNOWFLAKE)
                 {
@@ -220,42 +407,73 @@ Shader "Swordgear/Cartoon Particle"
             {
                 int shape = (int)round(_Shape);
                 float2 q = (input.uvAgeSeed.xy - 0.5) * 2.0;
+                half litSide = 1.0;     // +1: the left of the flight faces the light (always so when not turned)
             #if defined(_ALIGN_VELOCITY)
                 // Turn the shape so its +y points along the flight. It has to fit the square's inscribed circle.
                 float2 heading = normalize(input.heading);
                 q = float2(dot(q, float2(heading.y, -heading.x)), dot(q, heading));
+                // Everything is lit from the screen's upper left, so a shard or bolt lights whichever side faces
+                // there rather than always its left.
+                litSide = dot(float2(-heading.y, heading.x), float2(-1.0, 1.0)) >= 0.0 ? 1.0 : -1.0;
             #endif
                 float age = input.uvAgeSeed.z;
                 float seed = input.uvAgeSeed.w;
 
-                float sdf = Shape(shape, q, age, seed);
                 half3 body = input.color.rgb;
 
                 // Edges are anti-aliased over one pixel of the particle's square, not over the field's own
                 // gradient: a swirl's field jumps where it changes turns, and that would fringe.
                 float px = max(fwidth(q.x), fwidth(q.y));
+                half faceShade = EFX_Step(0.0, q.x);
 
-                // Shade: most shapes shade the crescent not covered by themselves nudged up-left, as if lit from
-                // there; shards and leaves shade one face; strokes (rings, bolts, swirls, dashes) stay flat.
-                bool stroke = shape == SHAPE_RING || shape == SHAPE_BOLT || shape == SHAPE_SWIRL || shape == SHAPE_DASH
-                              || shape == SHAPE_SNOWFLAKE;
-                bool faceted = shape == SHAPE_SHARD || shape == SHAPE_LEAF;
-                half crescent = 1.0 - EFX_FillPx(Shape(shape, q + float2(0.2, -0.2), age, seed), px);
-                half shade = stroke ? 0.0 : (faceted ? EFX_Step(0.0, q.x) : crescent);
-                half3 rgb = lerp(body, body * _ShadeTone, shade) * _Emission;
+                // Shade: shards, bolts, swirls and dashes paint their own (and their white-hot parts). Of the
+                // rest, most shade the crescent not covered by themselves nudged up-left, as if lit from there;
+                // leaves shade one face; rings and snowflakes stay flat.
+                float sdf;
+                half shade;
+                half core;
+                ShapeDetail detail;
+                detail.shade = 0.0;
+                detail.hot = 0.0;
+                detail.inkLimit = 1e4;
+                detail.alpha = 1.0;
+                bool detailed = shape == SHAPE_SHARD || shape == SHAPE_BOLT || shape == SHAPE_SWIRL || shape == SHAPE_DASH;
+                [branch] if (detailed)
+                {
+                    sdf = DetailedShape(shape, q, seed, px, litSide, detail);
+                    shade = detail.shade;
+                    core = detail.hot;
+                }
+                else
+                {
+                    sdf = Shape(shape, q, age, seed);
+                    bool stroke = shape == SHAPE_RING || shape == SHAPE_SNOWFLAKE;
+                    half crescent = 1.0 - EFX_FillPx(Shape(shape, q + float2(0.2, -0.2), age, seed), px);
+                    shade = stroke ? 0.0 : (shape == SHAPE_LEAF ? faceShade : crescent);
+                    core = 0.0;
+                }
+                half3 shadeColour = body * _ShadeTone;
+                // A detailed shape's two tones are its whole look, so emission mustn't lift a pale colour's shaded
+                // side past white, where it would clip to the same white as the lit side: its brightest channel
+                // stays at or under DETAIL_SHADE_CEILING.
+                const half DETAIL_SHADE_CEILING = 0.72;
+                half shadeBrightest = max(max(shadeColour.r, shadeColour.g), max(shadeColour.b, 1e-3)) * _Emission;
+                shadeColour *= detailed ? min(1.0, DETAIL_SHADE_CEILING / shadeBrightest) : 1.0;
+                half3 rgb = lerp(body, shadeColour, shade) * _Emission;
 
                 bool glossy = shape == SHAPE_BLOB || shape == SHAPE_PUFF || shape == SHAPE_COMET || shape == SHAPE_ROCK;
                 half glint = EFX_Fill(length(q - float2(-0.34, 0.36)) - 0.14) * _HighlightDot * (glossy ? 1.0 : 0.0);
                 rgb = lerp(rgb, max(rgb, 1.0) * 1.3, glint);
-                half core = shape == SHAPE_BOLT ? EFX_FillPx(sdf + 0.08, px) : 0.0;   // a bolt's white-hot core
-                rgb = lerp(rgb, max(rgb, 1.0) * 1.4, core);
+                // White-hot: a bolt's core, a shard's glint - kept to a gentle boost so bloom doesn't swallow them.
+                rgb = lerp(rgb, max(rgb, 1.0) * 1.15, core);
 
-                // Ink in the particle's own units, capped in pixels so a big ring isn't drawn in a fat marker.
-                half ink = min(_InkWidth, _InkMaxPixels * px);
-                half outline = (1.0 - EFX_FillPx(sdf + ink, px)) * step(1e-4, ink);
+                // A detailed shape's ink thins with its own stroke (a swirl's hook, a dash's tail) and fades out
+                // once thinner than a pixel, so thin ends stay their colour instead of turning to ink.
+                half ink = min(InkWidth(px), detail.inkLimit);
+                half outline = (1.0 - EFX_FillPx(sdf + ink, px)) * step(1e-4, ink) * saturate(detail.inkLimit / px);
                 half midrib = shape == SHAPE_LEAF ? (1.0 - EFX_Step(ink * 0.6, abs(q.x))) * step(abs(q.y), 0.6) : 0.0;
                 rgb = lerp(rgb, body * _InkTone, max(outline, midrib));
-                return half4(rgb, EFX_FillPx(sdf, px) * input.color.a);
+                return half4(rgb, EFX_FillPx(sdf, px) * input.color.a * detail.alpha);
             }
             ENDHLSL
         }
