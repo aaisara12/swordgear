@@ -26,18 +26,117 @@ Material:
     m_Ints: []
     m_Floats:
     - _Active: 0
-    - _Emission: 1
+    - _AimGlow: 0.2
+    - _BandGlintSpacing: 2.2
+    - _BlinkChance: 0.07
+    - _BlinkEvery: 0.5
+    - _BlinkLength: 0.17
+    - _BreakFling: 1.25
+    - _BreakSpin: 2
+    - _BreakTime: 0.42
+    - _CentreLean: 12
+    - _ChunkHold: 0.6
+    - _ClusterCount: 3
+    - _ClusterEndFade: 1.2
+    - _ClusterJitter: 0.12
+    - _CrackTime: 0.34
+    - _CrackWidth: 0.035
+    - _CrustBoil: 0.09
+    - _CrustBoilRate: 8
+    - _CrustDepth: 0.42
+    - _CrustFlatChance: 0.15
+    - _CrustInk: 0.8
+    - _CrustLumpRise: 0.5
+    - _CrustLumpSize: 0.4
+    - _CrustLumpSpacing: 1.55
+    - _CrustLumpSpread: 0.22
+    - _CrustLumpStretch: 2
+    - _CrustOverhang: 0.12
+    - _CrustShadeHeight: 0.15
+    - _CrustSmallChance: 0.35
+    - _CrustValley: 0.1
+    - _CrustWave: 0.06
+    - _CrustWaveLength: 2.3
+    - _CrystalMaxHeight: 3.3
+    - _CrystalMinHeight: 2.2
+    - _CrystalReachLimit: 3.3
+    - _CrystalRoot: 0.94
+    - _CrystalWidth: 0.6
+    - _CyclePeriod: 3.6
+    - _EdgeLightChance: 0.45
+    - _EdgeLightWidth: 0.05
+    - _EdgeShade: 0.36
+    - _Emission: 0.88
+    - _FacetBlueChance: 0.5
+    - _FacetDeepChance: 0.08
+    - _FacetFrostChance: 0.15
+    - _FacetJitter: 0.9
+    - _FacetPaleChance: 0.15
+    - _FacetSize: 1.3
     - _FlareTime: -100
+    - _FrameRate: 24
+    - _GirdleHeight: 0.5
+    - _GirdleLine: 0.5
+    - _GirdleWobble: 0.25
+    - _GleamRate: 12
+    - _GlintBrightness: 1.8
+    - _GlintChance: 0.5
+    - _GlintEvery: 1
+    - _GlintLength: 0.25
+    - _GlintPlump: 0.62
+    - _GlintSize: 0.42
+    - _GrowDamping: 9
+    - _GrowSpring: 24
+    - _GrowStagger: 0.12
     - _Highlight: 0
-    - _ShineSpeed: 9
-    - _SpikeReach: 2.4
-    - _SpikeSpacing: 1.15
-    - _WaveSpeed: 5
+    - _HighlightWidth: 0.12
+    - _HoldBob: 0.04
+    - _HoldFrameRate: 12
+    - _HoldRate: 1.3
+    - _HoldRock: 1.8
+    - _IcicleChance: 0.55
+    - _IcicleMaxLength: 0.8
+    - _IcicleMinLength: 0.35
+    - _IcicleSpacing: 0.9
+    - _IcicleWidth: 0.3
+    - _InkShare: 0.6
+    - _InnerRim: 0.08
+    - _RegrowGap: 0.1
+    - _RidgeShift: 0
+    - _RippleEvery: 2.2
+    - _RippleHold: 0.09
+    - _RippleLift: 2
+    - _RippleTime: 0.6
+    - _ShineGap: 0.24
+    - _ShineHeight: 0.4
+    - _ShineLength: 0.85
+    - _ShineShuffle: 1
+    - _ShineSlant: 38
+    - _ShineSpotA: -2.4
+    - _ShineSpotB: 2.1
+    - _ShineWidth: 0.075
+    - _ShiverShake: 0.05
+    - _ShoulderDip: 0.3
+    - _SideHeightMax: 0.78
+    - _SideHeightMin: 0.52
+    - _SideLeanMax: 40
+    - _SideLeanMin: 22
+    - _SideOffset: 0.5
+    - _SideWidth: 0.74
+    - _SmashSize: 1.2
+    - _SmashTime: 0.09
+    - _TinkPop: 0.08
+    - _TipGleam: 1.3
+    - _TipLength: 1.45
+    - _TwoSideChance: 0.65
     m_Colors:
     - _ArcShape: {r: 0.8, g: 9.5, b: 12.5, a: 0}
-    - _InkColor: {r: 0.059999965, g: 0.17999998, b: 0.41999996, a: 1}
-    - _LightColor: {r: 0.82, g: 0.96999997, b: 1, a: 1}
-    - _MidColor: {r: 0.5, g: 0.8399999, b: 1, a: 1}
-    - _ShadeColor: {r: 0.26999995, g: 0.58, b: 0.94, a: 1}
+    - _BlueColor: {r: 0.227, g: 0.608, b: 0.851, a: 1}
+    - _CyanColor: {r: 0.4, g: 0.85, b: 0.93, a: 1}
+    - _DeepColor: {r: 0.137, g: 0.408, b: 0.659, a: 1}
+    - _FrostColor: {r: 0.91, g: 0.984, b: 1, a: 1}
+    - _InkColor: {r: 0.043, g: 0.184, b: 0.361, a: 1}
+    - _PaleColor: {r: 0.749, g: 0.953, b: 1, a: 1}
+    - _SnowColor: {r: 1, g: 1, b: 1, a: 1}
   m_BuildTextureStacks: []
   m_AllowLocking: 1
