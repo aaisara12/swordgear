@@ -954,7 +954,7 @@ GameObject:
   - component: {fileID: 2373295590521712962}
   - component: {fileID: 3346800436722707166}
   m_Layer: 0
-  m_Name: ComboSystem
+  m_Name: Combo+UltTracker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1026,7 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a800848ed960e446acd71aecb6e8c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::UltimateChargeTracker
-  _activeUltimate: {fileID: 11400000, guid: 43162a27e8652d443b623e9d7573a2f2, type: 2}
+  _activeUltimate: {fileID: 11400000, guid: 212a0ef291502624a988239b2c39567c, type: 2}
 --- !u!1 &5928453369654428072
 GameObject:
   m_ObjectHideFlags: 0

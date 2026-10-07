@@ -182,9 +182,13 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
 
         UltimateChargeTracker? tracker = UltimateChargeTracker.Instance;
         string levelText = tracker != null
-            ? (tracker.CurrentLevel > 0 ? $"Lv {tracker.CurrentLevel} ({tracker.ChargeProgress:P0} charged)" : "locked")
+            ? (tracker.IsUnlocked
+                ? $"Lv {tracker.OverchargeLevel + 1} (overcharge {tracker.OverchargeLevel}" +
+                  $"{(tracker.IsOverchargeCapped ? ", capped" : "")}, {tracker.ChargeProgress:P0} charged)"
+                : "locked")
             : "no tracker";
         GUILayout.Label($"Ultimate: {levelText}");
+        GUILayout.Label($"  {DescribeNextOverchargeSet(tracker)}");
 
         GUILayout.Label($"Augments — {DescribeLedger()}");
 
@@ -200,6 +204,33 @@ public class AugmentDebugMenu : InitializeableUnrestrictedGameComponent
         }
 
         GUILayout.EndHorizontal();
+    }
+
+    /// <summary>
+    /// Spells out what the next overcharge level still needs, per element, so a stalled level is immediately
+    /// attributable: the ability's requirements, the ledger's counts, or neither.
+    /// </summary>
+    private static string DescribeNextOverchargeSet(UltimateChargeTracker? tracker)
+    {
+        UltimateAbilitySO? ability = tracker?.ActiveUltimate;
+        if (ability == null)
+            return "no ultimate assigned";
+
+        if (ability.Requirements.Count == 0)
+            return $"{ability.name}: no element requirements — can never overcharge";
+
+        if (tracker!.IsOverchargeCapped)
+            return $"{ability.name}: overcharge capped at {ability.MaxOverchargeLevel}";
+
+        var parts = new List<string>();
+        foreach (UltimateAbilitySO.ElementRequirement requirement in ability.Requirements)
+        {
+            int owned = AugmentElementLedger.GetCount(requirement.element);
+            int needed = (tracker.CompletedSets + 1) * requirement.count;
+            parts.Add($"{requirement.element} {owned}/{needed}");
+        }
+
+        return $"{ability.name}: sets {tracker.CompletedSets}, next needs {string.Join("  ", parts)}";
     }
 
     private static string DescribeLedger()

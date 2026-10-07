@@ -4,9 +4,11 @@ using UnityEngine;
 public interface IUltimate
 {
     /// <summary>
-    /// Runs the ultimate. <paramref name="level"/> is 1 for the base version and rises by one for every extra
-    /// full set of matching augments the player has stacked — see <see cref="UltimateAbilitySO.GetLevel"/>.
-    /// It is never 0: a level-0 ultimate is locked and can't be activated at all.
+    /// Runs the ultimate. <paramref name="overchargeLevel"/> is 0 for the base version and rises by one for every
+    /// extra full set of matching augments the player has stacked, up to the ability's
+    /// <see cref="UltimateAbilitySO.MaxOverchargeLevel"/> — see
+    /// <see cref="UltimateAbilitySO.GetOverchargeLevel"/>. Each ultimate decides for itself what overcharge
+    /// does: more passes, bigger damage, extra elements, whatever suits it. A locked ultimate never gets here.
     /// </summary>
-    void ExecuteUlt(int level, Transform player);
+    void ExecuteUlt(int overchargeLevel, Transform player);
 }

@@ -5,9 +5,10 @@ using UnityEngine;
 
 /// <summary>
 /// Owns the player's ultimate. The active ability unlocks only while the player's augment collection covers its
-/// element requirements (see <see cref="AugmentElementLedger"/>); stacking extra full sets overcharges it to a
-/// higher level, which is handed to the effect. While unlocked, the meter fills from damage the player deals —
-/// any element counts. While locked it holds at empty and cannot be activated.
+/// element requirements (see <see cref="AugmentElementLedger"/>); each extra full set on top of that is one level
+/// of overcharge, handed to the effect so it can scale itself. Overcharge is capped by the ability's
+/// <see cref="UltimateAbilitySO.MaxOverchargeLevel"/>. While unlocked, the meter fills from damage the player
+/// deals — any element counts. While locked it holds at empty and cannot be activated.
 /// </summary>
 public class UltimateChargeTracker : MonoBehaviour
 {
@@ -16,7 +17,12 @@ public class UltimateChargeTracker : MonoBehaviour
     [SerializeField] private UltimateAbilitySO? _activeUltimate;
 
     private float _charge;
-    private int _level;
+    private int _completedSets;
+
+    // Last value handed to OnOverchargeChanged. Starts invalid so the first refresh always broadcasts, and
+    // catches an ability swap that keeps the set count but changes the cap.
+    private int _broadcastOvercharge = -1;
+
     private bool _isUltimateAvailable;
     private bool _isExecuting;
     private bool _subscribed;
@@ -24,8 +30,19 @@ public class UltimateChargeTracker : MonoBehaviour
     public bool IsUltimateAvailable => _isUltimateAvailable;
     public UltimateAbilitySO? ActiveUltimate => _activeUltimate;
 
-    /// <summary> 0 while the augment requirements are unmet. 1 is the base ultimate; each extra set adds a level. </summary>
-    public int CurrentLevel => _level;
+    /// <summary> True once the player's augments cover the ability's element requirements at least once. </summary>
+    public bool IsUnlocked => _completedSets > 0;
+
+    /// <summary> How many full sets of the requirements the player's augments cover. 0 while locked. </summary>
+    public int CompletedSets => _completedSets;
+
+    /// <summary> 0 for the base ultimate, +1 per extra full set of requirements, capped by the ability. </summary>
+    public int OverchargeLevel => _activeUltimate != null
+        ? Mathf.Clamp(_completedSets - 1, 0, _activeUltimate.MaxOverchargeLevel)
+        : 0;
+
+    /// <summary> True once extra sets stop counting, so the readout can stop advertising the next level. </summary>
+    public bool IsOverchargeCapped => _activeUltimate != null && _completedSets - 1 >= _activeUltimate.MaxOverchargeLevel;
 
     public float ChargeProgress =>
         _activeUltimate != null ? Mathf.Clamp01(_charge / _activeUltimate.ChargeRequired) : 0f;
@@ -35,8 +52,11 @@ public class UltimateChargeTracker : MonoBehaviour
     public event Action? OnUltimateAvailable;
     public event Action? OnUltimateUnavailable;
 
-    /// <summary> Fired when the overcharge level changes, including to and from 0 (locked). </summary>
-    public event Action<int>? OnLevelChanged;
+    /// <summary>
+    /// Fired when the overcharge level changes (0 = base ultimate), including when the ult locks or unlocks and
+    /// the level happens to stay 0 — subscribers get the current level either way.
+    /// </summary>
+    public event Action<int>? OnOverchargeChanged;
 
     #region Lifecycle
 
@@ -53,20 +73,20 @@ public class UltimateChargeTracker : MonoBehaviour
     private void Start()
     {
         TrySubscribe();
-        RefreshLevel();
+        RefreshSets();
     }
 
     private void OnEnable()
     {
         TrySubscribe();
-        RefreshLevel();
+        RefreshSets();
     }
 
     private void OnDisable()
     {
         if (!_subscribed) return;
         EnemyController.OnAnyEnemyHit -= HandleEnemyHit;
-        AugmentElementLedger.OnCountsChanged -= RefreshLevel;
+        AugmentElementLedger.OnCountsChanged -= RefreshSets;
         _subscribed = false;
     }
 
@@ -74,7 +94,7 @@ public class UltimateChargeTracker : MonoBehaviour
     {
         if (_subscribed) return;
         EnemyController.OnAnyEnemyHit += HandleEnemyHit;
-        AugmentElementLedger.OnCountsChanged += RefreshLevel;
+        AugmentElementLedger.OnCountsChanged += RefreshSets;
         _subscribed = true;
     }
 
@@ -86,7 +106,7 @@ public class UltimateChargeTracker : MonoBehaviour
     // the ult while the player does nothing.
     private void HandleEnemyHit(EnemyController enemy, float damage, MoveType moveType)
     {
-        if (_isExecuting || _isUltimateAvailable || _level <= 0 || _activeUltimate == null)
+        if (_isExecuting || _isUltimateAvailable || !IsUnlocked || _activeUltimate == null)
             return;
 
         if (damage <= 0f)
@@ -113,31 +133,32 @@ public class UltimateChargeTracker : MonoBehaviour
     }
 
     /// <summary>
-    /// Recomputes the overcharge level from the player's augments. A level drop to 0 (e.g. a run reset wiping the
+    /// Recomputes how many requirement sets the augments cover. Dropping back to 0 (e.g. a run reset wiping the
     /// inventory) revokes an unspent ult, since the ability is no longer unlocked at all.
     /// </summary>
-    private void RefreshLevel()
+    private void RefreshSets()
     {
-        int previousLevel = _level;
-        _level = _activeUltimate != null ? _activeUltimate.GetLevel(AugmentElementLedger.Counts) : 0;
+        _completedSets = _activeUltimate != null ? _activeUltimate.GetCompletedSets(AugmentElementLedger.Counts) : 0;
 
-        if (_level <= 0 && _charge > 0f)
+        if (!IsUnlocked && _charge > 0f)
         {
             _charge = 0f;
         }
 
-        if (_level <= 0 && _isUltimateAvailable)
+        if (!IsUnlocked && _isUltimateAvailable)
         {
             _isUltimateAvailable = false;
             OnUltimateUnavailable?.Invoke();
         }
 
-        if (_level != previousLevel)
+        int overcharge = OverchargeLevel;
+        if (overcharge != _broadcastOvercharge)
         {
-            OnLevelChanged?.Invoke(_level);
+            _broadcastOvercharge = overcharge;
+            OnOverchargeChanged?.Invoke(overcharge);
         }
 
-        // Requirement fills move even when the level doesn't, so the readout always refreshes.
+        // Requirement fills move even when the set count doesn't, so the readout always refreshes.
         OnProgressChanged?.Invoke(ChargeProgress);
     }
 
@@ -146,12 +167,12 @@ public class UltimateChargeTracker : MonoBehaviour
     #region Public API
 
     /// <summary>
-    /// Called by player input. Executes the ult at its current level and empties the meter.
+    /// Called by player input. Executes the ult at its current overcharge level and empties the meter.
     /// Returns false if the ult is locked, still charging, or has nothing to run.
     /// </summary>
     public bool TryActivate()
     {
-        if (!_isUltimateAvailable || _level <= 0 || _activeUltimate?.Effect == null)
+        if (!_isUltimateAvailable || !IsUnlocked || _activeUltimate?.Effect == null)
             return false;
 
         Transform? player = GameManager.Instance?.player?.transform;
@@ -165,7 +186,7 @@ public class UltimateChargeTracker : MonoBehaviour
         OnUltimateUnavailable?.Invoke();
         OnProgressChanged?.Invoke(0f);
 
-        _activeUltimate.Effect.ExecuteUlt(_level, player);
+        _activeUltimate.Effect.ExecuteUlt(OverchargeLevel, player);
         return true;
     }
 
@@ -182,7 +203,7 @@ public class UltimateChargeTracker : MonoBehaviour
             OnUltimateUnavailable?.Invoke();
         }
 
-        RefreshLevel();
+        RefreshSets();
     }
 
     public void ResetForNewRun()
@@ -195,36 +216,24 @@ public class UltimateChargeTracker : MonoBehaviour
             OnUltimateUnavailable?.Invoke();
         }
 
-        RefreshLevel();
+        RefreshSets();
     }
 
     /// <summary>
-    /// Fills <paramref name="results"/> with one entry per element requirement of the active ultimate.
-    /// While the ult is locked each entry reports how far that element's augments have come toward unlocking the
-    /// next level, so the readout shows what the player still needs. Once unlocked every entry mirrors the shared
-    /// damage charge, so the ring reads as a single meter.
+    /// Fills <paramref name="results"/> with one entry per element requirement of the active ultimate, each
+    /// reporting how far that element's augments have come toward completing the *next* set: the unlock set while
+    /// the ult is locked, the next overcharge level once it isn't. Returns nothing once overcharge is capped, or
+    /// for an ultimate that declares no requirements (e.g. the tutorial's) — in both cases there is no next set
+    /// to work toward and the readout falls back to the shared charge meter alone.
     /// </summary>
-    public void GetMeterSegments(List<(Element element, float fill)> results)
+    public void GetRequirementSegments(List<(Element element, float fill)> results)
     {
         results.Clear();
-        if (_activeUltimate == null) return;
-
-        float charge = ChargeProgress;
-
-        // An ultimate with no element requirements (e.g. the tutorial's) is always unlocked and has no slots to
-        // show, so it gets a single ring carrying the charge instead of rendering nothing at all.
-        if (_activeUltimate.Requirements.Count == 0)
-        {
-            results.Add((ElementVisuals.GetCurrentElement(), charge));
-            return;
-        }
+        if (_activeUltimate == null || IsOverchargeCapped) return;
 
         foreach (UltimateAbilitySO.ElementRequirement requirement in _activeUltimate.Requirements)
         {
-            float fill = _level > 0
-                ? charge
-                : _activeUltimate.GetRequirementFill(requirement, _level, AugmentElementLedger.Counts);
-
+            float fill = _activeUltimate.GetRequirementFill(requirement, _completedSets, AugmentElementLedger.Counts);
             results.Add((requirement.element, fill));
         }
     }
