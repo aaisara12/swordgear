@@ -16,8 +16,8 @@ public struct ElementArcLook
 
 /// <summary>
 /// Everything the gear's arcs look like, in one place: the cartoon tile every arc shares and how arcs react
-/// when aimed at, made active or granted; and per element, which material its arc uses and which loose pieces
-/// fly off it while active. Edit this asset (and the materials and prefabs it points to) to change the arcs;
+/// when aimed at, made active or granted; how the whole gear sits back while unused and lifts forward while the
+/// player picks; and per element, which material its arc uses and which loose pieces fly off it while active. Edit this asset (and the materials and prefabs it points to) to change the arcs;
 /// nothing about their look lives in code.
 /// </summary>
 /// <remarks>
@@ -70,12 +70,41 @@ public class GearArcArt : ScriptableObject
     [Tooltip("…and settles back at this rate, per second.")]
     [SerializeField, Range(1f, 20f)] private float flareDecay = 7f;
 
+    [Header("Background (the whole gear: arcs, hub, pieces)")]
+    [Tooltip("Unless the player is picking an element, the gear sits back so it doesn't pull the eye: it keeps " +
+             "this share of its opacity…")]
+    [SerializeField, Range(0f, 1f)] private float recededOpacity = 0.05f;
+    [Tooltip("…this share of its colour (the rest goes grey)…")]
+    [SerializeField, Range(0f, 1f)] private float recededColour = 0.4f;
+    [Tooltip("…and shrinks to this size, so lifting forward reads as coming closer.")]
+    [SerializeField, Range(0.8f, 1f)] private float recededScale = 0.96f;
+    [Tooltip("Lifted forward (picking, or just switched), it shows at this opacity, in full colour and size.")]
+    [SerializeField, Range(0f, 1f)] private float liftedOpacity = 0.5f;
+    [Tooltip("Seconds to lift forward once the player starts picking (aiming at the gear).")]
+    [SerializeField, Range(0.01f, 0.5f)] private float liftTime = 0.08f;
+    [Tooltip("After a switch, the gear stays forward this many seconds…")]
+    [SerializeField, Range(0f, 3f)] private float switchHold = 0.6f;
+    [Tooltip("…and after picking ends without a switch, this many (0 = sit back straight away). It's always " +
+             "forward while the player is picking.")]
+    [SerializeField, Range(0f, 2f)] private float pickHold = 0.2f;
+    [Tooltip("Seconds to sit back again.")]
+    [SerializeField, Range(0.05f, 2f)] private float settleTime = 0.45f;
+
     [Header("Elements")]
     [Tooltip("The arc for an element with no entry below (a Swordgear/Gear Arc material).")]
     [SerializeField] private Material? defaultMaterial;
     [SerializeField] private List<ElementArcLook> elements = new();
 
     public Material? DefaultMaterial => defaultMaterial;
+
+    public float RecededOpacity => recededOpacity;
+    public float RecededColour => recededColour;
+    public float RecededScale => recededScale;
+    public float LiftedOpacity => liftedOpacity;
+    public float LiftTime => liftTime;
+    public float SwitchHold => switchHold;
+    public float PickHold => pickHold;
+    public float SettleTime => settleTime;
 
 #if UNITY_EDITOR
     /// <summary>

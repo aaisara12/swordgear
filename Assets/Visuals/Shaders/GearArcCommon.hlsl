@@ -5,7 +5,9 @@
 // Each element's arc shader includes this, declares its own look in GEAR_ARC_MATERIAL_PROPERTIES, and only
 // writes a fragment function (or, to work out something that's the same for the whole arc once per vertex,
 // a vertex function that calls ArcVertex unchanged and adds its own varyings — as Lightning does for its
-// strike schedule). That keeps the ring one object: every arc idles as the same calm cartoon tile
+// strike schedule). Every return from the fragment goes through GearRecede (GearPresence.hlsl), so the arc
+// sits back with the rest of the gear while the player isn't picking. That keeps the ring one object: every
+// arc idles as the same calm cartoon tile
 // in its element's colour (ArcNeutral) and is outlined the same way when aimed at (ArcHalo); only the
 // *active* arc breaks out into its element's own wild, animated look (ArcEnergy), spilling past the band.
 //
@@ -21,6 +23,7 @@
 
 #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
 #include "ElementFX.hlsl"
+#include "GearPresence.hlsl"
 
 #ifndef GEAR_ARC_MATERIAL_PROPERTIES
 #define GEAR_ARC_MATERIAL_PROPERTIES

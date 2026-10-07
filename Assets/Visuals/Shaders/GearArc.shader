@@ -29,7 +29,7 @@ Shader "Swordgear/Gear Arc"
             half4 ArcFragment(ArcVaryings input) : SV_Target
             {
                 ArcFrame f = ArcGetFrame(input);
-                return EFX_Over(ArcNeutral(input, f), ArcHalo(f, input.color.rgb));
+                return GearRecede(EFX_Over(ArcNeutral(input, f), ArcHalo(f, input.color.rgb)));
             }
             ENDHLSL
         }

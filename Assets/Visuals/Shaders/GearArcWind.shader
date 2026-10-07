@@ -350,7 +350,7 @@ Shader "Swordgear/Gear Arc Wind"
                 half energy = ArcEnergy();
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 GustClock clock = GetGustClock(_Time.y);
@@ -653,7 +653,7 @@ Shader "Swordgear/Gear Arc Wind"
                     }
                 }
 
-                return EFX_Over(gust, tile);
+                return GearRecede(EFX_Over(gust, tile));
             }
             ENDHLSL
         }

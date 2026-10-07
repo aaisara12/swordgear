@@ -109,6 +109,15 @@ public class GearArcVisual : MonoBehaviour
         }
     }
 
+    /// <summary> Lets the pieces sit back with the rest of the gear (the arc itself reads the global fade). </summary>
+    public void SetPieceRecede(float fadeOut, float desaturate)
+    {
+        if (bits != null)
+        {
+            bits.SetRecede(fadeOut, desaturate);
+        }
+    }
+
     public void SetSorting(int sortingLayerId, int sortingOrder)
     {
         EnsureBuilt();

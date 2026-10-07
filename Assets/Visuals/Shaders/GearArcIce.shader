@@ -952,7 +952,7 @@ Shader "Swordgear/Gear Arc Ice"
                 half energy = ArcEnergy();
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 float t = _Time.y;
@@ -1162,7 +1162,7 @@ Shader "Swordgear/Gear Arc Ice"
                     IceDraw(layer, crust, rgb, inkWidth * _CrustInk, px, takeover);
                 }
 
-                return EFX_Over(layer, tile);
+                return GearRecede(EFX_Over(layer, tile));
             }
             ENDHLSL
         }

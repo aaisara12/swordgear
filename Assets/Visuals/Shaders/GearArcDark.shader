@@ -119,7 +119,7 @@ Shader "Swordgear/Gear Arc Dark"
                 half energy = ArcEnergy();
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 float t = _Time.y;
@@ -178,7 +178,7 @@ Shader "Swordgear/Gear Arc Dark"
                 tendrils = EFX_Over(half4(skin, EFX_FillPx(tendril, px)), tendrils);
                 tendrils.a *= ArcTakeover() * step(0.01, reach);
 
-                return EFX_Over(abyss, EFX_Over(tendrils, tile));
+                return GearRecede(EFX_Over(abyss, EFX_Over(tendrils, tile)));
             }
             ENDHLSL
         }

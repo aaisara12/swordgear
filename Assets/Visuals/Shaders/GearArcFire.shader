@@ -108,7 +108,7 @@ Shader "Swordgear/Gear Arc Fire"
                 half energy = ArcEnergy();
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 float t = _Time.y;
@@ -141,7 +141,7 @@ Shader "Swordgear/Gear Arc Fire"
                 // Above the tile the flames show as soon as they reach; inside it they take over a beat later.
                 half4 flames = half4(rgb, EFX_Fill(fire) * lerp(ArcTakeover(), 1.0, EFX_Step(0.0, f.sdf)));
 
-                return EFX_Over(flames, tile);
+                return GearRecede(EFX_Over(flames, tile));
             }
             ENDHLSL
         }

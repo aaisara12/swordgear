@@ -28,7 +28,29 @@ public class ArcBits : MonoBehaviour
 {
     [SerializeField] private List<ArcBitsEmitter> emitters = new();
 
+    private static readonly int PieceFadeOutId = Shader.PropertyToID("_PieceFadeOut");
+    private static readonly int PieceDesaturateId = Shader.PropertyToID("_PieceDesaturate");
+
     private bool playing;
+    private ParticleSystemRenderer[]? renderers;
+    private MaterialPropertyBlock? block;
+
+    /// <summary>
+    /// Fades and greys the pieces with the rest of the gear while it sits back (GearManager). A property block,
+    /// not the materials: some pieces share their material with switch bursts that mustn't fade.
+    /// </summary>
+    public void SetRecede(float fadeOut, float desaturate)
+    {
+        renderers ??= GetComponentsInChildren<ParticleSystemRenderer>(true);
+        block ??= new MaterialPropertyBlock();
+        foreach (ParticleSystemRenderer piece in renderers)
+        {
+            piece.GetPropertyBlock(block);
+            block.SetFloat(PieceFadeOutId, fadeOut);
+            block.SetFloat(PieceDesaturateId, desaturate);
+            piece.SetPropertyBlock(block);
+        }
+    }
 
     /// <summary> Shapes every emitter to an arc, in the arc's own space (centred on the gear). </summary>
     public void Fit(float innerRadius, float outerRadius, float centerAngleDegrees, float sweepDegrees)

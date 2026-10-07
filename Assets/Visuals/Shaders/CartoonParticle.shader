@@ -33,6 +33,11 @@ Shader "Swordgear/Cartoon Particle"
         _HighlightDot ("Highlight Dot", Range(0, 1)) = 0.6
         _InkMaxPixels ("Ink Width Cap (pixels)", Range(0, 12)) = 4
         [Toggle(_ALIGN_VELOCITY)] _AlignVelocity ("Point Along Velocity", Float) = 0
+
+        // Set per renderer by ArcBits on the gear's arc pieces only, so they sit back with the rest of the gear
+        // (GearPresence.hlsl). 0 everywhere else.
+        [HideInInspector] _PieceFadeOut ("Gear Fade Out", Range(0, 1)) = 0
+        [HideInInspector] _PieceDesaturate ("Gear Desaturate", Range(0, 1)) = 0
     }
 
     SubShader
@@ -51,6 +56,7 @@ Shader "Swordgear/Cartoon Particle"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "ElementFX.hlsl"
+            #include "GearPresence.hlsl"
 
             #define SHAPE_BLOB 0
             #define SHAPE_STAR 1
@@ -74,6 +80,8 @@ Shader "Swordgear/Cartoon Particle"
                 half _ShadeTone;
                 half _HighlightDot;
                 half _InkMaxPixels;
+                half _PieceFadeOut;
+                half _PieceDesaturate;
             CBUFFER_END
 
             struct Attributes
@@ -473,7 +481,7 @@ Shader "Swordgear/Cartoon Particle"
                 half outline = (1.0 - EFX_FillPx(sdf + ink, px)) * step(1e-4, ink) * saturate(detail.inkLimit / px);
                 half midrib = shape == SHAPE_LEAF ? (1.0 - EFX_Step(ink * 0.6, abs(q.x))) * step(abs(q.y), 0.6) : 0.0;
                 rgb = lerp(rgb, body * _InkTone, max(outline, midrib));
-                return half4(rgb, EFX_FillPx(sdf, px) * input.color.a * detail.alpha);
+                return GearRecede(half4(rgb, EFX_FillPx(sdf, px) * input.color.a * detail.alpha), _PieceFadeOut, _PieceDesaturate);
             }
             ENDHLSL
         }

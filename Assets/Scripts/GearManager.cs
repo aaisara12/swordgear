@@ -115,6 +115,9 @@ public class GearManager : InitializeableGameComponent
     private static readonly int HubTintId = Shader.PropertyToID("_Tint");
     private static readonly int HubNotchId = Shader.PropertyToID("_Notch");
     private static readonly int HubClickTimeId = Shader.PropertyToID("_ClickTime");
+    private static readonly int HubScaleId = Shader.PropertyToID("_HubScale");
+    private static readonly int GearFadeOutId = Shader.PropertyToID("_GearFadeOut");
+    private static readonly int GearDesaturateId = Shader.PropertyToID("_GearDesaturate");
 
     private readonly List<GearArcVisual> arcVisuals = new();
 
@@ -131,6 +134,17 @@ public class GearManager : InitializeableGameComponent
     private int hubNotch;
     private float hubClickTime = -100f;
 
+    // Presence: 0 = sitting back in the background, 1 = lifted forward (picking, or just switched).
+    private GearArcArt? fallbackArt;
+    private Vector3 baseScale = Vector3.one;
+    private float presence;
+    private bool picking;
+    private int grantFrame = -1;
+    private float liftUntil = -1f;
+    private float appliedFadeOut = -1f;
+    private float appliedDesaturate = -1f;
+    private float appliedScale = -1f;
+
     /// <summary> One arc per equipped element — derived from the loadout, never authored directly. </summary>
     public int ArcCount => slotTiles.Count;
     public IReadOnlyList<GearTile?> GetSlots() => slotTiles;
@@ -141,6 +155,7 @@ public class GearManager : InitializeableGameComponent
     private void Awake()
     {
         Instance = this;
+        baseScale = transform.localScale;
         ApplySharedArcArt();
     }
 
@@ -156,19 +171,23 @@ public class GearManager : InitializeableGameComponent
             return;
         }
 
-        GearArcArt defaults = ScriptableObject.CreateInstance<GearArcArt>();
-        defaults.ApplyShared();
-        Destroy(defaults);
+        fallbackArt = ScriptableObject.CreateInstance<GearArcArt>();
+        fallbackArt.ApplyShared();
     }
 
     private void OnEnable()
     {
         ElementManager.OnActiveElementChanged += HandleActiveElementChanged;
+        appliedFadeOut = -1f;
     }
 
     private void OnDisable()
     {
         ElementManager.OnActiveElementChanged -= HandleActiveElementChanged;
+
+        // The fade is global; leave nothing faded behind for whatever draws arcs next (the arc preview, say).
+        Shader.SetGlobalFloat(GearFadeOutId, 0f);
+        Shader.SetGlobalFloat(GearDesaturateId, 0f);
     }
 
     /// <summary> The imbued element's arc lights up as active; Physical (no imbue) lights none. </summary>
@@ -199,6 +218,12 @@ public class GearManager : InitializeableGameComponent
         {
             Destroy(runtimeArcMaterial);
             runtimeArcMaterial = null;
+        }
+
+        if (fallbackArt != null)
+        {
+            Destroy(fallbackArt);
+            fallbackArt = null;
         }
     }
 
@@ -277,7 +302,8 @@ public class GearManager : InitializeableGameComponent
         }
 
         float radians = (GetArcLocalAngle(index) + transform.eulerAngles.z) * Mathf.Deg2Rad;
-        worldPosition += new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0f) * radius;
+        // lossyScale: the gear shrinks a touch while it sits back (UpdatePresence).
+        worldPosition += new Vector3(Mathf.Cos(radians), Mathf.Sin(radians), 0f) * radius * transform.lossyScale.x;
         return true;
     }
 
@@ -314,6 +340,8 @@ public class GearManager : InitializeableGameComponent
         }
 
         GameManager.Instance.ApplyEmpowerment(granted, imbueDamageMultiplier);
+        grantFrame = Time.frameCount;
+        Lift(Look.SwitchHold);
         ClickHub();
         if (index < arcVisuals.Count)
         {
@@ -327,13 +355,32 @@ public class GearManager : InitializeableGameComponent
     public bool TryGrantElementFromDirection(Vector2 worldDirection) =>
         TryGrantElementFromDirection(worldDirection, out _);
 
-    /// <summary> Lights up the arc a flick in this direction would grab. Pass a zero direction to clear. </summary>
+    /// <summary>
+    /// Lights up the arc a flick in this direction would grab (none for a zero direction, e.g. the stick
+    /// passing through its centre).
+    /// </summary>
+    /// <remarks>
+    /// Called every frame the player aims at the gear (sword in hand), so it also marks them as picking: the
+    /// gear stays lifted forward until <see cref="ClearArcHighlight"/>, which is how picking ends.
+    /// </remarks>
     public void HighlightArcForDirection(Vector2 worldDirection)
     {
+        picking = true;
         SetHighlightedArc(TryGetArcIndex(worldDirection, out int index) ? index : -1);
     }
 
-    public void ClearArcHighlight() => SetHighlightedArc(-1);
+    public void ClearArcHighlight()
+    {
+        // Picking ended. Without a switch the gear lingers for the pick hold; a switch (granted just before
+        // this, in the same frame) has set its own.
+        if (picking && grantFrame != Time.frameCount)
+        {
+            Lift(Look.PickHold);
+        }
+
+        picking = false;
+        SetHighlightedArc(-1);
+    }
 
     private void SetHighlightedArc(int index)
     {
@@ -410,6 +457,7 @@ public class GearManager : InitializeableGameComponent
         }
 
         highlightedArc = -1;
+        appliedFadeOut = -1f;   // the new pieces take the current fade on the next update
         UpdateHub();
     }
 
@@ -520,10 +568,76 @@ public class GearManager : InitializeableGameComponent
         return runtimeArcMaterial;
     }
 
+    // ---------- Presence ----------
+
+    private GearArcArt Look => art != null ? art : (fallbackArt ??= ScriptableObject.CreateInstance<GearArcArt>());
+
+    /// <summary>
+    /// Brings the gear forward for at least this many seconds (a switch; the tutorial's reveal). Picking holds
+    /// it forward on top of this.
+    /// </summary>
+    public void Lift(float seconds)
+    {
+        liftUntil = Mathf.Max(liftUntil, Time.unscaledTime + seconds);
+    }
+
+    /// <summary>
+    /// The gear sits back in the background — fainter, greyer, a touch smaller — so it doesn't pull the eye
+    /// during play, and lifts forward while the player picks an element and for a moment after a switch. The
+    /// amounts and timings are on the art asset (Background); the arcs, hub and pieces all fade through
+    /// GearPresence.hlsl.
+    /// </summary>
+    private void UpdatePresence()
+    {
+        GearArcArt look = Look;
+        float now = Time.unscaledTime;   // a hit-stop shouldn't freeze the gear mid-lift
+        bool forward = picking || now < liftUntil;
+        float seconds = forward ? look.LiftTime : look.SettleTime;
+        presence = Mathf.MoveTowards(presence, forward ? 1f : 0f, Time.unscaledDeltaTime / Mathf.Max(seconds, 0.001f));
+
+        float shown = Mathf.SmoothStep(0f, 1f, presence);
+        float back = 1f - shown;
+        float scale = Mathf.Lerp(look.RecededScale, 1f, shown);
+        float fadeOut = 1f - Mathf.Lerp(look.RecededOpacity, look.LiftedOpacity, shown);
+        float desaturate = back * (1f - look.RecededColour);
+        if (Mathf.Approximately(fadeOut, appliedFadeOut) && Mathf.Approximately(desaturate, appliedDesaturate)
+            && Mathf.Approximately(scale, appliedScale))
+        {
+            return;
+        }
+
+        appliedFadeOut = fadeOut;
+        appliedDesaturate = desaturate;
+        appliedScale = scale;
+        transform.localScale = baseScale * scale;
+
+        // The hub draws its cog in world units from the gear's centre; tell it the gear's scale so it shrinks
+        // with the arcs.
+        if (hubRenderer != null)
+        {
+            hubBlock ??= new MaterialPropertyBlock();
+            hubRenderer.GetPropertyBlock(hubBlock);
+            hubBlock.SetFloat(HubScaleId, transform.lossyScale.x);
+            hubRenderer.SetPropertyBlock(hubBlock);
+        }
+
+        Shader.SetGlobalFloat(GearFadeOutId, fadeOut);
+        Shader.SetGlobalFloat(GearDesaturateId, desaturate);
+        foreach (GearArcVisual arc in arcVisuals)
+        {
+            if (arc != null)
+            {
+                arc.SetPieceRecede(fadeOut, desaturate);
+            }
+        }
+    }
+
     // ---------- Follow ----------
 
     private void Update()
     {
+        UpdatePresence();
+
         GameManager? gameManager = GameManager.Instance;
 
         if (gameManager == null || gameManager.player == null)

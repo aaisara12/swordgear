@@ -7,6 +7,10 @@ namespace Tutorial
 {
     public class GearRevealController : MonoBehaviour
     {
+        [Tooltip("The gear normally sits back until the player picks from it; at its reveal it comes forward for " +
+                 "this many seconds so the player sees it.")]
+        [SerializeField, Min(0f)] private float revealLift = 3f;
+
         private void Awake()
         {
             // GearManager may live in an additively-loaded scene (not a valid serialized reference target),
@@ -43,6 +47,11 @@ namespace Tutorial
             foreach (Collider2D collider in gearManager.GetComponentsInChildren<Collider2D>(true))
             {
                 collider.enabled = visible;
+            }
+
+            if (visible)
+            {
+                gearManager.Lift(revealLift);
             }
         }
     }

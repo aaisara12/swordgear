@@ -118,6 +118,11 @@ public class GearArcPreview : MonoBehaviour
             art.ApplyShared();
         }
 
+        // The preview shows the arcs at full opacity, without the gear's background fade: in play GearManager fades
+        // the whole gear (GearArcArt's Background settings), so judge the look here and the fade in play.
+        Shader.SetGlobalFloat("_GearFadeOut", 0f);
+        Shader.SetGlobalFloat("_GearDesaturate", 0f);
+
         float inner = Mathf.Max(0f, radius - thickness * 0.5f);
         float outer = radius + thickness * 0.5f;
 

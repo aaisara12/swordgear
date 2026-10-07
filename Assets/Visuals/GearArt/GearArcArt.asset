@@ -31,6 +31,14 @@ MonoBehaviour:
   flarePop: 0.9
   flareBlaze: 0.8
   flareDecay: 7
+  recededOpacity: 0.05
+  recededColour: 0.4
+  recededScale: 0.96
+  liftedOpacity: 0.5
+  liftTime: 0.08
+  switchHold: 0.6
+  pickHold: 0.2
+  settleTime: 0.45
   defaultMaterial: {fileID: 2100000, guid: 7ec28e59fc350ee4a996f15236d85cf7, type: 2}
   elements:
   - element: 1

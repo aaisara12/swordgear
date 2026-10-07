@@ -610,7 +610,7 @@ Shader "Swordgear/Gear Arc Lightning"
                 }
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 float t = _Time.y;
@@ -817,7 +817,7 @@ Shader "Swordgear/Gear Arc Lightning"
                 half4 result = EFX_Over(bolts, halo);
                 result = EFX_Over(tile, result);
                 result = EFX_Over(storm, result);
-                return EFX_Over(impact, result);
+                return GearRecede(EFX_Over(impact, result));
             }
             ENDHLSL
         }

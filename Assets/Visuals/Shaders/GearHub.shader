@@ -33,6 +33,7 @@ Shader "Swordgear/Gear Hub"
         [HideInInspector] _Tint ("Tint", Color) = (1, 1, 1, 0)
         [HideInInspector] _Notch ("Notch", Float) = 0
         [HideInInspector] _ClickTime ("Click Time", Float) = -100
+        [HideInInspector] _HubScale ("Gear Scale", Float) = 1
     }
 
     SubShader
@@ -50,6 +51,7 @@ Shader "Swordgear/Gear Hub"
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "ElementFX.hlsl"
+            #include "GearPresence.hlsl"
 
             CBUFFER_START(UnityPerMaterial)
                 half4 _SteelColor;
@@ -69,6 +71,7 @@ Shader "Swordgear/Gear Hub"
                 half4 _Tint;
                 float _Notch;
                 float _ClickTime;
+                float _HubScale;
             CBUFFER_END
 
             struct Attributes
@@ -79,7 +82,7 @@ Shader "Swordgear/Gear Hub"
             struct Varyings
             {
                 float4 positionCS : SV_POSITION;
-                float2 fromCentre : TEXCOORD0;   // world units from the gear's centre
+                float2 fromCentre : TEXCOORD0;   // from the gear's centre, in the gear's own units
             };
 
             Varyings HubVertex(Attributes input)
@@ -87,7 +90,9 @@ Shader "Swordgear/Gear Hub"
                 Varyings o;
                 float3 positionWS = TransformObjectToWorld(input.positionOS.xyz);
                 o.positionCS = TransformWorldToHClip(positionWS);
-                o.fromCentre = positionWS.xy - TransformObjectToWorld(float3(0.0, 0.0, 0.0)).xy;
+                // In the gear's own units (world units at full size), so the cog shrinks with the arcs while the
+                // gear sits back (GearManager sets _HubScale to the gear's scale).
+                o.fromCentre = (positionWS.xy - TransformObjectToWorld(float3(0.0, 0.0, 0.0)).xy) / max(_HubScale, 1e-3);
                 return o;
             }
 
@@ -144,7 +149,8 @@ Shader "Swordgear/Gear Hub"
                 rgb = lerp(rgb, rivetColor, EFX_Fill(rivet));
 
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-_InkWidth, cog));
-                return half4(rgb, EFX_Fill(cog));
+                // Sits back with the rest of the gear when the player isn't picking an element.
+                return GearRecede(half4(rgb, EFX_Fill(cog)));
             }
             ENDHLSL
         }

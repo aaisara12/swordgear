@@ -93,7 +93,7 @@ Shader "Swordgear/Gear Arc Earth"
                 half energy = ArcEnergy();
                 [branch] if (energy < 0.001)
                 {
-                    return tile;
+                    return GearRecede(tile);
                 }
 
                 float t = _Time.y;
@@ -132,7 +132,7 @@ Shader "Swordgear/Gear Arc Earth"
                 rgb = lerp(rgb, _InkColor.rgb, EFX_Step(-_ArcInkWidth, sdf));
                 half4 rock = half4(rgb, EFX_Fill(sdf) * ArcTakeover());
 
-                return EFX_Over(rock, tile);
+                return GearRecede(EFX_Over(rock, tile));
             }
             ENDHLSL
         }

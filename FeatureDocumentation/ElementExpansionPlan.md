@@ -730,6 +730,7 @@ only that slice and give you the exact play steps.*
 | P15 | Arc art knobs — shared settings on the art asset, every look number a labelled material setting | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P16 | The arc preview scene — every element idle, aimed and active in edit mode | ✅ landed | ✅ 2026-10-04 | ⏳ not yet |
 | P17 | Ice, Lightning and Wind redrawn (arcs, pieces, and the shared shard/bolt/swirl/dash particles) | ✅ landed | ✅ 2026-10-05 | ⏳ not yet |
+| P18 | The gear sits back until you pick — fades into the background, lifts forward while picking and after a switch | ✅ landed | ✅ 2026-10-06 | ⏳ not yet |
 
 > **Follow-ups after the user's review (2026-10-04).** The user was happy with P1–P11 and asked for: imbues
 > that last forever (no timer, blink or fizzle), the switch left exactly as it is (no switch damage or cleave —
@@ -907,6 +908,18 @@ only that slice and give you the exact play steps.*
 | **Verified** | Edit-mode preview renders at close-up and game scale on dark, mid and light floors, multi-frame for motion; A/B renders at fixed times showed the fixes change nothing but what they fix; in the arena: each element's switch burst and active arc read clearly. All shaders compile with no messages |
 | **Left as is** | Ice chunks flying sideways can still clip at the arc's ends (0.6 spill), and every arc's spill closes as it switches off, cutting its last shapes flat — both pre-existing and brief |
 
+### P18 — The gear sits back until you pick ✅
+
+| | |
+|---|---|
+| **Why** | The user: when the gear isn't being selected it should fade into the background so it isn't distracting, and "lift" into the foreground while picking an element and briefly during the switch |
+| **Behaviour** | Normally the whole gear — arcs, hub, the active arc's pieces — keeps 5% of its opacity and 40% of its colour (the rest goes grey) and sits at 96% size. While the player aims at it (the aim stick dragged out with the sword in hand — what lights an arc up), it lifts in 0.08s to 50% opacity in full colour and size — the user found 100% too strong and asked for it fainter at rest three times (40% → 20% → 10% → 5%); after a switch it stays forward 0.6s, after picking without a switch 0.2s, then settles back over 0.45s. Attack taps and holds need the stick steady, so they never lift it. The tutorial's reveal holds it forward for 3s so the player sees it arrive |
+| **How** | `GearManager` tracks picking (`HighlightArcForDirection` / `ClearArcHighlight`), `Lift(seconds)` (a grant; the reveal), and eases a presence value on unscaled time (a hit-stop doesn't freeze it). It scales the gear and sets two globals, `_GearFadeOut` and `_GearDesaturate` (both 0 = fully present, which is what they read as unset — nothing fades in a scene without a gear). Every arc fragment's returns and the hub's go through `GearRecede` (`GearPresence.hlsl`). The pieces are drawn with the shared cartoon particle shader, so `ArcBits` sets the same two values per renderer through a property block (`_PieceFadeOut` / `_PieceDesaturate`, hidden properties defaulting to 0) — switch bursts sharing their materials don't fade |
+| **To tune** | `GearArcArt.asset` → Background: kept opacity, kept colour, receded size, lifted opacity, lift time, how long it stays forward after a switch / after picking without one, settle time. Live in Play. The tutorial's reveal hold is Reveal Lift on `GearRevealController` in `Tutorial.unity` |
+| **Review fixes** | The hub draws its cog in world units from the gear's centre, so it now divides by the gear's scale (`_HubScale`, from `GearManager`) — otherwise the shrunk arcs slid over a full-size cog; picking holds the gear forward on its own, so a Pick Hold of 0 means "sit back as soon as picking ends" rather than "never lift"; the pick hold starts only when picking ends without a switch, so after a switch the gear stays forward exactly the Switch Hold rather than the longer of the two |
+| **Not done** | It doesn't drop behind enemies: room floors and enemies both draw at sorting order 0, so there's no order between them to sink the gear to without re-sorting the arena |
+| **Verified** | In the arena: receded at start and with Fire active (flames washed out but moving, enemies reading clearly over the gear), 50% while aiming, measured frame by frame: after a switch it stays forward 0.60s and is at rest by 1.05s; after picking without a switch, forward 0.21s and at rest by 0.65s; the cog stays under the arcs at 96%; no console errors. EditMode 104/104 |
+
 ### Quick reference — what to play after each commit
 
 | After commit | Play this |
@@ -928,3 +941,4 @@ only that slice and give you the exact play steps.*
 | **P15** | Select `GearArcArt.asset` in Play and drag a setting (ink width, aim swell…): every arc follows. Select an arc material: its look numbers are labelled sliders |
 | **P16** | Open `Assets/Scenes/Tools/GearArcPreview.unity`: every arc idle, aimed and active, animating without pressing Play; edit the art asset, a material or a pieces prefab and it follows |
 | **P17** | Imbue Ice, Lightning and Wind in turn: crystals growing and smashing out of a snowy gem, a storm cloud throwing ⚡ bolts, gust scrolls curling off the arc; their switch bursts use the new shards, bolts and streaks |
+| **P18** | Play without touching the aim stick: the gear stays faint and grey. Drag the aim stick: it lifts to half strength in full colour at once; flick an element: it stays forward a moment, then settles back |
