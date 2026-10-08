@@ -1026,7 +1026,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a800848ed960e446acd71aecb6e8c40, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Main::UltimateChargeTracker
-  _activeUltimate: {fileID: 11400000, guid: 212a0ef291502624a988239b2c39567c, type: 2}
+  _activeUltimate: {fileID: 11400000, guid: deaead545bc8dda46bad3bdd8a0a7be7, type: 2}
 --- !u!1 &5928453369654428072
 GameObject:
   m_ObjectHideFlags: 0
