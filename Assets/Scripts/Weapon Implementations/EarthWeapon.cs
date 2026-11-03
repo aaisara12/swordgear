@@ -9,8 +9,8 @@ using UnityEngine.Serialization;
 /// <list type="number">
 /// <item><b>Construction</b> — pressing roots the player and starts building the ballista. Releasing
 /// here fires nothing; the turret never finished.</item>
-/// <item><b>Charging the shot</b> — once built, damage ramps for as long as the player holds, uncapped.
-/// The movement stick aims throughout.</item>
+/// <item><b>Charging the shot</b> — once built, the shot is already tier 1. Holding steps it up a tier
+/// every <c>chargeTimePerTier</c>, to a cap of tier 3. The movement stick aims throughout.</item>
 /// </list>
 /// <para>
 /// A weak tap shot was tried and cut: it competed with the charge for the same job at range, so the
@@ -20,9 +20,10 @@ using UnityEngine.Serialization;
 /// <para>
 /// The shot itself is a fast, heavy rock that bursts on impact: all of its damage is the blast, so it
 /// rewards a committed shot into a group rather than precision against one target.
-/// <para>
-/// Deliberately absent: the ballista actor itself, so the construction phase currently has no visual.
 /// </para>
+/// <para>
+/// The ballista itself is <see cref="EarthTurretController"/>; this class only tells it when to build,
+/// fire, or vanish, and hands it the timings so its animations land on the same frames as the tiers.
 /// </para>
 /// <para>
 /// Note what this class does <em>not</em> implement: <c>OnMeleeHit</c> is left to the interface default
@@ -41,12 +42,16 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [SerializeField] private string chargingLabel = "CHARGING TURRET";
 
     [Header("Charge — phase 2: the shot")]
-    [Tooltip("Seconds of SHOT charge (after construction) at which the charge INDICATOR reads full. " +
-             "Damage keeps climbing past this — there is no damage cap.")]
-    [SerializeField] private float maxChargeTime = 0.8f;
-    [Tooltip("Extra damage per second of shot charge, as a multiple of base damage. Unbounded: a longer " +
-             "hold always hits harder, so the only limit is how long you dare stand still.")]
-    [SerializeField] private float chargeDamagePerSecond = 1f;
+    [Tooltip("Seconds of holding (after construction) to step the shot up one tier. Also sets the speed " +
+             "of the turret's charge animations, so each one finishes as its tier is reached.")]
+    [SerializeField] private float chargeTimePerTier = 0.35f;
+    [Tooltip("Extra damage per tier above the first, as a multiple of base damage.")]
+    [SerializeField] private float damagePerTier = 0.6f;
+
+    [Header("Turret")]
+    [Tooltip("The ballista visual. Enabled when construction starts; hides itself at the end of TurretFire " +
+             "via an animation event.")]
+    [SerializeField] private EarthTurretController turret;
 
     [Header("Rock")]
     [FormerlySerializedAs("boltPrefab")]
@@ -60,21 +65,17 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [Tooltip("How far in front of the player the rock spawns, so it clears their own collider.")]
     [FormerlySerializedAs("boltSpawnOffset")]
     [SerializeField] private float rockSpawnOffset = 0.7f;
-    [Tooltip("Diameter of the rock at zero charge. Set here rather than on the prefab because it grows " +
-             "with the charge, so the prefab's own scale would only ever be overwritten.")]
+    [Tooltip("Diameter of the rock at tier 1. Set here rather than on the prefab because it grows " +
+             "with the tier, so the prefab's own scale would only ever be overwritten.")]
     [SerializeField] private float rockScale = 0.55f;
-    [Tooltip("Extra diameter per second of charge.")]
-    [SerializeField] private float rockScalePerSecond = 0.35f;
-    [SerializeField] private float maxRockScale = 1.6f;
+    [Tooltip("Extra diameter per tier above the first.")]
+    [SerializeField] private float rockScalePerTier = 0.3f;
 
     [Header("Impact Blast")]
-    [Tooltip("Blast radius at zero charge. All the rock's damage comes from this, not from the direct hit.")]
+    [Tooltip("Blast radius at tier 1. All the rock's damage comes from this, not from the direct hit.")]
     [SerializeField] private float blastRadius = 1.5f;
-    [Tooltip("Extra blast radius per second of charge.")]
-    [SerializeField] private float blastRadiusPerSecond = 0.7f;
-    [Tooltip("Ceiling on the blast. Damage keeps climbing past this — only the area stops growing, so a " +
-             "very long hold is a harder hit rather than an ever-wider one.")]
-    [SerializeField] private float maxBlastRadius = 4f;
+    [Tooltip("Extra blast radius per tier above the first.")]
+    [SerializeField] private float blastRadiusPerTier = 0.8f;
 
     [Header("Combat")]
     [SerializeField] private float meleeCooldown = 0.5f;
@@ -88,14 +89,25 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     [SerializeField] private float cleaveRadius = 2.5f;
     [SerializeField] private float cleaveDuration = 0.4f;
 
+    // Three tiers: released right after construction, then two step-ups. Fixed rather than tunable
+    // because the turret has exactly one charge animation per step.
+    private const int MaxTier = 2;
+
     private bool isCharging;
     private float holdDuration;
+    private PlayerController owner;
 
     /// <summary>Phase 1: the ballista is still being built, and releasing now fires nothing.</summary>
     public bool IsConstructing => isCharging && holdDuration < constructionTime;
 
     /// <summary>Phase 2 elapsed. Zero until construction finishes, so build time is never free damage.</summary>
     private float ChargeDuration => Mathf.Max(0f, holdDuration - constructionTime);
+
+    /// <summary>0-based tier the shot would fire at right now, capped at <see cref="MaxTier"/>.</summary>
+    private int ChargeTier =>
+        chargeTimePerTier > 0f ? Mathf.Min(Mathf.FloorToInt(ChargeDuration / chargeTimePerTier), MaxTier) : MaxTier;
+
+    private float FullChargeTime => chargeTimePerTier * MaxTier;
 
     // ---- IMeleeChargeProvider: the charge indicators come for free once these report honestly ----
 
@@ -104,10 +116,11 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     public bool IsCharging => isCharging;
 
     public float ChargeProgress =>
-        isCharging && maxChargeTime > 0f ? Mathf.Clamp01(ChargeDuration / maxChargeTime) : 0f;
+        !isCharging || IsConstructing ? 0f
+        : FullChargeTime > 0f ? Mathf.Clamp01(ChargeDuration / FullChargeTime)
+        : 1f;
 
-    public bool IsMaxCharge =>
-        isCharging && maxChargeTime > 0f && ChargeDuration >= maxChargeTime;
+    public bool IsMaxCharge => isCharging && !IsConstructing && ChargeTier >= MaxTier;
 
     // No upgrade gate, unlike Fire's Fire_ChargeMelee: rooting to aim IS Earth's identity, not a purchase.
     public bool CanShowChargeIndicator(HashSet<UpgradeType> upgrades, PlayerController player) =>
@@ -116,8 +129,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     // Overrides the shared default — Earth is the first element that outranges a sword swing.
     public float AutoAimRadius => autoAimRadius;
 
-    // The two phases are indistinguishable on screen, and releasing in the wrong one fires nothing. Until
-    // the ballista actor exists to show the difference, say it in words.
+    // Releasing in the wrong phase fires nothing, so say which one it is in words as well as with the turret.
     public string ChargePhaseLabel =>
         !isCharging ? string.Empty
         : IsConstructing ? buildingLabel
@@ -142,6 +154,10 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     {
         if (cancel)
         {
+            if (isCharging)
+            {
+                HideTurret();
+            }
             ResetCharge();
             return;
         }
@@ -153,18 +169,31 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
         isCharging = true;
         holdDuration = 0f;
+
+        if (owner == null)
+        {
+            owner = player.GetComponent<PlayerController>();
+        }
+
+        if (turret != null && owner != null)
+        {
+            turret.BeginCharge(owner, constructionTime, chargeTimePerTier);
+        }
     }
 
     /// <summary>Clears the root whenever the imbue ends, in case something skipped the cancel path.</summary>
     public void OnBuffEnd(Transform player, SwordProjectile sword, HashSet<UpgradeType> upgrades)
     {
+        if (isCharging)
+        {
+            HideTurret();
+        }
         ResetCharge();
     }
 
     private void Update()
     {
-        // Deliberately unclamped — damage ramps for as long as the player holds. maxChargeTime only
-        // saturates the indicator; it is not a cap.
+        // Left running past the cap; ChargeTier clamps it.
         if (isCharging)
         {
             holdDuration += Time.deltaTime;
@@ -175,6 +204,14 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     {
         isCharging = false;
         holdDuration = 0f;
+    }
+
+    private void HideTurret()
+    {
+        if (turret != null)
+        {
+            turret.Hide();
+        }
     }
 
     /// <summary>
@@ -189,9 +226,8 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
     /// elements do — a turret that walks itself into range would undercut the whole fantasy.
     /// </para>
     /// <para>
-    /// Damage ramps with hold time and is <b>not capped</b>: the only limit on a shot is how long the
-    /// player dares stand rooted for it. Size and blast radius ramp too, but those <em>are</em> capped, so
-    /// a very long hold reads as a harder hit rather than an ever-widening one.
+    /// Damage, size and blast radius all step up by tier rather than ramping continuously, so the turret's
+    /// charge animation can show exactly which shot the player is holding.
     /// </para>
     /// </remarks>
     public float OnTap(Transform player, HashSet<UpgradeType> upgrades)
@@ -201,6 +237,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         if (IsConstructing)
         {
             AudioSystem.Play(AudioSystem.Sound.Bounce);
+            HideTurret();
             ResetCharge();
             return 0f;
         }
@@ -211,21 +248,26 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
             return 0f;
         }
 
-        float charge = ChargeDuration;
-        float damageMultiplier = rockDamageMultiplier + charge * chargeDamagePerSecond;
-        float scale = Mathf.Min(rockScale + charge * rockScalePerSecond, maxRockScale);
-        float blast = Mathf.Min(blastRadius + charge * blastRadiusPerSecond, maxBlastRadius);
+        int tier = ChargeTier;
+        float damageMultiplier = rockDamageMultiplier + tier * damagePerTier;
+        float scale = rockScale + tier * rockScalePerTier;
+        float blast = blastRadius + tier * blastRadiusPerTier;
 
         // Drop the root BEFORE firing, so nothing below can leave the player stuck.
         ResetCharge();
 
+        if (turret != null)
+        {
+            turret.Fire();
+        }
+
         // player.up is the facing PlayerController just synced from the weapon indicator — the same
         // source every other element aims by, so the shot goes where the pointer and the aim line say.
-        LaunchRock(player, player.up, damageMultiplier, scale, blast);
+        LaunchRock(player, player.up, tier, damageMultiplier, scale, blast);
         return meleeCooldown;
     }
 
-    private void LaunchRock(Transform player, Vector2 direction, float damageMultiplier, float scale, float blast)
+    private void LaunchRock(Transform player, Vector2 direction, int tier, float damageMultiplier, float scale, float blast)
     {
         if (rockPrefab == null)
         {
@@ -241,6 +283,7 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
 
         // Uniform, and set per shot rather than on the prefab: a rock is round, and its size is charge.
         obj.transform.localScale = new Vector3(scale, scale, 1f);
+        ShowTierVisual(obj.transform, tier);
         PlayerProjectile rock = obj.GetComponent<PlayerProjectile>();
         if (rock == null)
         {
@@ -258,6 +301,22 @@ public class EarthWeapon : MonoBehaviour, IElementalWeapon, IMeleeChargeProvider
         // hold is a wider, harder impact rather than a thinner shot that has to be aimed perfectly.
         rock.EnableExplosion(blast);
         AudioSystem.Play(AudioSystem.Sound.Slash_Basic);
+    }
+
+    /// <summary>
+    /// Switches on the rock prefab's child named after <paramref name="tier"/> ("0", "1", "2") and the rest
+    /// off. Every child is set explicitly because the rock is pooled, so it may still show the last shot's tier.
+    /// </summary>
+    private static void ShowTierVisual(Transform rock, int tier)
+    {
+        for (int i = 0; i <= MaxTier; i++)
+        {
+            Transform visual = rock.Find(i.ToString());
+            if (visual != null)
+            {
+                visual.gameObject.SetActive(i == tier);
+            }
+        }
     }
 
     public void Cleave(Transform player, HashSet<UpgradeType> upgrades)

@@ -1,0 +1,518 @@
+fileFormatVersion: 2
+guid: 9fe0f3ab61665254c83e1b5c2e831bdb
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 763624357254288210
+    second: turret_assembly_v1_sheet_0
+  - first:
+      213: -3953673228230402873
+    second: turret_assembly_v1_sheet_1
+  - first:
+      213: -5506449922452214237
+    second: turret_assembly_v1_sheet_2
+  - first:
+      213: -831560090973903217
+    second: turret_assembly_v1_sheet_3
+  - first:
+      213: 3945307289941392770
+    second: turret_assembly_v1_sheet_4
+  - first:
+      213: -1595466852771083835
+    second: turret_assembly_v1_sheet_5
+  - first:
+      213: -7113964109696541387
+    second: turret_assembly_v1_sheet_6
+  - first:
+      213: -189040108246863420
+    second: turret_assembly_v1_sheet_7
+  - first:
+      213: -125886945068622935
+    second: turret_assembly_v1_sheet_8
+  - first:
+      213: 5723102635971084673
+    second: turret_assembly_v1_sheet_9
+  - first:
+      213: 6537919479407072750
+    second: turret_assembly_v1_sheet_10
+  - first:
+      213: 1058809069888740048
+    second: turret_assembly_v1_sheet_11
+  - first:
+      213: 6999742171752077389
+    second: turret_assembly_v1_sheet_12
+  - first:
+      213: -7848643922007383182
+    second: turret_assembly_v1_sheet_13
+  - first:
+      213: 9125738555961991137
+    second: turret_assembly_v1_sheet_14
+  - first:
+      213: -7930895870439878833
+    second: turret_assembly_v1_sheet_15
+  - first:
+      213: -3097158517124422184
+    second: turret_assembly_v1_sheet_16
+  - first:
+      213: 3892049274916925845
+    second: turret_assembly_v1_sheet_17
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2535afb9e40f89a00800000000000000
+      internalID: 763624357254288210
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ccda59752bb129c0800000000000000
+      internalID: -3953673228230402873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 32e22ce48f82593b0800000000000000
+      internalID: -5506449922452214237
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f86eb18c084b574f0800000000000000
+      internalID: -831560090973903217
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 28d37bab31c80c630800000000000000
+      internalID: 3945307289941392770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c94badb953cbd9e0800000000000000
+      internalID: -1595466852771083835
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53dd8a8655f164d90800000000000000
+      internalID: -7113964109696541387
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4c1f4abe505606df0800000000000000
+      internalID: -189040108246863420
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9ab535d8d72c04ef0800000000000000
+      internalID: -125886945068622935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 181882e668b8c6f40800000000000000
+      internalID: 5723102635971084673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ee55a2c802b5bba50800000000000000
+      internalID: 6537919479407072750
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0da1eaf3d35a1be00800000000000000
+      internalID: 1058809069888740048
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d489a924b64142160800000000000000
+      internalID: 6999742171752077389
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 273a834dfe3041390800000000000000
+      internalID: -7848643922007383182
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_assembly_v1_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ef533dcdd225ae70800000000000000
+      internalID: 9125738555961991137
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: fe96e62fef0ce6243904ebe47bf7cf96
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":2300.0,"y":2300.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      turret_assembly_v1_sheet_0: 763624357254288210
+      turret_assembly_v1_sheet_1: -3953673228230402873
+      turret_assembly_v1_sheet_10: 6537919479407072750
+      turret_assembly_v1_sheet_11: 1058809069888740048
+      turret_assembly_v1_sheet_12: 6999742171752077389
+      turret_assembly_v1_sheet_13: -7848643922007383182
+      turret_assembly_v1_sheet_14: 9125738555961991137
+      turret_assembly_v1_sheet_2: -5506449922452214237
+      turret_assembly_v1_sheet_3: -831560090973903217
+      turret_assembly_v1_sheet_4: 3945307289941392770
+      turret_assembly_v1_sheet_5: -1595466852771083835
+      turret_assembly_v1_sheet_6: -7113964109696541387
+      turret_assembly_v1_sheet_7: -189040108246863420
+      turret_assembly_v1_sheet_8: -125886945068622935
+      turret_assembly_v1_sheet_9: 5723102635971084673
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

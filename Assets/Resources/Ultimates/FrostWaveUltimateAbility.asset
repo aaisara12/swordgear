@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70952a2327144dc41bf55888a3fe7381, type: 3}
   m_Name: FrostWaveUltimateAbility
   m_EditorClassIdentifier: Main::UltimateAbilitySO
-  _requirements: []
-  _chargeRequired: 400
+  _requirements:
+  - element: 2
+    count: 1
+  _chargeRequired: 100
   _maxOverchargeLevel: 10
-  _effect: {fileID: 0}
+  _effect: {fileID: 11400000, guid: f8e53d2a9ca1d0a41883a64b76c5a7e9, type: 2}

@@ -1,4 +1,4 @@
-#nullable enable annotations
+﻿#nullable enable annotations
 
 using System;
 using UnityEngine;
@@ -215,6 +215,16 @@ public class ElementManager : InitializeableGameComponent
     /// frame — see <see cref="IAimLockProvider"/> for why this is pulled rather than pushed.
     /// </summary>
     public bool IsAimLocked => activeWeapon is IAimLockProvider aimLock && aimLock.IsAimLocked;
+
+    /// <summary>
+    /// True while the active weapon's charge is running, whatever it wants drawn for it.
+    /// </summary>
+    /// <remarks>
+    /// Separate from <see cref="TryGetMeleeChargeDisplayState"/>, which is gated on the weapon wanting a
+    /// charge indicator at all. A display that keys off the charge rather than illustrating it — the
+    /// weapon <see cref="WeaponAnchor"/> hides through Earth's ballista build — needs the raw fact.
+    /// </remarks>
+    public bool IsWeaponCharging => activeWeapon is IMeleeChargeProvider charge && charge.IsCharging;
 
     /// <summary>
     /// True when the active weapon has no tap attack and wants the charge to begin on the press itself,

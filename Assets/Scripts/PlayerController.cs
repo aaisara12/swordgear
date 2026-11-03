@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using AYellowpaper.SerializedCollections;
 using System.Collections;
@@ -13,6 +13,9 @@ public class PlayerController : PlayerGameplayPawn
     [SerializeField] private PlayerAimIndicator? aimIndicator;
     [SerializeField] private SpriteRenderer? playerRenderer;
     public Transform DirectionTransform { get { return playerDirectionReference == null ? transform : playerDirectionReference; } }
+
+    /// <summary>Where the player is currently aiming — the weapon indicator's facing, including its auto-aim.</summary>
+    public Vector2 AimDirection => weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
     public float DashDistance => dashSpeed * dashDuration;
     private float EffectiveDashCooldown => dashCooldown *
         (PlayerStatModifiers.Instance != null ? Mathf.Max(0.05f, PlayerStatModifiers.Instance.DashCooldownMultiplier) : 1f);
@@ -57,6 +60,13 @@ public class PlayerController : PlayerGameplayPawn
 
     PlayerState playerState = PlayerState.MeleeReady;
     public bool IsMeleeReady => playerState == PlayerState.MeleeReady;
+
+    /// <summary>
+    /// True when a melee attack would actually land right now: the sword is in hand and the last swing's
+    /// cooldown has run out. This is the "ready to attack again" edge <see cref="WeaponAnchor"/> shows the
+    /// weapon on, so the display can't come back before the swing it belongs to is finished.
+    /// </summary>
+    public bool IsAttackReady => playerState == PlayerState.MeleeReady && !IsOnAttackCooldown;
     public float SwordCatchRadius => swordCatchRadius;
     public bool IsRecallChannelActive => recallSwordCoroutine != null;
     public bool IsSwordOut => playerState == PlayerState.SwordThrown;
@@ -232,7 +242,7 @@ public class PlayerController : PlayerGameplayPawn
         // release, so the line can't disagree with where the shot goes.
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        Vector2 aim = weaponIndicator != null ? weaponIndicator.GetFacingDirection() : (Vector2)transform.up;
+        Vector2 aim = AimDirection;
         if (aim.sqrMagnitude > 0.001f)
         {
             aimIndicator?.SetAim(aim, PlayerAimIndicator.AimMode.Ranged);

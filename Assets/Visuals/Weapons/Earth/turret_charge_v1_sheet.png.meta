@@ -1,0 +1,509 @@
+fileFormatVersion: 2
+guid: e3bb952d6854cad41a37c07ba7abb8d5
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1735544305662664717
+    second: turret_charge_v1_sheet_0
+  - first:
+      213: 6140827596853872760
+    second: turret_charge_v1_sheet_1
+  - first:
+      213: 6808140583500180994
+    second: turret_charge_v1_sheet_2
+  - first:
+      213: 3654011018439286785
+    second: turret_charge_v1_sheet_3
+  - first:
+      213: -8112096513896416669
+    second: turret_charge_v1_sheet_4
+  - first:
+      213: 6095816673962327823
+    second: turret_charge_v1_sheet_5
+  - first:
+      213: 6525549977785041689
+    second: turret_charge_v1_sheet_6
+  - first:
+      213: 5643243967339315230
+    second: turret_charge_v1_sheet_7
+  - first:
+      213: -1849578377928179136
+    second: turret_charge_v1_sheet_8
+  - first:
+      213: 3973730208524816544
+    second: turret_charge_v1_sheet_9
+  - first:
+      213: -181609758738462111
+    second: turret_charge_v1_sheet_10
+  - first:
+      213: -8814936105012704267
+    second: turret_charge_v1_sheet_11
+  - first:
+      213: 4184413576490961873
+    second: turret_charge_v1_sheet_12
+  - first:
+      213: -7202588061758348734
+    second: turret_charge_v1_sheet_13
+  - first:
+      213: -3217850255198277228
+    second: turret_charge_v1_sheet_14
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d00a9f6c954e51810800000000000000
+      internalID: 1735544305662664717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8780461f92a983550800000000000000
+      internalID: 6140827596853872760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20ee2742acf5b7e50800000000000000
+      internalID: 6808140583500180994
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 6900
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 100ef6759a7a5b230800000000000000
+      internalID: 3654011018439286785
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 36af489433b0c6f80800000000000000
+      internalID: -8112096513896416669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0f7d6bc7f0b89450800000000000000
+      internalID: 6095816673962327823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9138fe581296f8a50800000000000000
+      internalID: 6525549977785041689
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1040263d74d05e40800000000000000
+      internalID: 5643243967339315230
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0420957c34af456e0800000000000000
+      internalID: -1849578377928179136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a05c582296852730800000000000000
+      internalID: 3973730208524816544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 16a46aaf2eaca7df0800000000000000
+      internalID: -181609758738462111
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_11
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5fbc3f6e05e0ba580800000000000000
+      internalID: -8814936105012704267
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1dbc0145af5021a30800000000000000
+      internalID: 4184413576490961873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_13
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 242ac6b91544b0c90800000000000000
+      internalID: -7202588061758348734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_charge_v1_sheet_14
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 491b186ed36e753d0800000000000000
+      internalID: -3217850255198277228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: fba7650dc790e3d4183f31ac5e91baef
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":4.0},"gridSpriteSize":{"x":2300.0,"y":2300.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      turret_charge_v1_sheet_0: 1735544305662664717
+      turret_charge_v1_sheet_1: 6140827596853872760
+      turret_charge_v1_sheet_10: -181609758738462111
+      turret_charge_v1_sheet_11: -8814936105012704267
+      turret_charge_v1_sheet_12: 4184413576490961873
+      turret_charge_v1_sheet_13: -7202588061758348734
+      turret_charge_v1_sheet_14: -3217850255198277228
+      turret_charge_v1_sheet_2: 6808140583500180994
+      turret_charge_v1_sheet_3: 3654011018439286785
+      turret_charge_v1_sheet_4: -8112096513896416669
+      turret_charge_v1_sheet_5: 6095816673962327823
+      turret_charge_v1_sheet_6: 6525549977785041689
+      turret_charge_v1_sheet_7: 5643243967339315230
+      turret_charge_v1_sheet_8: -1849578377928179136
+      turret_charge_v1_sheet_9: 3973730208524816544
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

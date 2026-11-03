@@ -1,0 +1,504 @@
+fileFormatVersion: 2
+guid: 68b09dfb074aae241a002976f7fe81d3
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1345418440704508124
+    second: turret_firing_v1_sheet_0
+  - first:
+      213: 4260661658305985652
+    second: turret_firing_v1_sheet_1
+  - first:
+      213: 2012400653260497063
+    second: turret_firing_v1_sheet_2
+  - first:
+      213: -4839964653034513570
+    second: turret_firing_v1_sheet_3
+  - first:
+      213: 8081977289954683372
+    second: turret_firing_v1_sheet_4
+  - first:
+      213: 7732503230867385816
+    second: turret_firing_v1_sheet_5
+  - first:
+      213: 5621851936212637335
+    second: turret_firing_v1_sheet_6
+  - first:
+      213: -2902547674035208649
+    second: turret_firing_v1_sheet_7
+  - first:
+      213: 5358199052082135664
+    second: turret_firing_v1_sheet_8
+  - first:
+      213: -1851850550503053175
+    second: turret_firing_v1_sheet_9
+  - first:
+      213: 7463991027070178956
+    second: turret_firing_v1_sheet_10
+  - first:
+      213: -6097318384637322673
+    second: turret_firing_v1_sheet_11
+  - first:
+      213: 8638573769152807967
+    second: turret_firing_v1_sheet_12
+  - first:
+      213: 4683697709835304735
+    second: turret_firing_v1_sheet_13
+  - first:
+      213: -6806052838663365454
+    second: turret_firing_v1_sheet_14
+  - first:
+      213: -5012937631240423836
+    second: turret_firing_v1_sheet_15
+  - first:
+      213: 6111438106663788318
+    second: turret_firing_v1_sheet_16
+  - first:
+      213: -4782546842394159159
+    second: turret_firing_v1_sheet_17
+  - first:
+      213: -542465460478285359
+    second: turret_firing_v1_sheet_18
+  - first:
+      213: -2616300132654637065
+    second: turret_firing_v1_sheet_19
+  - first:
+      213: 3286858550647323398
+    second: turret_firing_v1_sheet_20
+  - first:
+      213: 8059579788106381081
+    second: turret_firing_v1_sheet_21
+  - first:
+      213: 4399981587756793510
+    second: turret_firing_v1_sheet_22
+  - first:
+      213: 3495168832380983633
+    second: turret_firing_v1_sheet_23
+  - first:
+      213: -4651309529927849551
+    second: turret_firing_v1_sheet_24
+  - first:
+      213: -7830971957524167919
+    second: turret_firing_v1_sheet_25
+  - first:
+      213: 830011123088074226
+    second: turret_firing_v1_sheet_26
+  - first:
+      213: 2759756234263636746
+    second: turret_firing_v1_sheet_27
+  - first:
+      213: -1141473170925178231
+    second: turret_firing_v1_sheet_28
+  - first:
+      213: 4573629440299606817
+    second: turret_firing_v1_sheet_29
+  - first:
+      213: -3172078979417567838
+    second: turret_firing_v1_sheet_30
+  - first:
+      213: -3201447310111762266
+    second: turret_firing_v1_sheet_31
+  - first:
+      213: -8784984687881854059
+    second: turret_firing_v1_sheet_32
+  - first:
+      213: -4605560320224681522
+    second: turret_firing_v1_sheet_33
+  - first:
+      213: -3428114389272187832
+    second: turret_firing_v1_sheet_34
+  - first:
+      213: -9200377763099218435
+    second: turret_firing_v1_sheet_35
+  - first:
+      213: -8201575064612833085
+    second: turret_firing_v1_sheet_36
+  - first:
+      213: -93858456610477057
+    second: turret_firing_v1_sheet_37
+  - first:
+      213: 5262902695316933010
+    second: turret_firing_v1_sheet_38
+  - first:
+      213: 8579717780986612997
+    second: turret_firing_v1_sheet_39
+  - first:
+      213: -6373697092077967288
+    second: turret_firing_v1_sheet_40
+  - first:
+      213: -8780278527392137284
+    second: turret_firing_v1_sheet_41
+  - first:
+      213: 3751021911174110372
+    second: turret_firing_v1_sheet_42
+  - first:
+      213: 6823619735848811988
+    second: turret_firing_v1_sheet_43
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 500
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cd0c37881f2eba210800000000000000
+      internalID: 1345418440704508124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_1
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 47c747b4439e02b30800000000000000
+      internalID: 4260661658305985652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_2
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a02b536bbb7deb10800000000000000
+      internalID: 2012400653260497063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_3
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 4600
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5b5e629acdf4dcb0800000000000000
+      internalID: -4839964653034513570
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce9e58a6683f82070800000000000000
+      internalID: 8081977289954683372
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_5
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8dd296c48be5f4b60800000000000000
+      internalID: 7732503230867385816
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_6
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 796dbc5dc84d40e40800000000000000
+      internalID: 5621851936212637335
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_7
+      rect:
+        serializedVersion: 2
+        x: 6900
+        y: 2300
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 73ebe71d44418b7d0800000000000000
+      internalID: -2902547674035208649
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 072c03f16a52c5a40800000000000000
+      internalID: 5358199052082135664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_9
+      rect:
+        serializedVersion: 2
+        x: 2300
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 98867206cb7ec46e0800000000000000
+      internalID: -1851850550503053175
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: turret_firing_v1_sheet_10
+      rect:
+        serializedVersion: 2
+        x: 4600
+        y: 0
+        width: 2300
+        height: 2300
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c86983f0b4c659760800000000000000
+      internalID: 7463991027070178956
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 2962c547621e74d42b3b63d7c808ba2b
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":false,"gridCellCount":{"x":4.0,"y":3.0},"gridSpriteSize":{"x":2300.0,"y":2300.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":2,"keepEmptyRects":false,"isAlternate":false}'
+    nameFileIdTable:
+      turret_firing_v1_sheet_0: 1345418440704508124
+      turret_firing_v1_sheet_1: 4260661658305985652
+      turret_firing_v1_sheet_10: 7463991027070178956
+      turret_firing_v1_sheet_2: 2012400653260497063
+      turret_firing_v1_sheet_3: -4839964653034513570
+      turret_firing_v1_sheet_4: 8081977289954683372
+      turret_firing_v1_sheet_5: 7732503230867385816
+      turret_firing_v1_sheet_6: 5621851936212637335
+      turret_firing_v1_sheet_7: -2902547674035208649
+      turret_firing_v1_sheet_8: 5358199052082135664
+      turret_firing_v1_sheet_9: -1851850550503053175
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
